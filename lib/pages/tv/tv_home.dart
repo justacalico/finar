@@ -659,6 +659,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
             _selectedRowIndex--;
             _selectedItemIndex = 0;
             _scrollToSelectedRow();
+            _scrollToSelectedItem();
           } else if (_selectedRowIndex == 0) {
             _selectedRowIndex = -1; // Nav focus
             _scrollToTop();
@@ -668,11 +669,14 @@ class _TvHomeState extends ConsumerState<TvHome> {
         case LogicalKeyboardKey.arrowDown:
           if (_selectedRowIndex == -1) {
             _selectedRowIndex = 0;
+            _selectedItemIndex = 0;
             _scrollToSelectedRow();
+            _scrollToSelectedItem();
           } else if (_selectedRowIndex < totalRows - 1) {
             _selectedRowIndex++;
             _selectedItemIndex = 0;
             _scrollToSelectedRow();
+            _scrollToSelectedItem();
           }
           break;
 
@@ -685,6 +689,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
           } else {
             if (_selectedItemIndex > 0) {
               _selectedItemIndex--;
+              _scrollToSelectedItem();
             }
           }
           break;
@@ -695,10 +700,11 @@ class _TvHomeState extends ConsumerState<TvHome> {
             if (_selectedNavIndex < _navItems.length - 1) {
               _selectedNavIndex++;
             }
-          } else {
+          } else if (_selectedRowIndex < rows.length) {
             final rowItems = rows[_selectedRowIndex].length;
             if (_selectedItemIndex < rowItems - 1) {
               _selectedItemIndex++;
+              _scrollToSelectedItem();
             }
           }
           break;
@@ -717,6 +723,22 @@ class _TvHomeState extends ConsumerState<TvHome> {
           break;
       }
     });
+  }
+
+  void _scrollToSelectedItem() {
+    if (_selectedRowIndex < 0) return;
+    
+    final controller = _rowScrollControllers[_selectedRowIndex];
+    if (controller == null || !controller.hasClients) return;
+    
+    final targetOffset = _selectedItemIndex * _itemWidth;
+    final maxScroll = controller.position.maxScrollExtent;
+    
+    controller.animateTo(
+      targetOffset.clamp(0.0, maxScroll),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _scrollToSelectedRow() {
