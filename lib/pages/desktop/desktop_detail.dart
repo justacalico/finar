@@ -656,7 +656,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           separatorBuilder: (_, _) => const SizedBox(width: 16),
           itemBuilder: (context, index) {
             final episode = episodes[index];
-            return _buildEpisodeCard(episode, serverUrl);
+            return _buildEpisodeCard(episode, serverUrl, seasonId);
           },
         ),
       ),
@@ -665,7 +665,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     );
   }
 
-  Widget _buildEpisodeCard(MediaItem episode, String serverUrl) {
+  Widget _buildEpisodeCard(MediaItem episode, String serverUrl, String seasonId) {
+    final isWatched = episode.isPlayed == true;
+    
     return GlassCard(
       width: 320,
       onTap: () => _playItem(episode),
@@ -681,15 +683,44 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppTheme.radiusMd),
                 ),
-                child: Image.network(
-                  episode.getPrimaryImageUrl(serverUrl, width: 500),
-                  width: 320,
-                  height: 120,
-                  fit: BoxFit.cover,
+                child: ColorFiltered(
+                  colorFilter: isWatched
+                      ? ColorFilter.mode(
+                          AppColors.black.withValues(alpha: 0.3),
+                          BlendMode.darken,
+                        )
+                      : const ColorFilter.mode(
+                          Colors.transparent,
+                          BlendMode.multiply,
+                        ),
+                  child: Image.network(
+                    episode.getPrimaryImageUrl(serverUrl, width: 500),
+                    width: 320,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
+              // Watched indicator
+              if (isWatched)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 16,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
               // Progress bar
-              if (episode.hasProgress)
+              if (episode.hasProgress && !isWatched)
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -703,13 +734,23 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   ),
                 ),
               // Play icon overlay
-              const Positioned.fill(
+              Positioned.fill(
                 child: Center(
                   child: Icon(
-                    Icons.play_circle_outline,
+                    isWatched ? Icons.replay : Icons.play_circle_outline,
                     size: 48,
                     color: AppColors.white,
                   ),
+                ),
+              ),
+              // Mark watched button
+              Positioned(
+                top: 8,
+                left: 8,
+                child: GlassIconButton(
+                  icon: isWatched ? Icons.visibility_off : Icons.visibility,
+                  size: 32,
+                  onPressed: () => _toggleEpisodeWatched(episode, seasonId),
                 ),
               ),
             ],
@@ -721,11 +762,25 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'E${episode.indexNumber} - ${episode.name}',
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'E${episode.indexNumber} - ${episode.name}',
+                        style: AppTextStyles.titleSmall.copyWith(
+                          color: isWatched ? AppColors.textSecondary : AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isWatched)
+                      const Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -741,6 +796,14 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           ),
         ],
       ),
+    );
+  }
+  
+  void _toggleEpisodeWatched(MediaItem episode, String seasonId) {
+    ref.read(mediaActionsProvider).markEpisodeWatched(
+      episode.id,
+      seasonId,
+      !(episode.isPlayed == true),
     );
   }
 
