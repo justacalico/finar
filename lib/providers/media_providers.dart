@@ -79,25 +79,63 @@ class LibraryContentState {
 /// Notifier for library content with pagination
 class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
   final MediaService _mediaService;
+  final JellyfinApi _api;
   final String _libraryId;
   static const int _pageSize = 50;
+  bool _isMusicLibrary = false;
 
-  LibraryContentNotifier(this._mediaService, this._libraryId)
+  LibraryContentNotifier(this._mediaService, this._api, this._libraryId)
       : super(const LibraryContentState()) {
-    _loadInitial();
+    _detectLibraryTypeAndLoad();
+  }
+
+  Future<void> _detectLibraryTypeAndLoad() async {
+    state = state.copyWith(isLoading: true, error: null);
+    
+    try {
+      // First, get the library info to check its type
+      final libraries = await _api.getLibraries();
+      final library = libraries.firstWhere(
+        (lib) => lib.id == _libraryId,
+        orElse: () => Library(id: _libraryId, name: 'Library'),
+      );
+      
+      _isMusicLibrary = library.collectionType?.toLowerCase() == 'music';
+      state = state.copyWith(isMusicLibrary: _isMusicLibrary);
+      
+      await _loadInitial();
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
   }
 
   Future<void> _loadInitial() async {
     state = state.copyWith(isLoading: true, error: null);
     
     try {
-      final result = await _mediaService.getLibraryItems(
-        _libraryId,
-        limit: _pageSize,
-        sortBy: state.sortBy,
-        sortOrder: state.sortOrder,
-        searchTerm: state.searchQuery,
-      );
+      final LibraryContent result;
+      
+      if (_isMusicLibrary) {
+        // For music libraries, load albums instead of tracks
+        result = await _mediaService.getMusicLibraryContent(
+          _libraryId,
+          limit: _pageSize,
+          sortBy: state.sortBy,
+          sortOrder: state.sortOrder,
+          searchTerm: state.searchQuery,
+        );
+      } else {
+        result = await _mediaService.getLibraryItems(
+          _libraryId,
+          limit: _pageSize,
+          sortBy: state.sortBy,
+          sortOrder: state.sortOrder,
+          searchTerm: state.searchQuery,
+        );
+      }
       
       state = state.copyWith(
         items: result.items,
@@ -119,14 +157,27 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
     state = state.copyWith(isLoading: true);
     
     try {
-      final result = await _mediaService.getLibraryItems(
-        _libraryId,
-        startIndex: state.items.length,
-        limit: _pageSize,
-        sortBy: state.sortBy,
-        sortOrder: state.sortOrder,
-        searchTerm: state.searchQuery,
-      );
+      final LibraryContent result;
+      
+      if (_isMusicLibrary) {
+        result = await _mediaService.getMusicLibraryContent(
+          _libraryId,
+          startIndex: state.items.length,
+          limit: _pageSize,
+          sortBy: state.sortBy,
+          sortOrder: state.sortOrder,
+          searchTerm: state.searchQuery,
+        );
+      } else {
+        result = await _mediaService.getLibraryItems(
+          _libraryId,
+          startIndex: state.items.length,
+          limit: _pageSize,
+          sortBy: state.sortBy,
+          sortOrder: state.sortOrder,
+          searchTerm: state.searchQuery,
+        );
+      }
       
       state = state.copyWith(
         items: [...state.items, ...result.items],
