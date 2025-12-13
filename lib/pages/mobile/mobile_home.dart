@@ -304,7 +304,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final item = items[index];
           return _buildContinueWatchingCard(item, serverUrl, index);
