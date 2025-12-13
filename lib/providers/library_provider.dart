@@ -31,6 +31,7 @@ class LibraryState {
   final String? error;
   final String searchQuery;
   final List<MediaItem> searchResults;
+  final Map<String, List<MediaItem>> libraryItems;
 
   const LibraryState({
     this.libraries = const [],
@@ -39,7 +40,16 @@ class LibraryState {
     this.error,
     this.searchQuery = '',
     this.searchResults = const [],
+    this.libraryItems = const {},
   });
+
+  // Convenience getters for home data
+  List<MediaItem> get continueWatching => homeData?.continueWatching ?? [];
+  List<MediaItem> get nextUp => homeData?.nextUp ?? [];
+  List<MediaItem> get recentlyAdded => homeData?.recentlyAdded ?? [];
+  MediaItem? get featuredItem => 
+      continueWatching.isNotEmpty ? continueWatching.first :
+      recentlyAdded.isNotEmpty ? recentlyAdded.first : null;
 
   LibraryState copyWith({
     List<Library>? libraries,
@@ -48,6 +58,7 @@ class LibraryState {
     String? error,
     String? searchQuery,
     List<MediaItem>? searchResults,
+    Map<String, List<MediaItem>>? libraryItems,
   }) {
     return LibraryState(
       libraries: libraries ?? this.libraries,
@@ -56,6 +67,7 @@ class LibraryState {
       error: error,
       searchQuery: searchQuery ?? this.searchQuery,
       searchResults: searchResults ?? this.searchResults,
+      libraryItems: libraryItems ?? this.libraryItems,
     );
   }
 }
@@ -96,7 +108,7 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
       final results = await _mediaService.search(query);
       state = state.copyWith(
         searchResults: results.all.map((h) => MediaItem(
-          id: h.id,
+          id: h.itemId,
           name: h.name,
           type: mediaTypeFromString(h.type),
           typeString: h.type,
