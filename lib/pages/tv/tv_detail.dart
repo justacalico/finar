@@ -25,10 +25,13 @@ class TvDetail extends ConsumerStatefulWidget {
 
 class _TvDetailState extends ConsumerState<TvDetail> {
   final FocusNode _focusNode = FocusNode();
+  final ScrollController _episodesScrollController = ScrollController();
   int _selectedButtonIndex = 0;
   int _selectedSeasonIndex = 0;
   int _selectedEpisodeIndex = 0;
   bool _inEpisodeSelection = false;
+
+  static const double _episodeCardHeight = 110.0; // Card height + spacing
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _episodesScrollController.dispose();
     super.dispose();
   }
 
@@ -415,6 +419,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
 
     return episodesAsync.when(
       data: (episodes) => ListView.separated(
+        controller: _episodesScrollController,
         itemCount: episodes.length,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
