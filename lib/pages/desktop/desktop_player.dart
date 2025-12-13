@@ -577,15 +577,16 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                     onTap: () =>
                         ref.read(playerProvider.notifier).setSubtitleTrack(null),
                   ),
-                  ...state.subtitleTracks
-                      ?.map((track) => _buildSettingsOption(
-                            track.displayTitle ?? 'Track ${track.index}',
-                            isSelected: state.currentSubtitleTrack == track,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .setSubtitleTrack(track),
-                          ))
-                      .toList(),
+                  if (state.subtitleTracks != null)
+                    ...state.subtitleTracks!
+                        .map((track) => _buildSettingsOption(
+                              track.displayTitle ?? 'Track ${track.index}',
+                              isSelected: state.currentSubtitleTrack == track.index,
+                              onTap: () => ref
+                                  .read(playerProvider.notifier)
+                                  .setSubtitleTrack(track.index),
+                            ))
+                        .toList(),
                 ],
               ),
 
