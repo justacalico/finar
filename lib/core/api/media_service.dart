@@ -349,12 +349,24 @@ class HomeData {
   final List<MediaItem> continueWatching;
   final List<MediaItem> nextUp;
   final List<MediaItem> recentlyAdded;
+  final List<MediaItem> recentlyReleased;
+  final List<MediaItem> topRated;
+  final List<MediaItem> recommended;
+  final List<MediaItem> favorites;
+  final List<MediaItem> recentlyAddedMovies;
+  final List<MediaItem> recentlyAddedShows;
   final List<Library> libraries;
 
   const HomeData({
     required this.continueWatching,
     required this.nextUp,
     required this.recentlyAdded,
+    required this.recentlyReleased,
+    required this.topRated,
+    required this.recommended,
+    required this.favorites,
+    required this.recentlyAddedMovies,
+    required this.recentlyAddedShows,
     required this.libraries,
   });
 }
