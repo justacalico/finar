@@ -485,7 +485,7 @@ class CardRow extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: padding,
             itemCount: cards.length,
-            separatorBuilder: (_, __) => SizedBox(width: spacing),
+            separatorBuilder: (_, _) => SizedBox(width: spacing),
             itemBuilder: (context, index) => SizedBox(
               width: 130,
               child: cards[index],
