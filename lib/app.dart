@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/platform_detector.dart';
 import 'providers/providers.dart';
-import 'providers/settings_provider.dart';
 import 'pages/desktop/desktop_home.dart';
 import 'pages/mobile/mobile_home.dart';
 import 'pages/tv/tv_home.dart';
