@@ -110,12 +110,6 @@ class PlayerState {
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
     );
   }
-      chapters: chapters ?? this.chapters,
-      currentSubtitleTrack: currentSubtitleTrack ?? this.currentSubtitleTrack,
-      availableQualities: availableQualities ?? this.availableQualities,
-      currentQuality: currentQuality ?? this.currentQuality,
-    );
-  }
 
   double get progress {
     if (duration.inMilliseconds == 0) return 0;
