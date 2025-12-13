@@ -210,8 +210,8 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     _buildMetadataChip(item.productionYear.toString()),
                   if (item.officialRating != null)
                     _buildMetadataChip(item.officialRating!),
-                  if (item.formattedRuntime != null)
-                    _buildMetadataChip(item.formattedRuntime!),
+                  if (item.formattedRuntime.isNotEmpty)
+                    _buildMetadataChip(item.formattedRuntime),
                 ],
               ),
               const SizedBox(height: 8),
