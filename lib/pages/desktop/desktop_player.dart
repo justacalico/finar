@@ -539,14 +539,13 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               _buildSettingsSection(
                 'Quality',
                 state.availableQualities
-                        ?.map((q) => _buildSettingsOption(
-                              q,
-                              isSelected: state.currentQuality == q,
-                              onTap: () =>
-                                  ref.read(playerProvider.notifier).setQuality(q),
-                            ))
-                        .toList() ??
-                    [_buildSettingsOption('Auto', isSelected: true)],
+                    .map((q) => _buildSettingsOption(
+                          q,
+                          isSelected: state.currentQuality == q,
+                          onTap: () =>
+                              ref.read(playerProvider.notifier).setQuality(q),
+                        ))
+                    .toList(),
               ),
 
               const SizedBox(height: 16),
