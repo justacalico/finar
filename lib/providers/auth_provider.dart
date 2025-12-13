@@ -142,9 +142,9 @@ abstract class AuthState {
   const factory AuthState.authenticated({required User user}) = _AuthAuthenticated;
   const factory AuthState.error(String message) = _AuthError;
 
-  bool get isLoading => this is _AuthLoading;
+  bool get isLoading => this is _AuthLoading || this is _AuthInitial;
   bool get isAuthenticated => this is _AuthAuthenticated;
-  bool get isUnauthenticated => this is _AuthUnauthenticated || this is _AuthInitial;
+  bool get isUnauthenticated => this is _AuthUnauthenticated;
   bool get isServerConnected => this is _AuthServerConnected;
   bool get hasError => this is _AuthError;
 
