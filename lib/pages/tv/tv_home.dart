@@ -87,7 +87,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
           Image.network(
             item.getBackdropImageUrl(serverUrl, width: 1920),
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) =>
+            errorBuilder: (_, _, ___) =>
                 Container(color: AppColors.background),
           ),
           Container(
