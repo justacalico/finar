@@ -425,6 +425,37 @@ class MediaItem {
         type == MediaType.boxSet ||
         type == MediaType.playlist;
   }
+
+  /// Check if item has progress (partially watched)
+  bool get hasProgress {
+    final position = userData?.playbackPositionTicks ?? playbackPositionTicks ?? 0;
+    return position > 0 && (isPlayed != true);
+  }
+
+  /// Get progress percentage (0.0 - 1.0)
+  double get progressPercent {
+    return playbackProgress;
+  }
+
+  /// Get backdrop image URL with width parameter
+  String getBackdropImageUrl(String baseUrl, {int? width, int? quality}) {
+    return getBackdropUrl(baseUrl, width: width, quality: quality);
+  }
+
+  /// Get logo image tag
+  String? get logoImageTag => imageTags?.logo;
+
+  /// Check if item has a trailer (simplified - Jellyfin doesn't always provide this)
+  bool get hasTrailer {
+    // Note: This would require checking LocalTrailerCount from the API
+    return false;
+  }
+
+  /// Get taglines (from overview or empty)
+  List<String>? get taglines => null;
+
+  /// Get studios (would require additional API field)
+  List<String>? get studios => null;
 }
 
 @HiveType(typeId: 5)
