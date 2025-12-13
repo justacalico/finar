@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/jellyfin_api.dart';
 import '../core/api/media_service.dart';
@@ -102,7 +103,9 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
       
       // Check for music library - Jellyfin uses "music" as the collection type
       _isMusicLibrary = library.collectionType?.toLowerCase() == 'music';
-      print('Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary');
+      if (kDebugMode) {
+        print('Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary');
+      }
       state = state.copyWith(isMusicLibrary: _isMusicLibrary);
       
       await _loadInitial();
