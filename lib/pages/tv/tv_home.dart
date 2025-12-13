@@ -513,7 +513,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
                     width: width,
                     height: height,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       width: width,
                       height: height,
                       color: AppColors.surface,
