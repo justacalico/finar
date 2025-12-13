@@ -106,7 +106,7 @@ class GradientBlurBackdrop extends StatelessWidget {
               child: Image.network(
                 imageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   color: AppColors.background,
                 ),
               ),
