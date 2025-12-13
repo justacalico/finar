@@ -352,6 +352,36 @@ class MediaService {
     return await _api.getSimilarItems(itemId, limit: limit);
   }
 
+  /// Get album tracks
+  Future<List<MediaItem>> getAlbumTracks(String albumId) async {
+    return await _api.getAlbumTracks(albumId);
+  }
+
+  /// Get library content (albums for music, regular items otherwise)
+  Future<LibraryContent> getMusicLibraryContent(
+    String libraryId, {
+    int startIndex = 0,
+    int limit = 50,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    final result = await _api.getAlbums(
+      parentId: libraryId,
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      searchTerm: searchTerm,
+    );
+
+    return LibraryContent(
+      items: result.items,
+      totalCount: result.totalCount,
+      hasMore: result.startIndex + result.items.length < result.totalCount,
+    );
+  }
+
   /// Server URL
   String? get serverUrl => _api.serverUrl;
 }
