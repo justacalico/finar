@@ -10,6 +10,7 @@ import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'mobile_library.dart';
 import 'mobile_detail.dart';
+import 'mobile_settings.dart';
 
 class MobileHome extends ConsumerStatefulWidget {
   const MobileHome({super.key});
@@ -1100,8 +1101,9 @@ class _DownloadListTile extends StatelessWidget {
 
 class _UserMenuSheet extends StatelessWidget {
   final VoidCallback onLogout;
+  final VoidCallback onSettings;
 
-  const _UserMenuSheet({required this.onLogout});
+  const _UserMenuSheet({required this.onLogout, required this.onSettings});
 
   @override
   Widget build(BuildContext context) {
@@ -1131,7 +1133,10 @@ class _UserMenuSheet extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.settings_outlined),
             title: const Text('Settings'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              onSettings();
+            },
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: AppColors.error),
