@@ -512,7 +512,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
           ),
         ),
         SizedBox(
-          height: showProgress ? 180 : 220,
+          height: showProgress ? 180 : 280,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             scrollDirection: Axis.horizontal,
