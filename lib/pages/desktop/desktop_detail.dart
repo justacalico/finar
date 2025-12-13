@@ -892,6 +892,135 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     ).animate().fadeIn(delay: 600.ms);
   }
 
+  Widget _buildDownloadButton(MediaItem item) {
+    final downloadState = ref.watch(downloadProvider);
+    final existingDownload = downloadState.getTaskForItem(item.id);
+
+    if (existingDownload != null) {
+      switch (existingDownload.status) {
+        case DownloadStatus.downloading:
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              GlassIconButton(
+                icon: Icons.downloading,
+                onPressed: () => _pauseDownload(existingDownload.id),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: CircularProgressIndicator(
+                    value: existingDownload.progress,
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          );
+        case DownloadStatus.paused:
+          return GlassIconButton(
+            icon: Icons.pause_circle_outline,
+            iconColor: AppColors.warning,
+            onPressed: () => _resumeDownload(existingDownload.id),
+          );
+        case DownloadStatus.completed:
+          return GlassIconButton(
+            icon: Icons.download_done,
+            iconColor: AppColors.success,
+            onPressed: () => _showDownloadOptions(existingDownload.id),
+          );
+        case DownloadStatus.failed:
+          return GlassIconButton(
+            icon: Icons.error_outline,
+            iconColor: AppColors.error,
+            onPressed: () => _downloadItem(item),
+          );
+        case DownloadStatus.pending:
+          return GlassIconButton(
+            icon: Icons.hourglass_empty,
+            onPressed: () => _cancelDownload(existingDownload.id),
+          );
+        case DownloadStatus.cancelled:
+          return GlassIconButton(
+            icon: Icons.download_outlined,
+            onPressed: () => _downloadItem(item),
+          );
+      }
+    }
+
+    return GlassIconButton(
+      icon: Icons.download_outlined,
+      onPressed: () => _downloadItem(item),
+    );
+  }
+
+  Future<void> _downloadItem(MediaItem item) async {
+    try {
+      await ref.read(downloadProvider.notifier).downloadItem(item);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Starting download: ${item.name}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start download: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  void _pauseDownload(String taskId) {
+    ref.read(downloadProvider.notifier).pauseDownload(taskId);
+  }
+
+  void _resumeDownload(String taskId) {
+    ref.read(downloadProvider.notifier).resumeDownload(taskId);
+  }
+
+  void _cancelDownload(String taskId) {
+    ref.read(downloadProvider.notifier).cancelDownload(taskId);
+  }
+
+  void _showDownloadOptions(String taskId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Download Options'),
+        content: const Text('This item has been downloaded. What would you like to do?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(downloadProvider.notifier).deleteDownload(taskId);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Download removed'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text('Remove Download', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _playItem(MediaItem item) {
     ref.read(playerProvider.notifier).play(item);
     Navigator.of(context).push(
