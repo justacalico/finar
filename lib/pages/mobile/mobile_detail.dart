@@ -535,9 +535,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 4),
-                if (episode.formattedRuntime != null)
+                if (episode.formattedRuntime.isNotEmpty)
                   Text(
-                    episode.formattedRuntime!,
+                    episode.formattedRuntime,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.textTertiary,
                     ),
