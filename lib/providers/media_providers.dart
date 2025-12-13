@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/jellyfin_api.dart';
 import '../core/api/media_service.dart';
 import '../core/api/models/media_item.dart';
+import '../core/api/models/library.dart';
 import 'auth_provider.dart';
 import 'library_provider.dart';
 
@@ -11,11 +12,18 @@ final mediaItemDetailProvider = FutureProvider.family<MediaItem, String>((ref, i
   return mediaService.getItemDetails(itemId);
 });
 
+/// Provider for album tracks
+final albumTracksProvider = FutureProvider.family<List<MediaItem>, String>((ref, albumId) async {
+  final mediaService = ref.watch(mediaServiceProvider);
+  return mediaService.getAlbumTracks(albumId);
+});
+
 /// Provider for library content with pagination
 final libraryContentProvider = StateNotifierProvider.family<LibraryContentNotifier, LibraryContentState, String>(
   (ref, libraryId) {
     final mediaService = ref.watch(mediaServiceProvider);
-    return LibraryContentNotifier(mediaService, libraryId);
+    final api = ref.watch(jellyfinApiProvider);
+    return LibraryContentNotifier(mediaService, api, libraryId);
   },
 );
 
@@ -29,6 +37,7 @@ class LibraryContentState {
   final String sortBy;
   final String sortOrder;
   final String? searchQuery;
+  final bool isMusicLibrary;
 
   const LibraryContentState({
     this.items = const [],
@@ -39,6 +48,7 @@ class LibraryContentState {
     this.sortBy = 'SortName',
     this.sortOrder = 'Ascending',
     this.searchQuery,
+    this.isMusicLibrary = false,
   });
 
   LibraryContentState copyWith({
@@ -50,6 +60,7 @@ class LibraryContentState {
     String? sortBy,
     String? sortOrder,
     String? searchQuery,
+    bool? isMusicLibrary,
   }) {
     return LibraryContentState(
       items: items ?? this.items,
@@ -60,6 +71,7 @@ class LibraryContentState {
       sortBy: sortBy ?? this.sortBy,
       sortOrder: sortOrder ?? this.sortOrder,
       searchQuery: searchQuery ?? this.searchQuery,
+      isMusicLibrary: isMusicLibrary ?? this.isMusicLibrary,
     );
   }
 }
