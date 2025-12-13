@@ -665,13 +665,14 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
             Consumer(
               builder: (context, ref, _) {
                 final authState = ref.watch(authProvider);
+                final serverUrl = ref.read(authProvider.notifier).serverUrl;
                 return Column(
                   children: [
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text('Connected Server', style: AppTextStyles.bodyLarge),
                       subtitle: Text(
-                        authState.serverUrl ?? 'Not connected',
+                        serverUrl ?? 'Not connected',
                         style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
                       ),
                     ),
