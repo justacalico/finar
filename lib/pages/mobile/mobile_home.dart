@@ -918,7 +918,7 @@ class _DownloadListTile extends StatelessWidget {
                       width: 56,
                       height: 80,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
+                      placeholder: (_, _) => Container(
                         width: 56,
                         height: 80,
                         color: AppColors.surfaceElevated,
