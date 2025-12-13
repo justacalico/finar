@@ -741,7 +741,6 @@ class JellyfinApi {
   }
 
   // Getters
-  String? get serverUrl => _serverUrl;
   String? get userId => _userId;
   String? get accessToken => _accessToken;
   String get deviceId => _deviceId;
