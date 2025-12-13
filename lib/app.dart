@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/platform_detector.dart';
 import 'providers/providers.dart';
+import 'providers/settings_provider.dart';
 import 'pages/desktop/desktop_home.dart';
 import 'pages/mobile/mobile_home.dart';
 import 'pages/tv/tv_home.dart';
@@ -57,6 +58,7 @@ class _AppRouter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final forcedUiMode = ref.watch(forcedUiModeProvider);
 
     // Show loading while checking auth
     if (authState.isLoading) {
@@ -68,13 +70,27 @@ class _AppRouter extends ConsumerWidget {
       return const _LoginPage();
     }
 
-    // Show appropriate UI based on platform
-    if (PlatformDetector.isTV) {
-      return const TvHome();
-    } else if (PlatformDetector.isDesktop) {
-      return const DesktopHome();
-    } else {
-      return const MobileHome();
+    // Show appropriate UI based on forced mode or platform
+    return _buildHomeForUiMode(forcedUiMode);
+  }
+
+  Widget _buildHomeForUiMode(UiMode mode) {
+    switch (mode) {
+      case UiMode.desktop:
+        return const DesktopHome();
+      case UiMode.mobile:
+        return const MobileHome();
+      case UiMode.tv:
+        return const TvHome();
+      case UiMode.auto:
+        // Use platform detection
+        if (PlatformDetector.isTV) {
+          return const TvHome();
+        } else if (PlatformDetector.isDesktop) {
+          return const DesktopHome();
+        } else {
+          return const MobileHome();
+        }
     }
   }
 }
