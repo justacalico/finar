@@ -526,10 +526,10 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                 children: state.audioTracks
                         ?.map((track) => _buildSettingOption(
                               track.displayTitle ?? 'Track ${track.index}',
-                              isSelected: state.currentAudioTrack == track,
+                              isSelected: state.currentAudioTrack == track.index,
                               onTap: () => ref
                                   .read(playerProvider.notifier)
-                                  .setAudioTrack(track),
+                                  .setAudioTrack(track.index),
                             ))
                         .toList() ??
                     [],
