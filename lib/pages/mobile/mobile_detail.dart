@@ -565,7 +565,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: people.length.clamp(0, 10),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final person = people[index];
                 return _buildPersonCard(person, serverUrl);
