@@ -34,7 +34,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = const AuthState.unauthenticated();
       }
     } catch (e) {
-      state = AuthState.error(e.toString());
+      // If restore fails, just show login screen instead of error
+      state = const AuthState.unauthenticated();
     }
   }
 
