@@ -646,17 +646,21 @@ class _TvHomeState extends ConsumerState<TvHome> {
           if (_selectedRowIndex > 0) {
             _selectedRowIndex--;
             _selectedItemIndex = 0;
+            _scrollToSelectedRow();
           } else if (_selectedRowIndex == 0) {
             _selectedRowIndex = -1; // Nav focus
+            _scrollToTop();
           }
           break;
 
         case LogicalKeyboardKey.arrowDown:
           if (_selectedRowIndex == -1) {
             _selectedRowIndex = 0;
+            _scrollToSelectedRow();
           } else if (_selectedRowIndex < totalRows - 1) {
             _selectedRowIndex++;
             _selectedItemIndex = 0;
+            _scrollToSelectedRow();
           }
           break;
 
@@ -696,10 +700,47 @@ class _TvHomeState extends ConsumerState<TvHome> {
         case LogicalKeyboardKey.escape:
           if (_selectedRowIndex >= 0) {
             _selectedRowIndex = -1;
+            _scrollToTop();
           }
           break;
       }
     });
+  }
+
+  void _scrollToSelectedRow() {
+    if (_selectedRowIndex < 0) return;
+    
+    // Calculate approximate scroll position
+    double targetOffset = 0;
+    
+    // First row might be hero (taller)
+    if (_selectedRowIndex == 0) {
+      targetOffset = 0;
+    } else {
+      // Hero row + subsequent media rows
+      targetOffset = _heroRowHeight + _rowSpacing;
+      for (int i = 1; i < _selectedRowIndex; i++) {
+        targetOffset += _mediaRowHeight + _rowSpacing;
+      }
+    }
+    
+    // Ensure we don't scroll past the max
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    targetOffset = targetOffset.clamp(0.0, maxScroll);
+    
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   List<List<dynamic>> _buildRowData(LibraryState state) {
