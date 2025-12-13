@@ -369,6 +369,11 @@ class MediaItem {
       'Chapters': chapters?.map((e) => e.toJson()).toList(),
       'ParentId': parentId,
       'MediaSources': mediaSources?.map((e) => e.toJson()).toList(),
+      // Music-specific fields
+      'AlbumArtist': albumArtist,
+      'Artists': artists,
+      'Album': album,
+      'AlbumId': albumId,
     };
   }
 
