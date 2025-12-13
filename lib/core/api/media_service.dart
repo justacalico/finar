@@ -60,6 +60,7 @@ class MediaService {
       genres: genres?.join(','),
       years: years?.join(','),
       searchTerm: searchTerm,
+      excludeItemTypes: ['Folder', 'CollectionFolder', 'UserView', 'Playlist'],
     );
 
     return LibraryContent(
