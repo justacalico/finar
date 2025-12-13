@@ -100,7 +100,7 @@ class DownloadTask extends HiveObject {
       itemId: item.id,
       itemName: item.name,
       itemType: item.typeString,
-      primaryImageTag: item.primaryImageTag,
+      primaryImageTag: item.imageTags?.primary,
       serverUrl: serverUrl,
     );
   }
