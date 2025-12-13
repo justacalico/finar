@@ -216,7 +216,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
                 imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
                 fit: BoxFit.cover,
                 placeholder: (_, _) => const ShimmerLoading(),
-                errorWidget: (_, _, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: AppColors.surface,
                   child: const Icon(Icons.movie, size: 48),
                 ),
