@@ -322,7 +322,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         // Favorite button
         Consumer(
           builder: (context, ref, _) {
-            final isFavorite = item.isFavorite;
+            final isFavorite = item.isFavorite == true;
             return GlassIconButton(
               icon: isFavorite ? Icons.favorite : Icons.favorite_border,
               iconColor: isFavorite ? AppColors.accentRed : null,
@@ -335,8 +335,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
         // Mark watched button
         GlassIconButton(
-          icon: item.isPlayed ? Icons.check_circle : Icons.check_circle_outline,
-          iconColor: item.isPlayed ? AppColors.primary : null,
+          icon: (item.isPlayed == true) ? Icons.check_circle : Icons.check_circle_outline,
+          iconColor: (item.isPlayed == true) ? AppColors.primary : null,
           onPressed: () => _toggleWatched(item),
         ),
 
