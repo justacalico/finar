@@ -300,7 +300,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
                 width: 80,
                 height: 120,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, ___) => Container(
                   width: 80,
                   height: 120,
                   color: AppColors.surface,
