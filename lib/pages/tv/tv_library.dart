@@ -24,7 +24,7 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   int _selectedIndex = 0;
-  int _columns = 7;
+  final int _columns = 7;
 
   @override
   void initState() {
