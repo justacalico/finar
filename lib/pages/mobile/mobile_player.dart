@@ -500,7 +500,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: (state.availableQualities ?? ['Auto'])
+                children: state.availableQualities
                     .map((q) => _buildSettingOption(
                           q,
                           isSelected: state.currentQuality == q,
