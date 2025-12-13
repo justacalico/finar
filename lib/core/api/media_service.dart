@@ -299,7 +299,48 @@ class MediaService {
     );
   }
 
-  /// Get server URL
+  /// Get item details
+  Future<MediaItem> getItemDetails(String itemId) async {
+    return await _api.getItem(itemId);
+  }
+
+  /// Get library items with pagination (wrapper for getLibraryContent)
+  Future<LibraryContent> getLibraryItems(
+    String libraryId, {
+    int startIndex = 0,
+    int limit = 50,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    return await getLibraryContent(
+      libraryId,
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      searchTerm: searchTerm,
+    );
+  }
+
+  /// Get seasons for a series
+  Future<List<MediaItem>> getSeasons(String seriesId) async {
+    return await _api.getSeasons(seriesId);
+  }
+
+  /// Get episodes for a season
+  Future<List<MediaItem>> getEpisodes(String seasonId) async {
+    // Note: The Jellyfin API needs seriesId too, but we can get it from the season
+    // For now, we pass seasonId as both seriesId and seasonId - the API will filter by seasonId
+    return await _api.getEpisodes(seasonId, seasonId: seasonId);
+  }
+
+  /// Get similar items
+  Future<List<MediaItem>> getSimilarItems(String itemId, {int limit = 12}) async {
+    return await _api.getSimilarItems(itemId, limit: limit);
+  }
+
+  /// Server URL
   String? get serverUrl => _api.serverUrl;
 }
 
