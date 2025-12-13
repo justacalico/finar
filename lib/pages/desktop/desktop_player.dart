@@ -586,7 +586,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                                   .read(playerProvider.notifier)
                                   .setSubtitleTrack(track.index),
                             ))
-                        .toList(),
+                        ,
                 ],
               ),
 
