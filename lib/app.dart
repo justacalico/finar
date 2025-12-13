@@ -137,15 +137,25 @@ class _LoginPageState extends ConsumerState<_LoginPage> {
     });
 
     try {
-      await ref.read(authProvider.notifier).login(
+      final success = await ref.read(authProvider.notifier).login(
             serverUrl: _serverController.text.trim(),
             username: _usernameController.text.trim(),
             password: _passwordController.text,
           );
+      
+      if (!success && mounted) {
+        // Get error from auth state
+        final authState = ref.read(authProvider);
+        setState(() {
+          _error = authState.errorMessage ?? 'Login failed';
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+        });
+      }
     } finally {
       if (mounted) {
         setState(() {
