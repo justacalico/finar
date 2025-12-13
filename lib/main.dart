@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:media_kit/media_kit.dart';
+import 'core/api/models/user.dart';
+import 'core/api/models/media_item.dart';
+import 'core/api/models/library.dart';
+import 'app.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  // Initialize Hive for local storage
+  await Hive.initFlutter();
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
-    );
-  }
+  // Register Hive adapters
+  Hive.registerAdapter(UserAdapter());
+  Hive.registerAdapter(MediaItemAdapter());
+  Hive.registerAdapter(MediaTypeAdapter());
+  Hive.registerAdapter(LibraryAdapter());
+  Hive.registerAdapter(ImageDataAdapter());
+  Hive.registerAdapter(ChapterInfoAdapter());
+  Hive.registerAdapter(PersonInfoAdapter());
+
+  // Open Hive boxes
+  await Hive.openBox<User>('users');
+  await Hive.openBox<MediaItem>('media_cache');
+  await Hive.openBox<Library>('libraries');
+  await Hive.openBox('settings');
+  await Hive.openBox('playback_state');
+
+  // Initialize media_kit
+  MediaKit.ensureInitialized();
+
+  runApp(
+    const ProviderScope(
+      child: FinarApp(),
+    ),
+  );
 }
