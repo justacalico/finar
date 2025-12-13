@@ -73,6 +73,12 @@ class JellyfinApi {
     return parts.join(', ');
   }
 
+  /// Get the auth header for external use (e.g., downloads)
+  String get authHeader => _buildAuthHeader();
+
+  /// Get the server URL
+  String? get serverUrl => _serverUrl;
+
   /// Configure server URL
   void setServerUrl(String url) {
     _serverUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
