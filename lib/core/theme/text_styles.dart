@@ -164,6 +164,7 @@ class AppTextStyles {
     letterSpacing: -0.5,
     color: AppColors.textPrimary,
     height: 1.1,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle subtitle = TextStyle(
@@ -173,6 +174,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textSecondary,
     height: 1.4,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle caption = TextStyle(
@@ -182,6 +184,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textTertiary,
     height: 1.38,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle button = TextStyle(
@@ -191,6 +194,7 @@ class AppTextStyles {
     letterSpacing: -0.41,
     color: AppColors.textPrimary,
     height: 1.3,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle buttonSmall = TextStyle(
@@ -200,6 +204,7 @@ class AppTextStyles {
     letterSpacing: -0.24,
     color: AppColors.textPrimary,
     height: 1.33,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle buttonLarge = TextStyle(
@@ -209,6 +214,7 @@ class AppTextStyles {
     letterSpacing: -0.5,
     color: AppColors.textPrimary,
     height: 1.25,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle badge = TextStyle(
@@ -218,6 +224,7 @@ class AppTextStyles {
     letterSpacing: 0.5,
     color: AppColors.textPrimary,
     height: 1.2,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle rating = TextStyle(
@@ -227,6 +234,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.accentYellow,
     height: 1.2,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle metadata = TextStyle(
@@ -236,6 +244,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textSecondary,
     height: 1.38,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle playerTime = TextStyle(
@@ -246,6 +255,7 @@ class AppTextStyles {
     color: AppColors.textPrimary,
     height: 1.2,
     fontFeatures: [FontFeature.tabularFigures()],
+    decoration: TextDecoration.none,
   );
 
   // Helper methods
