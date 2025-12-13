@@ -247,6 +247,12 @@ class _TvDetailState extends ConsumerState<TvDetail> {
   }
 
   Widget _buildActionButtons(MediaItem item) {
+    final downloadState = ref.watch(downloadProvider);
+    final existingDownload = downloadState.getTaskForItem(item.id);
+    
+    final downloadIcon = _getDownloadIcon(existingDownload);
+    final downloadLabel = _getDownloadLabel(existingDownload);
+
     final buttons = [
       _ActionButton(
         icon: Icons.play_arrow,
@@ -269,6 +275,11 @@ class _TvDetailState extends ConsumerState<TvDetail> {
         icon: item.isPlayed == true ? Icons.check_circle : Icons.check_circle_outline,
         label: 'Watched',
         onPressed: () => _toggleWatched(item),
+      ),
+      _ActionButton(
+        icon: downloadIcon,
+        label: downloadLabel,
+        onPressed: () => _handleDownloadAction(item, existingDownload),
       ),
     ];
 
