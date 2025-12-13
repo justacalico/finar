@@ -640,7 +640,6 @@ class _MobileLibraryBrowser extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final libraries = ref.watch(libraryProvider).libraries;
-    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
     return SafeArea(
       child: CustomScrollView(
