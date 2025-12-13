@@ -86,8 +86,8 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                 CachedNetworkImage(
                   imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(color: AppColors.surface),
-                  errorWidget: (_, __, ___) =>
+                  placeholder: (_, _) => Container(color: AppColors.surface),
+                  errorWidget: (_, _, _) =>
                       Container(color: AppColors.surface),
                 ),
                 // Gradient overlay
