@@ -109,7 +109,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           Image.network(
             item.getBackdropImageUrl(serverUrl, width: 1920),
             fit: BoxFit.cover,
-            errorBuilder: (_, _, ___) => Container(color: AppColors.background),
+            errorBuilder: (_, _, _) => Container(color: AppColors.background),
           ),
 
           // Gradient overlay
