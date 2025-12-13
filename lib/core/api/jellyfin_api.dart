@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'models/user.dart';
 import 'models/media_item.dart';
@@ -41,7 +42,9 @@ class JellyfinApi {
       },
       onError: (error, handler) {
         // Log errors in debug mode
-        print('Jellyfin API Error: ${error.message}');
+        if (kDebugMode) {
+          print('Jellyfin API Error: ${error.message}');
+        }
         return handler.next(error);
       },
     ));
