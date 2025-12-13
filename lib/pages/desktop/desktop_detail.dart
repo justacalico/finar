@@ -544,7 +544,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
     return episodesAsync.when(
       data: (episodes) => SizedBox(
-        height: 200,
+        height: 220,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: episodes.length,
@@ -555,7 +555,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           },
         ),
       ),
-      loading: () => const _LoadingShimmer(height: 200),
+      loading: () => const _LoadingShimmer(height: 220),
       error: (error, _) => Text('Error loading episodes: $error'),
     );
   }
@@ -567,6 +567,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Thumbnail
           Stack(
