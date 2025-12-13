@@ -242,6 +242,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     await _player.seek(position);
   }
 
+  /// Seek to position (alias for compatibility)
+  Future<void> seekTo(Duration position) async {
+    await _player.seek(position);
+  }
+
   /// Seek relative
   Future<void> seekRelative(Duration offset) async {
     final newPosition = state.position + offset;
@@ -266,8 +271,14 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Set subtitle track
   Future<void> setSubtitleTrack(int? index) async {
-    state = state.copyWith(subtitleTrackIndex: index);
+    state = state.copyWith(subtitleTrackIndex: index, currentSubtitleTrack: index);
     // In a real implementation, you'd need to handle subtitle loading
+  }
+
+  /// Set quality
+  Future<void> setQuality(String quality) async {
+    state = state.copyWith(currentQuality: quality);
+    // In a real implementation, you'd reload the stream with different bitrate/resolution
   }
 
   /// Play next item
