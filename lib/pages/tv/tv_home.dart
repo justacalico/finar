@@ -21,9 +21,15 @@ class TvHome extends ConsumerStatefulWidget {
 
 class _TvHomeState extends ConsumerState<TvHome> {
   final FocusNode _focusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   int _selectedNavIndex = 0;
   int _selectedRowIndex = 0;
   int _selectedItemIndex = 0;
+
+  // Approximate row heights for scrolling
+  static const double _heroRowHeight = 400.0;
+  static const double _mediaRowHeight = 340.0;
+  static const double _rowSpacing = 32.0;
 
   final List<String> _navItems = ['Home', 'Movies', 'TV Shows', 'Downloads', 'Search', 'Settings'];
 
@@ -44,6 +50,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
