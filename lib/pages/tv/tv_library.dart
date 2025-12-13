@@ -45,19 +45,32 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
   Widget build(BuildContext context) {
     final libraryContent = ref.watch(libraryContentProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    
+    // Get currently selected item for background
+    dynamic selectedItem;
+    if (_selectedIndex >= 0 && _selectedIndex < libraryContent.items.length) {
+      selectedItem = libraryContent.items[_selectedIndex];
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: KeyboardListener(
         focusNode: _focusNode,
         onKeyEvent: (event) => _handleKeyEvent(event, libraryContent),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // Header
-            _buildHeader(libraryContent),
+            // Dynamic background
+            if (selectedItem != null)
+              _buildBackground(selectedItem, serverUrl),
+            
+            // Content
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                _buildHeader(libraryContent),
 
-            // Grid
+                // Grid
             Expanded(
               child: libraryContent.items.isEmpty && libraryContent.isLoading
                   ? _buildLoadingGrid()
