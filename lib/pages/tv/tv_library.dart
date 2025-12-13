@@ -71,10 +71,44 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
                 _buildHeader(libraryContent),
 
                 // Grid
-            Expanded(
-              child: libraryContent.items.isEmpty && libraryContent.isLoading
-                  ? _buildLoadingGrid()
-                  : _buildGrid(libraryContent, serverUrl),
+                Expanded(
+                  child: libraryContent.items.isEmpty && libraryContent.isLoading
+                      ? _buildLoadingGrid()
+                      : _buildGrid(libraryContent, serverUrl),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackground(dynamic item, String serverUrl) {
+    return Positioned.fill(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        child: Stack(
+          key: ValueKey(item.id),
+          fit: StackFit.expand,
+          children: [
+            Image.network(
+              item.getBackdropImageUrl(serverUrl, width: 1920),
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(color: AppColors.background),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.background.withValues(alpha: 0.3),
+                    AppColors.background.withValues(alpha: 0.7),
+                    AppColors.background,
+                  ],
+                ),
+              ),
             ),
           ],
         ),
