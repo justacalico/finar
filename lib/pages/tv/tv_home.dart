@@ -746,17 +746,36 @@ class _TvHomeState extends ConsumerState<TvHome> {
   List<List<dynamic>> _buildRowData(LibraryState state) {
     final rows = <List<dynamic>>[];
 
+    // Must match the exact same order as _buildRows!
     if (state.featuredItem != null) {
       rows.add([state.featuredItem]);
     }
     if (state.continueWatching.isNotEmpty) {
       rows.add(state.continueWatching);
     }
+    if (state.nextUp.isNotEmpty) {
+      rows.add(state.nextUp);
+    }
     if (state.recentlyAdded.isNotEmpty) {
       rows.add(state.recentlyAdded);
     }
-    if (state.nextUp.isNotEmpty) {
-      rows.add(state.nextUp);
+    if (state.recentlyReleased.isNotEmpty) {
+      rows.add(state.recentlyReleased);
+    }
+    if (state.recentlyAddedMovies.isNotEmpty) {
+      rows.add(state.recentlyAddedMovies);
+    }
+    if (state.recentlyAddedShows.isNotEmpty) {
+      rows.add(state.recentlyAddedShows);
+    }
+    if (state.recommended.isNotEmpty) {
+      rows.add(state.recommended);
+    }
+    if (state.topRated.isNotEmpty) {
+      rows.add(state.topRated);
+    }
+    if (state.favorites.isNotEmpty) {
+      rows.add(state.favorites);
     }
     for (final library in state.libraries) {
       if (state.libraryItems[library.id]?.isNotEmpty == true) {
