@@ -217,9 +217,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               style: AppTextStyles.labelMedium,
             ),
           ),
-        if (item.formattedRuntime != null)
+        if (item.formattedRuntime.isNotEmpty)
           Text(
-            item.formattedRuntime!,
+            item.formattedRuntime,
             style: AppTextStyles.titleMedium,
           ),
         if (item.communityRating != null)
@@ -260,12 +260,12 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           onPressed: () {},
         ),
       _ActionButton(
-        icon: item.isFavorite ? Icons.favorite : Icons.favorite_border,
+        icon: item.isFavorite == true ? Icons.favorite : Icons.favorite_border,
         label: 'Favorite',
         onPressed: () => _toggleFavorite(item),
       ),
       _ActionButton(
-        icon: item.isPlayed ? Icons.check_circle : Icons.check_circle_outline,
+        icon: item.isPlayed == true ? Icons.check_circle : Icons.check_circle_outline,
         label: 'Watched',
         onPressed: () => _toggleWatched(item),
       ),
@@ -507,9 +507,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   const SizedBox(height: 4),
-                  if (episode.formattedRuntime != null)
+                  if (episode.formattedRuntime.isNotEmpty)
                     Text(
-                      episode.formattedRuntime!,
+                      episode.formattedRuntime,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textTertiary,
                       ),
