@@ -766,7 +766,7 @@ class _MobileDownloadsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final downloadState = ref.watch(downloadProvider);
-    final downloads = downloadState.downloads.values.toList();
+    final downloads = List<DownloadTask>.from(downloadState.downloads);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
     // Sort downloads: active first, then completed, then others
@@ -826,9 +826,9 @@ class _MobileDownloadsPage extends ConsumerWidget {
                   style: AppTextStyles.headlineMedium,
                 ),
                 const Spacer(),
-                if (downloadState.activeDownloadIds.isNotEmpty)
+                if (downloadState.activeDownloads.isNotEmpty)
                   Text(
-                    '${downloadState.activeDownloadIds.length} active',
+                    '${downloadState.activeDownloads.length} active',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.primary,
                     ),
@@ -845,10 +845,10 @@ class _MobileDownloadsPage extends ConsumerWidget {
                 return _DownloadListTile(
                   download: download,
                   serverUrl: serverUrl,
-                  onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.itemId),
-                  onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.itemId),
-                  onCancel: () => ref.read(downloadProvider.notifier).cancelDownload(download.itemId),
-                  onRemove: () => ref.read(downloadProvider.notifier).removeDownload(download.itemId),
+                  onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
+                  onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
+                  onCancel: () => ref.read(downloadProvider.notifier).cancelDownload(download.id),
+                  onRemove: () => ref.read(downloadProvider.notifier).deleteDownload(download.id),
                   onTap: () {
                     if (download.status == DownloadStatus.completed) {
                       // Navigate to detail page or play
@@ -905,29 +905,29 @@ class _DownloadListTile extends StatelessWidget {
             // Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              child: download.imageTag != null
+              child: download.primaryImageTag != null
                   ? CachedNetworkImage(
-                      imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.imageTag}',
+                      imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
                       width: 56,
                       height: 80,
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(
                         width: 56,
                         height: 80,
-                        color: AppColors.surfaceLight,
+                        color: AppColors.surfaceElevated,
                         child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
                       ),
                       errorWidget: (_, __, ___) => Container(
                         width: 56,
                         height: 80,
-                        color: AppColors.surfaceLight,
+                        color: AppColors.surfaceElevated,
                         child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
                       ),
                     )
                   : Container(
                       width: 56,
                       height: 80,
-                      color: AppColors.surfaceLight,
+                      color: AppColors.surfaceElevated,
                       child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
                     ),
             ),
@@ -952,7 +952,7 @@ class _DownloadListTile extends StatelessWidget {
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: download.progress,
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: AppColors.surfaceElevated,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         download.status == DownloadStatus.paused
                             ? AppColors.warning
@@ -1001,7 +1001,7 @@ class _DownloadListTile extends StatelessWidget {
       case DownloadStatus.failed:
         icon = Icons.error_outline;
         color = AppColors.error;
-        text = download.error ?? 'Failed';
+        text = download.errorMessage ?? 'Failed';
         break;
       case DownloadStatus.cancelled:
         icon = Icons.cancel_outlined;
