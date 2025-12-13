@@ -349,6 +349,117 @@ class JellyfinApi {
     return result.items;
   }
 
+  /// Get recently released movies (by premiere date)
+  Future<List<MediaItem>> getRecentlyReleased({
+    int limit = 16,
+    List<String>? includeItemTypes,
+  }) async {
+    final result = await getItems(
+      includeItemTypes: includeItemTypes ?? ['Movie'],
+      limit: limit,
+      recursive: true,
+      sortBy: 'PremiereDate',
+      sortOrder: 'Descending',
+      fields: ['Overview', 'PremiereDate'],
+    );
+    return result.items;
+  }
+
+  /// Get top rated items
+  Future<List<MediaItem>> getTopRated({
+    int limit = 16,
+    List<String>? includeItemTypes,
+  }) async {
+    final result = await getItems(
+      includeItemTypes: includeItemTypes ?? ['Movie', 'Series'],
+      limit: limit,
+      recursive: true,
+      sortBy: 'CommunityRating',
+      sortOrder: 'Descending',
+      fields: ['Overview', 'CommunityRating'],
+    );
+    return result.items;
+  }
+
+  /// Get recommended items (based on genres user has watched)
+  Future<List<MediaItem>> getRecommended({int limit = 16}) async {
+    final response = await _dio.get(
+      '/Users/$_userId/Suggestions',
+      queryParameters: {
+        'Limit': limit,
+        'Fields': 'Overview',
+      },
+    );
+    return (response.data['Items'] as List<dynamic>?)
+        ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
+        .toList() ?? [];
+  }
+
+  /// Get items by genre
+  Future<List<MediaItem>> getByGenre({
+    required String genreName,
+    int limit = 16,
+    List<String>? includeItemTypes,
+  }) async {
+    final result = await getItems(
+      includeItemTypes: includeItemTypes ?? ['Movie', 'Series'],
+      limit: limit,
+      recursive: true,
+      sortBy: 'Random',
+      genres: genreName,
+      fields: ['Overview'],
+    );
+    return result.items;
+  }
+
+  /// Get genres list
+  Future<List<GenreInfo>> getGenres({
+    List<String>? includeItemTypes,
+  }) async {
+    final response = await _dio.get(
+      '/Genres',
+      queryParameters: {
+        'UserId': _userId,
+        if (includeItemTypes != null) 'IncludeItemTypes': includeItemTypes.join(','),
+        'SortBy': 'SortName',
+        'SortOrder': 'Ascending',
+      },
+    );
+    return (response.data['Items'] as List<dynamic>)
+        .map((e) => GenreInfo.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Get recently played items
+  Future<List<MediaItem>> getRecentlyPlayed({int limit = 16}) async {
+    final result = await getItems(
+      filters: ['IsPlayed'],
+      limit: limit,
+      recursive: true,
+      sortBy: 'DatePlayed',
+      sortOrder: 'Descending',
+      fields: ['Overview'],
+      includeItemTypes: ['Movie', 'Episode'],
+    );
+    return result.items;
+  }
+
+  /// Get unplayed items
+  Future<List<MediaItem>> getUnplayed({
+    int limit = 16,
+    List<String>? includeItemTypes,
+  }) async {
+    final result = await getItems(
+      filters: ['IsUnplayed'],
+      includeItemTypes: includeItemTypes ?? ['Movie'],
+      limit: limit,
+      recursive: true,
+      sortBy: 'Random',
+      fields: ['Overview'],
+    );
+    return result.items;
+  }
+
   /// Get seasons for a series
   Future<List<MediaItem>> getSeasons(String seriesId) async {
     final response = await _dio.get(
