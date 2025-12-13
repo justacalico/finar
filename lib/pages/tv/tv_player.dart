@@ -607,12 +607,7 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
 
   void _togglePlayPause() {
     final playerNotifier = ref.read(playerProvider.notifier);
-    final isPlaying = ref.read(playerProvider).isPlaying;
-    if (isPlaying) {
-      playerNotifier.pause();
-    } else {
-      playerNotifier.resume();
-    }
+    playerNotifier.playOrPause();
   }
 
   void _seek(int seconds) {
