@@ -287,3 +287,33 @@ class SearchHint {
     return '$baseUrl/Items/$itemId/Images/Primary?${params.join('&')}';
   }
 }
+
+/// Genre information
+class GenreInfo {
+  final String id;
+  final String name;
+  final String? primaryImageTag;
+
+  const GenreInfo({
+    required this.id,
+    required this.name,
+    this.primaryImageTag,
+  });
+
+  factory GenreInfo.fromJson(Map<String, dynamic> json) {
+    return GenreInfo(
+      id: json['Id'] as String,
+      name: json['Name'] as String,
+      primaryImageTag: json['ImageTags']?['Primary'] as String?,
+    );
+  }
+
+  String getImageUrl(String baseUrl, {int? width, int? height}) {
+    if (primaryImageTag == null) return '';
+    final params = <String>[];
+    if (width != null) params.add('maxWidth=$width');
+    if (height != null) params.add('maxHeight=$height');
+    params.add('tag=$primaryImageTag');
+    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+  }
+}
