@@ -322,6 +322,11 @@ class MediaItem {
       mediaSources: (json['MediaSources'] as List<dynamic>?)
           ?.map((e) => MediaSourceInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
+      // Music-specific fields
+      albumArtist: json['AlbumArtist'] as String?,
+      artists: (json['Artists'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      album: json['Album'] as String?,
+      albumId: json['AlbumId'] as String?,
     );
   }
 
