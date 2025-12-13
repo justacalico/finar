@@ -5,6 +5,7 @@ import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/library.dart';
+import '../../core/api/media_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'desktop_library.dart';
