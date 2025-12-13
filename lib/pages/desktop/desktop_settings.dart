@@ -773,7 +773,7 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: AppColors.primary,
+        activeThumbColor: AppColors.primary,
       ),
     );
   }
