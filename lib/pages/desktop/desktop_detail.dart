@@ -535,7 +535,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: episodes.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          separatorBuilder: (_, _) => const SizedBox(width: 16),
           itemBuilder: (context, index) {
             final episode = episodes[index];
             return _buildEpisodeCard(episode, serverUrl);
