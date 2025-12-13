@@ -664,12 +664,17 @@ class _TvHomeState extends ConsumerState<TvHome> {
     final rows = _buildRowData(libraryState);
     final totalRows = rows.length;
 
+    // Don't process if there are no rows
+    if (totalRows == 0 && _selectedRowIndex != -1) return;
+
     setState(() {
       switch (event.logicalKey) {
         case LogicalKeyboardKey.arrowUp:
           if (_selectedRowIndex > 0) {
             _selectedRowIndex--;
-            _selectedItemIndex = 0;
+            // Clamp item index to new row's length
+            final newRowLength = rows[_selectedRowIndex].length;
+            _selectedItemIndex = _selectedItemIndex.clamp(0, newRowLength - 1);
             _scrollToSelectedRow();
             _scrollToSelectedItem();
           } else if (_selectedRowIndex == 0) {
@@ -680,13 +685,17 @@ class _TvHomeState extends ConsumerState<TvHome> {
 
         case LogicalKeyboardKey.arrowDown:
           if (_selectedRowIndex == -1) {
-            _selectedRowIndex = 0;
-            _selectedItemIndex = 0;
-            _scrollToSelectedRow();
-            _scrollToSelectedItem();
+            if (totalRows > 0) {
+              _selectedRowIndex = 0;
+              _selectedItemIndex = 0;
+              _scrollToSelectedRow();
+              _scrollToSelectedItem();
+            }
           } else if (_selectedRowIndex < totalRows - 1) {
             _selectedRowIndex++;
-            _selectedItemIndex = 0;
+            // Clamp item index to new row's length
+            final newRowLength = rows[_selectedRowIndex].length;
+            _selectedItemIndex = _selectedItemIndex.clamp(0, newRowLength - 1);
             _scrollToSelectedRow();
             _scrollToSelectedItem();
           }
@@ -698,7 +707,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
             if (_selectedNavIndex > 0) {
               _selectedNavIndex--;
             }
-          } else {
+          } else if (_selectedRowIndex >= 0 && _selectedRowIndex < rows.length) {
             if (_selectedItemIndex > 0) {
               _selectedItemIndex--;
               _scrollToSelectedItem();
@@ -743,7 +752,9 @@ class _TvHomeState extends ConsumerState<TvHome> {
     final controller = _rowScrollControllers[_selectedRowIndex];
     if (controller == null || !controller.hasClients) return;
     
-    final targetOffset = _selectedItemIndex * _itemWidth;
+    // Calculate target offset to center the item in view
+    final viewportWidth = controller.position.viewportDimension;
+    final targetOffset = (_selectedItemIndex * _itemWidth) - (viewportWidth / 2) + (_itemWidth / 2);
     final maxScroll = controller.position.maxScrollExtent;
     
     controller.animateTo(
