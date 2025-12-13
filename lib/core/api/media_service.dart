@@ -1,0 +1,401 @@
+import 'jellyfin_api.dart';
+import 'models/media_item.dart';
+import 'models/library.dart';
+import 'models/playback_info.dart';
+
+/// Service for media-related operations
+class MediaService {
+  final JellyfinApi _api;
+
+  MediaService(this._api);
+
+  /// Get home screen data
+  Future<HomeData> getHomeData() async {
+    final results = await Future.wait([
+      _api.getContinueWatching(limit: 12),
+      _api.getNextUp(limit: 12),
+      _api.getRecentlyAdded(limit: 16),
+      _api.getLibraries(),
+    ]);
+
+    return HomeData(
+      continueWatching: results[0] as List<MediaItem>,
+      nextUp: results[1] as List<MediaItem>,
+      recentlyAdded: results[2] as List<MediaItem>,
+      libraries: results[3] as List<Library>,
+    );
+  }
+
+  /// Get library content
+  Future<LibraryContent> getLibraryContent(
+    String libraryId, {
+    int startIndex = 0,
+    int limit = 50,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    List<String>? genres,
+    List<int>? years,
+    String? searchTerm,
+  }) async {
+    final result = await _api.getItems(
+      parentId: libraryId,
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      recursive: true,
+      fields: ['Overview', 'PrimaryImageAspectRatio'],
+      genres: genres?.join(','),
+      years: years?.join(','),
+      searchTerm: searchTerm,
+    );
+
+    return LibraryContent(
+      items: result.items,
+      totalCount: result.totalCount,
+      hasMore: result.startIndex + result.items.length < result.totalCount,
+    );
+  }
+
+  /// Get movie details
+  Future<MovieDetails> getMovieDetails(String movieId) async {
+    final results = await Future.wait([
+      _api.getItem(movieId),
+      _api.getSimilarItems(movieId, limit: 12),
+    ]);
+
+    return MovieDetails(
+      movie: results[0] as MediaItem,
+      similar: results[1] as List<MediaItem>,
+    );
+  }
+
+  /// Get series details with seasons
+  Future<SeriesDetails> getSeriesDetails(String seriesId) async {
+    final results = await Future.wait([
+      _api.getItem(seriesId),
+      _api.getSeasons(seriesId),
+      _api.getSimilarItems(seriesId, limit: 12),
+      _api.getNextUp(limit: 1),
+    ]);
+
+    final series = results[0] as MediaItem;
+    final seasons = results[1] as List<MediaItem>;
+    final similar = results[2] as List<MediaItem>;
+    final nextUpList = results[3] as List<MediaItem>;
+
+    // Find the next up episode for this series
+    MediaItem? nextUp;
+    for (final item in nextUpList) {
+      if (item.seriesId == seriesId) {
+        nextUp = item;
+        break;
+      }
+    }
+
+    return SeriesDetails(
+      series: series,
+      seasons: seasons,
+      similar: similar,
+      nextUp: nextUp,
+    );
+  }
+
+  /// Get season episodes
+  Future<List<MediaItem>> getSeasonEpisodes(
+    String seriesId,
+    String seasonId,
+  ) async {
+    return await _api.getEpisodes(seriesId, seasonId: seasonId);
+  }
+
+  /// Get playback info and stream URL
+  Future<StreamInfo> getStreamInfo(
+    String itemId, {
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    int? startTimeTicks,
+  }) async {
+    final playbackInfo = await _api.getPlaybackInfo(
+      itemId,
+      audioStreamIndex: audioStreamIndex,
+      subtitleStreamIndex: subtitleStreamIndex,
+      startTimeTicks: startTimeTicks,
+    );
+
+    final source = playbackInfo.directPlaySource;
+    if (source == null) {
+      throw Exception('No playable media source found');
+    }
+
+    String streamUrl;
+    bool isTranscoding = false;
+
+    if (source.supportsDirectPlay == true || source.supportsDirectStream == true) {
+      // Direct play/stream
+      streamUrl = _api.getStreamUrl(
+        itemId,
+        mediaSourceId: source.id,
+        container: source.container,
+        audioStreamIndex: audioStreamIndex ?? source.defaultAudioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex,
+        startTimeTicks: startTimeTicks,
+        static: true,
+      );
+    } else {
+      // Transcoding required
+      isTranscoding = true;
+      streamUrl = _api.getHlsStreamUrl(
+        itemId,
+        mediaSourceId: source.id,
+        playSessionId: playbackInfo.playSessionId,
+        audioStreamIndex: audioStreamIndex ?? source.defaultAudioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex,
+        startTimeTicks: startTimeTicks,
+      );
+    }
+
+    return StreamInfo(
+      url: streamUrl,
+      mediaSource: source,
+      playSessionId: playbackInfo.playSessionId,
+      isTranscoding: isTranscoding,
+      audioStreams: source.audioStreams,
+      subtitleStreams: source.subtitleStreams,
+      defaultAudioIndex: source.defaultAudioStreamIndex,
+      defaultSubtitleIndex: source.defaultSubtitleStreamIndex,
+    );
+  }
+
+  /// Get subtitle URL
+  String getSubtitleUrl(
+    String itemId,
+    String mediaSourceId,
+    int subtitleIndex, {
+    String format = 'vtt',
+  }) {
+    return _api.getSubtitleUrl(itemId, mediaSourceId, subtitleIndex, format);
+  }
+
+  /// Report playback started
+  Future<void> reportPlaybackStarted(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    int? positionTicks,
+    String playMethod = 'DirectPlay',
+  }) async {
+    await _api.reportPlaybackStart(PlaybackStartInfo(
+      itemId: itemId,
+      mediaSourceId: mediaSourceId,
+      playSessionId: playSessionId,
+      audioStreamIndex: audioStreamIndex,
+      subtitleStreamIndex: subtitleStreamIndex,
+      positionTicks: positionTicks,
+      playMethod: playMethod,
+      canSeek: true,
+    ));
+  }
+
+  /// Report playback progress
+  Future<void> reportPlaybackProgress(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    required int positionTicks,
+    bool isPaused = false,
+    bool isMuted = false,
+    int? volumeLevel,
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    String playMethod = 'DirectPlay',
+  }) async {
+    await _api.reportPlaybackProgress(PlaybackProgressInfo(
+      itemId: itemId,
+      mediaSourceId: mediaSourceId,
+      playSessionId: playSessionId,
+      positionTicks: positionTicks,
+      isPaused: isPaused,
+      isMuted: isMuted,
+      volumeLevel: volumeLevel,
+      audioStreamIndex: audioStreamIndex,
+      subtitleStreamIndex: subtitleStreamIndex,
+      playMethod: playMethod,
+      canSeek: true,
+    ));
+  }
+
+  /// Report playback stopped
+  Future<void> reportPlaybackStopped(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    required int positionTicks,
+  }) async {
+    await _api.reportPlaybackStopped(PlaybackStopInfo(
+      itemId: itemId,
+      mediaSourceId: mediaSourceId,
+      playSessionId: playSessionId,
+      positionTicks: positionTicks,
+    ));
+  }
+
+  /// Toggle favorite status
+  Future<bool> toggleFavorite(String itemId, bool currentState) async {
+    if (currentState) {
+      await _api.removeFavorite(itemId);
+      return false;
+    } else {
+      await _api.addFavorite(itemId);
+      return true;
+    }
+  }
+
+  /// Mark item as played
+  Future<void> markPlayed(String itemId) async {
+    await _api.markPlayed(itemId);
+  }
+
+  /// Mark item as unplayed
+  Future<void> markUnplayed(String itemId) async {
+    await _api.markUnplayed(itemId);
+  }
+
+  /// Search for content
+  Future<SearchResults> search(String query) async {
+    final hints = await _api.search(query);
+    
+    return SearchResults(
+      movies: hints.where((h) => h.type == 'Movie').toList(),
+      series: hints.where((h) => h.type == 'Series').toList(),
+      episodes: hints.where((h) => h.type == 'Episode').toList(),
+      music: hints.where((h) => 
+        h.type == 'Audio' || h.type == 'MusicAlbum' || h.type == 'MusicArtist'
+      ).toList(),
+      all: hints,
+    );
+  }
+
+  /// Get image URL helper
+  String getImageUrl(
+    String itemId,
+    String imageType, {
+    int? width,
+    int? height,
+    int? quality,
+    String? tag,
+    int? index,
+  }) {
+    return _api.getImageUrl(
+      itemId,
+      imageType,
+      width: width,
+      height: height,
+      quality: quality,
+      tag: tag,
+      index: index,
+    );
+  }
+
+  /// Get server URL
+  String? get serverUrl => _api.serverUrl;
+}
+
+/// Home screen data
+class HomeData {
+  final List<MediaItem> continueWatching;
+  final List<MediaItem> nextUp;
+  final List<MediaItem> recentlyAdded;
+  final List<Library> libraries;
+
+  const HomeData({
+    required this.continueWatching,
+    required this.nextUp,
+    required this.recentlyAdded,
+    required this.libraries,
+  });
+}
+
+/// Library content result
+class LibraryContent {
+  final List<MediaItem> items;
+  final int totalCount;
+  final bool hasMore;
+
+  const LibraryContent({
+    required this.items,
+    required this.totalCount,
+    required this.hasMore,
+  });
+}
+
+/// Movie details
+class MovieDetails {
+  final MediaItem movie;
+  final List<MediaItem> similar;
+
+  const MovieDetails({
+    required this.movie,
+    required this.similar,
+  });
+}
+
+/// Series details with seasons
+class SeriesDetails {
+  final MediaItem series;
+  final List<MediaItem> seasons;
+  final List<MediaItem> similar;
+  final MediaItem? nextUp;
+
+  const SeriesDetails({
+    required this.series,
+    required this.seasons,
+    required this.similar,
+    this.nextUp,
+  });
+}
+
+/// Stream information for playback
+class StreamInfo {
+  final String url;
+  final MediaSourceData mediaSource;
+  final String? playSessionId;
+  final bool isTranscoding;
+  final List<MediaStreamData> audioStreams;
+  final List<MediaStreamData> subtitleStreams;
+  final int? defaultAudioIndex;
+  final int? defaultSubtitleIndex;
+
+  const StreamInfo({
+    required this.url,
+    required this.mediaSource,
+    this.playSessionId,
+    this.isTranscoding = false,
+    this.audioStreams = const [],
+    this.subtitleStreams = const [],
+    this.defaultAudioIndex,
+    this.defaultSubtitleIndex,
+  });
+}
+
+/// Search results grouped by type
+class SearchResults {
+  final List<SearchHint> movies;
+  final List<SearchHint> series;
+  final List<SearchHint> episodes;
+  final List<SearchHint> music;
+  final List<SearchHint> all;
+
+  const SearchResults({
+    required this.movies,
+    required this.series,
+    required this.episodes,
+    required this.music,
+    required this.all,
+  });
+
+  bool get isEmpty => all.isEmpty;
+  bool get isNotEmpty => all.isNotEmpty;
+}
