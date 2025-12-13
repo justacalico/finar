@@ -593,7 +593,7 @@ class _TvDownloadCard extends StatelessWidget {
                               child: Icon(Icons.movie_outlined, size: 48, color: AppColors.textTertiary),
                             ),
                           ),
-                          errorWidget: (_, __, ___) => Container(
+                          errorWidget: (_, _, ___) => Container(
                             color: AppColors.surfaceElevated,
                             child: const Center(
                               child: Icon(Icons.movie_outlined, size: 48, color: AppColors.textTertiary),
