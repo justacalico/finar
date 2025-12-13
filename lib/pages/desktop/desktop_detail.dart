@@ -741,7 +741,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 },
               ),
               loading: () => const _LoadingShimmer(height: 280),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
           ),
         ],
