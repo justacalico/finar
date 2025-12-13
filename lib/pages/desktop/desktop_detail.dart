@@ -763,11 +763,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   }
 
   void _toggleFavorite(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleFavorite(item.id, !item.isFavorite);
+    ref.read(mediaActionsProvider).toggleFavorite(item.id, !(item.isFavorite == true));
   }
 
   void _toggleWatched(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleWatched(item.id, !item.isPlayed);
+    ref.read(mediaActionsProvider).toggleWatched(item.id, !(item.isPlayed == true));
   }
 
   void _showMoreOptions(MediaItem item) {
