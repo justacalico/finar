@@ -736,10 +736,18 @@ class _TvHomeState extends ConsumerState<TvHome> {
       case 2: // TV Shows
         _navigateToLibrary('tvshows');
         break;
-      case 3: // Search
+      case 3: // Downloads
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const TvDownloads(),
+          ),
+        );
+        break;
+      case 4: // Search
         // TODO: Navigate to search
         break;
-      case 4: // Settings
+      case 5: // Settings
         // TODO: Navigate to settings
         break;
     }
