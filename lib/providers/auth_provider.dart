@@ -172,6 +172,7 @@ class _AuthServerConnected extends AuthState {
 }
 
 class _AuthAuthenticated extends AuthState {
+  @override
   final User user;
   const _AuthAuthenticated({required this.user});
 }
