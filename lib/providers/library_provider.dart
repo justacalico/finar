@@ -47,6 +47,12 @@ class LibraryState {
   List<MediaItem> get continueWatching => homeData?.continueWatching ?? [];
   List<MediaItem> get nextUp => homeData?.nextUp ?? [];
   List<MediaItem> get recentlyAdded => homeData?.recentlyAdded ?? [];
+  List<MediaItem> get recentlyReleased => homeData?.recentlyReleased ?? [];
+  List<MediaItem> get topRated => homeData?.topRated ?? [];
+  List<MediaItem> get recommended => homeData?.recommended ?? [];
+  List<MediaItem> get favorites => homeData?.favorites ?? [];
+  List<MediaItem> get recentlyAddedMovies => homeData?.recentlyAddedMovies ?? [];
+  List<MediaItem> get recentlyAddedShows => homeData?.recentlyAddedShows ?? [];
   MediaItem? get featuredItem => 
       continueWatching.isNotEmpty ? continueWatching.first :
       recentlyAdded.isNotEmpty ? recentlyAdded.first : null;
