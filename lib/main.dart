@@ -18,9 +18,12 @@ void main() async {
   Hive.registerAdapter(MediaItemAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LibraryAdapter());
-  Hive.registerAdapter(ImageDataAdapter());
+  Hive.registerAdapter(ImageTagsAdapter());
   Hive.registerAdapter(ChapterInfoAdapter());
   Hive.registerAdapter(PersonInfoAdapter());
+  Hive.registerAdapter(MediaStreamAdapter());
+  Hive.registerAdapter(UserDataAdapter());
+  Hive.registerAdapter(MediaSourceInfoAdapter());
 
   // Open Hive boxes
   await Hive.openBox<User>('users');
