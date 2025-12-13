@@ -349,6 +349,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
         const SizedBox(width: 8),
 
+        // Download button
+        _buildDownloadButton(item),
+
+        const SizedBox(width: 8),
+
         // More options
         GlassIconButton(
           icon: Icons.more_horiz,
