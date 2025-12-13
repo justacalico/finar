@@ -56,10 +56,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Restore session from storage (alias for initialize)
+  Future<void> restoreSession() async {
+    await initialize();
+  }
+
   /// Login with credentials
-  Future<bool> login({required String username, required String password}) async {
+  Future<bool> login({
+    required String username,
+    required String password,
+    String? serverUrl,
+  }) async {
     state = const AuthState.loading();
     try {
+      // Connect to server first if URL provided
+      if (serverUrl != null && serverUrl.isNotEmpty) {
+        final connected = await _authService.connectToServer(serverUrl);
+        if (!connected) {
+          state = const AuthState.error('Failed to connect to server');
+          return false;
+        }
+      }
+      
       final result = await _authService.login(
         username: username,
         password: password,
