@@ -37,6 +37,24 @@ class PlaybackInfo {
   }
 }
 
+/// Helper to safely parse int from JSON (handles String and num)
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
+/// Helper to safely parse double from JSON (handles String and num)
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 class MediaSourceData {
   final String id;
   final String? name;
@@ -86,9 +104,9 @@ class MediaSourceData {
       name: json['Name'] as String?,
       path: json['Path'] as String?,
       container: json['Container'] as String?,
-      size: json['Size'] as int?,
-      bitrate: json['Bitrate'] as int?,
-      runTimeTicks: json['RunTimeTicks'] as int?,
+      size: _parseInt(json['Size']),
+      bitrate: _parseInt(json['Bitrate']),
+      runTimeTicks: _parseInt(json['RunTimeTicks']),
       supportsDirectPlay: json['SupportsDirectPlay'] as bool?,
       supportsDirectStream: json['SupportsDirectStream'] as bool?,
       supportsTranscoding: json['SupportsTranscoding'] as bool?,
@@ -101,8 +119,8 @@ class MediaSourceData {
       mediaStreams: (json['MediaStreams'] as List<dynamic>?)
           ?.map((e) => MediaStreamData.fromJson(e as Map<String, dynamic>))
           .toList(),
-      defaultAudioStreamIndex: json['DefaultAudioStreamIndex'] as int?,
-      defaultSubtitleStreamIndex: json['DefaultSubtitleStreamIndex'] as int?,
+      defaultAudioStreamIndex: _parseInt(json['DefaultAudioStreamIndex']),
+      defaultSubtitleStreamIndex: _parseInt(json['DefaultSubtitleStreamIndex']),
     );
   }
 
@@ -222,21 +240,21 @@ class MediaStreamData {
       displayTitle: json['DisplayTitle'] as String?,
       title: json['Title'] as String?,
       type: json['Type'] as String? ?? 'Unknown',
-      index: json['Index'] as int? ?? 0,
+      index: _parseInt(json['Index']) ?? 0,
       isDefault: json['IsDefault'] as bool?,
       isForced: json['IsForced'] as bool?,
       isExternal: json['IsExternal'] as bool?,
-      width: json['Width'] as int?,
-      height: json['Height'] as int?,
-      averageFrameRate: (json['AverageFrameRate'] as num?)?.toDouble(),
-      realFrameRate: (json['RealFrameRate'] as num?)?.toDouble(),
+      width: _parseInt(json['Width']),
+      height: _parseInt(json['Height']),
+      averageFrameRate: _parseDouble(json['AverageFrameRate']),
+      realFrameRate: _parseDouble(json['RealFrameRate']),
       profile: json['Profile'] as String?,
-      level: json['Level'] as int?,
-      bitRate: json['BitRate'] as int?,
-      bitDepth: json['BitDepth'] as int?,
-      channels: json['Channels'] as int?,
+      level: _parseInt(json['Level']),
+      bitRate: _parseInt(json['BitRate']),
+      bitDepth: _parseInt(json['BitDepth']),
+      channels: _parseInt(json['Channels']),
       channelLayout: json['ChannelLayout'] as String?,
-      sampleRate: json['SampleRate'] as int?,
+      sampleRate: _parseInt(json['SampleRate']),
       deliveryMethod: json['DeliveryMethod'] as String?,
       deliveryUrl: json['DeliveryUrl'] as String?,
       path: json['Path'] as String?,
