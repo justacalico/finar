@@ -413,6 +413,60 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             ),
           ),
         
+        // Recently Released Movies
+        if (data.recentlyReleased.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'New Releases',
+              items: data.recentlyReleased,
+            ),
+          ),
+        
+        // Recently Added Movies
+        if (data.recentlyAddedMovies.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'New Movies',
+              items: data.recentlyAddedMovies,
+            ),
+          ),
+        
+        // Recently Added Shows
+        if (data.recentlyAddedShows.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'New TV Shows',
+              items: data.recentlyAddedShows,
+            ),
+          ),
+        
+        // Recommended
+        if (data.recommended.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'Recommended For You',
+              items: data.recommended,
+            ),
+          ),
+        
+        // Top Rated
+        if (data.topRated.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'Top Rated',
+              items: data.topRated,
+            ),
+          ),
+        
+        // Favorites
+        if (data.favorites.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(
+              title: 'My Favorites',
+              items: data.favorites,
+            ),
+          ),
+        
         const SliverToBoxAdapter(child: SizedBox(height: 48)),
       ],
     );
