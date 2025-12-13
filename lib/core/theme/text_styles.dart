@@ -133,6 +133,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
     color: AppColors.textPrimary,
     height: 1.43,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle labelMedium = TextStyle(
@@ -142,6 +143,7 @@ class AppTextStyles {
     letterSpacing: 0.5,
     color: AppColors.textSecondary,
     height: 1.33,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle labelSmall = TextStyle(
@@ -151,6 +153,7 @@ class AppTextStyles {
     letterSpacing: 0.5,
     color: AppColors.textTertiary,
     height: 1.45,
+    decoration: TextDecoration.none,
   );
 
   // Custom styles for Finar
