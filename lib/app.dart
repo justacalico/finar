@@ -74,7 +74,7 @@ class _AppRouter extends ConsumerWidget {
     if (PlatformDetector.isTV) {
       return const TvHome();
     } else if (PlatformDetector.isDesktop) {
-      return const DesktopHomePage();
+      return const DesktopHome();
     } else {
       return const MobileHome();
     }
