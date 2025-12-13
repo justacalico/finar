@@ -67,6 +67,12 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 child: _buildEpisodesSection(item, serverUrl),
               ),
 
+            // Album Tracks (for Music Albums)
+            if (item.type == MediaType.album)
+              SliverToBoxAdapter(
+                child: _buildAlbumTracksSection(item, serverUrl),
+              ),
+
             // Cast & Crew
             if (item.people?.isNotEmpty == true)
               SliverToBoxAdapter(
