@@ -999,7 +999,7 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                               color: AppColors.surfaceElevated,
                               child: const Center(child: Icon(Icons.movie_outlined, color: AppColors.textTertiary)),
                             ),
-                            errorWidget: (_, __, ___) => Container(
+                            errorWidget: (_, _, ___) => Container(
                               width: 80,
                               height: 120,
                               color: AppColors.surfaceElevated,
