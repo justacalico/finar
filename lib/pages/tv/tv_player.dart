@@ -341,13 +341,29 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
   }
 
   Widget _buildSettingsPanel(PlayerState state) {
+    // Get display names for tracks
+    String audioLabel = 'Default';
+    if (state.currentAudioTrack != null && state.audioTracks != null) {
+      final track = state.audioTracks!.firstWhere(
+        (t) => t.index == state.currentAudioTrack,
+        orElse: () => state.audioTracks!.first,
+      );
+      audioLabel = track.displayTitle ?? 'Track ${state.currentAudioTrack}';
+    }
+    
+    String subtitleLabel = 'Off';
+    if (state.currentSubtitleTrack != null && state.subtitleTracks != null) {
+      final track = state.subtitleTracks!.firstWhere(
+        (t) => t.index == state.currentSubtitleTrack,
+        orElse: () => state.subtitleTracks!.first,
+      );
+      subtitleLabel = track.displayTitle ?? 'Track ${state.currentSubtitleTrack}';
+    }
+    
     final settings = [
       _SettingItem('Quality', state.currentQuality ?? 'Auto'),
-      _SettingItem('Audio', state.currentAudioTrack?.displayTitle ?? 'Default'),
-      _SettingItem(
-        'Subtitles',
-        state.currentSubtitleTrack?.displayTitle ?? 'Off',
-      ),
+      _SettingItem('Audio', audioLabel),
+      _SettingItem('Subtitles', subtitleLabel),
       _SettingItem('Speed', '${state.playbackSpeed}x'),
     ];
 
