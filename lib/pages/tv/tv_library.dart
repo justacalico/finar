@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palette_generator/palette_generator.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -25,6 +26,11 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
   final ScrollController _scrollController = ScrollController();
   int _selectedIndex = 0;
   final int _columns = 7;
+  
+  // Color extraction for dynamic background
+  Color _dominantColor = AppColors.background;
+  Color _accentColor = AppColors.primary;
+  String? _lastColorExtractedItemId;
 
   @override
   void initState() {
@@ -84,33 +90,56 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
     );
   }
 
+  Future<void> _extractColors(dynamic item, String serverUrl) async {
+    if (item == null || item.id == _lastColorExtractedItemId) return;
+    _lastColorExtractedItemId = item.id;
+    
+    try {
+      final imageUrl = item.getPrimaryImageUrl(serverUrl, width: 100);
+      final paletteGenerator = await PaletteGenerator.fromImageProvider(
+        NetworkImage(imageUrl),
+        size: const Size(100, 100),
+        maximumColorCount: 16,
+      );
+      
+      if (mounted) {
+        setState(() {
+          _dominantColor = paletteGenerator.dominantColor?.color ?? AppColors.background;
+          _accentColor = paletteGenerator.vibrantColor?.color ?? 
+                         paletteGenerator.mutedColor?.color ?? 
+                         AppColors.primary;
+        });
+      }
+    } catch (e) {
+      // Fallback to default colors on error
+      if (mounted) {
+        setState(() {
+          _dominantColor = AppColors.background;
+          _accentColor = AppColors.primary;
+        });
+      }
+    }
+  }
+
   Widget _buildBackground(dynamic item, String serverUrl) {
+    // Trigger color extraction (async, updates state when done)
+    _extractColors(item, serverUrl);
+    
     return Positioned.fill(
-      child: AnimatedSwitcher(
+      child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
-        child: Stack(
-          key: ValueKey(item.id),
-          fit: StackFit.expand,
-          children: [
-            Image.network(
-              item.getBackdropImageUrl(serverUrl, width: 1920),
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(color: AppColors.background),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.background.withValues(alpha: 0.3),
-                    AppColors.background.withValues(alpha: 0.7),
-                    AppColors.background,
-                  ],
-                ),
-              ),
-            ),
-          ],
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topRight,
+            radius: 1.5,
+            colors: [
+              _accentColor.withValues(alpha: 0.4),
+              _dominantColor.withValues(alpha: 0.6),
+              AppColors.background,
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ),
         ),
       ),
     );
