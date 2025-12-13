@@ -267,16 +267,6 @@ class _TvHomeState extends ConsumerState<TvHome> {
       ));
     }
 
-    // Recently Added
-    if (state.recentlyAdded.isNotEmpty) {
-      rows.add(_buildMediaRow(
-        'Recently Added',
-        state.recentlyAdded,
-        serverUrl,
-        rowIndex++,
-      ));
-    }
-
     // Next Up
     if (state.nextUp.isNotEmpty) {
       rows.add(_buildMediaRow(
@@ -287,7 +277,77 @@ class _TvHomeState extends ConsumerState<TvHome> {
       ));
     }
 
-    // Libraries
+    // Recently Added
+    if (state.recentlyAdded.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'Recently Added',
+        state.recentlyAdded,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // New Releases
+    if (state.recentlyReleased.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'New Releases',
+        state.recentlyReleased,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // New Movies
+    if (state.recentlyAddedMovies.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'New Movies',
+        state.recentlyAddedMovies,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // New TV Shows
+    if (state.recentlyAddedShows.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'New TV Shows',
+        state.recentlyAddedShows,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // Recommended
+    if (state.recommended.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'Recommended For You',
+        state.recommended,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // Top Rated
+    if (state.topRated.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'Top Rated',
+        state.topRated,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // Favorites
+    if (state.favorites.isNotEmpty) {
+      rows.add(_buildMediaRow(
+        'My Favorites',
+        state.favorites,
+        serverUrl,
+        rowIndex++,
+      ));
+    }
+
+    // Libraries (dynamically loaded items)
     for (final library in state.libraries) {
       if (state.libraryItems[library.id]?.isNotEmpty == true) {
         rows.add(_buildMediaRow(
