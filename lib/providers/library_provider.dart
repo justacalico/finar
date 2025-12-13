@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/api/jellyfin_api.dart';
 import '../core/api/media_service.dart';
 import '../core/api/models/media_item.dart';
 import '../core/api/models/library.dart';
@@ -21,6 +20,103 @@ final homeDataProvider = FutureProvider<HomeData>((ref) async {
 final librariesProvider = FutureProvider<List<Library>>((ref) async {
   final api = ref.watch(jellyfinApiProvider);
   return await api.getLibraries();
+});
+
+/// Library state for mobile/TV home pages
+class LibraryState {
+  final List<Library> libraries;
+  final HomeData? homeData;
+  final bool isLoading;
+  final String? error;
+  final String searchQuery;
+  final List<MediaItem> searchResults;
+
+  const LibraryState({
+    this.libraries = const [],
+    this.homeData,
+    this.isLoading = false,
+    this.error,
+    this.searchQuery = '',
+    this.searchResults = const [],
+  });
+
+  LibraryState copyWith({
+    List<Library>? libraries,
+    HomeData? homeData,
+    bool? isLoading,
+    String? error,
+    String? searchQuery,
+    List<MediaItem>? searchResults,
+  }) {
+    return LibraryState(
+      libraries: libraries ?? this.libraries,
+      homeData: homeData ?? this.homeData,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      searchQuery: searchQuery ?? this.searchQuery,
+      searchResults: searchResults ?? this.searchResults,
+    );
+  }
+}
+
+/// Library notifier for mobile/TV home pages
+class LibraryNotifier extends StateNotifier<LibraryState> {
+  final MediaService _mediaService;
+  final JellyfinApi _api;
+
+  LibraryNotifier(this._mediaService, this._api) : super(const LibraryState());
+
+  Future<void> loadLibraries() async {
+    try {
+      final libraries = await _api.getLibraries();
+      state = state.copyWith(libraries: libraries);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> loadHomeData() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final homeData = await _mediaService.getHomeData();
+      state = state.copyWith(homeData: homeData, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> search(String query) async {
+    if (query.isEmpty) {
+      state = state.copyWith(searchQuery: '', searchResults: []);
+      return;
+    }
+    state = state.copyWith(searchQuery: query, isLoading: true);
+    try {
+      final results = await _mediaService.search(query);
+      state = state.copyWith(
+        searchResults: results.all.map((h) => MediaItem(
+          id: h.id,
+          name: h.name,
+          type: mediaTypeFromString(h.type),
+          typeString: h.type,
+        )).toList(),
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  void clearSearch() {
+    state = state.copyWith(searchQuery: '', searchResults: []);
+  }
+}
+
+/// Library provider for mobile/TV home pages
+final libraryProvider = StateNotifierProvider<LibraryNotifier, LibraryState>((ref) {
+  final mediaService = ref.watch(mediaServiceProvider);
+  final api = ref.watch(jellyfinApiProvider);
+  return LibraryNotifier(mediaService, api);
 });
 
 /// Library content state
