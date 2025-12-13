@@ -303,6 +303,12 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     // In a real implementation, you'd reload the stream with different bitrate/resolution
   }
 
+  /// Set playback speed
+  Future<void> setPlaybackSpeed(double speed) async {
+    await _player.setRate(speed);
+    state = state.copyWith(playbackSpeed: speed);
+  }
+
   /// Play next item
   Future<void> playNext() async {
     if (!state.hasNext) return;
