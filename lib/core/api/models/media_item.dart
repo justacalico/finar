@@ -207,6 +207,19 @@ class MediaItem {
   @HiveField(38)
   final List<MediaSourceInfo>? mediaSources;
 
+  // Music-specific fields
+  @HiveField(39)
+  final String? albumArtist;
+
+  @HiveField(40)
+  final List<String>? artists;
+
+  @HiveField(41)
+  final String? album;
+
+  @HiveField(42)
+  final String? albumId;
+
   const MediaItem({
     required this.id,
     required this.name,
