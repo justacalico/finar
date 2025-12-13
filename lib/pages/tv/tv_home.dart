@@ -225,8 +225,10 @@ class _TvHomeState extends ConsumerState<TvHome> {
       case 2:
         return Icons.tv_outlined;
       case 3:
-        return Icons.search_outlined;
+        return Icons.download_outlined;
       case 4:
+        return Icons.search_outlined;
+      case 5:
         return Icons.settings_outlined;
       default:
         return Icons.circle_outlined;
