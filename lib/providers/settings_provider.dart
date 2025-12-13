@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// UI mode options for forcing a specific UI engine
+enum UiMode {
+  auto,   // Use platform detection
+  desktop,
+  mobile,
+  tv,
+}
+
 /// App settings model
 class AppSettings {
   // Playback
@@ -38,6 +46,9 @@ class AppSettings {
   final int imageCacheSize;
   final bool cacheImages;
 
+  // UI Mode
+  final UiMode forcedUiMode;
+
   const AppSettings({
     this.defaultVideoQuality = 1080,
     this.autoPlayNext = true,
@@ -61,6 +72,7 @@ class AppSettings {
     this.preloadNextEpisode = true,
     this.imageCacheSize = 500,
     this.cacheImages = true,
+    this.forcedUiMode = UiMode.auto,
   });
 
   AppSettings copyWith({
@@ -86,6 +98,7 @@ class AppSettings {
     bool? preloadNextEpisode,
     int? imageCacheSize,
     bool? cacheImages,
+    UiMode? forcedUiMode,
   }) {
     return AppSettings(
       defaultVideoQuality: defaultVideoQuality ?? this.defaultVideoQuality,
@@ -110,6 +123,7 @@ class AppSettings {
       preloadNextEpisode: preloadNextEpisode ?? this.preloadNextEpisode,
       imageCacheSize: imageCacheSize ?? this.imageCacheSize,
       cacheImages: cacheImages ?? this.cacheImages,
+      forcedUiMode: forcedUiMode ?? this.forcedUiMode,
     );
   }
 
@@ -137,6 +151,7 @@ class AppSettings {
       'preloadNextEpisode': preloadNextEpisode,
       'imageCacheSize': imageCacheSize,
       'cacheImages': cacheImages,
+      'forcedUiMode': forcedUiMode.index,
     };
   }
 
@@ -170,6 +185,9 @@ class AppSettings {
       preloadNextEpisode: json['preloadNextEpisode'] as bool? ?? true,
       imageCacheSize: json['imageCacheSize'] as int? ?? 500,
       cacheImages: json['cacheImages'] as bool? ?? true,
+      forcedUiMode: json['forcedUiMode'] != null
+          ? UiMode.values[json['forcedUiMode'] as int]
+          : UiMode.auto,
     );
   }
 }
@@ -304,6 +322,11 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     await updateSettings((s) => s.copyWith(cacheImages: value));
   }
 
+  // UI Mode settings
+  Future<void> setForcedUiMode(UiMode mode) async {
+    await updateSettings((s) => s.copyWith(forcedUiMode: mode));
+  }
+
   Future<void> resetToDefaults() async {
     state = const AppSettings();
     await _saveSettings();
@@ -326,6 +349,12 @@ final themeModeProvider = Provider<ThemeMode>((ref) {
 final animationsEnabledProvider = Provider<bool>((ref) {
   final settings = ref.watch(settingsProvider);
   return settings.enableAnimations && !settings.reducedMotion;
+});
+
+/// Forced UI mode provider
+final forcedUiModeProvider = Provider<UiMode>((ref) {
+  final settings = ref.watch(settingsProvider);
+  return settings.forcedUiMode;
 });
 
 /// Video quality options
