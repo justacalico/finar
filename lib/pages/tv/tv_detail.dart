@@ -337,7 +337,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
             seasonsAsync.when(
               data: (seasons) => _buildSeasonTabs(seasons),
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
 
             const SizedBox(height: 16),
