@@ -749,7 +749,12 @@ class _TvHomeState extends ConsumerState<TvHome> {
         // TODO: Navigate to search
         break;
       case 5: // Settings
-        // TODO: Navigate to settings
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const TvSettings(),
+          ),
+        );
         break;
     }
   }
