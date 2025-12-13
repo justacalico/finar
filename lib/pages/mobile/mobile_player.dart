@@ -82,7 +82,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     final playerState = ref.watch(playerProvider);
     final videoController = ref.watch(videoControllerProvider);
 
-    if (videoController == null) {
+    // Loading state
+    if (playerState.isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.black,
         body: Center(
