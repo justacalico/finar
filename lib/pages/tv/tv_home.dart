@@ -10,6 +10,7 @@ import '../../widgets/widgets.dart';
 import 'tv_library.dart';
 import 'tv_detail.dart';
 import 'tv_downloads.dart';
+import 'tv_settings.dart';
 
 class TvHome extends ConsumerStatefulWidget {
   const TvHome({super.key});
