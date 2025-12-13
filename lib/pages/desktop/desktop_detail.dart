@@ -475,7 +475,16 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header with season selector
+          // Seasons section
+          seasonsAsync.when(
+            data: (seasons) => seasons.length > 1 
+                ? _buildSeasonsRow(seasons, serverUrl)
+                : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+          ),
+
+          // Section header with season selector dropdown
           Row(
             children: [
               Text(
@@ -505,6 +514,102 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         ],
       ),
     ).animate().fadeIn(delay: 400.ms);
+  }
+
+  Widget _buildSeasonsRow(List<MediaItem> seasons, String serverUrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Seasons',
+          style: AppTextStyles.titleLarge,
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 180,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: seasons.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final season = seasons[index];
+              final isSelected = _selectedSeasonIndex == index;
+              return _buildSeasonCard(season, serverUrl, isSelected, index);
+            },
+          ),
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  Widget _buildSeasonCard(MediaItem season, String serverUrl, bool isSelected, int index) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedSeasonIndex = index),
+      child: AnimatedContainer(
+        duration: AppTheme.durationFast,
+        width: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Season poster
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd - 2),
+              child: Stack(
+                children: [
+                  Image.network(
+                    season.getPrimaryImageUrl(serverUrl, width: 200),
+                    width: 124,
+                    height: 124,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      width: 124,
+                      height: 124,
+                      color: AppColors.surface,
+                      child: const Icon(Icons.tv, size: 32),
+                    ),
+                  ),
+                  if (isSelected)
+                    Positioned.fill(
+                      child: Container(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        child: const Center(
+                          child: Icon(
+                            Icons.check_circle,
+                            color: AppColors.primary,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Season name
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                season.name,
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSeasonSelector(List<MediaItem> seasons) {
