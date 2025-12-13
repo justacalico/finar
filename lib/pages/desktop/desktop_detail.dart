@@ -632,6 +632,136 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     );
   }
 
+  Widget _buildAlbumTracksSection(MediaItem album, String serverUrl) {
+    final tracksAsync = ref.watch(albumTracksProvider(album.id));
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Row(
+            children: [
+              Text(
+                'Tracks',
+                style: AppTextStyles.titleLarge,
+              ),
+              const Spacer(),
+              tracksAsync.whenData((tracks) => Text(
+                '${tracks.length} songs',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              )).value ?? const SizedBox.shrink(),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Tracks list
+          tracksAsync.when(
+            data: (tracks) => _buildTracksList(tracks, album, serverUrl),
+            loading: () => const _LoadingShimmer(height: 300),
+            error: (error, _) => Text('Error loading tracks: $error'),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 400.ms);
+  }
+
+  Widget _buildTracksList(List<MediaItem> tracks, MediaItem album, String serverUrl) {
+    return GlassContainer(
+      blur: AppTheme.blurLight,
+      opacity: 0.05,
+      borderRadius: AppTheme.radiusMd,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: tracks.length,
+        itemBuilder: (context, index) {
+          final track = tracks[index];
+          return _buildTrackTile(track, index + 1, album, serverUrl);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+    final duration = track.formattedRuntime;
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _playItem(track),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Track number
+              SizedBox(
+                width: 40,
+                child: Text(
+                  track.indexNumber?.toString() ?? trackNumber.toString(),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Track info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      track.name,
+                      style: AppTextStyles.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                      Text(
+                        track.albumArtist ?? track.artists?.join(', ') ?? '',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Duration
+              Text(
+                duration,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Play button
+              GlassIconButton(
+                icon: Icons.play_arrow,
+                size: 36,
+                onPressed: () => _playItem(track),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCastSection(MediaItem item, String serverUrl) {
     final people = item.people ?? [];
     final displayPeople = _showAllCast ? people : people.take(10).toList();
