@@ -691,6 +691,34 @@ class MediaStream {
   bool get isVideo => type == 'Video';
   bool get isAudio => type == 'Audio';
   bool get isSubtitle => type == 'Subtitle';
+
+  /// Get video resolution string (e.g., "1080p", "4K")
+  String? get videoResolution {
+    if (!isVideo || height == null) return null;
+    if (height! >= 2160) return '4K';
+    if (height! >= 1440) return '1440p';
+    if (height! >= 1080) return '1080p';
+    if (height! >= 720) return '720p';
+    if (height! >= 480) return '480p';
+    return '${height}p';
+  }
+
+  /// Get channel layout string (e.g., "5.1", "7.1", "Stereo")
+  String? get channelLayout {
+    if (!isAudio || channels == null) return null;
+    switch (channels) {
+      case 1:
+        return 'Mono';
+      case 2:
+        return 'Stereo';
+      case 6:
+        return '5.1';
+      case 8:
+        return '7.1';
+      default:
+        return '$channels ch';
+    }
+  }
 }
 
 @HiveType(typeId: 8)
