@@ -19,10 +19,6 @@ class _FinarAppState extends ConsumerState<FinarApp> {
   @override
   void initState() {
     super.initState();
-    _initializeApp();
-  }
-
-  Future<void> _initializeApp() async {
     // Set system UI overlay style
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -36,8 +32,10 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Enable edge-to-edge on Android
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-    // Restore auth session
-    await ref.read(authProvider.notifier).restoreSession();
+    // Defer auth restoration to after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).restoreSession();
+    });
   }
 
   @override
