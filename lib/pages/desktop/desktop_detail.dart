@@ -473,7 +473,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               seasonsAsync.when(
                 data: (seasons) => _buildSeasonSelector(seasons),
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
             ],
           ),
