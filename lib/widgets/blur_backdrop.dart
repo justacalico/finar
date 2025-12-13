@@ -164,7 +164,7 @@ class FrostedOverlay extends StatelessWidget {
 
     if (borderRadius != null) {
       content = ClipRRect(
-        borderRadius: borderRadius,
+        borderRadius: borderRadius!,
         child: content,
       );
     } else {
