@@ -508,7 +508,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final episode = episodes[index];
-          return _buildEpisodeCard(episode, serverUrl);
+          return _buildEpisodeCard(episode, serverUrl, seasonId);
         },
       ),
       loading: () => const Padding(
@@ -522,7 +522,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     );
   }
 
-  Widget _buildEpisodeCard(MediaItem episode, String serverUrl) {
+  Widget _buildEpisodeCard(MediaItem episode, String serverUrl, String seasonId) {
+    final isWatched = episode.isPlayed == true;
+    
     return GlassCard(
       onTap: () => _playItem(episode),
       padding: const EdgeInsets.all(12),
@@ -533,14 +535,43 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             borderRadius: BorderRadius.circular(AppTheme.radiusSm),
             child: Stack(
               children: [
-                CachedNetworkImage(
-                  imageUrl: episode.getPrimaryImageUrl(serverUrl, width: 250),
-                  width: 130,
-                  height: 75,
-                  fit: BoxFit.cover,
+                ColorFiltered(
+                  colorFilter: isWatched
+                      ? ColorFilter.mode(
+                          AppColors.black.withValues(alpha: 0.3),
+                          BlendMode.darken,
+                        )
+                      : const ColorFilter.mode(
+                          Colors.transparent,
+                          BlendMode.multiply,
+                        ),
+                  child: CachedNetworkImage(
+                    imageUrl: episode.getPrimaryImageUrl(serverUrl, width: 250),
+                    width: 130,
+                    height: 75,
+                    fit: BoxFit.cover,
+                  ),
                 ),
+                // Watched indicator
+                if (isWatched)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        size: 12,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
                 // Progress bar
-                if (episode.hasProgress)
+                if (episode.hasProgress && !isWatched)
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -554,10 +585,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     ),
                   ),
                 // Play icon
-                const Positioned.fill(
+                Positioned.fill(
                   child: Center(
                     child: Icon(
-                      Icons.play_circle_outline,
+                      isWatched ? Icons.replay : Icons.play_circle_outline,
                       size: 32,
                       color: AppColors.white,
                     ),
@@ -574,11 +605,25 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'E${episode.indexNumber} - ${episode.name}',
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'E${episode.indexNumber} - ${episode.name}',
+                        style: AppTextStyles.titleSmall.copyWith(
+                          color: isWatched ? AppColors.textSecondary : AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isWatched)
+                      const Icon(
+                        Icons.check_circle,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 if (episode.overview != null)
@@ -601,8 +646,25 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
               ],
             ),
           ),
+          
+          // Mark watched button
+          IconButton(
+            icon: Icon(
+              isWatched ? Icons.visibility_off : Icons.visibility,
+              color: isWatched ? AppColors.primary : AppColors.textSecondary,
+            ),
+            onPressed: () => _toggleEpisodeWatched(episode, seasonId),
+          ),
         ],
       ),
+    );
+  }
+  
+  void _toggleEpisodeWatched(MediaItem episode, String seasonId) {
+    ref.read(mediaActionsProvider).markEpisodeWatched(
+      episode.id,
+      seasonId,
+      !(episode.isPlayed == true),
     );
   }
 
