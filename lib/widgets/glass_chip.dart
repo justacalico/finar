@@ -47,6 +47,7 @@ class GlassChip extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: isSelected ? AppColors.black : AppColors.textPrimary,
+              decoration: TextDecoration.none,
             ),
           ),
         ],
