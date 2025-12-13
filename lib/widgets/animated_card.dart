@@ -20,6 +20,8 @@ class AnimatedCard extends StatefulWidget {
   final Widget? badge;
   final Widget? overlay;
   final int animationIndex;
+  final double? width;
+  final double? height;
 
   const AnimatedCard({
     super.key,
@@ -35,6 +37,8 @@ class AnimatedCard extends StatefulWidget {
     this.badge,
     this.overlay,
     this.animationIndex = 0,
+    this.width,
+    this.height,
   });
 
   @override
