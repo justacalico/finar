@@ -100,7 +100,9 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         orElse: () => Library(id: _libraryId, name: 'Library'),
       );
       
+      // Check for music library - Jellyfin uses "music" as the collection type
       _isMusicLibrary = library.collectionType?.toLowerCase() == 'music';
+      print('Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary');
       state = state.copyWith(isMusicLibrary: _isMusicLibrary);
       
       await _loadInitial();
