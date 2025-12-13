@@ -174,7 +174,7 @@ class _TvLibraryState extends ConsumerState<TvLibrary> {
                   item.getPrimaryImageUrl(serverUrl, width: 250),
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, ___) => Container(
                     color: AppColors.surface,
                     child: const Center(
                       child: Icon(Icons.movie_outlined, size: 32),
