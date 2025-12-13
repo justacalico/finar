@@ -76,15 +76,6 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
       playerState.isPlaying ? 'Pause' : 'Play',
     );
 
-    if (videoController == null) {
-      return const Scaffold(
-        backgroundColor: AppColors.black,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColors.black,
       body: KeyboardListener(
