@@ -2,6 +2,24 @@ import 'package:hive/hive.dart';
 
 part 'media_item.g.dart';
 
+/// Helper to safely parse int from JSON (handles String and num)
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
+/// Helper to safely parse double from JSON (handles String and num)
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 /// Enum for media types
 @HiveType(typeId: 10)
 enum MediaType {
@@ -240,21 +258,21 @@ class MediaItem {
       overview: json['Overview'] as String?,
       type: mediaTypeFromString(json['Type'] as String?),
       typeString: json['Type'] as String?,
-      productionYear: json['ProductionYear'] as int?,
+      productionYear: _parseInt(json['ProductionYear']),
       premiereDate: json['PremiereDate'] as String?,
       officialRating: json['OfficialRating'] as String?,
-      communityRating: (json['CommunityRating'] as num?)?.toDouble(),
-      criticRating: (json['CriticRating'] as num?)?.toDouble(),
-      runtimeTicks: json['RunTimeTicks'] as int?,
-      playbackPositionTicks: json['PlaybackPositionTicks'] as int?,
+      communityRating: _parseDouble(json['CommunityRating']),
+      criticRating: _parseDouble(json['CriticRating']),
+      runtimeTicks: _parseInt(json['RunTimeTicks']),
+      playbackPositionTicks: _parseInt(json['PlaybackPositionTicks']),
       isPlayed: json['IsPlayed'] as bool?,
       isFavorite: json['IsFavorite'] as bool?,
       seriesId: json['SeriesId'] as String?,
       seriesName: json['SeriesName'] as String?,
       seasonId: json['SeasonId'] as String?,
       seasonName: json['SeasonName'] as String?,
-      indexNumber: json['IndexNumber'] as int?,
-      parentIndexNumber: json['ParentIndexNumber'] as int?,
+      indexNumber: _parseInt(json['IndexNumber']),
+      parentIndexNumber: _parseInt(json['ParentIndexNumber']),
       imageTags: json['ImageTags'] != null
           ? ImageTags.fromJson(json['ImageTags'] as Map<String, dynamic>)
           : null,
@@ -277,8 +295,8 @@ class MediaItem {
           : null,
       container: json['Container'] as String?,
       path: json['Path'] as String?,
-      childCount: json['ChildCount'] as int?,
-      recursiveItemCount: json['RecursiveItemCount'] as int?,
+      childCount: _parseInt(json['ChildCount']),
+      recursiveItemCount: _parseInt(json['RecursiveItemCount']),
       collectionType: json['CollectionType'] as String?,
       chapters: (json['Chapters'] as List<dynamic>?)
           ?.map((e) => ChapterInfo.fromJson(e as Map<String, dynamic>))
@@ -650,16 +668,16 @@ class MediaStream {
       displayTitle: json['DisplayTitle'] as String?,
       title: json['Title'] as String?,
       type: json['Type'] as String? ?? 'Unknown',
-      index: json['Index'] as int? ?? 0,
+      index: _parseInt(json['Index']) ?? 0,
       isDefault: json['IsDefault'] as bool?,
       isForced: json['IsForced'] as bool?,
       isExternal: json['IsExternal'] as bool?,
-      width: json['Width'] as int?,
-      height: json['Height'] as int?,
-      aspectRatio: (json['AspectRatio'] as num?)?.toDouble(),
-      bitRate: json['BitRate'] as int?,
-      channels: json['Channels'] as int?,
-      sampleRate: json['SampleRate'] as int?,
+      width: _parseInt(json['Width']),
+      height: _parseInt(json['Height']),
+      aspectRatio: _parseDouble(json['AspectRatio']),
+      bitRate: _parseInt(json['BitRate']),
+      channels: _parseInt(json['Channels']),
+      sampleRate: _parseInt(json['SampleRate']),
       deliveryUrl: json['DeliveryUrl'] as String?,
       path: json['Path'] as String?,
     );
@@ -756,13 +774,13 @@ class UserData {
 
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-      playedPercentage: (json['PlayedPercentage'] as num?)?.toDouble(),
-      playbackPositionTicks: json['PlaybackPositionTicks'] as int? ?? 0,
-      playCount: json['PlayCount'] as int? ?? 0,
+      playedPercentage: _parseDouble(json['PlayedPercentage']),
+      playbackPositionTicks: _parseInt(json['PlaybackPositionTicks']) ?? 0,
+      playCount: _parseInt(json['PlayCount']) ?? 0,
       isFavorite: json['IsFavorite'] as bool? ?? false,
       played: json['Played'] as bool? ?? false,
       lastPlayedDate: json['LastPlayedDate'] as String?,
-      unplayedItemCount: json['UnplayedItemCount'] as int?,
+      unplayedItemCount: _parseInt(json['UnplayedItemCount']),
     );
   }
 
@@ -802,7 +820,7 @@ class ChapterInfo {
 
   factory ChapterInfo.fromJson(Map<String, dynamic> json) {
     return ChapterInfo(
-      startPositionTicks: json['StartPositionTicks'] as int? ?? 0,
+      startPositionTicks: _parseInt(json['StartPositionTicks']) ?? 0,
       name: json['Name'] as String?,
       imagePath: json['ImagePath'] as String?,
       imageTag: json['ImageTag'] as String?,
@@ -899,8 +917,8 @@ class MediaSourceInfo {
       name: json['Name'] as String?,
       path: json['Path'] as String?,
       container: json['Container'] as String?,
-      size: json['Size'] as int?,
-      bitrate: json['Bitrate'] as int?,
+      size: _parseInt(json['Size']),
+      bitrate: _parseInt(json['Bitrate']),
       supportsDirectPlay: json['SupportsDirectPlay'] as bool?,
       supportsDirectStream: json['SupportsDirectStream'] as bool?,
       supportsTranscoding: json['SupportsTranscoding'] as bool?,
@@ -909,8 +927,8 @@ class MediaSourceInfo {
       mediaStreams: (json['MediaStreams'] as List<dynamic>?)
           ?.map((e) => MediaStream.fromJson(e as Map<String, dynamic>))
           .toList(),
-      defaultAudioStreamIndex: json['DefaultAudioStreamIndex'] as int?,
-      defaultSubtitleStreamIndex: json['DefaultSubtitleStreamIndex'] as int?,
+      defaultAudioStreamIndex: _parseInt(json['DefaultAudioStreamIndex']),
+      defaultSubtitleStreamIndex: _parseInt(json['DefaultSubtitleStreamIndex']),
     );
   }
 
