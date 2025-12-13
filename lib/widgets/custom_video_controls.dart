@@ -601,7 +601,9 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
         tracks: widget.audioTracks!,
         selectedIndex: widget.currentAudioTrack,
         onSelected: (index) {
-          widget.onAudioTrackChanged?.call(index);
+          if (index != null) {
+            widget.onAudioTrackChanged?.call(index);
+          }
           Navigator.pop(context);
         },
       ),
