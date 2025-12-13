@@ -549,6 +549,12 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
           ref.read(authProvider.notifier).logout();
           Navigator.of(context).pop();
         },
+        onSettings: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MobileSettings()),
+          );
+        },
       ),
     );
   }
