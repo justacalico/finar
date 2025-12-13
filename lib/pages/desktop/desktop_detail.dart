@@ -187,7 +187,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                       height: 80,
                       fit: BoxFit.contain,
                       alignment: Alignment.centerLeft,
-                      errorBuilder: (_, __, ___) => Text(
+                      errorBuilder: (_, _, ___) => Text(
                         item.name,
                         style: AppTextStyles.displayMedium,
                       ),
