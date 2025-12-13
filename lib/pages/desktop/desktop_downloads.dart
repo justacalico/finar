@@ -993,7 +993,7 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                             width: 80,
                             height: 120,
                             fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
+                            placeholder: (_, _) => Container(
                               width: 80,
                               height: 120,
                               color: AppColors.surfaceElevated,
