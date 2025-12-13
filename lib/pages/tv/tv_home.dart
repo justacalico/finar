@@ -30,8 +30,8 @@ class _TvHomeState extends ConsumerState<TvHome> {
   @override
   void initState() {
     super.initState();
-    _loadData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
       _focusNode.requestFocus();
     });
   }
