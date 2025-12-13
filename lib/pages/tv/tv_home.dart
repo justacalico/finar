@@ -157,15 +157,16 @@ class _TvHomeState extends ConsumerState<TvHome> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topRight,
-            radius: 1.5,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              _accentColor.withValues(alpha: 0.4),
-              _dominantColor.withValues(alpha: 0.6),
-              AppColors.background,
+              _dominantColor.withValues(alpha: 0.8),
+              _accentColor.withValues(alpha: 0.5),
+              _dominantColor.withValues(alpha: 0.7),
+              AppColors.background.withValues(alpha: 0.9),
             ],
-            stops: const [0.0, 0.5, 1.0],
+            stops: const [0.0, 0.3, 0.7, 1.0],
           ),
         ),
       ),
