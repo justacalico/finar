@@ -426,7 +426,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           final episode = episodes[index];
           final isSelected =
               _inEpisodeSelection && _selectedEpisodeIndex == index;
-          return _buildEpisodeCard(episode, serverUrl, isSelected);
+          return _buildEpisodeCard(episode, serverUrl, isSelected, seasonId);
         },
       ),
       loading: () => const Center(
@@ -440,7 +440,10 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     MediaItem episode,
     String serverUrl,
     bool isSelected,
+    String seasonId,
   ) {
+    final isWatched = episode.isPlayed == true;
+    
     return GestureDetector(
       onTap: () => _playItem(episode),
       child: AnimatedContainer(
@@ -460,19 +463,48 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               child: Stack(
                 children: [
-                  Image.network(
-                    episode.getPrimaryImageUrl(serverUrl, width: 300),
-                    width: 160,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                  ColorFiltered(
+                    colorFilter: isWatched
+                        ? ColorFilter.mode(
+                            AppColors.black.withValues(alpha: 0.3),
+                            BlendMode.darken,
+                          )
+                        : const ColorFilter.mode(
+                            Colors.transparent,
+                            BlendMode.multiply,
+                          ),
+                    child: Image.network(
+                      episode.getPrimaryImageUrl(serverUrl, width: 300),
                       width: 160,
                       height: 90,
-                      color: AppColors.surface,
-                      child: const Icon(Icons.movie),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
+                        width: 160,
+                        height: 90,
+                        color: AppColors.surface,
+                        child: const Icon(Icons.movie),
+                      ),
                     ),
                   ),
-                  if (episode.hasProgress)
+                  // Watched indicator
+                  if (isWatched)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          size: 14,
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ),
+                  if (episode.hasProgress && !isWatched)
                     Positioned(
                       bottom: 0,
                       left: 0,
@@ -485,10 +517,10 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                         minHeight: 3,
                       ),
                     ),
-                  const Positioned.fill(
+                  Positioned.fill(
                     child: Center(
                       child: Icon(
-                        Icons.play_circle_outline,
+                        isWatched ? Icons.replay : Icons.play_circle_outline,
                         size: 32,
                         color: AppColors.white,
                       ),
@@ -505,13 +537,27 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'E${episode.indexNumber} - ${episode.name}',
-                    style: AppTextStyles.titleSmall.copyWith(
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'E${episode.indexNumber} - ${episode.name}',
+                          style: AppTextStyles.titleSmall.copyWith(
+                            color: isSelected 
+                                ? AppColors.primary 
+                                : (isWatched ? AppColors.textSecondary : AppColors.textPrimary),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isWatched)
+                        const Icon(
+                          Icons.check_circle,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   if (episode.overview != null)
