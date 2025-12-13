@@ -684,13 +684,377 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   void _downloadItem(MediaItem item) {
-    // TODO: Implement download
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Download coming soon')),
+    final downloadState = ref.read(downloadProvider);
+    final existingTask = downloadState.getTaskForItem(item.id);
+    
+    if (existingTask != null) {
+      // Show options for existing download
+      _showDownloadOptions(existingTask);
+    } else {
+      // Start new download
+      ref.read(downloadProvider.notifier).downloadItem(item);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Downloading "${item.name}"'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () => _showDownloadsSheet(),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _showDownloadOptions(DownloadTask task) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.itemName,
+              style: AppTextStyles.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Status: ${_getStatusText(task.status)}',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            if (task.status == DownloadStatus.downloading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LinearProgressIndicator(
+                      value: task.progress,
+                      backgroundColor: AppColors.divider,
+                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${task.formattedDownloadedSize} / ${task.formattedSize}',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 16),
+            if (task.status == DownloadStatus.downloading)
+              ListTile(
+                leading: const Icon(Icons.pause),
+                title: const Text('Pause Download'),
+                onTap: () {
+                  ref.read(downloadProvider.notifier).pauseDownload(task.id);
+                  Navigator.pop(context);
+                },
+              ),
+            if (task.canResume)
+              ListTile(
+                leading: const Icon(Icons.play_arrow),
+                title: const Text('Resume Download'),
+                onTap: () {
+                  ref.read(downloadProvider.notifier).resumeDownload(task.id);
+                  Navigator.pop(context);
+                },
+              ),
+            if (task.status == DownloadStatus.completed)
+              ListTile(
+                leading: const Icon(Icons.play_circle_outline),
+                title: const Text('Play Downloaded'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // TODO: Play from local file
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: AppColors.error),
+              title: const Text('Delete Download', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                ref.read(downloadProvider.notifier).deleteDownload(task.id);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getStatusText(DownloadStatus status) {
+    switch (status) {
+      case DownloadStatus.pending:
+        return 'Waiting...';
+      case DownloadStatus.downloading:
+        return 'Downloading';
+      case DownloadStatus.paused:
+        return 'Paused';
+      case DownloadStatus.completed:
+        return 'Downloaded';
+      case DownloadStatus.failed:
+        return 'Failed';
+      case DownloadStatus.cancelled:
+        return 'Cancelled';
+    }
+  }
+
+  void _showDownloadsSheet() {
+    // Navigate to downloads page
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const _DownloadsPage(),
+      ),
     );
   }
 
   void _shareItem(MediaItem item) {
     // TODO: Implement share
+  }
+}
+
+/// Downloads page
+class _DownloadsPage extends ConsumerWidget {
+  const _DownloadsPage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final downloadState = ref.watch(downloadProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Downloads'),
+        actions: [
+          if (downloadState.downloads.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep),
+              onPressed: () => _showDeleteAllDialog(context, ref),
+            ),
+        ],
+      ),
+      body: downloadState.downloads.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.download_outlined,
+                    size: 64,
+                    color: AppColors.textTertiary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Downloads',
+                    style: AppTextStyles.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Downloaded content will appear here',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: downloadState.downloads.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final task = downloadState.downloads[index];
+                return _DownloadTile(task: task, serverUrl: serverUrl);
+              },
+            ),
+    );
+  }
+
+  void _showDeleteAllDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete All Downloads'),
+        content: const Text('Are you sure you want to delete all downloads? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(downloadProvider.notifier).deleteAllDownloads();
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DownloadTile extends ConsumerWidget {
+  final DownloadTask task;
+  final String serverUrl;
+
+  const _DownloadTile({required this.task, required this.serverUrl});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GlassCard(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          // Thumbnail
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              task.getImageUrl(serverUrl),
+              width: 60,
+              height: 90,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                width: 60,
+                height: 90,
+                color: AppColors.surface,
+                child: const Icon(Icons.movie),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  task.itemName,
+                  style: AppTextStyles.titleSmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _getStatusText(task.status),
+                  style: AppTextStyles.caption.copyWith(
+                    color: _getStatusColor(task.status),
+                  ),
+                ),
+                if (task.status == DownloadStatus.downloading) ...[
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: task.progress,
+                    backgroundColor: AppColors.divider,
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${task.formattedDownloadedSize} / ${task.formattedSize}',
+                    style: AppTextStyles.caption,
+                  ),
+                ],
+                if (task.status == DownloadStatus.completed)
+                  Text(
+                    task.formattedSize,
+                    style: AppTextStyles.caption,
+                  ),
+              ],
+            ),
+          ),
+          // Action button
+          _buildActionButton(context, ref),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(BuildContext context, WidgetRef ref) {
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return IconButton(
+          icon: const Icon(Icons.pause),
+          onPressed: () => ref.read(downloadProvider.notifier).pauseDownload(task.id),
+        );
+      case DownloadStatus.paused:
+      case DownloadStatus.failed:
+        return IconButton(
+          icon: const Icon(Icons.play_arrow),
+          onPressed: () => ref.read(downloadProvider.notifier).resumeDownload(task.id),
+        );
+      case DownloadStatus.completed:
+        return PopupMenuButton(
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'play',
+              child: ListTile(
+                leading: Icon(Icons.play_circle_outline),
+                title: Text('Play'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete_outline, color: AppColors.error),
+                title: Text('Delete', style: TextStyle(color: AppColors.error)),
+                dense: true,
+              ),
+            ),
+          ],
+          onSelected: (value) {
+            if (value == 'delete') {
+              ref.read(downloadProvider.notifier).deleteDownload(task.id);
+            }
+            // TODO: Handle play
+          },
+        );
+      default:
+        return IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => ref.read(downloadProvider.notifier).deleteDownload(task.id),
+        );
+    }
+  }
+
+  String _getStatusText(DownloadStatus status) {
+    switch (status) {
+      case DownloadStatus.pending:
+        return 'Waiting...';
+      case DownloadStatus.downloading:
+        return 'Downloading';
+      case DownloadStatus.paused:
+        return 'Paused';
+      case DownloadStatus.completed:
+        return 'Downloaded';
+      case DownloadStatus.failed:
+        return 'Failed';
+      case DownloadStatus.cancelled:
+        return 'Cancelled';
+    }
+  }
+
+  Color _getStatusColor(DownloadStatus status) {
+    switch (status) {
+      case DownloadStatus.downloading:
+        return AppColors.primary;
+      case DownloadStatus.completed:
+        return AppColors.success;
+      case DownloadStatus.failed:
+        return AppColors.error;
+      case DownloadStatus.paused:
+        return AppColors.accentYellow;
+      default:
+        return AppColors.textSecondary;
+    }
   }
 }
