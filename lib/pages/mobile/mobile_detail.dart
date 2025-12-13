@@ -6,6 +6,7 @@ import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
+import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'mobile_player.dart';
