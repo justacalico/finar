@@ -175,6 +175,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     required IconData activeIcon,
     required String label,
     required int index,
+    VoidCallback? onTap,
   }) {
     final isSelected = _selectedIndex == index && _selectedLibraryId == null;
 
@@ -185,7 +186,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          onTap: () {
+          onTap: onTap ?? () {
             setState(() {
               _selectedIndex = index;
               _selectedLibraryId = null;
