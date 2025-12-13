@@ -3,28 +3,7 @@ import '../core/api/jellyfin_api.dart';
 import '../core/api/media_service.dart';
 import '../core/api/models/media_item.dart';
 import 'auth_provider.dart';
-
-/// Provider for the Jellyfin API client
-final jellyfinApiProvider = Provider<JellyfinApi>((ref) {
-  final authState = ref.watch(authProvider);
-  final api = JellyfinApi();
-  
-  if (authState.user != null) {
-    api.configure(
-      serverUrl: authState.user!.serverUrl,
-      accessToken: authState.user!.accessToken,
-      userId: authState.user!.id,
-    );
-  }
-  
-  return api;
-});
-
-/// Provider for the media service
-final mediaServiceProvider = Provider<MediaService>((ref) {
-  final api = ref.watch(jellyfinApiProvider);
-  return MediaService(api);
-});
+import 'library_provider.dart';
 
 /// Provider for media item detail
 final mediaItemDetailProvider = FutureProvider.family<MediaItem, String>((ref, itemId) async {
