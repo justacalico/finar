@@ -247,20 +247,33 @@ final searchResultsProvider = Provider<List<MediaItem>>((ref) {
 /// Provider for media actions (favorites, watched, etc.)
 final mediaActionsProvider = Provider<MediaActions>((ref) {
   final api = ref.watch(jellyfinApiProvider);
-  return MediaActions(api);
+  return MediaActions(api, ref);
 });
 
 /// Media actions helper class
 class MediaActions {
   final JellyfinApi _api;
+  final Ref _ref;
 
-  MediaActions(this._api);
+  MediaActions(this._api, this._ref);
 
   Future<void> toggleFavorite(String itemId, bool isFavorite) async {
     await _api.setFavorite(itemId, isFavorite);
+    // Invalidate the item detail provider to refresh the UI
+    _ref.invalidate(mediaItemDetailProvider(itemId));
   }
 
   Future<void> toggleWatched(String itemId, bool isWatched) async {
     await _api.setWatched(itemId, isWatched);
+    // Invalidate the item detail provider to refresh the UI
+    _ref.invalidate(mediaItemDetailProvider(itemId));
+  }
+
+  /// Mark an episode as watched and refresh relevant providers
+  Future<void> markEpisodeWatched(String episodeId, String seasonId, bool isWatched) async {
+    await _api.setWatched(episodeId, isWatched);
+    // Invalidate both the episode detail and episodes list
+    _ref.invalidate(mediaItemDetailProvider(episodeId));
+    _ref.invalidate(episodesProvider(seasonId));
   }
 }
