@@ -167,6 +167,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
             ),
           ],
 
+          // Next Up
+          if (libraryState.nextUp.isNotEmpty) ...[
+            _buildSectionHeader('Next Up'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.nextUp, serverUrl),
+            ),
+          ],
+
           // Recently Added
           if (libraryState.recentlyAdded.isNotEmpty) ...[
             _buildSectionHeader('Recently Added'),
@@ -175,11 +183,51 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
             ),
           ],
 
-          // Next Up
-          if (libraryState.nextUp.isNotEmpty) ...[
-            _buildSectionHeader('Next Up'),
+          // New Releases
+          if (libraryState.recentlyReleased.isNotEmpty) ...[
+            _buildSectionHeader('New Releases'),
             SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.nextUp, serverUrl),
+              child: _buildMediaRow(libraryState.recentlyReleased, serverUrl),
+            ),
+          ],
+
+          // New Movies
+          if (libraryState.recentlyAddedMovies.isNotEmpty) ...[
+            _buildSectionHeader('New Movies'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.recentlyAddedMovies, serverUrl),
+            ),
+          ],
+
+          // New TV Shows
+          if (libraryState.recentlyAddedShows.isNotEmpty) ...[
+            _buildSectionHeader('New TV Shows'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.recentlyAddedShows, serverUrl),
+            ),
+          ],
+
+          // Recommended
+          if (libraryState.recommended.isNotEmpty) ...[
+            _buildSectionHeader('Recommended For You'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.recommended, serverUrl),
+            ),
+          ],
+
+          // Top Rated
+          if (libraryState.topRated.isNotEmpty) ...[
+            _buildSectionHeader('Top Rated'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.topRated, serverUrl),
+            ),
+          ],
+
+          // Favorites
+          if (libraryState.favorites.isNotEmpty) ...[
+            _buildSectionHeader('My Favorites'),
+            SliverToBoxAdapter(
+              child: _buildMediaRow(libraryState.favorites, serverUrl),
             ),
           ],
 
