@@ -193,7 +193,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
   }
 
   Future<void> refresh() async {
-    state = const LibraryContentState();
+    state = LibraryContentState(isMusicLibrary: _isMusicLibrary);
     await _loadInitial();
   }
 
@@ -202,6 +202,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
       sortBy: sortBy,
       sortOrder: sortOrder,
       searchQuery: state.searchQuery,
+      isMusicLibrary: _isMusicLibrary,
     );
     _loadInitial();
   }
@@ -211,6 +212,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
       sortBy: state.sortBy,
       sortOrder: state.sortOrder,
       searchQuery: query.isEmpty ? null : query,
+      isMusicLibrary: _isMusicLibrary,
     );
     _loadInitial();
   }
