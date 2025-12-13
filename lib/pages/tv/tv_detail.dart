@@ -99,7 +99,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                         height: 100,
                         fit: BoxFit.contain,
                         alignment: Alignment.centerLeft,
-                        errorBuilder: (_, __, ___) => Text(
+                        errorBuilder: (_, _, ___) => Text(
                           item.name,
                           style: AppTextStyles.displayMedium,
                         ),
@@ -160,7 +160,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
         Image.network(
           item.getBackdropImageUrl(serverUrl, width: 1920),
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(color: AppColors.background),
+          errorBuilder: (_, _, ___) => Container(color: AppColors.background),
         ),
 
         // Gradient overlays
