@@ -550,13 +550,27 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     final isSeries = item.type == MediaType.series;
     final buttonCount = _getButtonCount(item);
 
+    // Get episodes count for bounds checking
+    int episodesCount = 0;
+    if (isSeries) {
+      final seasonsAsync = ref.read(seasonsProvider(item.id));
+      final seasons = seasonsAsync.valueOrNull ?? [];
+      if (seasons.isNotEmpty && _selectedSeasonIndex < seasons.length) {
+        final seasonId = seasons[_selectedSeasonIndex].id;
+        final episodesAsync = ref.read(episodesProvider(seasonId));
+        episodesCount = episodesAsync.valueOrNull?.length ?? 0;
+      }
+    }
+
     setState(() {
       switch (event.logicalKey) {
         case LogicalKeyboardKey.arrowUp:
           if (_inEpisodeSelection && _selectedEpisodeIndex > 0) {
             _selectedEpisodeIndex--;
+            _scrollToSelectedEpisode();
           } else if (_inEpisodeSelection && _selectedEpisodeIndex == 0) {
             _selectedEpisodeIndex = -1; // Season tabs
+            _scrollToTopOfEpisodes();
           }
           break;
 
@@ -564,8 +578,10 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           if (_inEpisodeSelection) {
             if (_selectedEpisodeIndex == -1) {
               _selectedEpisodeIndex = 0;
-            } else {
+              _scrollToSelectedEpisode();
+            } else if (_selectedEpisodeIndex < episodesCount - 1) {
               _selectedEpisodeIndex++;
+              _scrollToSelectedEpisode();
             }
           }
           break;
@@ -574,6 +590,8 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           if (_inEpisodeSelection) {
             if (_selectedEpisodeIndex == -1 && _selectedSeasonIndex > 0) {
               _selectedSeasonIndex--;
+              _selectedEpisodeIndex = 0;
+              _scrollToTopOfEpisodes();
             } else {
               _inEpisodeSelection = false;
             }
@@ -588,6 +606,8 @@ class _TvDetailState extends ConsumerState<TvDetail> {
             final seasons = seasonsAsync.valueOrNull ?? [];
             if (_selectedSeasonIndex < seasons.length - 1) {
               _selectedSeasonIndex++;
+              _selectedEpisodeIndex = 0;
+              _scrollToTopOfEpisodes();
             }
           } else if (!_inEpisodeSelection) {
             if (_selectedButtonIndex < buttonCount - 1) {
@@ -595,6 +615,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
             } else if (isSeries) {
               _inEpisodeSelection = true;
               _selectedEpisodeIndex = 0;
+              _scrollToTopOfEpisodes();
             }
           }
           break;
@@ -614,6 +635,33 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           break;
       }
     });
+  }
+
+  void _scrollToSelectedEpisode() {
+    if (_selectedEpisodeIndex < 0) return;
+    
+    final targetOffset = _selectedEpisodeIndex * _episodeCardHeight;
+    final maxScroll = _episodesScrollController.hasClients 
+        ? _episodesScrollController.position.maxScrollExtent 
+        : 0.0;
+    
+    if (_episodesScrollController.hasClients) {
+      _episodesScrollController.animateTo(
+        targetOffset.clamp(0.0, maxScroll),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  void _scrollToTopOfEpisodes() {
+    if (_episodesScrollController.hasClients) {
+      _episodesScrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+      );
+    }
   }
 
   int _getButtonCount(MediaItem item) {
