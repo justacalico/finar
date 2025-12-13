@@ -38,6 +38,7 @@ class AppColors {
   static const Color accentOrange = Color(0xFFF97316);
   static const Color accentYellow = Color(0xFFFBBF24);
   static const Color accentRed = Color(0xFFEF4444);
+  static const Color accentBlue = Color(0xFF3B82F6);
   
   // Glass background for player and overlays
   static const Color glassBackground = Color(0x80000000);

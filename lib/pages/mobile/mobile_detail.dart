@@ -654,7 +654,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                 },
               ),
               loading: () => const ShimmerLoading(height: 200),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
           ),
         ],
