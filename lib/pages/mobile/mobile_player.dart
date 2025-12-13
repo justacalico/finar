@@ -564,7 +564,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                                   .read(playerProvider.notifier)
                                   .setSubtitleTrack(track.index),
                             ))
-                        .toList(),
+                        ,
                 ],
               ),
             ],
