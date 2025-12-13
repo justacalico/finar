@@ -24,6 +24,10 @@ class PlayerState {
   final MediaItem? nextItem;
   final List<MediaItem>? playlist;
   final int? playlistIndex;
+  final List<ChapterInfo>? chapters;
+  final int? currentSubtitleTrack;
+  final List<String> availableQualities;
+  final String? currentQuality;
 
   const PlayerState({
     this.currentItem,
@@ -41,6 +45,10 @@ class PlayerState {
     this.nextItem,
     this.playlist,
     this.playlistIndex,
+    this.chapters,
+    this.currentSubtitleTrack,
+    this.availableQualities = const ['Auto', '1080p', '720p', '480p'],
+    this.currentQuality = 'Auto',
   });
 
   PlayerState copyWith({
@@ -59,6 +67,10 @@ class PlayerState {
     MediaItem? nextItem,
     List<MediaItem>? playlist,
     int? playlistIndex,
+    List<ChapterInfo>? chapters,
+    int? currentSubtitleTrack,
+    List<String>? availableQualities,
+    String? currentQuality,
   }) {
     return PlayerState(
       currentItem: currentItem ?? this.currentItem,
@@ -76,6 +88,10 @@ class PlayerState {
       nextItem: nextItem ?? this.nextItem,
       playlist: playlist ?? this.playlist,
       playlistIndex: playlistIndex ?? this.playlistIndex,
+      chapters: chapters ?? this.chapters,
+      currentSubtitleTrack: currentSubtitleTrack ?? this.currentSubtitleTrack,
+      availableQualities: availableQualities ?? this.availableQualities,
+      currentQuality: currentQuality ?? this.currentQuality,
     );
   }
 
