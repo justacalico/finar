@@ -243,8 +243,8 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
     loadInitial();
   }
 
-  void refresh() {
-    loadInitial();
+  Future<void> refresh() async {
+    await loadInitial();
   }
 }
 
