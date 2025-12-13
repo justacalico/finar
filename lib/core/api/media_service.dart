@@ -14,7 +14,13 @@ class MediaService {
     final results = await Future.wait([
       _api.getContinueWatching(limit: 12),
       _api.getNextUp(limit: 12),
-      _api.getRecentlyAdded(limit: 16),
+      _api.getRecentlyAdded(limit: 20),
+      _api.getRecentlyReleased(limit: 16),
+      _api.getTopRated(limit: 16),
+      _api.getRecommended(limit: 16),
+      _api.getFavorites(limit: 16),
+      _api.getRecentlyAdded(limit: 12, includeItemTypes: ['Movie']),
+      _api.getRecentlyAdded(limit: 12, includeItemTypes: ['Series']),
       _api.getLibraries(),
     ]);
 
@@ -22,7 +28,13 @@ class MediaService {
       continueWatching: results[0] as List<MediaItem>,
       nextUp: results[1] as List<MediaItem>,
       recentlyAdded: results[2] as List<MediaItem>,
-      libraries: results[3] as List<Library>,
+      recentlyReleased: results[3] as List<MediaItem>,
+      topRated: results[4] as List<MediaItem>,
+      recommended: results[5] as List<MediaItem>,
+      favorites: results[6] as List<MediaItem>,
+      recentlyAddedMovies: results[7] as List<MediaItem>,
+      recentlyAddedShows: results[8] as List<MediaItem>,
+      libraries: results[9] as List<Library>,
     );
   }
 
