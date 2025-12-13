@@ -543,7 +543,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
     bool showProgress = false,
   }) {
     final width = showProgress ? 250.0 : 150.0;
-    final height = showProgress ? 140.0 : 220.0;
+    final imageHeight = showProgress ? 140.0 : 200.0;
 
     return GestureDetector(
       onTap: () => _navigateToDetail(item.id),
@@ -564,6 +564,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
         transformAlignment: Alignment.center,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Image
             ClipRRect(
@@ -575,11 +576,11 @@ class _TvHomeState extends ConsumerState<TvHome> {
                         ? item.getBackdropImageUrl(serverUrl, width: 400)
                         : item.getPrimaryImageUrl(serverUrl, width: 250),
                     width: width,
-                    height: height,
+                    height: imageHeight,
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => Container(
                       width: width,
-                      height: height,
+                      height: imageHeight,
                       color: AppColors.surface,
                       child: const Icon(Icons.movie),
                     ),
