@@ -129,7 +129,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                     padding: EdgeInsets.all(16),
                     child: ShimmerLoading(height: 40),
                   ),
-                  error: (_, __) => const SizedBox(),
+                  error: (_, _) => const SizedBox(),
                 ),
                 
                 const SizedBox(height: 16),
