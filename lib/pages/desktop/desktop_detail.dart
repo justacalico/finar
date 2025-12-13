@@ -251,9 +251,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               style: AppTextStyles.labelSmall,
             ),
           ),
-        if (item.formattedRuntime != null)
+        if (item.formattedRuntime.isNotEmpty)
           Text(
-            item.formattedRuntime!,
+            item.formattedRuntime,
             style: AppTextStyles.bodyLarge,
           ),
         if (item.communityRating != null)
