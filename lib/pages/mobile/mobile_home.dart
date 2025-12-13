@@ -924,7 +924,7 @@ class _DownloadListTile extends StatelessWidget {
                         color: AppColors.surfaceElevated,
                         child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
                       ),
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, ___) => Container(
                         width: 56,
                         height: 80,
                         color: AppColors.surfaceElevated,
