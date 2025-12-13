@@ -11,6 +11,7 @@ import '../../widgets/widgets.dart';
 import 'desktop_library.dart';
 import 'desktop_detail.dart';
 import 'desktop_downloads.dart';
+import 'desktop_settings.dart';
 
 class DesktopHome extends ConsumerStatefulWidget {
   const DesktopHome({super.key});
@@ -155,6 +156,14 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   activeIcon: Icons.settings,
                   label: 'Settings',
                   index: 100,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DesktopSettings(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
