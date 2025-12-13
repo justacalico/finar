@@ -448,7 +448,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                     width: 160,
                     height: 90,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, __, _) => Container(
                       width: 160,
                       height: 90,
                       color: AppColors.surface,
