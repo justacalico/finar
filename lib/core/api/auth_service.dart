@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'jellyfin_api.dart';
 import 'models/user.dart';
 
@@ -12,7 +11,6 @@ class AuthService {
   static const _keyServers = 'servers';
 
   late Box _authBox;
-  late SharedPreferences _prefs;
   final JellyfinApi _api;
 
   AuthService(this._api);
@@ -21,7 +19,6 @@ class AuthService {
   Future<void> init() async {
     await Hive.initFlutter();
     _authBox = await Hive.openBox(_boxName);
-    _prefs = await SharedPreferences.getInstance();
   }
 
   /// Check if user is logged in
