@@ -26,8 +26,12 @@ class PlayerState {
   final int? playlistIndex;
   final List<ChapterInfo>? chapters;
   final int? currentSubtitleTrack;
+  final int? currentAudioTrack;
   final List<String> availableQualities;
   final String? currentQuality;
+  final List<MediaStreamData>? audioTracks;
+  final List<MediaStreamData>? subtitleTracks;
+  final double playbackSpeed;
 
   const PlayerState({
     this.currentItem,
@@ -47,8 +51,12 @@ class PlayerState {
     this.playlistIndex,
     this.chapters,
     this.currentSubtitleTrack,
+    this.currentAudioTrack,
     this.availableQualities = const ['Auto', '1080p', '720p', '480p'],
     this.currentQuality = 'Auto',
+    this.audioTracks,
+    this.subtitleTracks,
+    this.playbackSpeed = 1.0,
   });
 
   PlayerState copyWith({
@@ -69,8 +77,12 @@ class PlayerState {
     int? playlistIndex,
     List<ChapterInfo>? chapters,
     int? currentSubtitleTrack,
+    int? currentAudioTrack,
     List<String>? availableQualities,
     String? currentQuality,
+    List<MediaStreamData>? audioTracks,
+    List<MediaStreamData>? subtitleTracks,
+    double? playbackSpeed,
   }) {
     return PlayerState(
       currentItem: currentItem ?? this.currentItem,
@@ -88,6 +100,16 @@ class PlayerState {
       nextItem: nextItem ?? this.nextItem,
       playlist: playlist ?? this.playlist,
       playlistIndex: playlistIndex ?? this.playlistIndex,
+      chapters: chapters ?? this.chapters,
+      currentSubtitleTrack: currentSubtitleTrack ?? this.currentSubtitleTrack,
+      currentAudioTrack: currentAudioTrack ?? this.currentAudioTrack,
+      availableQualities: availableQualities ?? this.availableQualities,
+      currentQuality: currentQuality ?? this.currentQuality,
+      audioTracks: audioTracks ?? this.audioTracks,
+      subtitleTracks: subtitleTracks ?? this.subtitleTracks,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+    );
+  }
       chapters: chapters ?? this.chapters,
       currentSubtitleTrack: currentSubtitleTrack ?? this.currentSubtitleTrack,
       availableQualities: availableQualities ?? this.availableQualities,
