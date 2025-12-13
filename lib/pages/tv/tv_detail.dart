@@ -667,6 +667,95 @@ class _TvDetailState extends ConsumerState<TvDetail> {
   void _toggleWatched(MediaItem item) {
     ref.read(mediaActionsProvider).toggleWatched(item.id, !(item.isPlayed == true));
   }
+
+  IconData _getDownloadIcon(DownloadTask? download) {
+    if (download == null) return Icons.download_outlined;
+    switch (download.status) {
+      case DownloadStatus.downloading:
+        return Icons.downloading;
+      case DownloadStatus.paused:
+        return Icons.pause_circle_outline;
+      case DownloadStatus.completed:
+        return Icons.download_done;
+      case DownloadStatus.failed:
+        return Icons.error_outline;
+      case DownloadStatus.pending:
+        return Icons.hourglass_empty;
+      case DownloadStatus.cancelled:
+        return Icons.download_outlined;
+    }
+  }
+
+  String _getDownloadLabel(DownloadTask? download) {
+    if (download == null) return 'Download';
+    switch (download.status) {
+      case DownloadStatus.downloading:
+        return '${(download.progress * 100).toInt()}%';
+      case DownloadStatus.paused:
+        return 'Paused';
+      case DownloadStatus.completed:
+        return 'Downloaded';
+      case DownloadStatus.failed:
+        return 'Retry';
+      case DownloadStatus.pending:
+        return 'Pending';
+      case DownloadStatus.cancelled:
+        return 'Download';
+    }
+  }
+
+  void _handleDownloadAction(MediaItem item, DownloadTask? download) {
+    if (download == null || download.status == DownloadStatus.cancelled || download.status == DownloadStatus.failed) {
+      _startDownload(item);
+    } else if (download.status == DownloadStatus.downloading) {
+      ref.read(downloadProvider.notifier).pauseDownload(download.id);
+    } else if (download.status == DownloadStatus.paused) {
+      ref.read(downloadProvider.notifier).resumeDownload(download.id);
+    } else if (download.status == DownloadStatus.pending) {
+      ref.read(downloadProvider.notifier).cancelDownload(download.id);
+    } else if (download.status == DownloadStatus.completed) {
+      _showDownloadCompleteDialog(download.id);
+    }
+  }
+
+  Future<void> _startDownload(MediaItem item) async {
+    try {
+      await ref.read(downloadProvider.notifier).downloadItem(item);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start download: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showDownloadCompleteDialog(String taskId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Download Complete'),
+        content: const Text('This item has been downloaded.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(downloadProvider.notifier).deleteDownload(taskId);
+              Navigator.pop(context);
+            },
+            child: const Text('Remove', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ActionButton {
