@@ -663,7 +663,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                           ? CachedNetworkImage(
                               imageUrl: '${widget.serverUrl}/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
                               fit: BoxFit.cover,
-                              placeholder: (_, __) => Container(
+                              placeholder: (_, _) => Container(
                                 color: AppColors.surfaceElevated,
                                 child: const Center(
                                   child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
