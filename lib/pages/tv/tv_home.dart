@@ -247,6 +247,7 @@ class _TvHomeState extends ConsumerState<TvHome> {
     final rows = _buildRows(state, serverUrl);
 
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.symmetric(vertical: 40),
       itemCount: rows.length,
       itemBuilder: (context, index) {
