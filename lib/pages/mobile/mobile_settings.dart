@@ -5,7 +5,6 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/platform_detector.dart';
 import '../../providers/providers.dart';
-import '../../providers/settings_provider.dart';
 import '../../widgets/widgets.dart';
 
 class MobileSettings extends ConsumerStatefulWidget {
