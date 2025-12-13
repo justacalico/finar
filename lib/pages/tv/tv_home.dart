@@ -70,6 +70,17 @@ class _TvHomeState extends ConsumerState<TvHome> {
   Widget build(BuildContext context) {
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    
+    // Get the currently selected item for the background
+    final rows = _buildRowData(libraryState);
+    dynamic selectedItem;
+    if (_selectedRowIndex >= 0 && _selectedRowIndex < rows.length) {
+      final row = rows[_selectedRowIndex];
+      if (_selectedItemIndex >= 0 && _selectedItemIndex < row.length) {
+        selectedItem = row[_selectedItemIndex];
+      }
+    }
+    selectedItem ??= libraryState.featuredItem;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -78,9 +89,9 @@ class _TvHomeState extends ConsumerState<TvHome> {
         onKeyEvent: _handleKeyEvent,
         child: Stack(
           children: [
-            // Background blur of featured item
-            if (libraryState.featuredItem != null)
-              _buildBackground(libraryState.featuredItem!, serverUrl),
+            // Background blur of selected/featured item
+            if (selectedItem != null)
+              _buildBackground(selectedItem, serverUrl),
 
             // Main content
             Row(
