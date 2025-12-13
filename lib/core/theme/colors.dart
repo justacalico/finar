@@ -37,6 +37,13 @@ class AppColors {
   static const Color accentPink = Color(0xFFEC4899);
   static const Color accentOrange = Color(0xFFF97316);
   static const Color accentYellow = Color(0xFFFBBF24);
+  static const Color accentRed = Color(0xFFEF4444);
+  
+  // Glass background for player and overlays
+  static const Color glassBackground = Color(0x80000000);
+  
+  // Divider color
+  static const Color divider = Color(0xFF3A3A3C);
   
   // Text colors
   static const Color textPrimary = Color(0xFFFFFFFF);
