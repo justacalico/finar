@@ -512,6 +512,24 @@ class JellyfinApi {
     await _dio.delete('/Users/$_userId/FavoriteItems/$itemId');
   }
 
+  /// Set favorite status
+  Future<void> setFavorite(String itemId, bool isFavorite) async {
+    if (isFavorite) {
+      await addFavorite(itemId);
+    } else {
+      await removeFavorite(itemId);
+    }
+  }
+
+  /// Set watched status
+  Future<void> setWatched(String itemId, bool isWatched) async {
+    if (isWatched) {
+      await markPlayed(itemId);
+    } else {
+      await markUnplayed(itemId);
+    }
+  }
+
   /// Get external subtitle URL
   String getSubtitleUrl(
     String itemId,
