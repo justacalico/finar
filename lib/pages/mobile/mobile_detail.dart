@@ -330,8 +330,8 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
             // Favorite
             GlassIconButton(
-              icon: item.isFavorite ? Icons.favorite : Icons.favorite_border,
-              iconColor: item.isFavorite ? AppColors.accentRed : null,
+              icon: (item.isFavorite == true) ? Icons.favorite : Icons.favorite_border,
+              iconColor: (item.isFavorite == true) ? AppColors.accentRed : null,
               onPressed: () => _toggleFavorite(item),
             ),
 
@@ -339,10 +339,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
             // Watched
             GlassIconButton(
-              icon: item.isPlayed
+              icon: (item.isPlayed == true)
                   ? Icons.check_circle
                   : Icons.check_circle_outline,
-              iconColor: item.isPlayed ? AppColors.primary : null,
+              iconColor: (item.isPlayed == true) ? AppColors.primary : null,
               onPressed: () => _toggleWatched(item),
             ),
 
