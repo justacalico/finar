@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'mobile_library.dart';
@@ -759,39 +760,341 @@ class _MobileLibraryBrowser extends ConsumerWidget {
   }
 }
 
-class _MobileDownloadsPage extends StatelessWidget {
+class _MobileDownloadsPage extends ConsumerWidget {
   const _MobileDownloadsPage();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final downloadState = ref.watch(downloadProvider);
+    final downloads = downloadState.downloads.values.toList();
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+
+    // Sort downloads: active first, then completed, then others
+    downloads.sort((a, b) {
+      const statusOrder = {
+        DownloadStatus.downloading: 0,
+        DownloadStatus.pending: 1,
+        DownloadStatus.paused: 2,
+        DownloadStatus.completed: 3,
+        DownloadStatus.failed: 4,
+        DownloadStatus.cancelled: 5,
+      };
+      return (statusOrder[a.status] ?? 6).compareTo(statusOrder[b.status] ?? 6);
+    });
+
+    if (downloads.isEmpty) {
+      return SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.download_outlined,
+                size: 64,
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Downloads',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Downloaded content will appear here',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Text(
+                  'Downloads',
+                  style: AppTextStyles.headlineMedium,
+                ),
+                const Spacer(),
+                if (downloadState.activeDownloadIds.isNotEmpty)
+                  Text(
+                    '${downloadState.activeDownloadIds.length} active',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: downloads.length,
+              itemBuilder: (context, index) {
+                final download = downloads[index];
+                return _DownloadListTile(
+                  download: download,
+                  serverUrl: serverUrl,
+                  onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.itemId),
+                  onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.itemId),
+                  onCancel: () => ref.read(downloadProvider.notifier).cancelDownload(download.itemId),
+                  onRemove: () => ref.read(downloadProvider.notifier).removeDownload(download.itemId),
+                  onTap: () {
+                    if (download.status == DownloadStatus.completed) {
+                      // Navigate to detail page or play
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MobileDetail(itemId: download.itemId),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DownloadListTile extends StatelessWidget {
+  final DownloadTask download;
+  final String serverUrl;
+  final VoidCallback onPause;
+  final VoidCallback onResume;
+  final VoidCallback onCancel;
+  final VoidCallback onRemove;
+  final VoidCallback onTap;
+
+  const _DownloadListTile({
+    required this.download,
+    required this.serverUrl,
+    required this.onPause,
+    required this.onResume,
+    required this.onCancel,
+    required this.onRemove,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassContainer(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      blur: AppTheme.blurLight,
+      opacity: 0.05,
+      borderRadius: AppTheme.radiusMd,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Row(
           children: [
-            Icon(
-              Icons.download_outlined,
-              size: 64,
-              color: AppColors.textSecondary.withValues(alpha: 0.5),
+            // Thumbnail
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              child: download.imageTag != null
+                  ? CachedNetworkImage(
+                      imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.imageTag}',
+                      width: 56,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => Container(
+                        width: 56,
+                        height: 80,
+                        color: AppColors.surfaceLight,
+                        child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
+                      ),
+                      errorWidget: (_, __, ___) => Container(
+                        width: 56,
+                        height: 80,
+                        color: AppColors.surfaceLight,
+                        child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
+                      ),
+                    )
+                  : Container(
+                      width: 56,
+                      height: 80,
+                      color: AppColors.surfaceLight,
+                      child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
+                    ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'No Downloads',
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.textSecondary,
+            const SizedBox(width: 12),
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    download.itemName,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  _buildStatusRow(),
+                  if (download.status == DownloadStatus.downloading ||
+                      download.status == DownloadStatus.paused) ...[
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: download.progress,
+                      backgroundColor: AppColors.surfaceLight,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        download.status == DownloadStatus.paused
+                            ? AppColors.warning
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Downloaded content will appear here',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textTertiary,
-              ),
-            ),
+            const SizedBox(width: 12),
+            // Actions
+            _buildActionButton(),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildStatusRow() {
+    IconData icon;
+    Color color;
+    String text;
+
+    switch (download.status) {
+      case DownloadStatus.pending:
+        icon = Icons.hourglass_empty;
+        color = AppColors.textSecondary;
+        text = 'Pending';
+        break;
+      case DownloadStatus.downloading:
+        icon = Icons.downloading;
+        color = AppColors.primary;
+        text = '${(download.progress * 100).toInt()}%';
+        break;
+      case DownloadStatus.paused:
+        icon = Icons.pause_circle_outline;
+        color = AppColors.warning;
+        text = 'Paused - ${(download.progress * 100).toInt()}%';
+        break;
+      case DownloadStatus.completed:
+        icon = Icons.check_circle_outline;
+        color = AppColors.success;
+        text = 'Downloaded';
+        break;
+      case DownloadStatus.failed:
+        icon = Icons.error_outline;
+        color = AppColors.error;
+        text = download.error ?? 'Failed';
+        break;
+      case DownloadStatus.cancelled:
+        icon = Icons.cancel_outlined;
+        color = AppColors.textSecondary;
+        text = 'Cancelled';
+        break;
+    }
+
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodySmall.copyWith(color: color),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton() {
+    switch (download.status) {
+      case DownloadStatus.downloading:
+        return IconButton(
+          onPressed: onPause,
+          icon: const Icon(Icons.pause, color: AppColors.textSecondary),
+          tooltip: 'Pause',
+        );
+      case DownloadStatus.paused:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: onResume,
+              icon: const Icon(Icons.play_arrow, color: AppColors.primary),
+              tooltip: 'Resume',
+            ),
+            IconButton(
+              onPressed: onCancel,
+              icon: const Icon(Icons.close, color: AppColors.error),
+              tooltip: 'Cancel',
+            ),
+          ],
+        );
+      case DownloadStatus.pending:
+        return IconButton(
+          onPressed: onCancel,
+          icon: const Icon(Icons.close, color: AppColors.textSecondary),
+          tooltip: 'Cancel',
+        );
+      case DownloadStatus.completed:
+        return PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
+          onSelected: (value) {
+            if (value == 'remove') {
+              onRemove();
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'remove',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+                  SizedBox(width: 8),
+                  Text('Remove'),
+                ],
+              ),
+            ),
+          ],
+        );
+      case DownloadStatus.failed:
+      case DownloadStatus.cancelled:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: onResume,
+              icon: const Icon(Icons.refresh, color: AppColors.primary),
+              tooltip: 'Retry',
+            ),
+            IconButton(
+              onPressed: onRemove,
+              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              tooltip: 'Remove',
+            ),
+          ],
+        );
+    }
   }
 }
 
