@@ -10,6 +10,7 @@ import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'desktop_library.dart';
 import 'desktop_detail.dart';
+import 'desktop_downloads.dart';
 
 class DesktopHome extends ConsumerStatefulWidget {
   const DesktopHome({super.key});
@@ -111,6 +112,20 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   activeIcon: Icons.favorite,
                   label: 'Favorites',
                   index: 2,
+                ),
+                _buildNavItem(
+                  icon: Icons.download_outlined,
+                  activeIcon: Icons.download,
+                  label: 'Downloads',
+                  index: 3,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DesktopDownloads(),
+                      ),
+                    );
+                  },
                 ),
                 
                 const Padding(
