@@ -196,6 +196,15 @@ class AppTextStyles {
     height: 1.33,
   );
 
+  static const TextStyle buttonLarge = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.5,
+    color: AppColors.textPrimary,
+    height: 1.25,
+  );
+
   static const TextStyle badge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 10,
