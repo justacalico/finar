@@ -53,55 +53,86 @@ class _AnimatedCardState extends State<AnimatedCard> {
   Widget build(BuildContext context) {
     final effectiveAspectRatio = widget.isLandscape ? 16 / 9 : widget.aspectRatio;
 
-    Widget cardContent = ClipRRect(
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: AspectRatio(
-        aspectRatio: effectiveAspectRatio,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Image
-            _buildImage(),
-            
-            // Gradient overlay
-            _buildGradientOverlay(),
-                    
-                    // Content overlay
-                    _buildContentOverlay(),
-                    
-                    // Progress bar
-                    if (widget.showProgress && widget.progress != null)
-                      _buildProgressBar(),
-                    
-                    // Badge
-                    if (widget.badge != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: widget.badge!,
-                      ),
-                    
-                    // Custom overlay
-                    if (widget.overlay != null) widget.overlay!,
-                    
-                    // Hover glow effect
-                    AnimatedOpacity(
-                      opacity: _isHovered ? 1.0 : 0.0,
-                      duration: AppTheme.durationFast,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.5),
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+    Widget cardContent = Stack(
+      fit: StackFit.expand,
+      children: [
+        // Image
+        _buildImage(),
+        
+        // Gradient overlay
+        _buildGradientOverlay(),
+        
+        // Content overlay
+        _buildContentOverlay(),
+        
+        // Progress bar
+        if (widget.showProgress && widget.progress != null)
+          _buildProgressBar(),
+        
+        // Badge
+        if (widget.badge != null)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: widget.badge!,
+          ),
+        
+        // Custom overlay
+        if (widget.overlay != null) widget.overlay!,
+        
+        // Hover glow effect
+        AnimatedOpacity(
+          opacity: _isHovered ? 1.0 : 0.0,
+          duration: AppTheme.durationFast,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.5),
+                width: 2,
               ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
+          ),
+        ),
+      ],
+    );
+
+    Widget card = ClipRRect(
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: widget.width != null
+          ? SizedBox(
+              width: widget.width,
+              child: AspectRatio(
+                aspectRatio: effectiveAspectRatio,
+                child: cardContent,
+              ),
+            )
+          : AspectRatio(
+              aspectRatio: effectiveAspectRatio,
+              child: cardContent,
+            ),
+    );
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.95 : (_isHovered ? 1.03 : 1.0),
+          duration: AppTheme.durationFast,
+          curve: AppTheme.curveSmooth,
+          child: Container(
+            width: widget.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              boxShadow: _isHovered ? AppTheme.shadowMedium : AppTheme.shadowSmall,
+            ),
+            child: card,
           ),
         ),
       ),
