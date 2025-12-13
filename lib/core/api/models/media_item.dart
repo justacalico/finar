@@ -260,6 +260,10 @@ class MediaItem {
     this.parentId,
     this.mediaSourceInfo,
     this.mediaSources,
+    this.albumArtist,
+    this.artists,
+    this.album,
+    this.albumId,
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) {
