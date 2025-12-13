@@ -570,8 +570,7 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
     switch (settingIndex) {
       case 0: // Quality
         // Cycle through available qualities
-        final qualities =
-            ref.read(playerProvider).availableQualities ?? ['Auto'];
+        final qualities = ref.read(playerProvider).availableQualities;
         final current = ref.read(playerProvider).currentQuality ?? 'Auto';
         final currentIndex = qualities.indexOf(current);
         final newIndex =
@@ -583,11 +582,12 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
         final tracks = ref.read(playerProvider).audioTracks ?? [];
         if (tracks.isEmpty) break;
         final current = ref.read(playerProvider).currentAudioTrack;
-        final currentIndex =
-            current != null ? tracks.indexOf(current) : 0;
+        final currentIndex = current != null
+            ? tracks.indexWhere((t) => t.index == current)
+            : 0;
         final newIndex =
             (currentIndex + direction).clamp(0, tracks.length - 1);
-        ref.read(playerProvider.notifier).setAudioTrack(tracks[newIndex]);
+        ref.read(playerProvider.notifier).setAudioTrack(tracks[newIndex].index);
         break;
 
       case 2: // Subtitles
@@ -596,16 +596,16 @@ class _TvPlayerState extends ConsumerState<TvPlayer> {
         if (current == null && direction < 0) break;
         if (current == null) {
           if (tracks.isNotEmpty) {
-            ref.read(playerProvider.notifier).setSubtitleTrack(tracks[0]);
+            ref.read(playerProvider.notifier).setSubtitleTrack(tracks[0].index);
           }
         } else {
-          final currentIndex = tracks.indexOf(current);
+          final currentIndex = tracks.indexWhere((t) => t.index == current);
           if (currentIndex == 0 && direction < 0) {
             ref.read(playerProvider.notifier).setSubtitleTrack(null);
           } else {
             final newIndex =
                 (currentIndex + direction).clamp(0, tracks.length - 1);
-            ref.read(playerProvider.notifier).setSubtitleTrack(tracks[newIndex]);
+            ref.read(playerProvider.notifier).setSubtitleTrack(tracks[newIndex].index);
           }
         }
         break;
