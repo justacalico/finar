@@ -32,22 +32,22 @@ class AuthService {
 
   /// Get current server URL
   String? get currentServerUrl {
-    return _authBox.get(_keyCurrentServer) as String?;
+    return _authBox?.get(_keyCurrentServer) as String?;
   }
 
   /// Get current user ID
   String? get currentUserId {
-    return _authBox.get(_keyCurrentUser) as String?;
+    return _authBox?.get(_keyCurrentUser) as String?;
   }
 
   /// Get access token
   String? get accessToken {
-    return _authBox.get(_keyAccessToken) as String?;
+    return _authBox?.get(_keyAccessToken) as String?;
   }
 
   /// Get saved servers
   List<SavedServer> get savedServers {
-    final data = _authBox.get(_keyServers) as List<dynamic>?;
+    final data = _authBox?.get(_keyServers) as List<dynamic>?;
     if (data == null) return [];
     return data
         .map((e) => SavedServer.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -65,7 +65,7 @@ class AuthService {
       servers.add(server);
     }
     
-    await _authBox.put(
+    await _authBox!.put(
       _keyServers,
       servers.map((s) => s.toJson()).toList(),
     );
@@ -75,7 +75,7 @@ class AuthService {
   Future<void> removeServer(String url) async {
     final servers = savedServers;
     servers.removeWhere((s) => s.url == url);
-    await _authBox.put(
+    await _authBox!.put(
       _keyServers,
       servers.map((s) => s.toJson()).toList(),
     );
@@ -86,7 +86,7 @@ class AuthService {
     try {
       if (await _api.testConnection(url)) {
         _api.setServerUrl(url);
-        await _authBox.put(_keyCurrentServer, url);
+        await _authBox!.put(_keyCurrentServer, url);
         return true;
       }
       return false;
@@ -148,9 +148,9 @@ class AuthService {
 
   /// Save session data
   Future<void> _saveSession(AuthenticationResult result) async {
-    await _authBox.put(_keyCurrentServer, result.serverUrl);
-    await _authBox.put(_keyCurrentUser, result.user.id);
-    await _authBox.put(_keyAccessToken, result.accessToken);
+    await _authBox!.put(_keyCurrentServer, result.serverUrl);
+    await _authBox!.put(_keyCurrentUser, result.user.id);
+    await _authBox!.put(_keyAccessToken, result.accessToken);
 
     // Update saved server with user info
     final server = SavedServer(
@@ -165,8 +165,8 @@ class AuthService {
 
   /// Clear current session
   Future<void> clearSession() async {
-    await _authBox.delete(_keyCurrentUser);
-    await _authBox.delete(_keyAccessToken);
+    await _authBox?.delete(_keyCurrentUser);
+    await _authBox?.delete(_keyAccessToken);
     _api.clearCredentials();
   }
 
