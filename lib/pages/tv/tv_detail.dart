@@ -99,7 +99,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                         height: 100,
                         fit: BoxFit.contain,
                         alignment: Alignment.centerLeft,
-                        errorBuilder: (_, _, ___) => Text(
+                        errorBuilder: (_, _, _) => Text(
                           item.name,
                           style: AppTextStyles.displayMedium,
                         ),
