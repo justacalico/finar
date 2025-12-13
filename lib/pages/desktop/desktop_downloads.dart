@@ -669,7 +669,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                                   child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
                                 ),
                               ),
-                              errorWidget: (_, _, ___) => Container(
+                              errorWidget: (_, _, _) => Container(
                                 color: AppColors.surfaceElevated,
                                 child: const Center(
                                   child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
