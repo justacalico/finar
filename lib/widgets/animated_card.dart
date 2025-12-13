@@ -53,36 +53,18 @@ class _AnimatedCardState extends State<AnimatedCard> {
   Widget build(BuildContext context) {
     final effectiveAspectRatio = widget.isLandscape ? 16 / 9 : widget.aspectRatio;
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        onTap: widget.onTap,
-        onLongPress: widget.onLongPress,
-        child: AnimatedScale(
-          scale: _isPressed ? 0.95 : (_isHovered ? 1.03 : 1.0),
-          duration: AppTheme.durationFast,
-          curve: AppTheme.curveSmooth,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              boxShadow: _isHovered ? AppTheme.shadowMedium : AppTheme.shadowSmall,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              child: AspectRatio(
-                aspectRatio: effectiveAspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Image
-                    _buildImage(),
-                    
-                    // Gradient overlay
-                    _buildGradientOverlay(),
+    Widget cardContent = ClipRRect(
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: AspectRatio(
+        aspectRatio: effectiveAspectRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Image
+            _buildImage(),
+            
+            // Gradient overlay
+            _buildGradientOverlay(),
                     
                     // Content overlay
                     _buildContentOverlay(),
