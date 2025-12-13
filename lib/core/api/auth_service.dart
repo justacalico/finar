@@ -10,21 +10,23 @@ class AuthService {
   static const _keyAccessToken = 'access_token';
   static const _keyServers = 'servers';
 
-  late Box _authBox;
+  Box? _authBox;
+  bool _initialized = false;
   final JellyfinApi _api;
 
   AuthService(this._api);
 
   /// Initialize the auth service
   Future<void> init() async {
-    await Hive.initFlutter();
+    if (_initialized) return;
     _authBox = await Hive.openBox(_boxName);
+    _initialized = true;
   }
 
   /// Check if user is logged in
   bool get isLoggedIn {
-    final token = _authBox.get(_keyAccessToken) as String?;
-    final userId = _authBox.get(_keyCurrentUser) as String?;
+    final token = _authBox?.get(_keyAccessToken) as String?;
+    final userId = _authBox?.get(_keyCurrentUser) as String?;
     return token != null && userId != null;
   }
 
