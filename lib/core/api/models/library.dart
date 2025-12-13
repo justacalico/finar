@@ -2,6 +2,15 @@ import 'package:hive/hive.dart';
 
 part 'library.g.dart';
 
+/// Helper to safely parse int from JSON (handles String and num)
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 @HiveType(typeId: 12)
 class Library {
   @HiveField(0)
@@ -41,7 +50,7 @@ class Library {
       name: json['Name'] as String,
       collectionType: json['CollectionType'] as String?,
       primaryImageTag: json['ImageTags']?['Primary'] as String?,
-      childCount: json['ChildCount'] as int?,
+      childCount: _parseInt(json['ChildCount']),
       isFolder: json['IsFolder'] as bool? ?? true,
       backdropImageTag: (json['BackdropImageTags'] as List<dynamic>?)?.firstOrNull as String?,
     );
@@ -240,15 +249,15 @@ class SearchHint {
       itemId: json['ItemId'] as String,
       name: json['Name'] as String,
       type: json['Type'] as String?,
-      productionYear: json['ProductionYear'] as int?,
+      productionYear: _parseInt(json['ProductionYear']),
       primaryImageTag: json['PrimaryImageTag'] as String?,
       thumbImageTag: json['ThumbImageTag'] as String?,
       backdropImageTag: json['BackdropImageTag'] as String?,
       series: json['Series'] as String?,
       album: json['Album'] as String?,
       albumArtist: json['AlbumArtist'] as String?,
-      indexNumber: json['IndexNumber'] as int?,
-      parentIndexNumber: json['ParentIndexNumber'] as int?,
+      indexNumber: _parseInt(json['IndexNumber']),
+      parentIndexNumber: _parseInt(json['ParentIndexNumber']),
     );
   }
 
