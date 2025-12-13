@@ -18,6 +18,7 @@ class AppTextStyles {
     letterSpacing: -0.25,
     color: AppColors.textPrimary,
     height: 1.12,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle displayMedium = TextStyle(
@@ -27,6 +28,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.16,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle displaySmall = TextStyle(
@@ -36,6 +38,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.22,
+    decoration: TextDecoration.none,
   );
 
   // Headline styles
@@ -46,6 +49,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.25,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle headlineMedium = TextStyle(
@@ -55,6 +59,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.29,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle headlineSmall = TextStyle(
@@ -64,6 +69,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.33,
+    decoration: TextDecoration.none,
   );
 
   // Title styles
@@ -74,6 +80,7 @@ class AppTextStyles {
     letterSpacing: 0,
     color: AppColors.textPrimary,
     height: 1.27,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle titleMedium = TextStyle(
@@ -83,6 +90,7 @@ class AppTextStyles {
     letterSpacing: 0.15,
     color: AppColors.textPrimary,
     height: 1.5,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle titleSmall = TextStyle(
@@ -92,6 +100,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
     color: AppColors.textPrimary,
     height: 1.43,
+    decoration: TextDecoration.none,
   );
 
   // Body styles
