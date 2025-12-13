@@ -170,7 +170,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
                 width: 60,
                 height: 90,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, ___) => Container(
                   width: 60,
                   height: 90,
                   color: AppColors.surface,
