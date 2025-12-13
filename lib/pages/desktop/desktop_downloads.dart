@@ -506,7 +506,7 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     final mediaService = ref.read(mediaServiceProvider);
     try {
       final item = await mediaService.getItemDetails(download.itemId);
-      if (item != null && mounted) {
+      if (mounted) {
         ref.read(playerProvider.notifier).play(item);
         Navigator.push(
           context,
@@ -556,12 +556,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     final mediaService = ref.read(mediaServiceProvider);
     try {
       final item = await mediaService.getItemDetails(download.itemId);
-      if (item != null) {
-        // Delete failed download first
-        await ref.read(downloadProvider.notifier).deleteDownload(download.id);
-        // Start new download
-        await ref.read(downloadProvider.notifier).downloadItem(item);
-      }
+      // Delete failed download first
+      await ref.read(downloadProvider.notifier).deleteDownload(download.id);
+      // Start new download
+      await ref.read(downloadProvider.notifier).downloadItem(item);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
