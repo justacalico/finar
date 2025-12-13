@@ -373,6 +373,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   style: AppTextStyles.bodyLarge.copyWith(
                     height: 1.6,
                     color: AppColors.textSecondary,
+                    decoration: TextDecoration.none,
                   ),
                 ),
                 if (item.taglines?.isNotEmpty == true) ...[
