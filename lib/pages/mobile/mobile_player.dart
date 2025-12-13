@@ -555,15 +555,16 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                     onTap: () =>
                         ref.read(playerProvider.notifier).setSubtitleTrack(null),
                   ),
-                  ...?state.subtitleTracks
-                      ?.map((track) => _buildSettingOption(
-                            track.displayTitle ?? 'Track ${track.index}',
-                            isSelected: state.currentSubtitleTrack == track,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .setSubtitleTrack(track),
-                          ))
-                      .toList(),
+                  if (state.subtitleTracks != null)
+                    ...state.subtitleTracks!
+                        .map((track) => _buildSettingOption(
+                              track.displayTitle ?? 'Track ${track.index}',
+                              isSelected: state.currentSubtitleTrack == track.index,
+                              onTap: () => ref
+                                  .read(playerProvider.notifier)
+                                  .setSubtitleTrack(track.index),
+                            ))
+                        .toList(),
                 ],
               ),
             ],
@@ -848,12 +849,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
 
   void _togglePlayPause() {
     final playerNotifier = ref.read(playerProvider.notifier);
-    final isPlaying = ref.read(playerProvider).isPlaying;
-    if (isPlaying) {
-      playerNotifier.pause();
-    } else {
-      playerNotifier.resume();
-    }
+    playerNotifier.playOrPause();
   }
 
   void _seek(int seconds) {
