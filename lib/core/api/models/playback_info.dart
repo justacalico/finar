@@ -297,7 +297,7 @@ class MediaStreamData {
     }
     
     if (type == 'Audio' && channels != null) {
-      parts.add('${_channelsToName(channels!)}');
+      parts.add(_channelsToName(channels!));
     }
     
     if (parts.isEmpty) {
