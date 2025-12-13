@@ -2,6 +2,15 @@ import 'package:hive/hive.dart';
 
 part 'user.g.dart';
 
+/// Helper to safely parse int from JSON (handles String and num)
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 @HiveType(typeId: 0)
 class User {
   @HiveField(0)
@@ -151,7 +160,7 @@ class UserPolicy {
       enabledFolders: (json['EnabledFolders'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      maxParentalRating: json['MaxParentalRating'] as int?,
+      maxParentalRating: _parseInt(json['MaxParentalRating']),
     );
   }
 
