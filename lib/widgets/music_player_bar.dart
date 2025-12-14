@@ -5,6 +5,7 @@ import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/providers.dart';
+import '../providers/library_provider.dart';
 import 'glass_container.dart';
 import 'queue_view.dart';
 
@@ -117,6 +118,12 @@ class MobileMiniPlayer extends ConsumerWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Favorite
+                        _FavoriteButton(
+                          item: item,
+                          size: 20,
+                        ),
+                        
                         // Previous
                         if (playerState.hasPrevious)
                           IconButton(
