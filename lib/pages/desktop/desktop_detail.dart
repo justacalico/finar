@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
@@ -6,6 +7,7 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
+import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'desktop_player.dart';
@@ -24,8 +26,32 @@ class DesktopDetail extends ConsumerStatefulWidget {
 
 class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _mainFocusNode = FocusNode();
   int _selectedSeasonIndex = 0;
   bool _showAllCast = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _mainFocusNode.dispose();
+    super.dispose();
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    
+    // Handle back button
+    if (action == ControllerAction.back) {
+      Navigator.of(context).pop();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,16 +82,21 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   }
 
   Widget _buildContent(MediaItem item, String serverUrl) {
-    return Stack(
-      children: [
-        // Background
-        _buildBackground(item, serverUrl),
+    return Focus(
+      focusNode: _mainFocusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: FocusTraversalGroup(
+        policy: OrderedTraversalPolicy(),
+        child: Stack(
+          children: [
+            // Background
+            _buildBackground(item, serverUrl),
 
-        // Content
-        CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            // Hero section with backdrop
+            // Content
+            CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                // Hero section with backdrop
             SliverToBoxAdapter(
               child: _buildHeroSection(item, serverUrl),
             ),
@@ -112,11 +143,14 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           child: SafeArea(
             child: GlassIconButton(
               icon: Icons.arrow_back,
+              autofocus: true,
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
         ),
       ],
+        ),
+      ),
     );
   }
 
