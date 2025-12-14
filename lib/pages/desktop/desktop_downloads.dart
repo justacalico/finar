@@ -1042,36 +1042,16 @@ class _DownloadListItemState extends State<_DownloadListItem> {
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           child: Row(
             children: [
-              // Thumbnail
+              // Thumbnail - prefer local image
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 child: Stack(
                   children: [
-                    download.primaryImageTag != null
-                        ? CachedNetworkImage(
-                            imageUrl: '${widget.serverUrl}/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
-                            width: 80,
-                            height: 120,
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => Container(
-                              width: 80,
-                              height: 120,
-                              color: AppColors.surfaceElevated,
-                              child: const Center(child: Icon(Icons.movie_outlined, color: AppColors.textTertiary)),
-                            ),
-                            errorWidget: (_, _, _) => Container(
-                              width: 80,
-                              height: 120,
-                              color: AppColors.surfaceElevated,
-                              child: const Center(child: Icon(Icons.movie_outlined, color: AppColors.textTertiary)),
-                            ),
-                          )
-                        : Container(
-                            width: 80,
-                            height: 120,
-                            color: AppColors.surfaceElevated,
-                            child: const Center(child: Icon(Icons.movie_outlined, color: AppColors.textTertiary)),
-                          ),
+                    SizedBox(
+                      width: 80,
+                      height: 120,
+                      child: _buildListPosterImage(download, widget.serverUrl),
+                    ),
                     if (isCompleted)
                       Positioned(
                         top: 4,
