@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/browser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'models/user.dart';
@@ -34,6 +34,11 @@ class JellyfinApi {
         },
       ),
     );
+
+    // Configure for web platform to handle CORS
+    if (kIsWeb) {
+      _dio.httpClientAdapter = BrowserHttpClientAdapter(withCredentials: false);
+    }
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
