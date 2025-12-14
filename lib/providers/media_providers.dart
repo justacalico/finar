@@ -8,33 +8,42 @@ import 'auth_provider.dart';
 import 'library_provider.dart';
 
 /// Provider for media item detail - cached for 5 minutes
-final mediaItemDetailProvider = FutureProvider.family<MediaItem, String>((ref, itemId) async {
+final mediaItemDetailProvider = FutureProvider.family<MediaItem, String>((
+  ref,
+  itemId,
+) async {
   // Keep alive for 5 minutes to avoid re-fetching
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 5), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getItemDetails(itemId);
 });
 
 /// Provider for album tracks - cached for 5 minutes
-final albumTracksProvider = FutureProvider.family<List<MediaItem>, String>((ref, albumId) async {
+final albumTracksProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  albumId,
+) async {
   // Keep alive for 5 minutes to avoid re-fetching
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 5), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getAlbumTracks(albumId);
 });
 
 /// Provider for library content with pagination
-final libraryContentProvider = StateNotifierProvider.family<LibraryContentNotifier, LibraryContentState, String>(
-  (ref, libraryId) {
-    final mediaService = ref.watch(mediaServiceProvider);
-    final api = ref.watch(jellyfinApiProvider);
-    return LibraryContentNotifier(mediaService, api, libraryId);
-  },
-);
+final libraryContentProvider =
+    StateNotifierProvider.family<
+      LibraryContentNotifier,
+      LibraryContentState,
+      String
+    >((ref, libraryId) {
+      final mediaService = ref.watch(mediaServiceProvider);
+      final api = ref.watch(jellyfinApiProvider);
+      return LibraryContentNotifier(mediaService, api, libraryId);
+    });
 
 /// State for library content
 class LibraryContentState {
@@ -94,13 +103,13 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
   bool _isMusicLibrary = false;
 
   LibraryContentNotifier(this._mediaService, this._api, this._libraryId)
-      : super(const LibraryContentState()) {
+    : super(const LibraryContentState()) {
     _detectLibraryTypeAndLoad();
   }
 
   Future<void> _detectLibraryTypeAndLoad() async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     try {
       // First, get the library info to check its type
       final libraries = await _api.getLibraries();
@@ -108,29 +117,28 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         (lib) => lib.id == _libraryId,
         orElse: () => Library(id: _libraryId, name: 'Library'),
       );
-      
+
       // Check for music library - Jellyfin uses "music" as the collection type
       _isMusicLibrary = library.collectionType?.toLowerCase() == 'music';
       if (kDebugMode) {
-        print('Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary');
+        print(
+          'Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary',
+        );
       }
       state = state.copyWith(isMusicLibrary: _isMusicLibrary);
-      
+
       await _loadInitial();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
   Future<void> _loadInitial() async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     try {
       final LibraryContent result;
-      
+
       if (_isMusicLibrary) {
         // For music libraries, load albums instead of tracks
         result = await _mediaService.getMusicLibraryContent(
@@ -149,7 +157,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
           searchTerm: state.searchQuery,
         );
       }
-      
+
       state = state.copyWith(
         items: result.items,
         totalCount: result.totalCount,
@@ -157,21 +165,18 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
   Future<void> loadMore() async {
     if (state.isLoading || !state.hasMore) return;
-    
+
     state = state.copyWith(isLoading: true);
-    
+
     try {
       final LibraryContent result;
-      
+
       if (_isMusicLibrary) {
         result = await _mediaService.getMusicLibraryContent(
           _libraryId,
@@ -191,17 +196,14 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
           searchTerm: state.searchQuery,
         );
       }
-      
+
       state = state.copyWith(
         items: [...state.items, ...result.items],
         hasMore: state.items.length + result.items.length < result.totalCount,
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -232,28 +234,37 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
 }
 
 /// Provider for seasons of a series - cached for 5 minutes
-final seasonsProvider = FutureProvider.family<List<MediaItem>, String>((ref, seriesId) async {
+final seasonsProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  seriesId,
+) async {
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 5), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getSeasons(seriesId);
 });
 
 /// Provider for episodes of a season - cached for 5 minutes
-final episodesProvider = FutureProvider.family<List<MediaItem>, String>((ref, seasonId) async {
+final episodesProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  seasonId,
+) async {
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 5), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getEpisodes(seasonId);
 });
 
 /// Provider for similar items - cached for 10 minutes
-final similarItemsProvider = FutureProvider.family<List<MediaItem>, String>((ref, itemId) async {
+final similarItemsProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  itemId,
+) async {
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 10), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getSimilarItems(itemId);
 });
@@ -290,7 +301,11 @@ class MediaActions {
   }
 
   /// Mark an episode as watched and refresh relevant providers
-  Future<void> markEpisodeWatched(String episodeId, String seasonId, bool isWatched) async {
+  Future<void> markEpisodeWatched(
+    String episodeId,
+    String seasonId,
+    bool isWatched,
+  ) async {
     await _api.setWatched(episodeId, isWatched);
     // Invalidate both the episode detail and episodes list
     _ref.invalidate(mediaItemDetailProvider(episodeId));
