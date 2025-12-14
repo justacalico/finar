@@ -9,13 +9,6 @@ keywords:
   - streaming
   - movies
   - tv
-categories:
-  - AudioVideo
-  - Video
-  - Player
 priority: optional
 section: video
-installed_size: 0
 essential: false
-postinstall_scripts: []
-postuninstall_scripts: []
