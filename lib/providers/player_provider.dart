@@ -233,7 +233,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         // Start progress reporting
         _startProgressReporting();
 
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isLoading: false, isPlayingLocal: true);
 
         // Load next item info
         _loadNextItem();
