@@ -1263,6 +1263,42 @@ class _DownloadListItemState extends State<_DownloadListItem> {
     }
   }
 
+  Widget _buildListPosterImage(DownloadTask download, String serverUrl) {
+    // Check for local primary image first
+    final localPrimaryPath = download.localPrimaryImagePath;
+    if (localPrimaryPath != null && localPrimaryPath.isNotEmpty) {
+      final localFile = File(localPrimaryPath);
+      if (localFile.existsSync()) {
+        return Image.file(
+          localFile,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildNetworkImage(download, serverUrl),
+        );
+      }
+    }
+    return _buildNetworkImage(download, serverUrl);
+  }
+
+  Widget _buildNetworkImage(DownloadTask download, String serverUrl) {
+    final imageUrl = '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90';
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        color: AppColors.glassBorder,
+        child: const Center(
+          child: Icon(Icons.movie_outlined, color: AppColors.textSecondary),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: AppColors.glassBorder,
+        child: const Center(
+          child: Icon(Icons.movie_outlined, color: AppColors.textSecondary),
+        ),
+      ),
+    );
+  }
+
   IconData _getTypeIcon(String? type) {
     switch (type?.toLowerCase()) {
       case 'movie':
