@@ -7,7 +7,6 @@ enum UiMode {
   auto,   // Use platform detection
   desktop,
   mobile,
-  tv,
 }
 
 /// App settings model
