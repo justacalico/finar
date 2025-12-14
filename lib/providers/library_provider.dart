@@ -51,11 +51,14 @@ class LibraryState {
   List<MediaItem> get topRated => homeData?.topRated ?? [];
   List<MediaItem> get recommended => homeData?.recommended ?? [];
   List<MediaItem> get favorites => homeData?.favorites ?? [];
-  List<MediaItem> get recentlyAddedMovies => homeData?.recentlyAddedMovies ?? [];
+  List<MediaItem> get recentlyAddedMovies =>
+      homeData?.recentlyAddedMovies ?? [];
   List<MediaItem> get recentlyAddedShows => homeData?.recentlyAddedShows ?? [];
-  MediaItem? get featuredItem => 
-      continueWatching.isNotEmpty ? continueWatching.first :
-      recentlyAdded.isNotEmpty ? recentlyAdded.first : null;
+  MediaItem? get featuredItem => continueWatching.isNotEmpty
+      ? continueWatching.first
+      : recentlyAdded.isNotEmpty
+      ? recentlyAdded.first
+      : null;
 
   LibraryState copyWith({
     List<Library>? libraries,
@@ -113,12 +116,16 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
     try {
       final results = await _mediaService.search(query);
       state = state.copyWith(
-        searchResults: results.all.map((h) => MediaItem(
-          id: h.itemId,
-          name: h.name,
-          type: mediaTypeFromString(h.type),
-          typeString: h.type,
-        )).toList(),
+        searchResults: results.all
+            .map(
+              (h) => MediaItem(
+                id: h.itemId,
+                name: h.name,
+                type: mediaTypeFromString(h.type),
+                typeString: h.type,
+              ),
+            )
+            .toList(),
         isLoading: false,
       );
     } catch (e) {
@@ -132,7 +139,9 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
 }
 
 /// Library provider for mobile/TV home pages
-final libraryProvider = StateNotifierProvider<LibraryNotifier, LibraryState>((ref) {
+final libraryProvider = StateNotifierProvider<LibraryNotifier, LibraryState>((
+  ref,
+) {
   final mediaService = ref.watch(mediaServiceProvider);
   final api = ref.watch(jellyfinApiProvider);
   return LibraryNotifier(mediaService, api);
@@ -182,7 +191,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
   String? _searchTerm;
 
   LibraryContentNotifier(this._mediaService, this._libraryId)
-      : super(const LibraryContentState()) {
+    : super(const LibraryContentState()) {
     loadInitial();
   }
 
@@ -198,9 +207,12 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         searchTerm: _searchTerm,
       );
       // Filter out seasons and episodes from library view
-      final filteredItems = content.items.where((item) =>
-        item.type != MediaType.season && item.type != MediaType.episode
-      ).toList();
+      final filteredItems = content.items
+          .where(
+            (item) =>
+                item.type != MediaType.season && item.type != MediaType.episode,
+          )
+          .toList();
       state = LibraryContentState(
         items: filteredItems,
         totalCount: content.totalCount,
@@ -226,9 +238,12 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         searchTerm: _searchTerm,
       );
       // Filter out seasons and episodes from library view
-      final filteredItems = content.items.where((item) =>
-        item.type != MediaType.season && item.type != MediaType.episode
-      ).toList();
+      final filteredItems = content.items
+          .where(
+            (item) =>
+                item.type != MediaType.season && item.type != MediaType.episode,
+          )
+          .toList();
       state = state.copyWith(
         items: [...state.items, ...filteredItems],
         totalCount: content.totalCount,
@@ -263,44 +278,61 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
 }
 
 /// Library content provider factory
-final libraryContentProvider = StateNotifierProvider.family<
-    LibraryContentNotifier, LibraryContentState, String>((ref, libraryId) {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return LibraryContentNotifier(mediaService, libraryId);
-});
+final libraryContentProvider =
+    StateNotifierProvider.family<
+      LibraryContentNotifier,
+      LibraryContentState,
+      String
+    >((ref, libraryId) {
+      final mediaService = ref.watch(mediaServiceProvider);
+      return LibraryContentNotifier(mediaService, libraryId);
+    });
 
 /// Single item detail provider
-final itemDetailProvider =
-    FutureProvider.family<MediaItem, String>((ref, itemId) async {
+final itemDetailProvider = FutureProvider.family<MediaItem, String>((
+  ref,
+  itemId,
+) async {
   final api = ref.watch(jellyfinApiProvider);
   return await api.getItem(itemId);
 });
 
 /// Movie details provider
-final movieDetailsProvider =
-    FutureProvider.family<MovieDetails, String>((ref, movieId) async {
+final movieDetailsProvider = FutureProvider.family<MovieDetails, String>((
+  ref,
+  movieId,
+) async {
   final mediaService = ref.watch(mediaServiceProvider);
   return await mediaService.getMovieDetails(movieId);
 });
 
 /// Series details provider
-final seriesDetailsProvider =
-    FutureProvider.family<SeriesDetails, String>((ref, seriesId) async {
+final seriesDetailsProvider = FutureProvider.family<SeriesDetails, String>((
+  ref,
+  seriesId,
+) async {
   final mediaService = ref.watch(mediaServiceProvider);
   return await mediaService.getSeriesDetails(seriesId);
 });
 
 /// Season episodes provider
 final seasonEpisodesProvider =
-    FutureProvider.family<List<MediaItem>, ({String seriesId, String seasonId})>(
-        (ref, params) async {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return await mediaService.getSeasonEpisodes(params.seriesId, params.seasonId);
-});
+    FutureProvider.family<
+      List<MediaItem>,
+      ({String seriesId, String seasonId})
+    >((ref, params) async {
+      final mediaService = ref.watch(mediaServiceProvider);
+      return await mediaService.getSeasonEpisodes(
+        params.seriesId,
+        params.seasonId,
+      );
+    });
 
 /// Similar items provider
-final similarItemsProvider =
-    FutureProvider.family<List<MediaItem>, String>((ref, itemId) async {
+final similarItemsProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  itemId,
+) async {
   final api = ref.watch(jellyfinApiProvider);
   return await api.getSimilarItems(itemId);
 });
@@ -318,18 +350,21 @@ final nextUpProvider = FutureProvider<List<MediaItem>>((ref) async {
 });
 
 /// Recently added provider
-final recentlyAddedProvider =
-    FutureProvider.family<List<MediaItem>, String?>((ref, parentId) async {
+final recentlyAddedProvider = FutureProvider.family<List<MediaItem>, String?>((
+  ref,
+  parentId,
+) async {
   final api = ref.watch(jellyfinApiProvider);
   return await api.getRecentlyAdded(parentId: parentId);
 });
 
 /// Favorites provider
-final favoritesProvider =
-    FutureProvider.family<List<MediaItem>, List<String>?>((ref, types) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getFavorites(includeItemTypes: types);
-});
+final favoritesProvider = FutureProvider.family<List<MediaItem>, List<String>?>(
+  (ref, types) async {
+    final api = ref.watch(jellyfinApiProvider);
+    return await api.getFavorites(includeItemTypes: types);
+  },
+);
 
 /// Search state
 class SearchState {
@@ -387,16 +422,22 @@ class SearchNotifier extends StateNotifier<SearchState> {
 }
 
 /// Search provider
-final searchProvider =
-    StateNotifierProvider<SearchNotifier, SearchState>((ref) {
+final searchProvider = StateNotifierProvider<SearchNotifier, SearchState>((
+  ref,
+) {
   final mediaService = ref.watch(mediaServiceProvider);
   return SearchNotifier(mediaService);
 });
 
 /// Favorite toggle provider
 final favoriteToggleProvider =
-    FutureProvider.family<bool, ({String itemId, bool currentState})>(
-        (ref, params) async {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return await mediaService.toggleFavorite(params.itemId, params.currentState);
-});
+    FutureProvider.family<bool, ({String itemId, bool currentState})>((
+      ref,
+      params,
+    ) async {
+      final mediaService = ref.watch(mediaServiceProvider);
+      return await mediaService.toggleFavorite(
+        params.itemId,
+        params.currentState,
+      );
+    });
