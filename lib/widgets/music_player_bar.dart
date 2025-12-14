@@ -559,6 +559,15 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                         ),
                         const Spacer(),
                         IconButton(
+                          icon: const Icon(Icons.queue_music),
+                          iconSize: 24,
+                          color: AppColors.textPrimary,
+                          onPressed: () {
+                            showQueueBottomSheet(context);
+                          },
+                          tooltip: 'Queue',
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.more_vert),
                           iconSize: 24,
                           color: AppColors.textPrimary,
