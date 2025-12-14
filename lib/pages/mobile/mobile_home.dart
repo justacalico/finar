@@ -711,7 +711,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   Widget _buildContinueWatchingRow(List<dynamic> items, String serverUrl) {
     return SizedBox(
-      height: 140,
+      height: 160,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -726,58 +726,118 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   Widget _buildContinueWatchingCard(dynamic item, String serverUrl, int index) {
+    final progress = item.progressPercent ?? 0.0;
+    final remainingMinutes = item.remainingRuntime != null 
+        ? (item.remainingRuntime / 60000000).round() 
+        : null;
+    
     return GestureDetector(
       onTap: () => _playItem(item),
-      child: SizedBox(
-        width: 200,
-        child: GlassContainer(
-          blur: AppTheme.blurLight,
-          opacity: 0.08,
-          borderRadius: AppTheme.radiusMd,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        width: 220,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          boxShadow: [
+            BoxShadow(
+              color: _dominantColor.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              // Thumbnail with progress
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(AppTheme.radiusMd),
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: item.getPrimaryImageUrl(serverUrl, width: 400),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const Center(
-                      child: Icon(
-                        Icons.play_circle_fill,
-                        size: 40,
-                        color: AppColors.white,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: LinearProgressIndicator(
-                        value: item.progressPercent ?? 0.0,
-                        backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                        valueColor:
-                            const AlwaysStoppedAnimation(AppColors.primary),
-                        minHeight: 3,
-                      ),
-                    ),
-                  ],
+              // Background image
+              CachedNetworkImage(
+                imageUrl: item.getPrimaryImageUrl(serverUrl, width: 400),
+                fit: BoxFit.cover,
+              ),
+              
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      AppColors.black.withValues(alpha: 0.8),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Play button
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _accentColor.withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    size: 28,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+              
+              // Progress bar
+              Positioned(
+                bottom: 44,
+                left: 8,
+                right: 8,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: AppColors.white.withValues(alpha: 0.3),
+                    valueColor: AlwaysStoppedAnimation(_accentColor),
+                    minHeight: 4,
+                  ),
                 ),
               ),
 
               // Info
-              Padding(
-                padding: const EdgeInsets.all(8),
+              Positioned(
+                bottom: 8,
+                left: 8,
+                right: 8,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.name ?? '',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (remainingMinutes != null)
+                      Text(
+                        '${remainingMinutes}m left',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: index * 50))
+        .slideX(begin: 0.1);
+  }
                 child: Text(
                   item.name,
                   style: AppTextStyles.labelMedium,
