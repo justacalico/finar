@@ -340,12 +340,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     return (itemWidth * _currentIndex) + (itemWidth / 2) - 28;
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label) {
+  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label, {bool isOnline = true}) {
     final isSelected = _currentIndex == index;
+    // Disable non-downloads items when offline
+    final isDisabled = !isOnline && index != 3;
     
     return Expanded(
       child: GestureDetector(
-        onTap: () {
+        onTap: isDisabled ? null : () {
           setState(() => _currentIndex = index);
           _pageController.jumpToPage(index);
         },
@@ -364,9 +366,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 24,
-                  color: isSelected 
-                      ? Colors.white 
-                      : Colors.white.withValues(alpha: 0.5),
+                  color: isDisabled
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : isSelected 
+                          ? Colors.white 
+                          : Colors.white.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 4),
