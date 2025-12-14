@@ -416,10 +416,6 @@ class _FocusableRowItem extends StatelessWidget {
     final position = renderBox.localToGlobal(Offset.zero);
     final scrollPosition = scrollController.position;
     
-    // Calculate if item is outside viewport
-    final viewportStart = scrollPosition.pixels;
-    final viewportEnd = viewportStart + scrollPosition.viewportDimension;
-    
     // Get item's position relative to scroll view
     final itemStart = position.dx;
     final itemEnd = itemStart + renderBox.size.width;
