@@ -798,7 +798,7 @@ class JellyfinApi {
     final playlistId = response.data['Id'] as String?;
     if (playlistId != null) {
       // Fetch the created playlist
-      final result = await getItems(ids: [playlistId]);
+      final result = await getItems(ids: playlistId);
       return result.items.firstOrNull;
     }
     
