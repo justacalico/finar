@@ -409,6 +409,56 @@ class MediaService {
     );
   }
 
+  /// Get artists from a music library
+  Future<LibraryContent> getMusicArtists(
+    String libraryId, {
+    int startIndex = 0,
+    int limit = 50,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    final result = await _api.getArtists(
+      parentId: libraryId,
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      searchTerm: searchTerm,
+    );
+
+    return LibraryContent(
+      items: result.items,
+      totalCount: result.totalCount,
+      hasMore: result.startIndex + result.items.length < result.totalCount,
+    );
+  }
+
+  /// Get tracks from a music library
+  Future<LibraryContent> getMusicTracks(
+    String libraryId, {
+    int startIndex = 0,
+    int limit = 50,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    final result = await _api.getTracks(
+      parentId: libraryId,
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      searchTerm: searchTerm,
+    );
+
+    return LibraryContent(
+      items: result.items,
+      totalCount: result.totalCount,
+      hasMore: result.startIndex + result.items.length < result.totalCount,
+    );
+  }
+
   /// Server URL
   String? get serverUrl => _api.serverUrl;
 }
