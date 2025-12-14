@@ -619,7 +619,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           Text('Cast & Crew', style: AppTextStyles.titleMedium),
           const SizedBox(height: 12),
           SizedBox(
-            height: 120,
+            height: 140,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: people.length.clamp(0, 10),
@@ -639,9 +639,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     return SizedBox(
       width: 80,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
-            radius: 35,
+            radius: 32,
             backgroundColor: AppColors.surface,
             backgroundImage: person.primaryImageTag != null
                 ? CachedNetworkImageProvider(
@@ -649,27 +650,31 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   )
                 : null,
             child: person.primaryImageTag == null
-                ? const Icon(Icons.person, size: 24)
+                ? const Icon(Icons.person, size: 22)
                 : null,
           ),
-          const SizedBox(height: 8),
-          Text(
-            person.name,
-            style: AppTextStyles.labelSmall,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 6),
+          Flexible(
+            child: Text(
+              person.name,
+              style: AppTextStyles.labelSmall,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (person.role != null)
-            Text(
-              person.role!,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 10,
+            Flexible(
+              child: Text(
+                person.role!,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
         ],
       ),
