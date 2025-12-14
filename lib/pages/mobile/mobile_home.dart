@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -1499,34 +1500,10 @@ class _DownloadListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         child: Row(
           children: [
-            // Thumbnail
+            // Thumbnail - prefer local image
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              child: download.primaryImageTag != null
-                  ? CachedNetworkImage(
-                      imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
-                      width: 56,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        width: 56,
-                        height: 80,
-                        color: AppColors.surfaceElevated,
-                        child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        width: 56,
-                        height: 80,
-                        color: AppColors.surfaceElevated,
-                        child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
-                      ),
-                    )
-                  : Container(
-                      width: 56,
-                      height: 80,
-                      color: AppColors.surfaceElevated,
-                      child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
-                    ),
+              child: _buildThumbnailImage(),
             ),
             const SizedBox(width: 12),
             // Info
