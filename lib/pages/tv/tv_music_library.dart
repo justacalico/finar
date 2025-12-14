@@ -159,17 +159,6 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
     }
   }
 
-  Future<void> _toggleFavorite(MediaItem track) async {
-    try {
-      final mediaService = ref.read(mediaServiceProvider);
-      await mediaService.toggleFavorite(track.id, !(track.isFavorite ?? false));
-      // Refresh the music library to update the favorite status
-      ref.invalidate(musicLibraryProvider(widget.libraryId));
-    } catch (e) {
-      // Silently fail on TV
-    }
-  }
-
   Future<void> _extractColors(MediaItem? item, String serverUrl) async {
     if (item == null || item.id == _lastColorExtractedItemId) return;
     _lastColorExtractedItemId = item.id;
@@ -628,20 +617,6 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
               ),
             ),
             const SizedBox(width: 16),
-            // Favorite button
-            IconButton(
-              icon: Icon(
-                track.isFavorite == true
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: track.isFavorite == true
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
-                size: 24,
-              ),
-              onPressed: () => _toggleFavorite(track),
-            ),
-            const SizedBox(width: 8),
             // Play indicator for selected
             if (isSelected)
               Icon(
