@@ -60,8 +60,8 @@ class MediaService {
       genres: genres?.join(','),
       years: years?.join(','),
       searchTerm: searchTerm,
-      // Exclude non-browsable items: folders, seasons, episodes, and individual audio tracks
-      // Music libraries will show albums instead of individual tracks
+      // Exclude non-browsable items: folders, seasons, episodes, individual audio tracks, and artists
+      // Music libraries will show only albums
       excludeItemTypes: [
         'Folder',
         'CollectionFolder',
@@ -70,6 +70,7 @@ class MediaService {
         'Season',
         'Episode',
         'Audio',
+        'MusicArtist',
       ],
     );
 
