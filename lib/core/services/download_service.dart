@@ -363,6 +363,78 @@ class DownloadService {
     }
   }
 
+  /// Download images for a completed download task
+  Future<void> _downloadImages(DownloadTask task) async {
+    final serverUrl = task.serverUrl ?? _api.serverUrl;
+    if (serverUrl == null) return;
+
+    final downloadsDir = await _downloadsDir;
+    final imagesDir = Directory(path.join(downloadsDir.path, 'images'));
+    if (!await imagesDir.exists()) {
+      await imagesDir.create(recursive: true);
+    }
+
+    // Download primary image (poster)
+    if (task.primaryImageTag != null) {
+      try {
+        final primaryImageUrl = '$serverUrl/Items/${task.itemId}/Images/Primary?maxWidth=400&tag=${task.primaryImageTag}';
+        final primaryImagePath = path.join(imagesDir.path, '${task.itemId}_primary.jpg');
+        
+        await _dio.download(
+          primaryImageUrl,
+          primaryImagePath,
+          options: Options(
+            headers: {
+              'X-Emby-Authorization': _api.authHeader,
+            },
+          ),
+        );
+        
+        task.localPrimaryImagePath = primaryImagePath;
+        await task.save();
+        _notifyProgress(task);
+        
+        if (kDebugMode) {
+          print('Downloaded primary image for: ${task.itemName}');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Failed to download primary image: $e');
+        }
+      }
+    }
+
+    // Download backdrop image
+    if (task.backdropImageTag != null) {
+      try {
+        final backdropImageUrl = '$serverUrl/Items/${task.itemId}/Images/Backdrop?maxWidth=1280&tag=${task.backdropImageTag}';
+        final backdropImagePath = path.join(imagesDir.path, '${task.itemId}_backdrop.jpg');
+        
+        await _dio.download(
+          backdropImageUrl,
+          backdropImagePath,
+          options: Options(
+            headers: {
+              'X-Emby-Authorization': _api.authHeader,
+            },
+          ),
+        );
+        
+        task.localBackdropImagePath = backdropImagePath;
+        await task.save();
+        _notifyProgress(task);
+        
+        if (kDebugMode) {
+          print('Downloaded backdrop image for: ${task.itemName}');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Failed to download backdrop image: $e');
+        }
+      }
+    }
+  }
+
   /// Pause a download
   Future<void> pauseDownload(String taskId) async {
     final cancelToken = _cancelTokens[taskId];
