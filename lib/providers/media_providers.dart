@@ -281,6 +281,12 @@ final mediaActionsProvider = Provider<MediaActions>((ref) {
   return MediaActions(api, ref);
 });
 
+/// Provider to check if an item is in the watchlist
+final isInWatchlistProvider = FutureProvider.family<bool, String>((ref, itemId) async {
+  final api = ref.watch(jellyfinApiProvider);
+  return api.isInWatchlist(itemId);
+});
+
 /// Media actions helper class
 class MediaActions {
   final JellyfinApi _api;
@@ -310,5 +316,25 @@ class MediaActions {
     // Invalidate both the episode detail and episodes list
     _ref.invalidate(mediaItemDetailProvider(episodeId));
     _ref.invalidate(episodesProvider(seasonId));
+  }
+
+  /// Toggle watchlist status for an item
+  Future<bool> toggleWatchlist(String itemId) async {
+    final result = await _api.toggleWatchlist(itemId);
+    // Invalidate the watchlist status provider to refresh UI
+    _ref.invalidate(isInWatchlistProvider(itemId));
+    return result;
+  }
+
+  /// Add item to watchlist
+  Future<void> addToWatchlist(String itemId) async {
+    await _api.addToWatchlist(itemId);
+    _ref.invalidate(isInWatchlistProvider(itemId));
+  }
+
+  /// Remove item from watchlist
+  Future<void> removeFromWatchlist(String itemId) async {
+    await _api.removeFromWatchlist(itemId);
+    _ref.invalidate(isInWatchlistProvider(itemId));
   }
 }
