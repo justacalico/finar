@@ -695,32 +695,10 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Poster image
+                    // Poster image - prefer local, fall back to network
                     ClipRRect(
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      child: download.primaryImageTag != null
-                          ? CachedNetworkImage(
-                              imageUrl: '${widget.serverUrl}/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
-                              fit: BoxFit.cover,
-                              placeholder: (_, _) => Container(
-                                color: AppColors.surfaceElevated,
-                                child: const Center(
-                                  child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
-                                ),
-                              ),
-                              errorWidget: (_, _, _) => Container(
-                                color: AppColors.surfaceElevated,
-                                child: const Center(
-                                  child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
-                                ),
-                              ),
-                            )
-                          : Container(
-                              color: AppColors.surfaceElevated,
-                              child: const Center(
-                                child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
-                              ),
-                            ),
+                      child: _buildPosterImage(download, widget.serverUrl),
                     ),
 
                     // Progress overlay for active downloads
