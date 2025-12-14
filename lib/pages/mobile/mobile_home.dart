@@ -285,58 +285,58 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               ],
 
               // Next Up
-          if (libraryState.nextUp.isNotEmpty) ...[
-            _buildSectionHeader('Next Up'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.nextUp, serverUrl),
-            ),
-          ],
+              if (libraryState.nextUp.isNotEmpty) ...[
+                _buildSectionHeader('Next Up', icon: Icons.skip_next_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.nextUp, serverUrl),
+                ),
+              ],
 
-          // Recently Added
-          if (libraryState.recentlyAdded.isNotEmpty) ...[
-            _buildSectionHeader('Recently Added'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.recentlyAdded, serverUrl),
-            ),
-          ],
+              // Recently Added
+              if (libraryState.recentlyAdded.isNotEmpty) ...[
+                _buildSectionHeader('Recently Added', icon: Icons.new_releases_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.recentlyAdded, serverUrl),
+                ),
+              ],
 
-          // New Releases
-          if (libraryState.recentlyReleased.isNotEmpty) ...[
-            _buildSectionHeader('New Releases'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.recentlyReleased, serverUrl),
-            ),
-          ],
+              // New Releases
+              if (libraryState.recentlyReleased.isNotEmpty) ...[
+                _buildSectionHeader('New Releases', icon: Icons.fiber_new_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.recentlyReleased, serverUrl),
+                ),
+              ],
 
-          // New Movies
-          if (libraryState.recentlyAddedMovies.isNotEmpty) ...[
-            _buildSectionHeader('New Movies'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.recentlyAddedMovies, serverUrl),
-            ),
-          ],
+              // New Movies
+              if (libraryState.recentlyAddedMovies.isNotEmpty) ...[
+                _buildSectionHeader('New Movies', icon: Icons.movie_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.recentlyAddedMovies, serverUrl),
+                ),
+              ],
 
-          // New TV Shows
-          if (libraryState.recentlyAddedShows.isNotEmpty) ...[
-            _buildSectionHeader('New TV Shows'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.recentlyAddedShows, serverUrl),
-            ),
-          ],
+              // New TV Shows
+              if (libraryState.recentlyAddedShows.isNotEmpty) ...[
+                _buildSectionHeader('New TV Shows', icon: Icons.tv_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.recentlyAddedShows, serverUrl),
+                ),
+              ],
 
-          // Recommended
-          if (libraryState.recommended.isNotEmpty) ...[
-            _buildSectionHeader('Recommended For You'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.recommended, serverUrl),
-            ),
-          ],
+              // Recommended
+              if (libraryState.recommended.isNotEmpty) ...[
+                _buildSectionHeader('Recommended For You', icon: Icons.thumb_up_outlined),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.recommended, serverUrl),
+                ),
+              ],
 
-          // Top Rated
-          if (libraryState.topRated.isNotEmpty) ...[
-            _buildSectionHeader('Top Rated'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.topRated, serverUrl),
+              // Top Rated
+              if (libraryState.topRated.isNotEmpty) ...[
+                _buildSectionHeader('Top Rated', icon: Icons.star_outline),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.topRated, serverUrl),
             ),
           ],
 
