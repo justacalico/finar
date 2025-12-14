@@ -929,7 +929,9 @@ class _TvHomeState extends ConsumerState<TvHome> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TvLibrary(libraryId: library.id),
+        builder: (_) => library.collectionType?.toLowerCase() == 'music'
+            ? TvMusicLibrary(libraryId: library.id)
+            : TvLibrary(libraryId: library.id),
       ),
     );
   }
