@@ -149,12 +149,35 @@ class DownloadTask extends HiveObject {
   /// Check if download can be resumed
   bool get canResume => status == DownloadStatus.paused || status == DownloadStatus.failed;
 
-  /// Get image URL for thumbnail
+  /// Get image URL for thumbnail (from server)
   String getImageUrl(String serverUrl, {int? width}) {
     if (primaryImageTag == null) return '';
     final w = width ?? 200;
     return '$serverUrl/Items/$itemId/Images/Primary?maxWidth=$w&tag=$primaryImageTag';
   }
+
+  /// Get local primary image path or fall back to server URL
+  String? getLocalOrRemotePrimaryImage(String serverUrl, {int? width}) {
+    if (localPrimaryImagePath != null) {
+      return localPrimaryImagePath;
+    }
+    if (primaryImageTag == null) return null;
+    final w = width ?? 200;
+    return '$serverUrl/Items/$itemId/Images/Primary?maxWidth=$w&tag=$primaryImageTag';
+  }
+
+  /// Get local backdrop image path or fall back to server URL
+  String? getLocalOrRemoteBackdropImage(String serverUrl, {int? width}) {
+    if (localBackdropImagePath != null) {
+      return localBackdropImagePath;
+    }
+    if (backdropImageTag == null) return null;
+    final w = width ?? 1280;
+    return '$serverUrl/Items/$itemId/Images/Backdrop?maxWidth=$w&tag=$backdropImageTag';
+  }
+
+  /// Check if this download has local images
+  bool get hasLocalImages => localPrimaryImagePath != null || localBackdropImagePath != null;
 }
 
 /// Download service for managing media downloads
