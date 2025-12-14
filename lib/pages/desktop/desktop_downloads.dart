@@ -927,7 +927,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
         imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
         fit: BoxFit.cover,
         placeholder: (_, _) => _buildPlaceholder(),
-        errorWidget: (_, __, ___) => _buildPlaceholder(),
+        errorWidget: (_, _, ___) => _buildPlaceholder(),
       );
     }
     return _buildPlaceholder();
