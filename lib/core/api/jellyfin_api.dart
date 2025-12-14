@@ -409,11 +409,13 @@ class JellyfinApi {
         ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
         .toList() ?? [];
     
-    // Filter out libraries (collectionFolder) and seasons - these shouldn't appear in recommendations
+    // Filter out items that shouldn't appear in recommendations
     return items.where((item) => 
       item.type != MediaType.collectionFolder && 
       item.type != MediaType.season &&
-      item.type != MediaType.folder
+      item.type != MediaType.folder &&
+      item.type != MediaType.playlist &&
+      item.type != MediaType.boxSet
     ).take(limit).toList();
   }
 
