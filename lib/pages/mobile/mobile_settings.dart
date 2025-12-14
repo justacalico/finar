@@ -368,9 +368,19 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         children: [
-          ListTile(
-            title: const Text('Version'),
-            trailing: Text('1.0.0', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              final version = snapshot.data?.version ?? '...';
+              final buildNumber = snapshot.data?.buildNumber ?? '';
+              return ListTile(
+                title: const Text('Version'),
+                trailing: Text(
+                  buildNumber.isNotEmpty ? '$version+$buildNumber' : version,
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                ),
+              );
+            },
           ),
           const Divider(color: AppColors.glassBorder, height: 1),
           ListTile(
@@ -393,9 +403,38 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
               );
             },
           ),
+          const Divider(color: AppColors.glassBorder, height: 1),
+          ListTile(
+            leading: const Icon(Icons.language, color: AppColors.primary),
+            title: const Text('Website'),
+            subtitle: Text(
+              'openlyst.onrender.com',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            ),
+            trailing: const Icon(Icons.open_in_new, size: 20),
+            onTap: () => _launchUrl('https://openlyst.onrender.com'),
+          ),
+          const Divider(color: AppColors.glassBorder, height: 1),
+          ListTile(
+            leading: const Icon(Icons.code, color: AppColors.accentOrange),
+            title: const Text('Source Code'),
+            subtitle: Text(
+              'GitLab Repository',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            ),
+            trailing: const Icon(Icons.open_in_new, size: 20),
+            onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   Widget _buildSwitchTile({
