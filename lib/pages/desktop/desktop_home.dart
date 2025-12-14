@@ -24,6 +24,7 @@ class DesktopHome extends ConsumerStatefulWidget {
 class _DesktopHomeState extends ConsumerState<DesktopHome> {
   int _selectedIndex = 0;
   String? _selectedLibraryId;
+  String? _selectedLibraryType;
 
   @override
   Widget build(BuildContext context) {
