@@ -34,7 +34,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // Delay provider modification until after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   void _loadData() {
