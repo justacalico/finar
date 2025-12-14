@@ -215,7 +215,7 @@ class _QueueItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final api = ref.watch(jellyfinApiProvider);
+    final serverUrl = ref.watch(jellyfinApiProvider).serverUrl ?? '';
 
     return Material(
       color: Colors.transparent,
@@ -247,15 +247,13 @@ class _QueueItem extends ConsumerWidget {
               // Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: api != null && item.imageTag != null
-                    ? Image.network(
-                        api.getImageUrl(item.id, item.imageTag!),
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                      )
-                    : _buildPlaceholder(),
+                child: Image.network(
+                  item.getPrimaryImageUrl(serverUrl, width: 100),
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                ),
               ),
               const SizedBox(width: 12),
               // Title and artist
@@ -275,9 +273,9 @@ class _QueueItem extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (item.artist != null)
+                    if (item.artists?.isNotEmpty == true || item.albumArtist != null)
                       Text(
-                        item.artist!,
+                        item.albumArtist ?? item.artists?.first ?? '',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 12,
@@ -289,11 +287,11 @@ class _QueueItem extends ConsumerWidget {
                 ),
               ),
               // Duration
-              if (item.duration != null)
+              if (item.runtimeTicks != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                    _formatDuration(item.duration!),
+                    _formatDuration(item.runtimeTicks!),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 12,
@@ -337,9 +335,11 @@ class _QueueItem extends ConsumerWidget {
     );
   }
 
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
+  String _formatDuration(int ticks) {
+    // Ticks are in 100-nanosecond units, convert to seconds
+    final totalSeconds = ticks ~/ 10000000;
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }
