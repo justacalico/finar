@@ -7,6 +7,7 @@ import 'dart:ui';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
@@ -14,6 +15,27 @@ import 'mobile_library.dart';
 import 'mobile_music_library.dart';
 import 'mobile_detail.dart';
 import 'mobile_settings.dart';
+import 'mobile_player.dart';
+
+/// Helper to get MediaType from string
+MediaType _getMediaTypeFromString(String? typeString) {
+  switch (typeString?.toLowerCase()) {
+    case 'movie':
+      return MediaType.movie;
+    case 'episode':
+      return MediaType.episode;
+    case 'series':
+      return MediaType.series;
+    case 'audio':
+      return MediaType.audio;
+    case 'musicvideo':
+      return MediaType.musicVideo;
+    case 'video':
+      return MediaType.video;
+    default:
+      return MediaType.video;
+  }
+}
 
 class MobileHome extends ConsumerStatefulWidget {
   const MobileHome({super.key});
@@ -1398,15 +1420,29 @@ class _MobileDownloadsPage extends ConsumerWidget {
                   onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
                   onCancel: () => ref.read(downloadProvider.notifier).cancelDownload(download.id),
                   onRemove: () => ref.read(downloadProvider.notifier).deleteDownload(download.id),
-                  onTap: () {
-                    if (download.status == DownloadStatus.completed) {
-                      // Navigate to detail page or play
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MobileDetail(itemId: download.itemId),
-                        ),
+                  onTap: () async {
+                    if (download.status == DownloadStatus.completed && download.localPath != null) {
+                      // Play directly from local file
+                      final playerNotifier = ref.read(playerProvider.notifier);
+                      
+                      // Create a minimal MediaItem for the player
+                      final item = MediaItem(
+                        id: download.itemId,
+                        name: download.itemName,
+                        type: _getMediaTypeFromString(download.itemType),
                       );
+                      
+                      await playerNotifier.play(item);
+                      
+                      // Navigate to player
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MobilePlayer(),
+                          ),
+                        );
+                      }
                     }
                   },
                 );
