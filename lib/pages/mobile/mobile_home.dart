@@ -1600,6 +1600,49 @@ class _DownloadListTile extends StatelessWidget {
     );
   }
 
+  Widget _buildThumbnailImage() {
+    // Check for local primary image first
+    final localPrimaryPath = download.localPrimaryImagePath;
+    if (localPrimaryPath != null && localPrimaryPath.isNotEmpty) {
+      final localFile = File(localPrimaryPath);
+      if (localFile.existsSync()) {
+        return SizedBox(
+          width: 56,
+          height: 80,
+          child: Image.file(
+            localFile,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _buildNetworkImage(),
+          ),
+        );
+      }
+    }
+    return _buildNetworkImage();
+  }
+
+  Widget _buildNetworkImage() {
+    if (download.primaryImageTag != null) {
+      return CachedNetworkImage(
+        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
+        width: 56,
+        height: 80,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => _buildPlaceholder(),
+        errorWidget: (_, __, ___) => _buildPlaceholder(),
+      );
+    }
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      width: 56,
+      height: 80,
+      color: AppColors.surfaceElevated,
+      child: const Icon(Icons.movie_outlined, color: AppColors.textTertiary),
+    );
+  }
+
   Widget _buildActionButton() {
     switch (download.status) {
       case DownloadStatus.downloading:
