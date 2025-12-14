@@ -14,8 +14,7 @@ final musicLibraryProvider =
       String
     >((ref, libraryId) {
       final mediaService = ref.watch(mediaServiceProvider);
-      final api = ref.watch(jellyfinApiProvider);
-      return MusicLibraryNotifier(mediaService, api, libraryId);
+      return MusicLibraryNotifier(mediaService, libraryId);
     });
 
 /// State for music library content
