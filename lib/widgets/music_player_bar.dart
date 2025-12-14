@@ -214,14 +214,9 @@ class MobileMiniPlayer extends ConsumerWidget {
   }
 }
 
-/// Desktop/TV music player bar - shows at bottom of screen
+/// Desktop music player bar - shows at bottom of screen
 class DesktopMusicPlayerBar extends ConsumerWidget {
-  final bool isTV;
-
-  const DesktopMusicPlayerBar({
-    super.key,
-    this.isTV = false,
-  });
+  const DesktopMusicPlayerBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
