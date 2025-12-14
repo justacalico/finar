@@ -205,6 +205,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       final localPath = !forceStream ? _downloadService.getLocalPath(item.id) : null;
       final localFile = localPath != null ? File(localPath) : null;
       final hasLocalFile = localFile != null && await localFile.exists();
+      
+      print('PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile');
 
       if (hasLocalFile && localPath != null) {
         // Play from local file
