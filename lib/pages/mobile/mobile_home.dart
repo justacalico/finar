@@ -93,46 +93,60 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   Widget _buildBottomNav() {
-    return BlurBackdrop(
-      blur: AppTheme.blurMedium,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: AppColors.divider.withValues(alpha: 0.3),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            _dominantColor.withValues(alpha: 0.3),
+            _dominantColor.withValues(alpha: 0.5),
+          ],
+        ),
+      ),
+      child: BlurBackdrop(
+        blur: AppTheme.blurMedium,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: _accentColor.withValues(alpha: 0.2),
+              ),
             ),
           ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (index) {
-            setState(() => _currentIndex = index);
-            _pageController.jumpToPage(index);
-          },
-          backgroundColor: Colors.transparent,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.2),
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.search_outlined),
-              selectedIcon: Icon(Icons.search),
-              label: 'Search',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.video_library_outlined),
-              selectedIcon: Icon(Icons.video_library),
-              label: 'Library',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.download_outlined),
-              selectedIcon: Icon(Icons.download),
-              label: 'Downloads',
-            ),
-          ],
+          child: NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (index) {
+              setState(() => _currentIndex = index);
+              _pageController.jumpToPage(index);
+            },
+            backgroundColor: Colors.transparent,
+            indicatorColor: _accentColor.withValues(alpha: 0.2),
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home, color: _accentColor),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.search_outlined),
+                selectedIcon: Icon(Icons.search, color: _accentColor),
+                label: 'Search',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.video_library_outlined),
+                selectedIcon: Icon(Icons.video_library, color: _accentColor),
+                label: 'Library',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.download_outlined),
+                selectedIcon: Icon(Icons.download_done, color: _accentColor),
+                label: 'Downloads',
+              ),
+            ],
+          ),
         ),
       ),
     );
