@@ -371,6 +371,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   Widget _buildContent(HomeData data) {
     if (_selectedLibraryId != null) {
+      if (_selectedLibraryType?.toLowerCase() == 'music') {
+        return DesktopMusicLibrary(libraryId: _selectedLibraryId!);
+      }
       return DesktopLibrary(libraryId: _selectedLibraryId!);
     }
 
