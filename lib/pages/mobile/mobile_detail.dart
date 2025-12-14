@@ -941,6 +941,23 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         .toggleWatched(item.id, !(item.isPlayed == true));
   }
 
+  void _toggleWatchlist(MediaItem item) async {
+    final actions = ref.read(mediaActionsProvider);
+    final isNowInWatchlist = await actions.toggleWatchlist(item.id);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isNowInWatchlist 
+              ? 'Added "${item.name}" to Watchlist'
+              : 'Removed "${item.name}" from Watchlist',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   void _downloadItem(MediaItem item) {
     final downloadState = ref.read(downloadProvider);
     final existingTask = downloadState.getTaskForItem(item.id);
