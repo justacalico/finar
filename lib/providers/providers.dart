@@ -8,3 +8,4 @@ export 'media_providers.dart' hide
     LibraryContentState, 
     LibraryContentNotifier,
     similarItemsProvider;
+export 'music_provider.dart';
