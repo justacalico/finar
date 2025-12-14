@@ -1337,16 +1337,20 @@ class _DownloadTile extends ConsumerWidget {
 class _LiquidGlassMenu extends StatelessWidget {
   final MediaItem item;
   final DownloadTask? downloadTask;
+  final bool isInWatchlist;
   final VoidCallback onFavorite;
   final VoidCallback onWatched;
+  final VoidCallback onWatchlist;
   final VoidCallback onDownload;
   final VoidCallback onShare;
 
   const _LiquidGlassMenu({
     required this.item,
     required this.downloadTask,
+    required this.isInWatchlist,
     required this.onFavorite,
     required this.onWatched,
+    required this.onWatchlist,
     required this.onDownload,
     required this.onShare,
   });
