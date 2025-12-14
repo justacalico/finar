@@ -14,10 +14,7 @@ import 'mobile_player.dart';
 class MobileDetail extends ConsumerStatefulWidget {
   final String itemId;
 
-  const MobileDetail({
-    super.key,
-    required this.itemId,
-  });
+  const MobileDetail({super.key, required this.itemId});
 
   @override
   ConsumerState<MobileDetail> createState() => _MobileDetailState();
@@ -88,8 +85,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
                   fit: BoxFit.cover,
                   placeholder: (_, _) => Container(color: AppColors.surface),
-                  errorWidget: (_, _, _) =>
-                      Container(color: AppColors.surface),
+                  errorWidget: (_, _, _) => Container(color: AppColors.surface),
                 ),
                 // Gradient overlay
                 Container(
@@ -148,26 +144,18 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
         // Episodes section for TV shows
         if (item.type == MediaType.series) ...[
-          SliverToBoxAdapter(
-            child: _buildEpisodesSection(item, serverUrl),
-          ),
+          SliverToBoxAdapter(child: _buildEpisodesSection(item, serverUrl)),
         ],
 
         // Cast section
         if (item.people?.isNotEmpty == true)
-          SliverToBoxAdapter(
-            child: _buildCastSection(item, serverUrl),
-          ),
+          SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
 
         // Similar items
-        SliverToBoxAdapter(
-          child: _buildSimilarSection(item.id, serverUrl),
-        ),
+        SliverToBoxAdapter(child: _buildSimilarSection(item.id, serverUrl)),
 
         // Bottom padding
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 100),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
   }
@@ -197,10 +185,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                item.name,
-                style: AppTextStyles.headlineSmall,
-              ),
+              Text(item.name, style: AppTextStyles.headlineSmall),
               const SizedBox(height: 8),
               // Metadata
               Wrap(
@@ -261,10 +246,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
-                      child: Text(
-                        genre,
-                        style: AppTextStyles.labelSmall,
-                      ),
+                      child: Text(genre, style: AppTextStyles.labelSmall),
                     );
                   }).toList(),
                 ),
@@ -282,10 +264,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        text,
-        style: AppTextStyles.labelSmall,
-      ),
+      child: Text(text, style: AppTextStyles.labelSmall),
     );
   }
 
@@ -334,7 +313,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   Widget _buildMoreOptionsMenu(MediaItem item) {
     final downloadTask = ref.watch(downloadTaskProvider(item.id));
-    
+
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
       color: AppColors.surface,
@@ -348,12 +327,20 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           child: Row(
             children: [
               Icon(
-                (item.isFavorite == true) ? Icons.favorite : Icons.favorite_border,
-                color: (item.isFavorite == true) ? AppColors.accentRed : AppColors.textPrimary,
+                (item.isFavorite == true)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: (item.isFavorite == true)
+                    ? AppColors.accentRed
+                    : AppColors.textPrimary,
                 size: 20,
               ),
               const SizedBox(width: 12),
-              Text((item.isFavorite == true) ? 'Remove from Favorites' : 'Add to Favorites'),
+              Text(
+                (item.isFavorite == true)
+                    ? 'Remove from Favorites'
+                    : 'Add to Favorites',
+              ),
             ],
           ),
         ),
@@ -363,12 +350,20 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           child: Row(
             children: [
               Icon(
-                (item.isPlayed == true) ? Icons.check_circle : Icons.check_circle_outline,
-                color: (item.isPlayed == true) ? AppColors.primary : AppColors.textPrimary,
+                (item.isPlayed == true)
+                    ? Icons.check_circle
+                    : Icons.check_circle_outline,
+                color: (item.isPlayed == true)
+                    ? AppColors.primary
+                    : AppColors.textPrimary,
                 size: 20,
               ),
               const SizedBox(width: 12),
-              Text((item.isPlayed == true) ? 'Mark as Unwatched' : 'Mark as Watched'),
+              Text(
+                (item.isPlayed == true)
+                    ? 'Mark as Unwatched'
+                    : 'Mark as Watched',
+              ),
             ],
           ),
         ),
@@ -586,9 +581,13 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     );
   }
 
-  Widget _buildEpisodeCard(MediaItem episode, String serverUrl, String seasonId) {
+  Widget _buildEpisodeCard(
+    MediaItem episode,
+    String serverUrl,
+    String seasonId,
+  ) {
     final isWatched = episode.isPlayed == true;
-    
+
     return GlassCard(
       onTap: () => _playItem(episode),
       padding: const EdgeInsets.all(12),
@@ -643,8 +642,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     child: LinearProgressIndicator(
                       value: episode.progressPercent,
                       backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                      valueColor:
-                          const AlwaysStoppedAnimation(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation(
+                        AppColors.primary,
+                      ),
                       minHeight: 3,
                     ),
                   ),
@@ -675,7 +675,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                       child: Text(
                         'E${episode.indexNumber} - ${episode.name}',
                         style: AppTextStyles.titleSmall.copyWith(
-                          color: isWatched ? AppColors.textSecondary : AppColors.textPrimary,
+                          color: isWatched
+                              ? AppColors.textSecondary
+                              : AppColors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -710,7 +712,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
               ],
             ),
           ),
-          
+
           // Mark watched button
           IconButton(
             icon: Icon(
@@ -723,13 +725,11 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       ),
     );
   }
-  
+
   void _toggleEpisodeWatched(MediaItem episode, String seasonId) {
-    ref.read(mediaActionsProvider).markEpisodeWatched(
-      episode.id,
-      seasonId,
-      !(episode.isPlayed == true),
-    );
+    ref
+        .read(mediaActionsProvider)
+        .markEpisodeWatched(episode.id, seasonId, !(episode.isPlayed == true));
   }
 
   Widget _buildCastSection(MediaItem item, String serverUrl) {
@@ -846,11 +846,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   void _playItem(MediaItem item) {
     ref.read(playerProvider.notifier).play(item);
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const MobilePlayer(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
   }
 
   void _playTrailer(MediaItem item) {
@@ -858,17 +856,21 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   void _toggleFavorite(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleFavorite(item.id, !(item.isFavorite == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleFavorite(item.id, !(item.isFavorite == true));
   }
 
   void _toggleWatched(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleWatched(item.id, !(item.isPlayed == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleWatched(item.id, !(item.isPlayed == true));
   }
 
   void _downloadItem(MediaItem item) {
     final downloadState = ref.read(downloadProvider);
     final existingTask = downloadState.getTaskForItem(item.id);
-    
+
     if (existingTask != null) {
       // Show options for existing download
       _showDownloadOptions(existingTask);
@@ -900,10 +902,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              task.itemName,
-              style: AppTextStyles.titleMedium,
-            ),
+            Text(task.itemName, style: AppTextStyles.titleMedium),
             const SizedBox(height: 8),
             Text(
               'Status: ${_getStatusText(task.status)}',
@@ -920,7 +919,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     LinearProgressIndicator(
                       value: task.progress,
                       backgroundColor: AppColors.divider,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation(
+                        AppColors.primary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -960,7 +961,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
               ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: const Text('Delete Download', style: TextStyle(color: AppColors.error)),
+              title: const Text(
+                'Delete Download',
+                style: TextStyle(color: AppColors.error),
+              ),
               onTap: () {
                 ref.read(downloadProvider.notifier).deleteDownload(task.id);
                 Navigator.pop(context);
@@ -991,11 +995,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   void _showDownloadsSheet() {
     // Navigate to downloads page
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const _DownloadsPage(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const _DownloadsPage()));
   }
 
   void _shareItem(MediaItem item) {
@@ -1034,10 +1036,7 @@ class _DownloadsPage extends ConsumerWidget {
                     color: AppColors.textTertiary,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'No Downloads',
-                    style: AppTextStyles.titleMedium,
-                  ),
+                  Text('No Downloads', style: AppTextStyles.titleMedium),
                   const SizedBox(height: 8),
                   Text(
                     'Downloaded content will appear here',
@@ -1065,7 +1064,9 @@ class _DownloadsPage extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete All Downloads'),
-        content: const Text('Are you sure you want to delete all downloads? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete all downloads? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1146,10 +1147,7 @@ class _DownloadTile extends ConsumerWidget {
                   ),
                 ],
                 if (task.status == DownloadStatus.completed)
-                  Text(
-                    task.formattedSize,
-                    style: AppTextStyles.caption,
-                  ),
+                  Text(task.formattedSize, style: AppTextStyles.caption),
               ],
             ),
           ),
@@ -1165,13 +1163,15 @@ class _DownloadTile extends ConsumerWidget {
       case DownloadStatus.downloading:
         return IconButton(
           icon: const Icon(Icons.pause),
-          onPressed: () => ref.read(downloadProvider.notifier).pauseDownload(task.id),
+          onPressed: () =>
+              ref.read(downloadProvider.notifier).pauseDownload(task.id),
         );
       case DownloadStatus.paused:
       case DownloadStatus.failed:
         return IconButton(
           icon: const Icon(Icons.play_arrow),
-          onPressed: () => ref.read(downloadProvider.notifier).resumeDownload(task.id),
+          onPressed: () =>
+              ref.read(downloadProvider.notifier).resumeDownload(task.id),
         );
       case DownloadStatus.completed:
         return PopupMenuButton(
@@ -1203,7 +1203,8 @@ class _DownloadTile extends ConsumerWidget {
       default:
         return IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => ref.read(downloadProvider.notifier).deleteDownload(task.id),
+          onPressed: () =>
+              ref.read(downloadProvider.notifier).deleteDownload(task.id),
         );
     }
   }
