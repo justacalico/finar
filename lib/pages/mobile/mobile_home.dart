@@ -81,19 +81,45 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final showMiniPlayer = ref.watch(showMiniPlayerProvider);
+    final playerState = ref.watch(playerProvider);
+    final isMusic = playerState.currentItem?.type.name == 'audio' || 
+                    playerState.currentItem?.type.name == 'album';
+    
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) => setState(() => _currentIndex = index),
-        physics: const NeverScrollableScrollPhysics(),
+      body: Stack(
         children: [
-          _buildHomePage(),
-          _buildSearchPage(),
-          _buildLibraryPage(),
-          _buildDownloadsPage(),
+          // Main page content
+          PageView(
+            controller: _pageController,
+            onPageChanged: (index) => setState(() => _currentIndex = index),
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _buildHomePage(),
+              _buildSearchPage(),
+              _buildLibraryPage(),
+              _buildDownloadsPage(),
+            ],
+          ),
+          
+          // Expanded music player overlay
+          if (_isPlayerExpanded && showMiniPlayer && isMusic)
+            ExpandedMusicPlayer(
+              onCollapse: () => setState(() => _isPlayerExpanded = false),
+            ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Mini player above nav bar
+          if (showMiniPlayer && isMusic && !_isPlayerExpanded)
+            MobileMiniPlayer(
+              onExpand: () => setState(() => _isPlayerExpanded = true),
+            ),
+          _buildBottomNav(),
+        ],
+      ),
     );
   }
 
