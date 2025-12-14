@@ -39,9 +39,14 @@ A beautiful, modern multi-platform Jellyfin client built with Flutter.
    flutter pub get
    ```
 
-3. **Generate Hive adapters**
+3. **Generate Hive adapters (`.g.dart` files)**
    ```bash
-   dart run build_runner build
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+   
+   Or use watch mode for continuous generation during development:
+   ```bash
+   dart run build_runner watch --delete-conflicting-outputs
    ```
 
 4. **Run the app**
