@@ -911,7 +911,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
             return Image.file(
               file,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _buildNetworkPoster(download, serverUrl),
+              errorBuilder: (_, _, ___) => _buildNetworkPoster(download, serverUrl),
             );
           }
           return _buildNetworkPoster(download, serverUrl);
