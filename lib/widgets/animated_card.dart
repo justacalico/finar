@@ -707,7 +707,9 @@ class CardRow extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: padding,
             itemCount: cards.length,
-            separatorBuilder: (_, _) => SizedBox(width: spacing),
+            addRepaintBoundaries: true,
+            addAutomaticKeepAlives: false,
+            separatorBuilder: (_, __) => SizedBox(width: spacing),
             itemBuilder: (context, index) => SizedBox(
               width: 130,
               child: cards[index],
@@ -715,6 +717,27 @@ class CardRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Optimized placeholder icon widget - const for better performance
+class _PlaceholderIcon extends StatelessWidget {
+  final IconData icon;
+  
+  const _PlaceholderIcon({required this.icon});
+  
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.surface,
+      child: Center(
+        child: Icon(
+          icon,
+          size: 48,
+          color: AppColors.textTertiary,
+        ),
+      ),
     );
   }
 }
