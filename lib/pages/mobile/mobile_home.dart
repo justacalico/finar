@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:palette_generator/palette_generator.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -19,9 +20,16 @@ class MobileHome extends ConsumerStatefulWidget {
   ConsumerState<MobileHome> createState() => _MobileHomeState();
 }
 
-class _MobileHomeState extends ConsumerState<MobileHome> {
+class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
+  final PageController _heroPageController = PageController(viewportFraction: 0.92);
+  int _currentHeroIndex = 0;
+  
+  // Dynamic colors from hero artwork
+  Color _dominantColor = AppColors.background;
+  Color _accentColor = AppColors.primary;
+  String? _lastColorExtractedItemId;
 
   @override
   void initState() {
@@ -33,10 +41,36 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     ref.read(libraryProvider.notifier).loadLibraries();
     ref.read(libraryProvider.notifier).loadHomeData();
   }
+  
+  Future<void> _extractColorsFromItem(dynamic item, String serverUrl) async {
+    if (item == null || item.id == _lastColorExtractedItemId) return;
+    _lastColorExtractedItemId = item.id;
+    
+    try {
+      final imageUrl = item.getPrimaryImageUrl(serverUrl, width: 100);
+      final paletteGenerator = await PaletteGenerator.fromImageProvider(
+        NetworkImage(imageUrl),
+        size: const Size(100, 100),
+        maximumColorCount: 16,
+      );
+      
+      if (mounted) {
+        setState(() {
+          _dominantColor = paletteGenerator.dominantColor?.color ?? AppColors.background;
+          _accentColor = paletteGenerator.vibrantColor?.color ?? 
+                         paletteGenerator.mutedColor?.color ?? 
+                         AppColors.primary;
+        });
+      }
+    } catch (e) {
+      // Keep current colors on error
+    }
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _heroPageController.dispose();
     super.dispose();
   }
 
