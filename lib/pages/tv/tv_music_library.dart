@@ -8,7 +8,7 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
-import '../../providers/music_provider.dart';
+import '../../providers/music_provider.dart' show MusicTab, MusicLibraryState;
 import '../../widgets/widgets.dart';
 import 'tv_detail.dart';
 
