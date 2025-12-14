@@ -271,9 +271,9 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
 
           // Player content
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isTV ? 48 : 24,
-              vertical: isTV ? 16 : 12,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
             ),
             child: Row(
               children: [
@@ -281,23 +281,23 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   child: SizedBox(
-                    width: isTV ? 64 : 56,
-                    height: isTV ? 64 : 56,
+                    width: 56,
+                    height: 56,
                     child: Image.network(
                       item.getPrimaryImageUrl(serverUrl, width: 150),
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => Container(
                         color: AppColors.surface,
-                        child: Icon(
+                        child: const Icon(
                           Icons.music_note,
                           color: AppColors.textSecondary,
-                          size: isTV ? 32 : 28,
+                          size: 28,
                         ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: isTV ? 20 : 16),
+                const SizedBox(width: 16),
 
                 // Track info
                 Expanded(
@@ -311,9 +311,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                           children: [
                             Text(
                               item.name,
-                              style: isTV
-                                  ? AppTextStyles.titleMedium
-                                  : AppTextStyles.titleSmall,
+                              style: AppTextStyles.titleSmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -327,7 +325,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                               ].join(' • '),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.textSecondary,
-                                fontSize: isTV ? 14 : 12,
+                                fontSize: 12,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -335,11 +333,11 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      SizedBox(width: isTV ? 16 : 8),
+                      const SizedBox(width: 8),
                       // Favorite button
                       _FavoriteButton(
                         item: item,
-                        size: isTV ? 24 : 20,
+                        size: 20,
                       ),
                     ],
                   ),
@@ -354,18 +352,18 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       // Shuffle (placeholder)
                       IconButton(
                         icon: const Icon(Icons.shuffle),
-                        iconSize: isTV ? 24 : 20,
+                        iconSize: 20,
                         color: AppColors.textSecondary,
                         onPressed: () {},
                         tooltip: 'Shuffle',
                       ),
 
-                      SizedBox(width: isTV ? 16 : 8),
+                      const SizedBox(width: 8),
 
                       // Previous
                       IconButton(
                         icon: const Icon(Icons.skip_previous),
-                        iconSize: isTV ? 36 : 28,
+                        iconSize: 28,
                         color: playerState.hasPrevious
                             ? AppColors.textPrimary
                             : AppColors.textTertiary,
@@ -377,7 +375,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         tooltip: 'Previous',
                       ),
 
-                      SizedBox(width: isTV ? 12 : 4),
+                      const SizedBox(width: 4),
 
                       // Play/Pause
                       Container(
@@ -392,7 +390,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                                 ? Icons.pause
                                 : Icons.play_arrow,
                           ),
-                          iconSize: isTV ? 36 : 28,
+                          iconSize: 28,
                           color: Colors.white,
                           onPressed: () {
                             ref.read(playerProvider.notifier).playOrPause();
@@ -401,12 +399,12 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         ),
                       ),
 
-                      SizedBox(width: isTV ? 12 : 4),
+                      const SizedBox(width: 4),
 
                       // Next
                       IconButton(
                         icon: const Icon(Icons.skip_next),
-                        iconSize: isTV ? 36 : 28,
+                        iconSize: 28,
                         color: playerState.hasNext
                             ? AppColors.textPrimary
                             : AppColors.textTertiary,
@@ -418,12 +416,12 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         tooltip: 'Next',
                       ),
 
-                      SizedBox(width: isTV ? 16 : 8),
+                      const SizedBox(width: 8),
 
                       // Repeat (placeholder)
                       IconButton(
                         icon: const Icon(Icons.repeat),
-                        iconSize: isTV ? 24 : 20,
+                        iconSize: 20,
                         color: AppColors.textSecondary,
                         onPressed: () {},
                         tooltip: 'Repeat',
@@ -443,54 +441,52 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         '${_formatDuration(position)} / ${_formatDuration(duration)}',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textSecondary,
-                          fontSize: isTV ? 14 : 12,
+                          fontSize: 12,
                         ),
                       ),
 
-                      SizedBox(width: isTV ? 24 : 16),
+                      const SizedBox(width: 16),
 
                       // Volume
-                      if (!isTV) ...[
-                        Icon(
-                          playerState.volume > 0.5
-                              ? Icons.volume_up
-                              : playerState.volume > 0
-                                  ? Icons.volume_down
-                                  : Icons.volume_mute,
-                          size: 20,
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: SliderTheme(
-                            data: SliderThemeData(
-                              trackHeight: 3,
-                              thumbShape: const RoundSliderThumbShape(
-                                enabledThumbRadius: 5,
-                              ),
-                              overlayShape: const RoundSliderOverlayShape(
-                                overlayRadius: 12,
-                              ),
-                              activeTrackColor: AppColors.primary,
-                              inactiveTrackColor: AppColors.surface,
-                              thumbColor: AppColors.primary,
+                      Icon(
+                        playerState.volume > 0.5
+                            ? Icons.volume_up
+                            : playerState.volume > 0
+                                ? Icons.volume_down
+                                : Icons.volume_mute,
+                        size: 20,
+                        color: AppColors.textSecondary,
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 3,
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 5,
                             ),
-                            child: Slider(
-                              value: playerState.volume,
-                              onChanged: (value) {
-                                ref.read(playerProvider.notifier).setVolume(value);
-                              },
+                            overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 12,
                             ),
+                            activeTrackColor: AppColors.primary,
+                            inactiveTrackColor: AppColors.surface,
+                            thumbColor: AppColors.primary,
+                          ),
+                          child: Slider(
+                            value: playerState.volume,
+                            onChanged: (value) {
+                              ref.read(playerProvider.notifier).setVolume(value);
+                            },
                           ),
                         ),
-                      ],
+                      ),
 
-                      SizedBox(width: isTV ? 16 : 8),
+                      const SizedBox(width: 8),
 
                       // Queue button
                       IconButton(
                         icon: const Icon(Icons.queue_music),
-                        iconSize: isTV ? 24 : 20,
+                        iconSize: 20,
                         color: AppColors.textSecondary,
                         onPressed: () {
                           showQueueBottomSheet(context);
@@ -498,12 +494,12 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         tooltip: 'Queue',
                       ),
 
-                      SizedBox(width: isTV ? 8 : 4),
+                      const SizedBox(width: 4),
 
                       // Close button
                       IconButton(
                         icon: const Icon(Icons.close),
-                        iconSize: isTV ? 24 : 20,
+                        iconSize: 20,
                         color: AppColors.textSecondary,
                         onPressed: () {
                           ref.read(playerProvider.notifier).stop();
