@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
@@ -501,13 +502,28 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
 
   void _playDownload(DownloadTask download) async {
     if (download.status != DownloadStatus.completed) return;
-    
-    // Load the media item and play it
-    final mediaService = ref.read(mediaServiceProvider);
-    try {
-      final item = await mediaService.getItemDetails(download.itemId);
+    if (download.localPath == null) {
       if (mounted) {
-        ref.read(playerProvider.notifier).play(item);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Download file not found'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+    
+    // Create a minimal MediaItem for the player - play from local file
+    final item = MediaItem(
+      id: download.itemId,
+      name: download.itemName,
+      type: _getMediaTypeFromString(download.itemType),
+    );
+    
+    try {
+      await ref.read(playerProvider.notifier).play(item);
+      if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -524,6 +540,26 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
           ),
         );
       }
+    }
+  }
+
+  /// Helper to get MediaType from string
+  MediaType _getMediaTypeFromString(String? typeString) {
+    switch (typeString?.toLowerCase()) {
+      case 'movie':
+        return MediaType.movie;
+      case 'episode':
+        return MediaType.episode;
+      case 'series':
+        return MediaType.series;
+      case 'audio':
+        return MediaType.audio;
+      case 'musicvideo':
+        return MediaType.musicVideo;
+      case 'album':
+        return MediaType.album;
+      default:
+        return MediaType.movie;
     }
   }
 
