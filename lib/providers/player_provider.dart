@@ -488,7 +488,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     final item = state.currentItem;
     final streamInfo = state.streamInfo;
 
-    if (item != null) {
+    if (item != null && !_isPlayingLocal) {
+      // Only report to server if we were streaming (not playing local file)
       try {
         await _mediaService.reportPlaybackStopped(
           item.id,
@@ -499,6 +500,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       } catch (_) {}
     }
 
+    _isPlayingLocal = false;
     await _player.stop();
     state = const PlayerState();
   }
