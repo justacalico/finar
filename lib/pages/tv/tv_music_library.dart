@@ -135,12 +135,27 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
     if (_selectedTabIndex == 1) {
       // Track - play it
       ref.read(playerProvider.notifier).play(item);
+    } else if (_selectedTabIndex == 0) {
+      // Album - play all tracks
+      _playAlbum(item);
     } else {
-      // Album or Artist - navigate to detail
+      // Artist - navigate to detail
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => TvDetail(itemId: item.id)),
       );
+    }
+  }
+
+  Future<void> _playAlbum(MediaItem album) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final tracks = await mediaService.getAlbumTracks(album.id);
+      if (tracks.isNotEmpty) {
+        ref.read(playerProvider.notifier).playPlaylist(tracks, 0);
+      }
+    } catch (e) {
+      // Silently fail on TV
     }
   }
 
