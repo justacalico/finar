@@ -74,7 +74,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                         child: Image.network(
                           item.getPrimaryImageUrl(serverUrl, width: 100),
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             color: AppColors.surface,
                             child: const Icon(
                               Icons.music_note,
