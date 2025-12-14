@@ -17,14 +17,6 @@ class PlatformDetector {
     return Platform.isMacOS || Platform.isLinux || Platform.isWindows;
   }
 
-  /// Check if running on TV
-  static bool get isTV {
-    // TV detection is based on Android TV or tvOS
-    // This is a simplified check - in production, you'd use device info
-    if (kIsWeb) return false;
-    return false; // Will be enhanced with actual TV detection
-  }
-
   /// Check if running on web
   static bool get isWeb => kIsWeb;
 
