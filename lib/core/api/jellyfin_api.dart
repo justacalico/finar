@@ -58,14 +58,18 @@ class JellyfinApi {
   }
 
   static String _getDefaultDeviceName() {
+    if (kIsWeb) {
+      return 'Finar Web';
+    }
     try {
-      return Platform.localHostname;
+      // ignore: avoid_dynamic_calls
+      return _getPlatformHostname();
     } catch (_) {
       return 'Finar Client';
     }
   }
 
-  String _buildAuthHeader() {
+  static String _buildAuthHeader() {
     final parts = [
       'MediaBrowser Client="$_clientName"',
       'Device="$_deviceName"',
