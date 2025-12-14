@@ -686,6 +686,131 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     );
   }
 
+  Widget _buildAlbumTracksSection(MediaItem album, String serverUrl) {
+    final tracksAsync = ref.watch(albumTracksProvider(album.id));
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Row(
+            children: [
+              Text('Tracks', style: AppTextStyles.titleMedium),
+              const Spacer(),
+              tracksAsync.whenData((tracks) => Text(
+                '${tracks.length} songs',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              )).value ?? const SizedBox.shrink(),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Tracks list
+          tracksAsync.when(
+            data: (tracks) => _buildTracksList(tracks, album, serverUrl),
+            loading: () => const ShimmerLoading(height: 200),
+            error: (error, _) => Text('Error loading tracks: $error'),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 200.ms);
+  }
+
+  Widget _buildTracksList(List<MediaItem> tracks, MediaItem album, String serverUrl) {
+    return GlassContainer(
+      blur: AppTheme.blurLight,
+      opacity: 0.05,
+      borderRadius: AppTheme.radiusMd,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: tracks.length,
+        itemBuilder: (context, index) {
+          final track = tracks[index];
+          return _buildTrackTile(track, index + 1, album, serverUrl);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _playItem(track),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              // Track number
+              SizedBox(
+                width: 32,
+                child: Text(
+                  track.indexNumber?.toString() ?? trackNumber.toString(),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              
+              const SizedBox(width: 12),
+              
+              // Track info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      track.name,
+                      style: AppTextStyles.bodyMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                      Text(
+                        track.albumArtist ?? track.artists?.join(', ') ?? '',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // Duration
+              Text(
+                track.formattedRuntime,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // Play icon
+              Icon(
+                Icons.play_circle_outline,
+                color: AppColors.textSecondary,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSimilarSection(String itemId, String serverUrl) {
     final similarAsync = ref.watch(similarItemsProvider(itemId));
 
