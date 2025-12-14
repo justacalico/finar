@@ -56,7 +56,22 @@ class _TvDetailState extends ConsumerState<TvDetail> {
         focusNode: _focusNode,
         onKeyEvent: _handleKeyEvent,
         child: itemAsync.when(
-          data: (item) => _buildContent(item, serverUrl),
+          data: (item) {
+            // If this is a track, redirect to the album instead
+            if (item.type == MediaType.audio && item.albumId != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => TvDetail(itemId: item.albumId!),
+                  ),
+                );
+              });
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              );
+            }
+            return _buildContent(item, serverUrl);
+          },
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
