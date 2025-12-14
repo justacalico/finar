@@ -201,7 +201,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
     // Tablet/Desktop: width >= 600 and < 1200
     // TV/Large: width >= 1200 or height >= 800 in landscape with width >= 1000
     final isMobileSize = width < 600;
-    final isLargeSize = width >= 1200 || (isLandscape && width >= 1000 && height >= 600);
+    final isLargeSize =
+        width >= 1200 || (isLandscape && width >= 1000 && height >= 600);
     final isDesktopSize = !isMobileSize && !isLargeSize;
 
     return Scaffold(
@@ -215,10 +216,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             child: _showQuickConnect
                 ? _buildQuickConnectView(isLargeSize)
                 : isLargeSize
-                    ? _buildTVLayout()
-                    : isDesktopSize
-                        ? _buildDesktopLayout()
-                        : _buildMobileLayout(),
+                ? _buildTVLayout()
+                : isDesktopSize
+                ? _buildDesktopLayout()
+                : _buildMobileLayout(),
           ),
         ],
       ),
