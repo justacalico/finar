@@ -222,7 +222,7 @@ class _QueueItem extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: isPlaying
               ? BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                 )
               : null,
           child: Row(
@@ -235,7 +235,7 @@ class _QueueItem extends ConsumerWidget {
                     padding: const EdgeInsets.only(right: 8),
                     child: Icon(
                       Icons.drag_handle,
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
                   ),
                 )
@@ -249,7 +249,7 @@ class _QueueItem extends ConsumerWidget {
                   width: 48,
                   height: 48,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                  errorBuilder: (_, e, s) => _buildPlaceholder(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -274,7 +274,7 @@ class _QueueItem extends ConsumerWidget {
                       Text(
                         item.albumArtist ?? item.artists?.first ?? '',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,
                         ),
                         maxLines: 1,
@@ -290,7 +290,7 @@ class _QueueItem extends ConsumerWidget {
                   child: Text(
                     _formatDuration(item.runtimeTicks!),
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -307,7 +307,7 @@ class _QueueItem extends ConsumerWidget {
                   onPressed: onRemove,
                   icon: Icon(
                     Icons.close,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     size: 20,
                   ),
                   splashRadius: 20,
@@ -323,10 +323,10 @@ class _QueueItem extends ConsumerWidget {
     return Container(
       width: 48,
       height: 48,
-      color: Colors.white.withOpacity(0.1),
+      color: Colors.white.withValues(alpha: 0.1),
       child: Icon(
         Icons.music_note,
-        color: Colors.white.withOpacity(0.3),
+        color: Colors.white.withValues(alpha: 0.3),
         size: 24,
       ),
     );
