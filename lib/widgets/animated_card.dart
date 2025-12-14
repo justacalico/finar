@@ -321,7 +321,7 @@ class _AnimatedCardState extends State<AnimatedCard> {
   }
 }
 
-/// Hero card for featured content
+/// Hero card for featured content with controller/focus support
 class HeroCard extends StatefulWidget {
   final String? imageUrl;
   final String title;
@@ -335,6 +335,8 @@ class HeroCard extends StatefulWidget {
   final String? rating;
   final String? year;
   final String? runtime;
+  final bool autofocus;
+  final FocusNode? focusNode;
 
   const HeroCard({
     super.key,
@@ -350,6 +352,8 @@ class HeroCard extends StatefulWidget {
     this.rating,
     this.year,
     this.runtime,
+    this.autofocus = false,
+    this.focusNode,
   });
 
   @override
@@ -357,124 +361,280 @@ class HeroCard extends StatefulWidget {
 }
 
 class _HeroCardState extends State<HeroCard> {
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+  int _focusedButtonIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    
+    switch (action) {
+      case ControllerAction.select:
+        if (_focusedButtonIndex == 0) {
+          widget.onPlay?.call();
+        } else {
+          widget.onInfo?.call();
+        }
+        return KeyEventResult.handled;
+      case ControllerAction.left:
+        if (_focusedButtonIndex > 0) {
+          setState(() => _focusedButtonIndex--);
+          return KeyEventResult.handled;
+        }
+        break;
+      case ControllerAction.right:
+        final buttonCount = (widget.onPlay != null ? 1 : 0) + (widget.onInfo != null ? 1 : 0);
+        if (_focusedButtonIndex < buttonCount - 1) {
+          setState(() => _focusedButtonIndex++);
+          return KeyEventResult.handled;
+        }
+        break;
+      default:
+        break;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: SizedBox(
-        height: widget.height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image
-            if (widget.imageUrl != null)
-              CachedNetworkImage(
-                imageUrl: widget.imageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: AppColors.surface,
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: AppColors.surface,
-                ),
-              ),
-            
-            // Gradient overlay
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: AppColors.imageOverlayFull,
-              ),
-            ),
-            
-            // Content
-            Positioned(
-              left: 24,
-              right: 24,
-              bottom: 48,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+    return Focus(
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: AppTheme.durationFast,
+          decoration: BoxDecoration(
+            border: _isFocused ? Border.all(
+              color: AppColors.primary,
+              width: 3,
+            ) : null,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
+          child: SizedBox(
+            height: widget.height,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  // Metadata row
-                  if (widget.genres != null || widget.year != null || widget.runtime != null)
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        if (widget.rating != null)
-                          _MetadataBadge(
-                            icon: Icons.star,
-                            text: widget.rating!,
-                            color: AppColors.accentYellow,
-                          ),
-                        if (widget.year != null)
-                          _MetadataBadge(text: widget.year!),
-                        if (widget.runtime != null)
-                          _MetadataBadge(text: widget.runtime!),
-                        if (widget.genres != null)
-                          ...widget.genres!.take(2).map(
-                                (g) => _MetadataBadge(text: g),
-                              ),
-                      ],
+                  // Background image
+                  if (widget.imageUrl != null)
+                    CachedNetworkImage(
+                      imageUrl: widget.imageUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: AppColors.surface,
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: AppColors.surface,
+                      ),
                     ),
                   
-                  const SizedBox(height: 12),
-                  
-                  // Title
-                  Text(
-                    widget.title,
-                    style: AppTextStyles.hero,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  // Gradient overlay
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: AppColors.imageOverlayFull,
+                    ),
                   ),
                   
-                  if (widget.subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.subtitle!,
-                      style: AppTextStyles.subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  
-                  if (widget.description != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.description!,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                  // Focus glow effect
+                  if (_isFocused)
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
                       ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
                   
-                  const SizedBox(height: 20),
-                  
-                  // Action buttons
-                  Row(
-                    children: [
-                      if (widget.onPlay != null)
-                        ElevatedButton.icon(
-                          onPressed: widget.onPlay,
-                          icon: const Icon(Icons.play_arrow),
-                          label: const Text('Play'),
+                  // Content
+                  Positioned(
+                    left: 24,
+                    right: 24,
+                    bottom: 48,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Metadata row
+                        if (widget.genres != null || widget.year != null || widget.runtime != null)
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              if (widget.rating != null)
+                                _MetadataBadge(
+                                  icon: Icons.star,
+                                  text: widget.rating!,
+                                  color: AppColors.accentYellow,
+                                ),
+                              if (widget.year != null)
+                                _MetadataBadge(text: widget.year!),
+                              if (widget.runtime != null)
+                                _MetadataBadge(text: widget.runtime!),
+                              if (widget.genres != null)
+                                ...widget.genres!.take(2).map(
+                                      (g) => _MetadataBadge(text: g),
+                                    ),
+                            ],
+                          ),
+                        
+                        const SizedBox(height: 12),
+                        
+                        // Title
+                        Text(
+                          widget.title,
+                          style: AppTextStyles.hero,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      if (widget.onPlay != null && widget.onInfo != null)
-                        const SizedBox(width: 12),
-                      if (widget.onInfo != null)
-                        OutlinedButton.icon(
-                          onPressed: widget.onInfo,
-                          icon: const Icon(Icons.info_outline),
-                          label: const Text('More Info'),
+                        
+                        if (widget.subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.subtitle!,
+                            style: AppTextStyles.subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        
+                        if (widget.description != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            widget.description!,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Action buttons with focus indicators
+                        Row(
+                          children: [
+                            if (widget.onPlay != null)
+                              _FocusableHeroButton(
+                                isFocused: _isFocused && _focusedButtonIndex == 0,
+                                isPrimary: true,
+                                icon: Icons.play_arrow,
+                                label: 'Play',
+                                onPressed: widget.onPlay!,
+                              ),
+                            if (widget.onPlay != null && widget.onInfo != null)
+                              const SizedBox(width: 12),
+                            if (widget.onInfo != null)
+                              _FocusableHeroButton(
+                                isFocused: _isFocused && _focusedButtonIndex == (widget.onPlay != null ? 1 : 0),
+                                isPrimary: false,
+                                icon: Icons.info_outline,
+                                label: 'More Info',
+                                onPressed: widget.onInfo!,
+                              ),
+                          ],
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _FocusableHeroButton extends StatelessWidget {
+  final bool isFocused;
+  final bool isPrimary;
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _FocusableHeroButton({
+    required this.isFocused,
+    required this.isPrimary,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: AppTheme.durationFast,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        boxShadow: isFocused ? [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.5),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ] : null,
+      ),
+      child: AnimatedScale(
+        scale: isFocused ? 1.05 : 1.0,
+        duration: AppTheme.durationFast,
+        child: isPrimary
+            ? ElevatedButton.icon(
+                onPressed: onPressed,
+                icon: Icon(icon),
+                label: Text(label),
+                style: ElevatedButton.styleFrom(
+                  side: isFocused ? const BorderSide(color: AppColors.white, width: 2) : null,
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: onPressed,
+                icon: Icon(icon),
+                label: Text(label),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: isFocused ? AppColors.primary : AppColors.white.withValues(alpha: 0.5),
+                    width: isFocused ? 2 : 1,
+                  ),
+                ),
+              ),
       ),
     );
   }
