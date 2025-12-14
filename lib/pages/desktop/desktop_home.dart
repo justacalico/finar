@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
@@ -6,6 +7,7 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/library.dart';
 import '../../core/api/media_service.dart';
+import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'desktop_library.dart';
@@ -25,6 +27,139 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   int _selectedIndex = 0;
   String? _selectedLibraryId;
   String? _selectedLibraryType;
+  
+  // Focus management for controller navigation
+  final FocusNode _mainFocusNode = FocusNode();
+  bool _sidebarFocused = false;
+  int _focusedNavIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Request focus when the widget is first built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mainFocusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _mainFocusNode.dispose();
+    super.dispose();
+  }
+
+  /// Handle global controller/keyboard navigation
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    
+    // Handle back button to navigate back or toggle sidebar
+    if (action == ControllerAction.back) {
+      if (_selectedLibraryId != null) {
+        setState(() {
+          _selectedLibraryId = null;
+          _selectedLibraryType = null;
+          _selectedIndex = 0;
+        });
+        return KeyEventResult.handled;
+      }
+      if (!_sidebarFocused) {
+        setState(() => _sidebarFocused = true);
+        return KeyEventResult.handled;
+      }
+    }
+    
+    // Handle menu button to toggle sidebar focus
+    if (action == ControllerAction.menu) {
+      setState(() => _sidebarFocused = !_sidebarFocused);
+      return KeyEventResult.handled;
+    }
+    
+    // Handle sidebar navigation when sidebar is focused
+    if (_sidebarFocused) {
+      return _handleSidebarNavigation(action);
+    }
+    
+    return KeyEventResult.ignored;
+  }
+
+  KeyEventResult _handleSidebarNavigation(ControllerAction? action) {
+    final libraries = ref.read(librariesProvider).valueOrNull ?? [];
+    final totalNavItems = 4 + libraries.length + 1; // Home, Search, Favorites, Downloads + libraries + Settings
+    
+    switch (action) {
+      case ControllerAction.up:
+        setState(() {
+          _focusedNavIndex = (_focusedNavIndex - 1).clamp(0, totalNavItems - 1);
+        });
+        return KeyEventResult.handled;
+      case ControllerAction.down:
+        setState(() {
+          _focusedNavIndex = (_focusedNavIndex + 1).clamp(0, totalNavItems - 1);
+        });
+        return KeyEventResult.handled;
+      case ControllerAction.select:
+        _activateNavItem(_focusedNavIndex, libraries);
+        return KeyEventResult.handled;
+      case ControllerAction.right:
+        setState(() => _sidebarFocused = false);
+        return KeyEventResult.handled;
+      default:
+        return KeyEventResult.ignored;
+    }
+  }
+
+  void _activateNavItem(int index, List<Library> libraries) {
+    if (index == 0) {
+      // Home
+      setState(() {
+        _selectedIndex = 0;
+        _selectedLibraryId = null;
+        _selectedLibraryType = null;
+        _sidebarFocused = false;
+      });
+    } else if (index == 1) {
+      // Search
+      setState(() {
+        _selectedIndex = 1;
+        _selectedLibraryId = null;
+        _selectedLibraryType = null;
+        _sidebarFocused = false;
+      });
+    } else if (index == 2) {
+      // Favorites
+      setState(() {
+        _selectedIndex = 2;
+        _selectedLibraryId = null;
+        _selectedLibraryType = null;
+        _sidebarFocused = false;
+      });
+    } else if (index == 3) {
+      // Downloads
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DesktopDownloads()),
+      );
+    } else if (index < 4 + libraries.length) {
+      // Library
+      final library = libraries[index - 4];
+      setState(() {
+        _selectedLibraryId = library.id;
+        _selectedLibraryType = library.collectionType;
+        _selectedIndex = -1;
+        _sidebarFocused = false;
+      });
+    } else {
+      // Settings
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DesktopSettings()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
