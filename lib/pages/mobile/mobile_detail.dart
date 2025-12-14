@@ -341,6 +341,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   void _showLiquidGlassMenu(MediaItem item) {
     final downloadTask = ref.read(downloadTaskProvider(item.id));
+    final isInWatchlist = ref.read(isInWatchlistProvider(item.id));
 
     showModalBottomSheet(
       context: context,
@@ -349,8 +350,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       builder: (context) => _LiquidGlassMenu(
         item: item,
         downloadTask: downloadTask,
+        isInWatchlist: isInWatchlist.valueOrNull ?? false,
         onFavorite: () => _toggleFavorite(item),
         onWatched: () => _toggleWatched(item),
+        onWatchlist: () => _toggleWatchlist(item),
         onDownload: () => _handleDownloadAction(item, downloadTask),
         onShare: () => _shareItem(item),
       ),
