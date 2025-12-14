@@ -268,7 +268,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                     child: Image.network(
                       item.getPrimaryImageUrl(serverUrl, width: 150),
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, ___) => Container(
                         color: AppColors.surface,
                         child: Icon(
                           Icons.music_note,
