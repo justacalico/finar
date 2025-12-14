@@ -338,6 +338,9 @@ class DownloadService {
       
       _cancelTokens.remove(task.id);
       
+      // Download images in the background (don't block completion)
+      _downloadImages(task);
+      
       if (kDebugMode) {
         print('Download completed: ${task.itemName}');
       }
