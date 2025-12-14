@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../core/api/media_service.dart';
 import '../core/api/models/media_item.dart';
 import '../core/api/models/playback_info.dart';
+import '../core/services/download_service.dart';
 import 'library_provider.dart';
+import 'download_provider.dart';
 
 /// Player state
 class PlayerState {
@@ -128,12 +131,14 @@ class PlayerState {
 /// Player notifier
 class PlayerNotifier extends StateNotifier<PlayerState> {
   final MediaService _mediaService;
+  final DownloadService _downloadService;
   late final Player _player;
   late final VideoController _videoController;
   Timer? _progressTimer;
   final List<StreamSubscription> _subscriptions = [];
+  bool _isPlayingLocal = false;
 
-  PlayerNotifier(this._mediaService) : super(const PlayerState()) {
+  PlayerNotifier(this._mediaService, this._downloadService) : super(const PlayerState()) {
     _initPlayer();
   }
 
@@ -181,6 +186,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     int? startPositionTicks,
     List<MediaItem>? playlist,
     int? playlistIndex,
+    bool forceStream = false,
   }) async {
     state = state.copyWith(
       isLoading: true,
@@ -191,41 +197,84 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     );
 
     try {
-      final streamInfo = await _mediaService.getStreamInfo(
-        item.id,
-        startTimeTicks: startPositionTicks,
-      );
+      // Check if item is downloaded locally
+      final localPath = !forceStream ? _downloadService.getLocalPath(item.id) : null;
+      final localFile = localPath != null ? File(localPath) : null;
+      final hasLocalFile = localFile != null && await localFile.exists();
 
-      state = state.copyWith(
-        streamInfo: streamInfo,
-        audioTrackIndex: streamInfo.defaultAudioIndex,
-        subtitleTrackIndex: streamInfo.defaultSubtitleIndex,
-      );
+      if (hasLocalFile) {
+        // Play from local file
+        _isPlayingLocal = true;
+        await _player.open(Media(localPath));
 
-      await _player.open(Media(streamInfo.url));
+        // Seek to start position if provided
+        if (startPositionTicks != null) {
+          final startPosition = Duration(microseconds: startPositionTicks ~/ 10);
+          // Wait briefly for player to initialize, then seek
+          await Future.delayed(const Duration(milliseconds: 100));
+          await _player.seek(startPosition);
+        }
 
-      // Report playback started
-      await _mediaService.reportPlaybackStarted(
-        item.id,
-        mediaSourceId: streamInfo.mediaSource.id,
-        playSessionId: streamInfo.playSessionId,
-        audioStreamIndex: streamInfo.defaultAudioIndex,
-        subtitleStreamIndex: streamInfo.defaultSubtitleIndex,
-        positionTicks: startPositionTicks,
-        playMethod: streamInfo.isTranscoding ? 'Transcode' : 'DirectPlay',
-      );
+        // Still report playback started to server for tracking
+        try {
+          await _mediaService.reportPlaybackStarted(
+            item.id,
+            positionTicks: startPositionTicks,
+            playMethod: 'DirectPlay',
+          );
+        } catch (_) {
+          // Ignore errors when reporting - we're playing locally
+        }
 
-      // Start progress reporting
-      _startProgressReporting();
+        // Start progress reporting
+        _startProgressReporting();
 
-      state = state.copyWith(isLoading: false);
+        state = state.copyWith(isLoading: false);
 
-      // Load next item info
-      _loadNextItem();
+        // Load next item info
+        _loadNextItem();
+      } else {
+        // Stream from server
+        _isPlayingLocal = false;
+        final streamInfo = await _mediaService.getStreamInfo(
+          item.id,
+          startTimeTicks: startPositionTicks,
+        );
+
+        state = state.copyWith(
+          streamInfo: streamInfo,
+          audioTrackIndex: streamInfo.defaultAudioIndex,
+          subtitleTrackIndex: streamInfo.defaultSubtitleIndex,
+        );
+
+        await _player.open(Media(streamInfo.url));
+
+        // Report playback started
+        await _mediaService.reportPlaybackStarted(
+          item.id,
+          mediaSourceId: streamInfo.mediaSource.id,
+          playSessionId: streamInfo.playSessionId,
+          audioStreamIndex: streamInfo.defaultAudioIndex,
+          subtitleStreamIndex: streamInfo.defaultSubtitleIndex,
+          positionTicks: startPositionTicks,
+          playMethod: streamInfo.isTranscoding ? 'Transcode' : 'DirectPlay',
+        );
+
+        // Start progress reporting
+        _startProgressReporting();
+
+        state = state.copyWith(isLoading: false);
+
+        // Load next item info
+        _loadNextItem();
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
+
+  /// Check if currently playing from local file
+  bool get isPlayingLocal => _isPlayingLocal;
 
   /// Play from a playlist
   Future<void> playPlaylist(List<MediaItem> playlist, int startIndex) async {
@@ -493,7 +542,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 /// Player provider
 final playerProvider = StateNotifierProvider<PlayerNotifier, PlayerState>((ref) {
   final mediaService = ref.watch(mediaServiceProvider);
-  return PlayerNotifier(mediaService);
+  final downloadService = ref.watch(downloadServiceProvider);
+  return PlayerNotifier(mediaService, downloadService);
 });
 
 /// Video controller provider
