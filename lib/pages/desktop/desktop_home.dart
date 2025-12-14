@@ -30,24 +30,38 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   Widget build(BuildContext context) {
     final homeData = ref.watch(homeDataProvider);
     final libraries = ref.watch(librariesProvider);
+    final showMiniPlayer = ref.watch(showMiniPlayerProvider);
+    final playerState = ref.watch(playerProvider);
+    final isMusic = playerState.currentItem?.type.name == 'audio' || 
+                    playerState.currentItem?.type.name == 'album';
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar
-          _buildSidebar(libraries),
-          
-          // Main content
           Expanded(
-            child: homeData.when(
-              data: (data) => _buildContent(data),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-              error: (error, stack) => _buildError(error.toString()),
+            child: Row(
+              children: [
+                // Sidebar
+                _buildSidebar(libraries),
+                
+                // Main content
+                Expanded(
+                  child: homeData.when(
+                    data: (data) => _buildContent(data),
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    ),
+                    error: (error, stack) => _buildError(error.toString()),
+                  ),
+                ),
+              ],
             ),
           ),
+          
+          // Music player bar at bottom
+          if (showMiniPlayer && isMusic)
+            const DesktopMusicPlayerBar(),
         ],
       ),
     );
