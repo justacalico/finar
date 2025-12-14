@@ -60,7 +60,17 @@ class MediaService {
       genres: genres?.join(','),
       years: years?.join(','),
       searchTerm: searchTerm,
-      excludeItemTypes: ['Folder', 'CollectionFolder', 'UserView', 'Playlist'],
+      // Exclude non-browsable items: folders, seasons, episodes, and individual audio tracks
+      // Music libraries will show albums instead of individual tracks
+      excludeItemTypes: [
+        'Folder',
+        'CollectionFolder',
+        'UserView',
+        'Playlist',
+        'Season',
+        'Episode',
+        'Audio',
+      ],
     );
 
     return LibraryContent(
