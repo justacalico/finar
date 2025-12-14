@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dio/browser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'models/user.dart';
@@ -7,6 +6,7 @@ import 'models/media_item.dart';
 import 'models/library.dart';
 import 'models/playback_info.dart';
 import 'platform_stub.dart' if (dart.library.io) 'platform_native.dart';
+import 'dio_config_native.dart' if (dart.library.html) 'dio_config_web.dart';
 
 /// Main Jellyfin API client
 class JellyfinApi {
@@ -36,10 +36,8 @@ class JellyfinApi {
       ),
     );
 
-    // Configure for web platform to handle CORS
-    if (kIsWeb) {
-      _dio.httpClientAdapter = BrowserHttpClientAdapter(withCredentials: false);
-    }
+    // Configure HTTP client adapter for the current platform
+    configureDioForPlatform(_dio);
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
