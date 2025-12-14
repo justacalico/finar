@@ -514,251 +514,266 @@ class ExpandedMusicPlayer extends ConsumerWidget {
         opacity: 0.2,
         borderRadius: 0,
         child: SafeArea(
-          child: Column(
-            children: [
-              // Header with collapse button
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      iconSize: 32,
-                      color: AppColors.textPrimary,
-                      onPressed: onCollapse,
-                    ),
-                    const Spacer(),
-                    Text(
-                      'NOW PLAYING',
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      iconSize: 24,
-                      color: AppColors.textPrimary,
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Album art
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 40,
-                          offset: const Offset(0, 20),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxHeight < 600;
+              final artPadding = isCompact ? 32.0 : 48.0;
+              final spacing = isCompact ? 16.0 : 32.0;
+              final controlPadding = isCompact ? 16.0 : 32.0;
+              final bottomPadding = isCompact ? 16.0 : 48.0;
+              
+              return Column(
+                children: [
+                  // Header with collapse button
+                  Padding(
+                    padding: EdgeInsets.all(isCompact ? 8 : 16),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          iconSize: 32,
+                          color: AppColors.textPrimary,
+                          onPressed: onCollapse,
+                        ),
+                        const Spacer(),
+                        Text(
+                          'NOW PLAYING',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: AppColors.textSecondary,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.more_vert),
+                          iconSize: 24,
+                          color: AppColors.textPrimary,
+                          onPressed: () {},
                         ),
                       ],
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      child: Image.network(
-                        item.getPrimaryImageUrl(serverUrl, width: 600),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: AppColors.surface,
-                          child: const Icon(
-                            Icons.music_note,
-                            size: 100,
-                            color: AppColors.textSecondary,
+                  ),
+
+                  // Album art - flexible to take available space
+                  Flexible(
+                    flex: 4,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: artPadding),
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                                blurRadius: 40,
+                                offset: const Offset(0, 20),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            child: Image.network(
+                              item.getPrimaryImageUrl(serverUrl, width: 600),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: AppColors.surface,
+                                child: const Icon(
+                                  Icons.music_note,
+                                  size: 100,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      )
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .scale(
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.02, 1.02),
+                            duration: 3.seconds,
+                            curve: Curves.easeInOut,
+                          ),
                     ),
                   ),
-                )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.02, 1.02),
-                      duration: 3.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-              ),
 
-              const SizedBox(height: 32),
+                  SizedBox(height: spacing),
 
-              // Track info
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: [
-                    Text(
-                      item.name,
-                      style: AppTextStyles.headlineSmall,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      [
-                        if (item.artists?.isNotEmpty == true ||
-                            item.albumArtist != null)
-                          item.albumArtist ?? item.artists?.first ?? '',
-                        if (item.album != null) item.album,
-                      ].join(' • '),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Progress slider
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    SliderTheme(
-                      data: SliderThemeData(
-                        trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 8,
+                  // Track info
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: controlPadding),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.name,
+                          style: isCompact 
+                              ? AppTextStyles.titleLarge 
+                              : AppTextStyles.headlineSmall,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 16,
-                        ),
-                        activeTrackColor: AppColors.primary,
-                        inactiveTrackColor: AppColors.surface,
-                        thumbColor: AppColors.primary,
-                        overlayColor: AppColors.primary.withValues(alpha: 0.2),
-                      ),
-                      child: Slider(
-                        value: playerState.progress.clamp(0.0, 1.0),
-                        onChanged: (value) {
-                          final newPosition = Duration(
-                            milliseconds:
-                                (duration.inMilliseconds * value).round(),
-                          );
-                          ref.read(playerProvider.notifier).seek(newPosition);
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDuration(position),
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          [
+                            if (item.artists?.isNotEmpty == true ||
+                                item.albumArtist != null)
+                              item.albumArtist ?? item.artists?.first ?? '',
+                            if (item.album != null) item.album,
+                          ].join(' • '),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                          Text(
-                            _formatDuration(duration),
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Controls
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Shuffle
-                    IconButton(
-                      icon: const Icon(Icons.shuffle),
-                      iconSize: 28,
-                      color: AppColors.textSecondary,
-                      onPressed: () {},
-                    ),
-
-                    // Previous
-                    IconButton(
-                      icon: const Icon(Icons.skip_previous),
-                      iconSize: 40,
-                      color: playerState.hasPrevious
-                          ? AppColors.textPrimary
-                          : AppColors.textTertiary,
-                      onPressed: playerState.hasPrevious
-                          ? () {
-                              ref.read(playerProvider.notifier).playPrevious();
-                            }
-                          : null,
-                    ),
-
-                    // Play/Pause
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.primaryGradient,
-                        boxShadow: AppTheme.shadowGlow(AppColors.primary),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          playerState.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        iconSize: 40,
-                        color: Colors.white,
-                        onPressed: () {
-                          ref.read(playerProvider.notifier).playOrPause();
-                        },
-                      ),
+                      ],
                     ),
+                  ),
 
-                    // Next
-                    IconButton(
-                      icon: const Icon(Icons.skip_next),
-                      iconSize: 40,
-                      color: playerState.hasNext
-                          ? AppColors.textPrimary
-                          : AppColors.textTertiary,
-                      onPressed: playerState.hasNext
-                          ? () {
-                              ref.read(playerProvider.notifier).playNext();
-                            }
-                          : null,
+                  SizedBox(height: spacing * 0.5),
+
+                  // Progress slider
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 4,
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 8,
+                            ),
+                            overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 16,
+                            ),
+                            activeTrackColor: AppColors.primary,
+                            inactiveTrackColor: AppColors.surface,
+                            thumbColor: AppColors.primary,
+                            overlayColor: AppColors.primary.withValues(alpha: 0.2),
+                          ),
+                          child: Slider(
+                            value: playerState.progress.clamp(0.0, 1.0),
+                            onChanged: (value) {
+                              final newPosition = Duration(
+                                milliseconds:
+                                    (duration.inMilliseconds * value).round(),
+                              );
+                              ref.read(playerProvider.notifier).seek(newPosition);
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _formatDuration(position),
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              Text(
+                                _formatDuration(duration),
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
 
-                    // Repeat
-                    IconButton(
-                      icon: const Icon(Icons.repeat),
-                      iconSize: 28,
-                      color: AppColors.textSecondary,
-                      onPressed: () {},
+                  SizedBox(height: isCompact ? 8 : 24),
+
+                  // Controls
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: controlPadding),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Shuffle
+                        IconButton(
+                          icon: const Icon(Icons.shuffle),
+                          iconSize: isCompact ? 24 : 28,
+                          color: AppColors.textSecondary,
+                          onPressed: () {},
+                        ),
+
+                        // Previous
+                        IconButton(
+                          icon: const Icon(Icons.skip_previous),
+                          iconSize: isCompact ? 32 : 40,
+                          color: playerState.hasPrevious
+                              ? AppColors.textPrimary
+                              : AppColors.textTertiary,
+                          onPressed: playerState.hasPrevious
+                              ? () {
+                                  ref.read(playerProvider.notifier).playPrevious();
+                                }
+                              : null,
+                        ),
+
+                        // Play/Pause
+                        Container(
+                          width: isCompact ? 56 : 72,
+                          height: isCompact ? 56 : 72,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: AppColors.primaryGradient,
+                            boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              playerState.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                            ),
+                            iconSize: isCompact ? 32 : 40,
+                            color: Colors.white,
+                            onPressed: () {
+                              ref.read(playerProvider.notifier).playOrPause();
+                            },
+                          ),
+                        ),
+
+                        // Next
+                        IconButton(
+                          icon: const Icon(Icons.skip_next),
+                          iconSize: isCompact ? 32 : 40,
+                          color: playerState.hasNext
+                              ? AppColors.textPrimary
+                              : AppColors.textTertiary,
+                          onPressed: playerState.hasNext
+                              ? () {
+                                  ref.read(playerProvider.notifier).playNext();
+                                }
+                              : null,
+                        ),
+
+                        // Repeat
+                        IconButton(
+                          icon: const Icon(Icons.repeat),
+                          iconSize: isCompact ? 24 : 28,
+                          color: AppColors.textSecondary,
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              const SizedBox(height: 48),
-            ],
+                  SizedBox(height: bottomPadding),
+                ],
+              );
+            },
           ),
         ),
       ),
