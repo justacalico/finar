@@ -66,9 +66,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
     super.dispose();
   }
 
-  bool get _isTV => PlatformDetector.isTV;
-  bool get _isDesktop => PlatformDetector.isDesktop;
-
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
