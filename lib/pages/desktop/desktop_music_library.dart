@@ -758,8 +758,19 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
     ref.read(playerProvider.notifier).play(track);
   }
 
-  void _playAlbum(MediaItem album) {
-    // Play the first track of the album
-    ref.read(playerProvider.notifier).play(album);
+  Future<void> _playAlbum(MediaItem album) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final tracks = await mediaService.getAlbumTracks(album.id);
+      if (tracks.isNotEmpty) {
+        ref.read(playerProvider.notifier).playPlaylist(tracks, 0);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play album: $e')),
+        );
+      }
+    }
   }
 }
