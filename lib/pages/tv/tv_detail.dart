@@ -14,10 +14,7 @@ import 'tv_player.dart';
 class TvDetail extends ConsumerStatefulWidget {
   final String itemId;
 
-  const TvDetail({
-    super.key,
-    required this.itemId,
-  });
+  const TvDetail({super.key, required this.itemId});
 
   @override
   ConsumerState<TvDetail> createState() => _TvDetailState();
@@ -63,9 +60,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (error, _) => Center(
-            child: Text('Error: $error'),
-          ),
+          error: (error, _) => Center(child: Text('Error: $error')),
         ),
       ),
     );
@@ -104,16 +99,11 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                         height: 100,
                         fit: BoxFit.contain,
                         alignment: Alignment.centerLeft,
-                        errorBuilder: (_, _, _) => Text(
-                          item.name,
-                          style: AppTextStyles.displayMedium,
-                        ),
+                        errorBuilder: (_, _, _) =>
+                            Text(item.name, style: AppTextStyles.displayMedium),
                       )
                     else
-                      Text(
-                        item.name,
-                        style: AppTextStyles.displayMedium,
-                      ),
+                      Text(item.name, style: AppTextStyles.displayMedium),
 
                     const SizedBox(height: 16),
 
@@ -147,17 +137,11 @@ class _TvDetailState extends ConsumerState<TvDetail> {
 
             // Right side - Episodes (for TV shows)
             if (item.type == MediaType.series)
-              Expanded(
-                flex: 4,
-                child: _buildEpisodesPanel(item, serverUrl),
-              ),
+              Expanded(flex: 4, child: _buildEpisodesPanel(item, serverUrl)),
 
             // Right side - Tracks (for music albums)
             if (item.type == MediaType.album)
-              Expanded(
-                flex: 4,
-                child: _buildAlbumTracksPanel(item, serverUrl),
-              ),
+              Expanded(flex: 4, child: _buildAlbumTracksPanel(item, serverUrl)),
           ],
         ),
       ],
@@ -194,10 +178,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
-                AppColors.background,
-                Colors.transparent,
-              ],
+              colors: [AppColors.background, Colors.transparent],
               stops: const [0.0, 0.5],
             ),
           ),
@@ -224,16 +205,10 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               border: Border.all(color: AppColors.divider),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(
-              item.officialRating!,
-              style: AppTextStyles.labelMedium,
-            ),
+            child: Text(item.officialRating!, style: AppTextStyles.labelMedium),
           ),
         if (item.formattedRuntime.isNotEmpty)
-          Text(
-            item.formattedRuntime,
-            style: AppTextStyles.titleMedium,
-          ),
+          Text(item.formattedRuntime, style: AppTextStyles.titleMedium),
         if (item.communityRating != null)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -260,7 +235,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
   Widget _buildActionButtons(MediaItem item) {
     final downloadState = ref.watch(downloadProvider);
     final existingDownload = downloadState.getTaskForItem(item.id);
-    
+
     final downloadIcon = _getDownloadIcon(existingDownload);
     final downloadLabel = _getDownloadLabel(existingDownload);
 
@@ -283,7 +258,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
         onPressed: () => _toggleFavorite(item),
       ),
       _ActionButton(
-        icon: item.isPlayed == true ? Icons.check_circle : Icons.check_circle_outline,
+        icon: item.isPlayed == true
+            ? Icons.check_circle
+            : Icons.check_circle_outline,
         label: 'Watched',
         onPressed: () => _toggleWatched(item),
       ),
@@ -298,7 +275,8 @@ class _TvDetailState extends ConsumerState<TvDetail> {
       children: buttons.asMap().entries.map((entry) {
         final index = entry.key;
         final button = entry.value;
-        final isSelected = !_inEpisodeSelection && _selectedButtonIndex == index;
+        final isSelected =
+            !_inEpisodeSelection && _selectedButtonIndex == index;
 
         return Padding(
           padding: const EdgeInsets.only(right: 16),
@@ -402,7 +380,8 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: _inEpisodeSelection &&
+                border:
+                    _inEpisodeSelection &&
                         _selectedEpisodeIndex == -1 &&
                         _selectedSeasonIndex == index
                     ? Border.all(color: AppColors.accentBlue, width: 2)
@@ -450,7 +429,7 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     String seasonId,
   ) {
     final isWatched = episode.isPlayed == true;
-    
+
     return GestureDetector(
       onTap: () => _playItem(episode),
       child: AnimatedContainer(
@@ -519,8 +498,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                       child: LinearProgressIndicator(
                         value: episode.progressPercent,
                         backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                        valueColor:
-                            const AlwaysStoppedAnimation(AppColors.primary),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.primary,
+                        ),
                         minHeight: 3,
                       ),
                     ),
@@ -550,9 +530,11 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                         child: Text(
                           'E${episode.indexNumber} - ${episode.name}',
                           style: AppTextStyles.titleSmall.copyWith(
-                            color: isSelected 
-                                ? AppColors.primary 
-                                : (isWatched ? AppColors.textSecondary : AppColors.textPrimary),
+                            color: isSelected
+                                ? AppColors.primary
+                                : (isWatched
+                                      ? AppColors.textSecondary
+                                      : AppColors.textPrimary),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -611,12 +593,17 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               children: [
                 Text('Tracks', style: AppTextStyles.titleLarge),
                 const Spacer(),
-                tracksAsync.whenData((tracks) => Text(
-                  '${tracks.length} songs',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                )).value ?? const SizedBox.shrink(),
+                tracksAsync
+                        .whenData(
+                          (tracks) => Text(
+                            '${tracks.length} songs',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                        .value ??
+                    const SizedBox.shrink(),
               ],
             ),
 
@@ -648,7 +635,12 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.1);
   }
 
-  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+  Widget _buildTrackTile(
+    MediaItem track,
+    int trackNumber,
+    MediaItem album,
+    String serverUrl,
+  ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -669,9 +661,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Track info
               Expanded(
                 child: Column(
@@ -683,7 +675,8 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                    if (track.albumArtist != null ||
+                        track.artists?.isNotEmpty == true)
                       Text(
                         track.albumArtist ?? track.artists?.join(', ') ?? '',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -695,9 +688,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Duration
               Text(
                 track.formattedRuntime,
@@ -705,9 +698,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                   color: AppColors.textSecondary,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Play icon
               Icon(
                 Icons.play_circle_outline,
@@ -820,12 +813,12 @@ class _TvDetailState extends ConsumerState<TvDetail> {
 
   void _scrollToSelectedEpisode() {
     if (_selectedEpisodeIndex < 0) return;
-    
+
     final targetOffset = _selectedEpisodeIndex * _episodeCardHeight;
-    final maxScroll = _episodesScrollController.hasClients 
-        ? _episodesScrollController.position.maxScrollExtent 
+    final maxScroll = _episodesScrollController.hasClients
+        ? _episodesScrollController.position.maxScrollExtent
         : 0.0;
-    
+
     if (_episodesScrollController.hasClients) {
       _episodesScrollController.animateTo(
         targetOffset.clamp(0.0, maxScroll),
@@ -888,18 +881,20 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     ref.read(playerProvider.notifier).play(item);
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const TvPlayer(),
-      ),
+      MaterialPageRoute(builder: (_) => const TvPlayer()),
     );
   }
 
   void _toggleFavorite(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleFavorite(item.id, !(item.isFavorite == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleFavorite(item.id, !(item.isFavorite == true));
   }
 
   void _toggleWatched(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleWatched(item.id, !(item.isPlayed == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleWatched(item.id, !(item.isPlayed == true));
   }
 
   IconData _getDownloadIcon(DownloadTask? download) {
@@ -939,7 +934,9 @@ class _TvDetailState extends ConsumerState<TvDetail> {
   }
 
   void _handleDownloadAction(MediaItem item, DownloadTask? download) {
-    if (download == null || download.status == DownloadStatus.cancelled || download.status == DownloadStatus.failed) {
+    if (download == null ||
+        download.status == DownloadStatus.cancelled ||
+        download.status == DownloadStatus.failed) {
       _startDownload(item);
     } else if (download.status == DownloadStatus.downloading) {
       ref.read(downloadProvider.notifier).pauseDownload(download.id);
@@ -984,7 +981,10 @@ class _TvDetailState extends ConsumerState<TvDetail> {
               ref.read(downloadProvider.notifier).deleteDownload(taskId);
               Navigator.pop(context);
             },
-            child: const Text('Remove', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Remove',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
