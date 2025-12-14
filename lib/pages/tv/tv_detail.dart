@@ -593,6 +593,134 @@ class _TvDetailState extends ConsumerState<TvDetail> {
     );
   }
 
+  Widget _buildAlbumTracksPanel(MediaItem album, String serverUrl) {
+    final tracksAsync = ref.watch(albumTracksProvider(album.id));
+
+    return Container(
+      margin: const EdgeInsets.all(32),
+      child: GlassContainer(
+        blur: AppTheme.blurMedium,
+        opacity: 0.1,
+        borderRadius: AppTheme.radiusLg,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Text('Tracks', style: AppTextStyles.titleLarge),
+                const Spacer(),
+                tracksAsync.whenData((tracks) => Text(
+                  '${tracks.length} songs',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                )).value ?? const SizedBox.shrink(),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Tracks list
+            Expanded(
+              child: tracksAsync.when(
+                data: (tracks) => ListView.separated(
+                  itemCount: tracks.length,
+                  separatorBuilder: (_, _) => Divider(
+                    color: AppColors.divider.withValues(alpha: 0.3),
+                    height: 1,
+                  ),
+                  itemBuilder: (context, index) {
+                    final track = tracks[index];
+                    return _buildTrackTile(track, index + 1, album, serverUrl);
+                  },
+                ),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+                error: (error, _) => Center(child: Text('Error: $error')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.1);
+  }
+
+  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _playItem(track),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+          child: Row(
+            children: [
+              // Track number
+              SizedBox(
+                width: 40,
+                child: Text(
+                  track.indexNumber?.toString() ?? trackNumber.toString(),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Track info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      track.name,
+                      style: AppTextStyles.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                      Text(
+                        track.albumArtist ?? track.artists?.join(', ') ?? '',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Duration
+              Text(
+                track.formattedRuntime,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Play icon
+              Icon(
+                Icons.play_circle_outline,
+                color: AppColors.textSecondary,
+                size: 28,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent) return;
 
