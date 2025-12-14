@@ -170,34 +170,42 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final isMusic = playerState.currentItem?.type.name == 'audio' || 
                     playerState.currentItem?.type.name == 'album';
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                // Sidebar
-                _buildSidebar(libraries),
-                
-                // Main content
-                Expanded(
-                  child: homeData.when(
-                    data: (data) => _buildContent(data),
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+    return Focus(
+      focusNode: _mainFocusNode,
+      autofocus: true,
+      onKeyEvent: _handleKeyEvent,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  // Sidebar with focus support
+                  _buildSidebar(libraries),
+                  
+                  // Main content with FocusTraversalGroup
+                  Expanded(
+                    child: FocusTraversalGroup(
+                      policy: OrderedTraversalPolicy(),
+                      child: homeData.when(
+                        data: (data) => _buildContent(data),
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(color: AppColors.primary),
+                        ),
+                        error: (error, stack) => _buildError(error.toString()),
+                      ),
                     ),
-                    error: (error, stack) => _buildError(error.toString()),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          
-          // Music player bar at bottom
-          if (showMiniPlayer && isMusic)
-            const DesktopMusicPlayerBar(),
-        ],
+            
+            // Music player bar at bottom
+            if (showMiniPlayer && isMusic)
+              const DesktopMusicPlayerBar(),
+          ],
+        ),
       ),
     );
   }
