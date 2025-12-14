@@ -86,11 +86,12 @@ build_release_aab:
         mkdir -p android/app/keystore
         echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/keystore/upload-keystore.jks
         # Create key.properties file in android/ directory (where build.gradle.kts expects it)
+        # storeFile path is relative to android/app/ directory (where app's build.gradle.kts is)
         cat > android/key.properties << EOF
       storePassword=$ANDROID_KEYSTORE_PASSWORD
       keyPassword=$ANDROID_KEY_PASSWORD
       keyAlias=$ANDROID_KEY_ALIAS
-      storeFile=app/keystore/upload-keystore.jks
+      storeFile=keystore/upload-keystore.jks
       EOF
         echo "Release signing configured"
       else
@@ -176,11 +177,12 @@ build_release_apk:
         mkdir -p android/app/keystore
         echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/keystore/upload-keystore.jks
         # Create key.properties file in android/ directory
+        # storeFile path is relative to android/app/ directory (where app's build.gradle.kts is)
         cat > android/key.properties << EOF
       storePassword=$ANDROID_KEYSTORE_PASSWORD
       keyPassword=$ANDROID_KEY_PASSWORD
       keyAlias=$ANDROID_KEY_ALIAS
-      storeFile=app/keystore/upload-keystore.jks
+      storeFile=keystore/upload-keystore.jks
       EOF
         echo "Release signing configured"
       else
