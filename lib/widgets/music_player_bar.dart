@@ -569,7 +569,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                       child: Image.network(
                         item.getPrimaryImageUrl(serverUrl, width: 600),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (context, error, stackTrace) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.music_note,
