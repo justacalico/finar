@@ -260,24 +260,28 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   activeIcon: Icons.home,
                   label: 'Home',
                   index: 0,
+                  focusIndex: 0,
                 ),
                 _buildNavItem(
                   icon: Icons.search_outlined,
                   activeIcon: Icons.search,
                   label: 'Search',
                   index: 1,
+                  focusIndex: 1,
                 ),
                 _buildNavItem(
                   icon: Icons.favorite_outline,
                   activeIcon: Icons.favorite,
                   label: 'Favorites',
                   index: 2,
+                  focusIndex: 2,
                 ),
                 _buildNavItem(
                   icon: Icons.download_outlined,
                   activeIcon: Icons.download,
                   label: 'Downloads',
                   index: 3,
+                  focusIndex: 3,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -298,7 +302,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 
                 librariesAsync.when(
                   data: (libraries) => Column(
-                    children: libraries.map((lib) => _buildLibraryItem(lib)).toList(),
+                    children: libraries.asMap().entries.map((entry) => 
+                      _buildLibraryItem(entry.value, entry.key + 4)
+                    ).toList(),
                   ),
                   loading: () => const Padding(
                     padding: EdgeInsets.all(16),
