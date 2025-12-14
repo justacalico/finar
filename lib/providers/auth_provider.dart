@@ -112,11 +112,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = const AuthState.serverConnected();
         return true;
       } else {
-        state = const AuthState.error('Failed to connect to server');
+        state = const AuthState.error('Could not connect to server. Please check the URL.');
         return false;
       }
     } catch (e) {
-      state = AuthState.error(e.toString());
+      state = AuthState.error(_getErrorMessage(e));
       return false;
     }
   }
