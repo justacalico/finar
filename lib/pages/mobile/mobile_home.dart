@@ -773,7 +773,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         addRepaintBoundaries: true,
         addAutomaticKeepAlives: false,
         cacheExtent: 400,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final item = items[index];
           return _buildContinueWatchingCard(item, serverUrl, index);
