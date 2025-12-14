@@ -838,22 +838,6 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         .fadeIn(delay: Duration(milliseconds: index * 50))
         .slideX(begin: 0.1);
   }
-                child: Text(
-                  item.name,
-                  style: AppTextStyles.labelMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: index * 50))
-        .slideX(begin: 0.1);
-  }
 
   Widget _buildMediaRow(List<dynamic> items, String serverUrl) {
     return SizedBox(
