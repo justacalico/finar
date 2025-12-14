@@ -7,6 +7,7 @@ import 'providers/providers.dart';
 import 'pages/desktop/desktop_home.dart';
 import 'pages/mobile/mobile_home.dart';
 import 'pages/tv/tv_home.dart';
+import 'pages/login_page.dart';
 
 class FinarApp extends ConsumerStatefulWidget {
   const FinarApp({super.key});
