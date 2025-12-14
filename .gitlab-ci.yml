@@ -408,3 +408,44 @@ build_linux_appimage:
       - artifacts/klit-linux-x86_64.AppImage
     expire_in: never
   timeout: 2h
+
+build_web:
+  stage: build-web
+  image: ghcr.io/cirruslabs/flutter:stable
+  tags:
+    - linux
+  allow_failure: true
+  variables:
+    GIT_STRATEGY: fetch
+    GIT_DEPTH: 1
+  cache:
+    key: "web-deps-$CI_COMMIT_REF_SLUG-v1"
+    paths:
+      - .pub-cache/
+    policy: pull-push
+  before_script:
+    - rm -rf build/ .dart_tool/ .flutter-plugins-dependencies || true
+    - flutter --version
+  script:
+    - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
+    # Extract version from pubspec.yaml or git tag
+    - |
+      if [[ -n "$CI_COMMIT_TAG" && "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+        VERSION=${CI_COMMIT_TAG#v}
+      else
+        VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
+      fi
+      echo "Building Web version $VERSION"
+    # Build web release with CanvasKit renderer for better performance
+    - flutter build web --release --web-renderer canvaskit --build-name=$VERSION --build-number=$CI_PIPELINE_ID
+    # Create zip archive of the web build
+    - cd build
+    - zip -r $CI_PROJECT_DIR/finar-$VERSION-web.zip web/
+    - cd $CI_PROJECT_DIR
+  artifacts:
+    paths:
+      - build/web/
+      - finar-*-web.zip
+    expire_in: never
+  timeout: 1h
