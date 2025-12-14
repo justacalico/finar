@@ -69,7 +69,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   bool get _isTV => PlatformDetector.isTV;
-  bool get _isMobile => PlatformDetector.isMobile;
   bool get _isDesktop => PlatformDetector.isDesktop;
 
   Future<void> _login() async {
