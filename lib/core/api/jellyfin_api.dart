@@ -401,13 +401,20 @@ class JellyfinApi {
     final response = await _dio.get(
       '/Users/$_userId/Suggestions',
       queryParameters: {
-        'Limit': limit,
+        'Limit': limit + 10, // Request extra to account for filtered items
         'Fields': 'Overview',
       },
     );
-    return (response.data['Items'] as List<dynamic>?)
+    final items = (response.data['Items'] as List<dynamic>?)
         ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
         .toList() ?? [];
+    
+    // Filter out libraries (collectionFolder) and seasons - these shouldn't appear in recommendations
+    return items.where((item) => 
+      item.type != MediaType.collectionFolder && 
+      item.type != MediaType.season &&
+      item.type != MediaType.folder
+    ).take(limit).toList();
   }
 
   /// Get items by genre
