@@ -244,6 +244,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
         mainAxisSpacing: 20,
       ),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.items.length) {
           return const Center(
