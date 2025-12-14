@@ -248,8 +248,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           onTap: () {
             setState(() {
-              _selectedLibraryId = library.id;
-              _selectedIndex = -1;
+              _selectedLibraryId = library.id;              _selectedLibraryType = library.collectionType;              _selectedIndex = -1;
             });
           },
           child: AnimatedContainer(
