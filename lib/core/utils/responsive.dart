@@ -15,11 +15,6 @@ class Responsive {
   static DeviceType getDeviceType(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     
-    // Check if TV platform
-    if (PlatformDetector.isTV) {
-      return DeviceType.tv;
-    }
-    
     if (width < mobileBreakpoint) {
       return DeviceType.mobile;
     } else if (width < tabletBreakpoint) {
@@ -134,7 +129,7 @@ class Responsive {
 
   /// Check if should show sidebar
   static bool showSidebar(BuildContext context) {
-    return isDesktop(context) && !PlatformDetector.isTV;
+    return isDesktop(context);
   }
 
   /// Check if should use bottom navigation
@@ -149,20 +144,7 @@ class Responsive {
 
   /// Get the effective safe area considering device type
   static EdgeInsets effectiveSafeArea(BuildContext context) {
-    final safeArea = MediaQuery.of(context).padding;
-    final deviceType = getDeviceType(context);
-
-    // TV usually needs more padding
-    if (deviceType == DeviceType.tv) {
-      return EdgeInsets.fromLTRB(
-        safeArea.left + 48,
-        safeArea.top + 24,
-        safeArea.right + 48,
-        safeArea.bottom + 24,
-      );
-    }
-
-    return safeArea;
+    return MediaQuery.of(context).padding;
   }
 }
 
@@ -172,7 +154,6 @@ enum DeviceType {
   tablet,
   desktop,
   largeDesktop,
-  tv,
 }
 
 /// Responsive builder widget
@@ -210,8 +191,6 @@ class ResponsiveLayout extends StatelessWidget {
     final deviceType = Responsive.getDeviceType(context);
 
     switch (deviceType) {
-      case DeviceType.tv:
-        return tv ?? desktop ?? tablet ?? mobile;
       case DeviceType.largeDesktop:
       case DeviceType.desktop:
         return desktop ?? tablet ?? mobile;
@@ -248,9 +227,6 @@ class ResponsiveVisibility extends StatelessWidget {
     
     bool isVisible;
     switch (deviceType) {
-      case DeviceType.tv:
-        isVisible = visibleOnTV;
-        break;
       case DeviceType.largeDesktop:
       case DeviceType.desktop:
         isVisible = visibleOnDesktop;
