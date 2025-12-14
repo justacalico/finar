@@ -324,7 +324,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       }
 
       _isPlayingLocal = true;
-      print('Playing from local file (direct): $localPath');
+      if (kDebugMode) {
+        print('Playing from local file (direct): $localPath');
+      }
       await _player.open(Media(localPath));
 
       // Seek to start position if provided
