@@ -699,12 +699,17 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             children: [
               Text('Tracks', style: AppTextStyles.titleMedium),
               const Spacer(),
-              tracksAsync.whenData((tracks) => Text(
-                '${tracks.length} songs',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              )).value ?? const SizedBox.shrink(),
+              tracksAsync
+                      .whenData(
+                        (tracks) => Text(
+                          '${tracks.length} songs',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      )
+                      .value ??
+                  const SizedBox.shrink(),
             ],
           ),
           const SizedBox(height: 12),
@@ -720,7 +725,11 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     ).animate().fadeIn(delay: 200.ms);
   }
 
-  Widget _buildTracksList(List<MediaItem> tracks, MediaItem album, String serverUrl) {
+  Widget _buildTracksList(
+    List<MediaItem> tracks,
+    MediaItem album,
+    String serverUrl,
+  ) {
     return GlassContainer(
       blur: AppTheme.blurLight,
       opacity: 0.05,
@@ -738,7 +747,12 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     );
   }
 
-  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+  Widget _buildTrackTile(
+    MediaItem track,
+    int trackNumber,
+    MediaItem album,
+    String serverUrl,
+  ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -759,9 +773,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Track info
               Expanded(
                 child: Column(
@@ -773,7 +787,8 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                    if (track.albumArtist != null ||
+                        track.artists?.isNotEmpty == true)
                       Text(
                         track.albumArtist ?? track.artists?.join(', ') ?? '',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -785,9 +800,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Duration
               Text(
                 track.formattedRuntime,
@@ -795,9 +810,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   color: AppColors.textSecondary,
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Play icon
               Icon(
                 Icons.play_circle_outline,
