@@ -88,17 +88,28 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   KeyEventResult _handleSidebarNavigation(ControllerAction? action) {
     final libraries = ref.read(librariesProvider).valueOrNull ?? [];
-    final totalNavItems = 4 + libraries.length + 1; // Home, Search, Favorites, Downloads + libraries + Settings
+    final maxLibraryIndex = 4 + libraries.length - 1; // Last library item index
+    const settingsIndex = 100;
     
     switch (action) {
       case ControllerAction.up:
         setState(() {
-          _focusedNavIndex = (_focusedNavIndex - 1).clamp(0, totalNavItems - 1);
+          if (_focusedNavIndex == settingsIndex) {
+            // From settings, go to last library or Downloads (index 3)
+            _focusedNavIndex = libraries.isNotEmpty ? maxLibraryIndex : 3;
+          } else if (_focusedNavIndex > 0) {
+            _focusedNavIndex--;
+          }
         });
         return KeyEventResult.handled;
       case ControllerAction.down:
         setState(() {
-          _focusedNavIndex = (_focusedNavIndex + 1).clamp(0, totalNavItems - 1);
+          if (_focusedNavIndex == maxLibraryIndex || (libraries.isEmpty && _focusedNavIndex == 3)) {
+            // From last item, go to settings
+            _focusedNavIndex = settingsIndex;
+          } else if (_focusedNavIndex < maxLibraryIndex && _focusedNavIndex != settingsIndex) {
+            _focusedNavIndex++;
+          }
         });
         return KeyEventResult.handled;
       case ControllerAction.select:
