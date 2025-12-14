@@ -306,32 +306,44 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                 // Track info
                 Expanded(
                   flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
                     children: [
-                      Text(
-                        item.name,
-                        style: isTV
-                            ? AppTextStyles.titleMedium
-                            : AppTextStyles.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        [
-                          if (item.artists?.isNotEmpty == true ||
-                              item.albumArtist != null)
-                            item.albumArtist ?? item.artists?.first ?? '',
-                          if (item.album != null) item.album,
-                        ].join(' • '),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: isTV ? 14 : 12,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              item.name,
+                              style: isTV
+                                  ? AppTextStyles.titleMedium
+                                  : AppTextStyles.titleSmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              [
+                                if (item.artists?.isNotEmpty == true ||
+                                    item.albumArtist != null)
+                                  item.albumArtist ?? item.artists?.first ?? '',
+                                if (item.album != null) item.album,
+                              ].join(' • '),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: isTV ? 14 : 12,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(width: isTV ? 16 : 8),
+                      // Favorite button
+                      _FavoriteButton(
+                        item: item,
+                        size: isTV ? 24 : 20,
                       ),
                     ],
                   ),
