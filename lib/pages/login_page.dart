@@ -6,8 +6,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/colors.dart';
-import '../core/utils/platform_detector.dart';
-import '../providers/providers.dart';
 import '../widgets/glass_container.dart';
 
 /// Adaptive login page for TV, Mobile, and Desktop
@@ -196,16 +194,17 @@ class _LoginPageState extends ConsumerState<LoginPage>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isLandscape = size.width > size.height;
-    final forcedUiMode = ref.watch(forcedUiModeProvider);
+    final width = size.width;
+    final height = size.height;
+    final isLandscape = width > height;
 
-    // Determine effective UI mode
-    final effectiveIsTV =
-        forcedUiMode == UiMode.tv || (_isTV && forcedUiMode == UiMode.auto);
-    final effectiveIsDesktop =
-        forcedUiMode == UiMode.desktop ||
-        (_isDesktop && forcedUiMode == UiMode.auto) ||
-        (isLandscape && size.width > 900);
+    // Size-based layout breakpoints
+    // Mobile: width < 600
+    // Tablet/Desktop: width >= 600 and < 1200
+    // TV/Large: width >= 1200 or height >= 800 in landscape with width >= 1000
+    final isMobileSize = width < 600;
+    final isLargeSize = width >= 1200 || (isLandscape && width >= 1000 && height >= 600);
+    final isDesktopSize = !isMobileSize && !isLargeSize;
 
     return Scaffold(
       body: Stack(
@@ -216,12 +215,12 @@ class _LoginPageState extends ConsumerState<LoginPage>
           // Main content
           SafeArea(
             child: _showQuickConnect
-                ? _buildQuickConnectView(effectiveIsTV)
-                : effectiveIsTV
-                ? _buildTVLayout()
-                : effectiveIsDesktop
-                ? _buildDesktopLayout()
-                : _buildMobileLayout(),
+                ? _buildQuickConnectView(isLargeSize)
+                : isLargeSize
+                    ? _buildTVLayout()
+                    : isDesktopSize
+                        ? _buildDesktopLayout()
+                        : _buildMobileLayout(),
           ),
         ],
       ),
