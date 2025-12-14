@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/player_provider.dart';
+import '../providers/providers.dart';
 import '../core/api/jellyfin_api.dart';
+import '../core/api/models/media_item.dart';
 import 'glass_container.dart';
 
 class QueueView extends ConsumerWidget {
