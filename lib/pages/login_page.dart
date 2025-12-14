@@ -85,13 +85,21 @@ class _LoginPageState extends ConsumerState<LoginPage>
       if (!success && mounted) {
         final authState = ref.read(authProvider);
         setState(() {
-          _error = authState.errorMessage ?? 'Login failed. Please try again.';
+          _error = authState.errorMessage ?? 'Login failed. Please check your credentials and try again.';
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'An unexpected error occurred. Please try again.';
+          if (e.toString().contains('XMLHttpRequest') || 
+              e.toString().contains('CORS')) {
+            _error = 'Network request blocked. This may be a CORS issue with the server.';
+          } else if (e.toString().contains('SocketException') || 
+                     e.toString().contains('Connection refused')) {
+            _error = 'Could not connect to server. Please check the URL.';
+          } else {
+            _error = 'An unexpected error occurred: ${e.toString().length > 100 ? e.toString().substring(0, 100) : e.toString()}';
+          }
         });
       }
     } finally {
