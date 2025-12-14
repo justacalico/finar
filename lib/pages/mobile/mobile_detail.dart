@@ -290,79 +290,201 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   Widget _buildActionButtons(MediaItem item) {
-    return Column(
+    return Row(
       children: [
         // Primary play button
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton.icon(
-            onPressed: () => _playItem(item),
-            icon: const Icon(Icons.play_arrow, size: 24),
-            label: Text(
-              item.hasProgress ? 'Resume' : 'Play',
-              style: AppTextStyles.buttonLarge,
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: () => _playItem(item),
+              icon: const Icon(Icons.play_arrow, size: 24),
+              label: Text(
+                item.hasProgress ? 'Resume' : 'Play',
+                style: AppTextStyles.buttonLarge,
+              ),
             ),
           ),
         ),
 
-        const SizedBox(height: 12),
-
-        // Secondary actions
-        Row(
-          children: [
-            // Trailer
-            if (item.hasTrailer)
-              Expanded(
-                child: GlassButton(
-                  onPressed: () => _playTrailer(item),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.movie_outlined, size: 18),
-                      SizedBox(width: 8),
-                      Text('Trailer'),
-                    ],
-                  ),
-                ),
-              ),
-            if (item.hasTrailer) const SizedBox(width: 12),
-
-            // Favorite
-            GlassIconButton(
-              icon: (item.isFavorite == true) ? Icons.favorite : Icons.favorite_border,
-              iconColor: (item.isFavorite == true) ? AppColors.accentRed : null,
-              onPressed: () => _toggleFavorite(item),
+        // Trailer button
+        if (item.hasTrailer) ...[
+          const SizedBox(width: 12),
+          GlassButton(
+            onPressed: () => _playTrailer(item),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.movie_outlined, size: 18),
+                SizedBox(width: 8),
+                Text('Trailer'),
+              ],
             ),
+          ),
+        ],
 
-            const SizedBox(width: 8),
+        const SizedBox(width: 12),
 
-            // Watched
-            GlassIconButton(
-              icon: (item.isPlayed == true)
-                  ? Icons.check_circle
-                  : Icons.check_circle_outline,
-              iconColor: (item.isPlayed == true) ? AppColors.primary : null,
-              onPressed: () => _toggleWatched(item),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Download
-            _buildDownloadButton(item),
-
-            const SizedBox(width: 8),
-
-            // Share
-            GlassIconButton(
-              icon: Icons.share_outlined,
-              onPressed: () => _shareItem(item),
-            ),
-          ],
-        ),
+        // More options menu
+        _buildMoreOptionsMenu(item),
       ],
     ).animate().fadeIn(delay: 100.ms);
+  }
+
+  Widget _buildMoreOptionsMenu(MediaItem item) {
+    final downloadTask = ref.watch(downloadTaskProvider(item.id));
+    
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      ),
+      itemBuilder: (context) => [
+        // Favorite
+        PopupMenuItem(
+          value: 'favorite',
+          child: Row(
+            children: [
+              Icon(
+                (item.isFavorite == true) ? Icons.favorite : Icons.favorite_border,
+                color: (item.isFavorite == true) ? AppColors.accentRed : AppColors.textPrimary,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text((item.isFavorite == true) ? 'Remove from Favorites' : 'Add to Favorites'),
+            ],
+          ),
+        ),
+        // Mark as watched
+        PopupMenuItem(
+          value: 'watched',
+          child: Row(
+            children: [
+              Icon(
+                (item.isPlayed == true) ? Icons.check_circle : Icons.check_circle_outline,
+                color: (item.isPlayed == true) ? AppColors.primary : AppColors.textPrimary,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text((item.isPlayed == true) ? 'Mark as Unwatched' : 'Mark as Watched'),
+            ],
+          ),
+        ),
+        // Download
+        PopupMenuItem(
+          value: 'download',
+          child: Row(
+            children: [
+              Icon(
+                _getDownloadIcon(downloadTask),
+                color: _getDownloadIconColor(downloadTask),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(_getDownloadText(downloadTask)),
+            ],
+          ),
+        ),
+        // Share
+        const PopupMenuItem(
+          value: 'share',
+          child: Row(
+            children: [
+              Icon(Icons.share_outlined, size: 20),
+              SizedBox(width: 12),
+              Text('Share'),
+            ],
+          ),
+        ),
+      ],
+      onSelected: (value) {
+        switch (value) {
+          case 'favorite':
+            _toggleFavorite(item);
+            break;
+          case 'watched':
+            _toggleWatched(item);
+            break;
+          case 'download':
+            _handleDownloadAction(item, downloadTask);
+            break;
+          case 'share':
+            _shareItem(item);
+            break;
+        }
+      },
+    );
+  }
+
+  IconData _getDownloadIcon(DownloadTask? task) {
+    if (task == null) return Icons.download_outlined;
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return Icons.downloading;
+      case DownloadStatus.paused:
+        return Icons.pause_circle_outline;
+      case DownloadStatus.completed:
+        return Icons.download_done;
+      case DownloadStatus.failed:
+        return Icons.refresh;
+      default:
+        return Icons.hourglass_empty;
+    }
+  }
+
+  Color _getDownloadIconColor(DownloadTask? task) {
+    if (task == null) return AppColors.textPrimary;
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return AppColors.primary;
+      case DownloadStatus.paused:
+        return AppColors.accentYellow;
+      case DownloadStatus.completed:
+        return AppColors.success;
+      case DownloadStatus.failed:
+        return AppColors.error;
+      default:
+        return AppColors.textPrimary;
+    }
+  }
+
+  String _getDownloadText(DownloadTask? task) {
+    if (task == null) return 'Download';
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return 'Downloading (${(task.progress * 100).toInt()}%)';
+      case DownloadStatus.paused:
+        return 'Resume Download';
+      case DownloadStatus.completed:
+        return 'Downloaded';
+      case DownloadStatus.failed:
+        return 'Retry Download';
+      default:
+        return 'Download Pending';
+    }
+  }
+
+  void _handleDownloadAction(MediaItem item, DownloadTask? task) {
+    if (task == null) {
+      _downloadItem(item);
+      return;
+    }
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        ref.read(downloadProvider.notifier).pauseDownload(task.id);
+        break;
+      case DownloadStatus.paused:
+      case DownloadStatus.failed:
+        ref.read(downloadProvider.notifier).resumeDownload(task.id);
+        break;
+      case DownloadStatus.completed:
+        // Already downloaded, could show options
+        break;
+      default:
+        _downloadItem(item);
+    }
   }
 
   Widget _buildDownloadButton(MediaItem item) {
