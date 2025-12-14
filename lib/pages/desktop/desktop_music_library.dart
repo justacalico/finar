@@ -13,13 +13,11 @@ import 'desktop_detail.dart';
 class DesktopMusicLibrary extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const DesktopMusicLibrary({
-    super.key,
-    required this.libraryId,
-  });
+  const DesktopMusicLibrary({super.key, required this.libraryId});
 
   @override
-  ConsumerState<DesktopMusicLibrary> createState() => _DesktopMusicLibraryState();
+  ConsumerState<DesktopMusicLibrary> createState() =>
+      _DesktopMusicLibraryState();
 }
 
 class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
@@ -101,7 +99,11 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.library_music, color: AppColors.primary, size: 28),
+                    Icon(
+                      Icons.library_music,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
                     const SizedBox(width: 12),
                     Text('Music Library', style: AppTextStyles.headlineMedium),
                   ],
@@ -145,7 +147,9 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              ref.read(musicLibraryProvider(widget.libraryId).notifier).refreshAll();
+              ref
+                  .read(musicLibraryProvider(widget.libraryId).notifier)
+                  .refreshAll();
             },
             tooltip: 'Refresh',
           ),
@@ -280,88 +284,103 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
 
   Widget _buildAlbumCard(MediaItem album, String serverUrl, int index) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _navigateToDetail(album.id),
-        child: GlassContainer(
-          borderRadius: AppTheme.radiusMd,
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Album art with hover effect
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(
-                        album.getPrimaryImageUrl(serverUrl, width: 400),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.surface,
-                          child: const Icon(Icons.album, size: 64, color: AppColors.textSecondary),
-                        ),
-                      ),
-                      // Play overlay
-                      Positioned.fill(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _playAlbum(album),
-                            child: Container(
-                              color: Colors.black.withValues(alpha: 0),
-                              child: Center(
-                                child: Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
-                                    boxShadow: AppTheme.shadowGlow(AppColors.primary),
-                                  ),
-                                  child: const Icon(Icons.play_arrow, color: Colors.white, size: 28),
-                                ),
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => _navigateToDetail(album.id),
+            child: GlassContainer(
+              borderRadius: AppTheme.radiusMd,
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Album art with hover effect
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(
+                            album.getPrimaryImageUrl(serverUrl, width: 400),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: AppColors.surface,
+                              child: const Icon(
+                                Icons.album,
+                                size: 64,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ),
-                        ),
-                      ).animate().fadeIn(duration: 200.ms),
-                    ],
+                          // Play overlay
+                          Positioned.fill(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _playAlbum(album),
+                                child: Container(
+                                  color: Colors.black.withValues(alpha: 0),
+                                  child: Center(
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary,
+                                        shape: BoxShape.circle,
+                                        boxShadow: AppTheme.shadowGlow(
+                                          AppColors.primary,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 28,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ).animate().fadeIn(duration: 200.ms),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  // Album name
+                  Text(
+                    album.name,
+                    style: AppTextStyles.titleSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Artist name
+                  if (album.albumArtist != null ||
+                      album.artists?.isNotEmpty == true)
+                    Text(
+                      album.albumArtist ?? album.artists?.first ?? '',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  // Year
+                  if (album.productionYear != null)
+                    Text(
+                      album.productionYear.toString(),
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 12),
-              // Album name
-              Text(
-                album.name,
-                style: AppTextStyles.titleSmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              // Artist name
-              if (album.albumArtist != null || album.artists?.isNotEmpty == true)
-                Text(
-                  album.albumArtist ?? album.artists?.first ?? '',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              // Year
-              if (album.productionYear != null)
-                Text(
-                  album.productionYear.toString(),
-                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
-                ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 15) * 30)).scale(
-          begin: const Offset(0.95, 0.95),
-          end: const Offset(1, 1),
-        );
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 15) * 30))
+        .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1));
   }
 
   Widget _buildTracksList(MusicLibraryState state, String serverUrl) {
@@ -400,121 +419,125 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
         : '';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GlassContainer(
-        borderRadius: AppTheme.radiusMd,
-        padding: EdgeInsets.zero,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _playTrack(track),
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            hoverColor: AppColors.primary.withValues(alpha: 0.1),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  // Track number
-                  SizedBox(
-                    width: 40,
-                    child: Text(
-                      track.indexNumber?.toString() ?? '#',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Album art
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Image.network(
-                        track.getPrimaryImageUrl(serverUrl, width: 100),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.surface,
-                          child: const Icon(Icons.music_note, size: 24, color: AppColors.textSecondary),
+          padding: const EdgeInsets.only(bottom: 8),
+          child: GlassContainer(
+            borderRadius: AppTheme.radiusMd,
+            padding: EdgeInsets.zero,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _playTrack(track),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                hoverColor: AppColors.primary.withValues(alpha: 0.1),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      // Track number
+                      SizedBox(
+                        width: 40,
+                        child: Text(
+                          track.indexNumber?.toString() ?? '#',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Track info
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          track.name,
-                          style: AppTextStyles.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 12),
+                      // Album art
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: Image.network(
+                            track.getPrimaryImageUrl(serverUrl, width: 100),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: AppColors.surface,
+                              child: const Icon(
+                                Icons.music_note,
+                                size: 24,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
                         ),
-                        if (track.artists?.isNotEmpty == true)
-                          Text(
-                            track.artists!.join(', '),
+                      ),
+                      const SizedBox(width: 16),
+                      // Track info
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              track.name,
+                              style: AppTextStyles.titleSmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (track.artists?.isNotEmpty == true)
+                              Text(
+                                track.artists!.join(', '),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      // Album
+                      if (track.album != null)
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            track.album!,
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                      ],
-                    ),
-                  ),
-                  // Album
-                  if (track.album != null)
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        track.album!,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      // Duration
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          durationStr,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
                       ),
-                    ),
-                  // Duration
-                  SizedBox(
-                    width: 60,
-                    child: Text(
-                      durationStr,
-                      style: AppTextStyles.labelSmall.copyWith(
+                      const SizedBox(width: 16),
+                      // Actions
+                      IconButton(
+                        icon: const Icon(Icons.favorite_border, size: 20),
                         color: AppColors.textSecondary,
+                        onPressed: () {},
+                        tooltip: 'Add to favorites',
                       ),
-                      textAlign: TextAlign.right,
-                    ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert, size: 20),
+                        color: AppColors.textSecondary,
+                        onPressed: () => _showTrackOptions(track),
+                        tooltip: 'More options',
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  // Actions
-                  IconButton(
-                    icon: const Icon(Icons.favorite_border, size: 20),
-                    color: AppColors.textSecondary,
-                    onPressed: () {},
-                    tooltip: 'Add to favorites',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert, size: 20),
-                    color: AppColors.textSecondary,
-                    onPressed: () => _showTrackOptions(track),
-                    tooltip: 'More options',
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 20) * 20)).slideX(
-          begin: 0.02,
-          end: 0,
-        );
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 20) * 20))
+        .slideX(begin: 0.02, end: 0);
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -549,69 +572,75 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
 
   Widget _buildArtistCard(MediaItem artist, String serverUrl, int index) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _navigateToDetail(artist.id),
-        child: Column(
-          children: [
-            // Artist image (circular) with glow effect
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => _navigateToDetail(artist.id),
+            child: Column(
+              children: [
+                // Artist image (circular) with glow effect
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(
-                          artist.getPrimaryImageUrl(serverUrl, width: 300),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: AppColors.surface,
-                            child: const Icon(Icons.person, size: 64, color: AppColors.textSecondary),
-                          ),
+                      child: ClipOval(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              artist.getPrimaryImageUrl(serverUrl, width: 300),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: AppColors.surface,
+                                child: const Icon(
+                                  Icons.person,
+                                  size: 64,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            // Hover overlay
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _navigateToDetail(artist.id),
+                                customBorder: const CircleBorder(),
+                                hoverColor: AppColors.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        // Hover overlay
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _navigateToDetail(artist.id),
-                            customBorder: const CircleBorder(),
-                            hoverColor: AppColors.primary.withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                // Artist name
+                Text(
+                  artist.name,
+                  style: AppTextStyles.titleSmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            // Artist name
-            Text(
-              artist.name,
-              style: AppTextStyles.titleSmall,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 15) * 40)).scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1, 1),
-        );
+          ),
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 15) * 40))
+        .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1));
   }
 
   Widget _buildLoadingGrid({bool isCircle = false}) {
@@ -625,9 +654,7 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
       ),
       itemCount: 12,
       itemBuilder: (context, index) {
-        return ShimmerLoading(
-          borderRadius: isCircle ? 100 : AppTheme.radiusMd,
-        );
+        return ShimmerLoading(borderRadius: isCircle ? 100 : AppTheme.radiusMd);
       },
     );
   }
@@ -639,10 +666,7 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: ShimmerLoading(
-            height: 72,
-            borderRadius: AppTheme.radiusMd,
-          ),
+          child: ShimmerLoading(height: 72, borderRadius: AppTheme.radiusMd),
         );
       },
     );
@@ -727,9 +751,7 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => DesktopDetail(itemId: itemId),
-      ),
+      MaterialPageRoute(builder: (_) => DesktopDetail(itemId: itemId)),
     );
   }
 
