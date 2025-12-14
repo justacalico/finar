@@ -1028,7 +1028,14 @@ class _MobileLibraryBrowser extends ConsumerWidget {
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: Text('Library', style: AppTextStyles.headlineMedium),
+            floating: true,
+            title: Row(
+              children: [
+                Icon(Icons.video_library, color: AppColors.primary),
+                const SizedBox(width: 12),
+                Text('Library', style: AppTextStyles.headlineMedium),
+              ],
+            ),
             backgroundColor: Colors.transparent,
           ),
           SliverPadding(
@@ -1036,38 +1043,99 @@ class _MobileLibraryBrowser extends ConsumerWidget {
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 1.5,
+                childAspectRatio: 1.3,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final library = libraries[index];
-                  return GlassCard(
+                  final gradient = _getLibraryGradient(library.collectionType);
+                  
+                  return GestureDetector(
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => MobileLibrary(libraryId: library.id),
                       ),
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _getLibraryIcon(library.collectionType),
-                          size: 40,
-                          color: AppColors.primary,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: gradient,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          library.name,
-                          style: AppTextStyles.titleMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        boxShadow: [
+                          BoxShadow(
+                            color: gradient[0].withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Pattern overlay
+                          Positioned(
+                            right: -20,
+                            bottom: -20,
+                            child: Icon(
+                              _getLibraryIcon(library.collectionType),
+                              size: 100,
+                              color: AppColors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          // Content
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    _getLibraryIcon(library.collectionType),
+                                    size: 24,
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      library.name,
+                                      style: AppTextStyles.titleMedium.copyWith(
+                                        color: AppColors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _getLibraryTypeLabel(library.collectionType),
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.white.withValues(alpha: 0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
+                  ).animate()
+                      .fadeIn(delay: Duration(milliseconds: index * 100))
+                      .scale(begin: const Offset(0.9, 0.9));
                 },
                 childCount: libraries.length,
               ),
@@ -1076,6 +1144,36 @@ class _MobileLibraryBrowser extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  List<Color> _getLibraryGradient(String? collectionType) {
+    switch (collectionType) {
+      case 'movies':
+        return [const Color(0xFFE53935), const Color(0xFFB71C1C)];
+      case 'tvshows':
+        return [const Color(0xFF1E88E5), const Color(0xFF0D47A1)];
+      case 'music':
+        return [const Color(0xFF43A047), const Color(0xFF1B5E20)];
+      case 'photos':
+        return [const Color(0xFFFF9800), const Color(0xFFE65100)];
+      default:
+        return [const Color(0xFF7E57C2), const Color(0xFF4527A0)];
+    }
+  }
+
+  String _getLibraryTypeLabel(String? collectionType) {
+    switch (collectionType) {
+      case 'movies':
+        return 'Movies';
+      case 'tvshows':
+        return 'TV Shows';
+      case 'music':
+        return 'Music';
+      case 'photos':
+        return 'Photos';
+      default:
+        return 'Collection';
+    }
   }
 
   IconData _getLibraryIcon(String? collectionType) {
