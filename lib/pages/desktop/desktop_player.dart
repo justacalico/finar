@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:media_kit_video/media_kit_video.dart' hide NoVideoControls;
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
@@ -88,7 +88,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                 Center(
                   child: Video(
                     controller: videoController,
-                    controls: NoVideoControls,
+                    controls: noVideoControls,
                     fit: BoxFit.contain,
                   ),
                 ),
