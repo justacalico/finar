@@ -15,10 +15,7 @@ import 'tv_detail.dart';
 class TvMusicLibrary extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const TvMusicLibrary({
-    super.key,
-    required this.libraryId,
-  });
+  const TvMusicLibrary({super.key, required this.libraryId});
 
   @override
   ConsumerState<TvMusicLibrary> createState() => _TvMusicLibraryState();
@@ -28,10 +25,10 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
     with SingleTickerProviderStateMixin {
   final FocusNode _mainFocusNode = FocusNode();
   late TabController _tabController;
-  
+
   int _selectedIndex = 0;
   int _selectedTabIndex = 0;
-  
+
   // Color extraction for dynamic background
   Color _dominantColor = AppColors.background;
   Color _accentColor = AppColors.primary;
@@ -42,7 +39,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _mainFocusNode.requestFocus();
     });
@@ -103,7 +100,9 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
             _selectedIndex += columns;
           } else {
             // Load more if at the end
-            ref.read(musicLibraryProvider(widget.libraryId).notifier).loadMore();
+            ref
+                .read(musicLibraryProvider(widget.libraryId).notifier)
+                .loadMore();
           }
           break;
         case LogicalKeyboardKey.enter:
@@ -141,9 +140,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       // Album or Artist - navigate to detail
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => TvDetail(itemId: item.id),
-        ),
+        MaterialPageRoute(builder: (_) => TvDetail(itemId: item.id)),
       );
     }
   }
@@ -162,8 +159,10 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
 
       if (mounted) {
         setState(() {
-          _dominantColor = paletteGenerator.dominantColor?.color ?? AppColors.background;
-          _accentColor = paletteGenerator.vibrantColor?.color ??
+          _dominantColor =
+              paletteGenerator.dominantColor?.color ?? AppColors.background;
+          _accentColor =
+              paletteGenerator.vibrantColor?.color ??
               paletteGenerator.mutedColor?.color ??
               AppColors.primary;
         });
@@ -182,7 +181,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
   Widget build(BuildContext context) {
     final musicState = ref.watch(musicLibraryProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
-    
+
     final items = musicState.currentItems;
     MediaItem? selectedItem;
     if (_selectedIndex >= 0 && _selectedIndex < items.length) {
@@ -268,7 +267,11 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
               // Stats
               _buildStatChip(Icons.album, '${state.albumsTotal}', 'Albums'),
               const SizedBox(width: 24),
-              _buildStatChip(Icons.music_note, '${state.tracksTotal}', 'Tracks'),
+              _buildStatChip(
+                Icons.music_note,
+                '${state.tracksTotal}',
+                'Tracks',
+              ),
               const SizedBox(width: 24),
               _buildStatChip(Icons.person, '${state.artistsTotal}', 'Artists'),
             ],
@@ -332,7 +335,9 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
         const SizedBox(width: 4),
         Text(
           label,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
@@ -358,12 +363,22 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       itemCount: state.albums.length,
       itemBuilder: (context, index) {
         final isSelected = _selectedTabIndex == 0 && _selectedIndex == index;
-        return _buildAlbumCard(state.albums[index], serverUrl, index, isSelected);
+        return _buildAlbumCard(
+          state.albums[index],
+          serverUrl,
+          index,
+          isSelected,
+        );
       },
     );
   }
 
-  Widget _buildAlbumCard(MediaItem album, String serverUrl, int index, bool isSelected) {
+  Widget _buildAlbumCard(
+    MediaItem album,
+    String serverUrl,
+    int index,
+    bool isSelected,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       transform: Matrix4.identity()..scale(isSelected ? 1.08 : 1.0),
@@ -386,7 +401,11 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
                         color: AppColors.surface,
-                        child: const Icon(Icons.album, size: 64, color: AppColors.textSecondary),
+                        child: const Icon(
+                          Icons.album,
+                          size: 64,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                     if (isSelected)
@@ -410,7 +429,11 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                               shape: BoxShape.circle,
                               boxShadow: AppTheme.shadowGlow(AppColors.primary),
                             ),
-                            child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 32,
+                            ),
                           ),
                         ),
                       ).animate().fadeIn(duration: 150.ms),
@@ -432,7 +455,9 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
             if (album.albumArtist != null || album.artists?.isNotEmpty == true)
               Text(
                 album.albumArtist ?? album.artists?.first ?? '',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -456,12 +481,22 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       itemCount: state.tracks.length,
       itemBuilder: (context, index) {
         final isSelected = _selectedTabIndex == 1 && _selectedIndex == index;
-        return _buildTrackItem(state.tracks[index], serverUrl, index, isSelected);
+        return _buildTrackItem(
+          state.tracks[index],
+          serverUrl,
+          index,
+          isSelected,
+        );
       },
     );
   }
 
-  Widget _buildTrackItem(MediaItem track, String serverUrl, int index, bool isSelected) {
+  Widget _buildTrackItem(
+    MediaItem track,
+    String serverUrl,
+    int index,
+    bool isSelected,
+  ) {
     final duration = track.runtimeTicks != null
         ? Duration(microseconds: track.runtimeTicks! ~/ 10)
         : null;
@@ -485,7 +520,9 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
               child: Text(
                 track.indexNumber?.toString() ?? '#',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -502,7 +539,11 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     color: AppColors.surface,
-                    child: const Icon(Icons.music_note, size: 24, color: AppColors.textSecondary),
+                    child: const Icon(
+                      Icons.music_note,
+                      size: 24,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -517,7 +558,9 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                   Text(
                     track.name,
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -562,9 +605,14 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
             const SizedBox(width: 16),
             // Play indicator for selected
             if (isSelected)
-              Icon(Icons.play_circle_fill, color: AppColors.primary, size: 32)
-                  .animate()
-                  .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
+              Icon(
+                Icons.play_circle_fill,
+                color: AppColors.primary,
+                size: 32,
+              ).animate().scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1, 1),
+              ),
           ],
         ),
       ),
@@ -591,12 +639,22 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       itemCount: state.artists.length,
       itemBuilder: (context, index) {
         final isSelected = _selectedTabIndex == 2 && _selectedIndex == index;
-        return _buildArtistCard(state.artists[index], serverUrl, index, isSelected);
+        return _buildArtistCard(
+          state.artists[index],
+          serverUrl,
+          index,
+          isSelected,
+        );
       },
     );
   }
 
-  Widget _buildArtistCard(MediaItem artist, String serverUrl, int index, bool isSelected) {
+  Widget _buildArtistCard(
+    MediaItem artist,
+    String serverUrl,
+    int index,
+    bool isSelected,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       transform: Matrix4.identity()..scale(isSelected ? 1.1 : 1.0),
@@ -628,7 +686,11 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: AppColors.surface,
-                      child: const Icon(Icons.person, size: 64, color: AppColors.textSecondary),
+                      child: const Icon(
+                        Icons.person,
+                        size: 64,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),
@@ -662,9 +724,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       ),
       itemCount: 12,
       itemBuilder: (context, index) {
-        return ShimmerLoading(
-          borderRadius: isCircle ? 100 : AppTheme.radiusMd,
-        );
+        return ShimmerLoading(borderRadius: isCircle ? 100 : AppTheme.radiusMd);
       },
     );
   }
@@ -676,10 +736,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: ShimmerLoading(
-            height: 88,
-            borderRadius: AppTheme.radiusMd,
-          ),
+          child: ShimmerLoading(height: 88, borderRadius: AppTheme.radiusMd),
         );
       },
     );
