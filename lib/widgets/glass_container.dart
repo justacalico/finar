@@ -45,35 +45,45 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget container = ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          width: width,
-          height: height,
-          padding: padding,
-          decoration: BoxDecoration(
-            color: color?.withValues(alpha: opacity) ?? 
-                   AppColors.white.withValues(alpha: opacity),
-            gradient: gradient ?? LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.white.withValues(alpha: opacity * 1.5),
-                AppColors.white.withValues(alpha: opacity * 0.5),
-              ],
+    // Cache decorations for better performance
+    final effectiveOpacity = opacity;
+    final effectiveColor = color?.withValues(alpha: effectiveOpacity) ?? 
+                           AppColors.white.withValues(alpha: effectiveOpacity);
+    final effectiveGradient = gradient ?? LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        AppColors.white.withValues(alpha: effectiveOpacity * 1.5),
+        AppColors.white.withValues(alpha: effectiveOpacity * 0.5),
+      ],
+    );
+    
+    Widget container = RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: effectiveColor,
+              gradient: effectiveGradient,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: showBorder
+                  ? Border.all(
+                      color: borderColor ?? AppColors.glassBorder,
+                      width: borderWidth,
+                    )
+                  : null,
+              boxShadow: shadows,
             ),
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: showBorder
-                ? Border.all(
-                    color: borderColor ?? AppColors.glassBorder,
-                    width: borderWidth,
-                  )
-                : null,
-            boxShadow: shadows,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: padding != null 
+                  ? Padding(padding: padding!, child: child)
+                  : child,
+            ),
           ),
-          child: child,
         ),
       ),
     );
