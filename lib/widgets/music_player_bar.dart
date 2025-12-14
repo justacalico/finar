@@ -854,3 +854,89 @@ class ExpandedMusicPlayer extends ConsumerWidget {
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }
+
+/// Favorite button widget with toggle functionality
+class _FavoriteButton extends ConsumerStatefulWidget {
+  final MediaItem item;
+  final double size;
+
+  const _FavoriteButton({
+    required this.item,
+    this.size = 24,
+  });
+
+  @override
+  ConsumerState<_FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends ConsumerState<_FavoriteButton> {
+  late bool _isFavorite;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.item.isFavorite ?? false;
+  }
+
+  @override
+  void didUpdateWidget(_FavoriteButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.item.id != widget.item.id) {
+      _isFavorite = widget.item.isFavorite ?? false;
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _isFavorite = !_isFavorite; // Optimistic update
+    });
+
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      await mediaService.toggleFavorite(widget.item.id, _isFavorite);
+    } catch (e) {
+      // Revert on error
+      if (mounted) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        transitionBuilder: (child, animation) => ScaleTransition(
+          scale: animation,
+          child: child,
+        ),
+        child: Icon(
+          _isFavorite ? Icons.favorite : Icons.favorite_border,
+          key: ValueKey(_isFavorite),
+          size: widget.size,
+          color: _isFavorite ? Colors.redAccent : AppColors.textSecondary,
+        ),
+      ),
+      onPressed: _isLoading ? null : _toggleFavorite,
+      padding: EdgeInsets.zero,
+      constraints: BoxConstraints(
+        minWidth: widget.size + 8,
+        minHeight: widget.size + 8,
+      ),
+      tooltip: _isFavorite ? 'Remove from favorites' : 'Add to favorites',
+    );
+  }
+}
