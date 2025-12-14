@@ -16,7 +16,7 @@ final homeDataProvider = FutureProvider<HomeData>((ref) async {
   // Keep alive for 2 minutes to avoid re-fetching on tab switches
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 2), () => link.close());
-  
+
   final mediaService = ref.watch(mediaServiceProvider);
   return await mediaService.getHomeData();
 });
@@ -26,7 +26,7 @@ final librariesProvider = FutureProvider<List<Library>>((ref) async {
   // Keep alive for 5 minutes since libraries rarely change
   final link = ref.keepAlive();
   Future.delayed(const Duration(minutes: 5), () => link.close());
-  
+
   final api = ref.watch(jellyfinApiProvider);
   return await api.getLibraries();
 });
