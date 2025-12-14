@@ -231,20 +231,29 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
   }
 }
 
-/// Provider for seasons of a series
+/// Provider for seasons of a series - cached for 5 minutes
 final seasonsProvider = FutureProvider.family<List<MediaItem>, String>((ref, seriesId) async {
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 5), () => link.close());
+  
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getSeasons(seriesId);
 });
 
-/// Provider for episodes of a season
+/// Provider for episodes of a season - cached for 5 minutes
 final episodesProvider = FutureProvider.family<List<MediaItem>, String>((ref, seasonId) async {
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 5), () => link.close());
+  
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getEpisodes(seasonId);
 });
 
-/// Provider for similar items
+/// Provider for similar items - cached for 10 minutes
 final similarItemsProvider = FutureProvider.family<List<MediaItem>, String>((ref, itemId) async {
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 10), () => link.close());
+  
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getSimilarItems(itemId);
 });
