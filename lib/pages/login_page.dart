@@ -80,7 +80,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
     });
 
     try {
-      final success = await ref.read(authProvider.notifier).login(
+      final success = await ref
+          .read(authProvider.notifier)
+          .login(
             serverUrl: _serverController.text.trim(),
             username: _usernameController.text.trim(),
             password: _passwordController.text,
@@ -163,8 +165,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
     _quickConnectTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       if (!_quickConnectPolling) return;
 
-      final success =
-          await ref.read(authProvider.notifier).checkQuickConnect(code);
+      final success = await ref
+          .read(authProvider.notifier)
+          .checkQuickConnect(code);
       if (success && mounted) {
         _cancelQuickConnect();
       }
@@ -197,9 +200,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final forcedUiMode = ref.watch(forcedUiModeProvider);
 
     // Determine effective UI mode
-    final effectiveIsTV = forcedUiMode == UiMode.tv || (_isTV && forcedUiMode == UiMode.auto);
-    final effectiveIsDesktop = forcedUiMode == UiMode.desktop || 
-        (_isDesktop && forcedUiMode == UiMode.auto) || 
+    final effectiveIsTV =
+        forcedUiMode == UiMode.tv || (_isTV && forcedUiMode == UiMode.auto);
+    final effectiveIsDesktop =
+        forcedUiMode == UiMode.desktop ||
+        (_isDesktop && forcedUiMode == UiMode.auto) ||
         (isLandscape && size.width > 900);
 
     return Scaffold(
@@ -213,10 +218,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             child: _showQuickConnect
                 ? _buildQuickConnectView(effectiveIsTV)
                 : effectiveIsTV
-                    ? _buildTVLayout()
-                    : effectiveIsDesktop
-                        ? _buildDesktopLayout()
-                        : _buildMobileLayout(),
+                ? _buildTVLayout()
+                : effectiveIsDesktop
+                ? _buildDesktopLayout()
+                : _buildMobileLayout(),
           ),
         ],
       ),
@@ -249,7 +254,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
           Positioned(
             bottom: -150,
             left: -100,
-            child: _buildGlowOrb(AppColors.secondary.withValues(alpha: 0.2), 350),
+            child: _buildGlowOrb(
+              AppColors.secondary.withValues(alpha: 0.2),
+              350,
+            ),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.4,
@@ -263,21 +271,16 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   Widget _buildGlowOrb(Color color, double size) {
     return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            color,
-            color.withValues(alpha: 0),
-          ],
-        ),
-      ),
-    )
-        .animate(
-          onPlay: (controller) => controller.repeat(reverse: true),
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [color, color.withValues(alpha: 0)],
+            ),
+          ),
         )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .scale(
           begin: const Offset(0.9, 0.9),
           end: const Offset(1.1, 1.1),
@@ -373,9 +376,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               const SizedBox(width: 80),
 
               // Right - Form
-              Expanded(
-                child: _buildLoginForm(maxWidth: 500, isTV: true),
-              ),
+              Expanded(child: _buildLoginForm(maxWidth: 500, isTV: true)),
             ],
           ),
         ),
@@ -386,95 +387,95 @@ class _LoginPageState extends ConsumerState<LoginPage>
   // ==================== QUICK CONNECT VIEW ====================
   Widget _buildQuickConnectView(bool isTV) {
     return Center(
-      child: GlassContainer(
-        padding: EdgeInsets.all(isTV ? 64 : 48),
-        borderRadius: AppTheme.radiusXl,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.phonelink,
-              size: isTV ? 80 : 64,
-              color: AppColors.primary,
-            )
-                .animate(
-                  onPlay: (controller) => controller.repeat(reverse: true),
-                )
-                .scale(
-                  begin: const Offset(1.0, 1.0),
-                  end: const Offset(1.1, 1.1),
-                  duration: const Duration(seconds: 1),
-                ),
-            const SizedBox(height: 32),
-            Text(
-              'Quick Connect',
-              style: TextStyle(
-                fontSize: isTV ? 32 : 28,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Enter this code in your Jellyfin dashboard',
-              style: TextStyle(
-                fontSize: isTV ? 18 : 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 32),
-            GlassContainer(
-              padding: EdgeInsets.symmetric(
-                horizontal: isTV ? 48 : 32,
-                vertical: isTV ? 24 : 16,
-              ),
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: AppTheme.radiusLg,
-              child: Text(
-                _quickConnectCode ?? '------',
-                style: TextStyle(
-                  fontSize: isTV ? 56 : 42,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                  letterSpacing: 8,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
+          child: GlassContainer(
+            padding: EdgeInsets.all(isTV ? 64 : 48),
+            borderRadius: AppTheme.radiusXl,
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                Icon(
+                      Icons.phonelink,
+                      size: isTV ? 80 : 64,
+                      color: AppColors.primary,
+                    )
+                    .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true),
+                    )
+                    .scale(
+                      begin: const Offset(1.0, 1.0),
+                      end: const Offset(1.1, 1.1),
+                      duration: const Duration(seconds: 1),
+                    ),
+                const SizedBox(height: 32),
+                Text(
+                  'Quick Connect',
+                  style: TextStyle(
+                    fontSize: isTV ? 32 : 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(height: 16),
                 Text(
-                  'Waiting for authorization...',
+                  'Enter this code in your Jellyfin dashboard',
                   style: TextStyle(
-                    fontSize: isTV ? 16 : 14,
+                    fontSize: isTV ? 18 : 16,
                     color: AppColors.textSecondary,
                   ),
                 ),
+                const SizedBox(height: 32),
+                GlassContainer(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTV ? 48 : 32,
+                    vertical: isTV ? 24 : 16,
+                  ),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: AppTheme.radiusLg,
+                  child: Text(
+                    _quickConnectCode ?? '------',
+                    style: TextStyle(
+                      fontSize: isTV ? 56 : 42,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                      letterSpacing: 8,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Waiting for authorization...',
+                      style: TextStyle(
+                        fontSize: isTV ? 16 : 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                _buildButton(
+                  onPressed: _cancelQuickConnect,
+                  label: 'Cancel',
+                  isOutlined: true,
+                  focusNode: _quickConnectFocusNode,
+                  isTV: isTV,
+                ),
               ],
             ),
-            const SizedBox(height: 32),
-            _buildButton(
-              onPressed: _cancelQuickConnect,
-              label: 'Cancel',
-              isOutlined: true,
-              focusNode: _quickConnectFocusNode,
-              isTV: isTV,
-            ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate()
         .fadeIn(duration: 300.ms)
         .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1));
@@ -492,19 +493,19 @@ class _LoginPageState extends ConsumerState<LoginPage>
       children: [
         // App icon/logo
         Container(
-          width: 80 * scale,
-          height: 80 * scale,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(20 * scale),
-            boxShadow: AppTheme.shadowGlow(AppColors.primary),
-          ),
-          child: Icon(
-            Icons.play_circle_filled,
-            size: 48 * scale,
-            color: Colors.white,
-          ),
-        )
+              width: 80 * scale,
+              height: 80 * scale,
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(20 * scale),
+                boxShadow: AppTheme.shadowGlow(AppColors.primary),
+              ),
+              child: Icon(
+                Icons.play_circle_filled,
+                size: 48 * scale,
+                color: Colors.white,
+              ),
+            )
             .animate()
             .fadeIn(duration: 600.ms)
             .scale(
@@ -518,20 +519,19 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
         // App name
         Text(
-          'Finar',
-          style: TextStyle(
-            fontSize: 48 * scale,
-            fontWeight: FontWeight.bold,
-            foreground: Paint()
-              ..shader = AppColors.primaryGradient.createShader(
-                Rect.fromLTWH(0, 0, 200 * scale, 60 * scale),
+              'Finar',
+              style: TextStyle(
+                fontSize: 48 * scale,
+                fontWeight: FontWeight.bold,
+                foreground: Paint()
+                  ..shader = AppColors.primaryGradient.createShader(
+                    Rect.fromLTWH(0, 0, 200 * scale, 60 * scale),
+                  ),
               ),
-          ),
-        ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(
-              begin: 0.3,
-              end: 0,
-              curve: Curves.easeOutCubic,
-            ),
+            )
+            .animate()
+            .fadeIn(delay: 200.ms, duration: 600.ms)
+            .slideY(begin: 0.3, end: 0, curve: Curves.easeOutCubic),
 
         SizedBox(height: 8 * scale),
 
@@ -562,46 +562,42 @@ class _LoginPageState extends ConsumerState<LoginPage>
         final index = entry.key;
         final feature = entry.value;
         return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  feature.$1,
-                  color: AppColors.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Row(
                 children: [
-                  Text(
-                    feature.$2,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: Icon(feature.$1, color: AppColors.primary, size: 24),
                   ),
-                  Text(
-                    feature.$3,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        feature.$2,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        feature.$3,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        )
+            )
             .animate()
             .fadeIn(delay: Duration(milliseconds: 600 + (index * 100)))
             .slideX(begin: -0.2, end: 0);
@@ -609,182 +605,181 @@ class _LoginPageState extends ConsumerState<LoginPage>
     );
   }
 
-  Widget _buildLoginForm({
-    required double maxWidth,
-    bool isTV = false,
-  }) {
+  Widget _buildLoginForm({required double maxWidth, bool isTV = false}) {
     return GlassContainer(
-      width: maxWidth,
-      padding: EdgeInsets.all(isTV ? 40 : 32),
-      borderRadius: AppTheme.radiusXl,
-      blur: AppTheme.blurMedium,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (!isTV) ...[
-              Text(
-                'Welcome',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+          width: maxWidth,
+          padding: EdgeInsets.all(isTV ? 40 : 32),
+          borderRadius: AppTheme.radiusXl,
+          blur: AppTheme.blurMedium,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!isTV) ...[
+                  Text(
+                    'Welcome',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to your Jellyfin server',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+
+                // Server URL field
+                _buildTextField(
+                  controller: _serverController,
+                  focusNode: _serverFocusNode,
+                  label: 'Server URL',
+                  hint: 'https://jellyfin.example.com',
+                  icon: Icons.dns_outlined,
+                  keyboardType: TextInputType.url,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => _usernameFocusNode.requestFocus(),
+                  isTV: isTV,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your server URL';
+                    }
+                    if (!value.startsWith('http://') &&
+                        !value.startsWith('https://')) {
+                      return 'URL must start with http:// or https://';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to your Jellyfin server',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
+
+                SizedBox(height: isTV ? 24 : 20),
+
+                // Username field
+                _buildTextField(
+                  controller: _usernameController,
+                  focusNode: _usernameFocusNode,
+                  label: 'Username',
+                  hint: 'Enter your username',
+                  icon: Icons.person_outline,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                  isTV: isTV,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
 
-            // Server URL field
-            _buildTextField(
-              controller: _serverController,
-              focusNode: _serverFocusNode,
-              label: 'Server URL',
-              hint: 'https://jellyfin.example.com',
-              icon: Icons.dns_outlined,
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.next,
-              onSubmitted: (_) => _usernameFocusNode.requestFocus(),
-              isTV: isTV,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your server URL';
-                }
-                if (!value.startsWith('http://') &&
-                    !value.startsWith('https://')) {
-                  return 'URL must start with http:// or https://';
-                }
-                return null;
-              },
-            ),
+                SizedBox(height: isTV ? 24 : 20),
 
-            SizedBox(height: isTV ? 24 : 20),
-
-            // Username field
-            _buildTextField(
-              controller: _usernameController,
-              focusNode: _usernameFocusNode,
-              label: 'Username',
-              hint: 'Enter your username',
-              icon: Icons.person_outline,
-              textInputAction: TextInputAction.next,
-              onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-              isTV: isTV,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your username';
-                }
-                return null;
-              },
-            ),
-
-            SizedBox(height: isTV ? 24 : 20),
-
-            // Password field
-            _buildTextField(
-              controller: _passwordController,
-              focusNode: _passwordFocusNode,
-              label: 'Password',
-              hint: 'Enter your password',
-              icon: Icons.lock_outline,
-              obscureText: _obscurePassword,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _login(),
-              isTV: isTV,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.textSecondary,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-            ),
-
-            SizedBox(height: isTV ? 16 : 12),
-
-            // Error message
-            if (_error != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(
-                    color: AppColors.error.withValues(alpha: 0.3),
+                // Password field
+                _buildTextField(
+                  controller: _passwordController,
+                  focusNode: _passwordFocusNode,
+                  label: 'Password',
+                  hint: 'Enter your password',
+                  icon: Icons.lock_outline,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _login(),
+                  isTV: isTV,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: AppColors.textSecondary,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: AppColors.error,
-                      size: isTV ? 24 : 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontSize: isTV ? 16 : 14,
-                        ),
+
+                SizedBox(height: isTV ? 16 : 12),
+
+                // Error message
+                if (_error != null)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.3),
                       ),
                     ),
-                  ],
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: AppColors.error,
+                          size: isTV ? 24 : 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: TextStyle(
+                              color: AppColors.error,
+                              fontSize: isTV ? 16 : 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn().shake(),
+
+                SizedBox(height: isTV ? 32 : 24),
+
+                // Login button
+                _buildButton(
+                  onPressed: _isLoading ? null : _login,
+                  label: 'Sign In',
+                  isLoading: _isLoading,
+                  focusNode: _loginButtonFocusNode,
+                  isTV: isTV,
                 ),
-              ).animate().fadeIn().shake(),
 
-            SizedBox(height: isTV ? 32 : 24),
+                SizedBox(height: isTV ? 20 : 16),
 
-            // Login button
-            _buildButton(
-              onPressed: _isLoading ? null : _login,
-              label: 'Sign In',
-              isLoading: _isLoading,
-              focusNode: _loginButtonFocusNode,
-              isTV: isTV,
-            ),
-
-            SizedBox(height: isTV ? 20 : 16),
-
-            // Quick Connect button
-            _buildButton(
-              onPressed: _isLoading ? null : _initiateQuickConnect,
-              label: 'Quick Connect',
-              isOutlined: true,
-              icon: Icons.qr_code,
-              focusNode: _quickConnectFocusNode,
-              isTV: isTV,
-            ),
-
-            if (isTV) ...[
-              const SizedBox(height: 24),
-              Text(
-                'Tip: Quick Connect is easier on TV! Enter the code on any device.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textTertiary,
+                // Quick Connect button
+                _buildButton(
+                  onPressed: _isLoading ? null : _initiateQuickConnect,
+                  label: 'Quick Connect',
+                  isOutlined: true,
+                  icon: Icons.qr_code,
+                  focusNode: _quickConnectFocusNode,
+                  isTV: isTV,
                 ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    )
+
+                if (isTV) ...[
+                  const SizedBox(height: 24),
+                  Text(
+                    'Tip: Quick Connect is easier on TV! Enter the code on any device.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        )
         .animate()
         .fadeIn(delay: 300.ms, duration: 600.ms)
         .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic);
@@ -816,9 +811,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(
-                color: hasFocus
-                    ? AppColors.primary
-                    : AppColors.glassBorder,
+                color: hasFocus ? AppColors.primary : AppColors.glassBorder,
                 width: hasFocus ? 2 : 1,
               ),
               color: AppColors.surface.withValues(alpha: 0.5),
@@ -919,9 +912,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(
-                                isOutlined
-                                    ? AppColors.primary
-                                    : Colors.white,
+                                isOutlined ? AppColors.primary : Colors.white,
                               ),
                             ),
                           )
@@ -945,8 +936,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                   fontWeight: FontWeight.w600,
                                   color: isOutlined
                                       ? (hasFocus
-                                          ? AppColors.primary
-                                          : AppColors.textPrimary)
+                                            ? AppColors.primary
+                                            : AppColors.textPrimary)
                                       : Colors.white,
                                 ),
                               ),
