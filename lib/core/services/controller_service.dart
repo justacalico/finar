@@ -30,12 +30,6 @@ class ControllerService {
     LogicalKeyboardKey.arrowLeft: ControllerAction.left,
     LogicalKeyboardKey.arrowRight: ControllerAction.right,
     
-    // Gamepad D-pad (some platforms report these)
-    LogicalKeyboardKey.gameButtonUp: ControllerAction.up,
-    LogicalKeyboardKey.gameButtonDown: ControllerAction.down,
-    LogicalKeyboardKey.gameButtonLeft: ControllerAction.left,
-    LogicalKeyboardKey.gameButtonRight: ControllerAction.right,
-    
     // Select/Confirm
     LogicalKeyboardKey.enter: ControllerAction.select,
     LogicalKeyboardKey.numpadEnter: ControllerAction.select,
