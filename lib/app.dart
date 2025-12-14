@@ -108,9 +108,9 @@ class _SplashScreen extends StatelessWidget {
             Text(
               'Finar',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 32),
             const CircularProgressIndicator(),
