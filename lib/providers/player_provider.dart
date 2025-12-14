@@ -202,7 +202,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       final localFile = localPath != null ? File(localPath) : null;
       final hasLocalFile = localFile != null && await localFile.exists();
 
-      if (hasLocalFile) {
+      if (hasLocalFile && localPath != null) {
         // Play from local file
         _isPlayingLocal = true;
         await _player.open(Media(localPath));
