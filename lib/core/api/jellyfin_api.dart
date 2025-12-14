@@ -6,6 +6,7 @@ import 'models/user.dart';
 import 'models/media_item.dart';
 import 'models/library.dart';
 import 'models/playback_info.dart';
+import 'platform_stub.dart' if (dart.library.io) 'platform_native.dart';
 
 /// Main Jellyfin API client
 class JellyfinApi {
