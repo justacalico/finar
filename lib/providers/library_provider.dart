@@ -197,8 +197,12 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         years: _years,
         searchTerm: _searchTerm,
       );
+      // Filter out seasons and episodes from library view
+      final filteredItems = content.items.where((item) =>
+        item.type != MediaType.season && item.type != MediaType.episode
+      ).toList();
       state = LibraryContentState(
-        items: content.items,
+        items: filteredItems,
         totalCount: content.totalCount,
         hasMore: content.hasMore,
       );
@@ -221,8 +225,12 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
         years: _years,
         searchTerm: _searchTerm,
       );
+      // Filter out seasons and episodes from library view
+      final filteredItems = content.items.where((item) =>
+        item.type != MediaType.season && item.type != MediaType.episode
+      ).toList();
       state = state.copyWith(
-        items: [...state.items, ...content.items],
+        items: [...state.items, ...filteredItems],
         totalCount: content.totalCount,
         hasMore: content.hasMore,
         isLoading: false,
