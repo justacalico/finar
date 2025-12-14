@@ -67,7 +67,7 @@ class _AppRouter extends ConsumerWidget {
 
     // Show login if not authenticated
     if (!authState.isAuthenticated) {
-      return const _LoginPage();
+      return const LoginPage();
     }
 
     // Show appropriate UI based on forced mode or platform
