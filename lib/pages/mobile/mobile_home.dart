@@ -107,8 +107,19 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   Widget build(BuildContext context) {
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
+    final isOnline = ref.watch(isOnlineProvider);
     final isMusic = playerState.currentItem?.type.name == 'audio' || 
                     playerState.currentItem?.type.name == 'album';
+    
+    // If offline and not on downloads page, force navigation to downloads
+    if (!isOnline && _currentIndex != 3) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _currentIndex = 3);
+          _pageController.jumpToPage(3);
+        }
+      });
+    }
     
     return Scaffold(
       body: Stack(
@@ -116,7 +127,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
           // Main page content
           PageView(
             controller: _pageController,
-            onPageChanged: (index) => setState(() => _currentIndex = index),
+            onPageChanged: (index) {
+              // Prevent navigation away from downloads when offline
+              if (!isOnline && index != 3) {
+                _pageController.jumpToPage(3);
+                return;
+              }
+              setState(() => _currentIndex = index);
+            },
             physics: const NeverScrollableScrollPhysics(),
             children: [
               _buildHomePage(),
@@ -125,6 +143,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               _buildDownloadsPage(),
             ],
           ),
+          
+          // Offline banner
+          if (!isOnline)
+            Positioned(
+              top: MediaQuery.of(context).padding.top,
+              left: 0,
+              right: 0,
+              child: _buildOfflineBanner(),
+            ),
           
           // Expanded music player overlay
           if (_isPlayerExpanded && showMiniPlayer && isMusic)
@@ -141,13 +168,73 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
             MobileMiniPlayer(
               onExpand: () => setState(() => _isPlayerExpanded = true),
             ),
-          _buildBottomNav(),
+          _buildBottomNav(isOnline: isOnline),
         ],
       ),
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildOfflineBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.warning.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.wifi_off_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'You\'re offline',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'Only downloaded content is available',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              ref.read(connectivityProvider.notifier).refresh();
+            },
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            tooltip: 'Retry connection',
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: -1, end: 0, duration: 300.ms);
+  }
+
+  Widget _buildBottomNav({bool isOnline = true}) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     
     return Container(
