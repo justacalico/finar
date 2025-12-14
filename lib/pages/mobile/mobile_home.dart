@@ -916,7 +916,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => MobileLibrary(libraryId: library.id),
+          builder: (_) => library.collectionType?.toLowerCase() == 'music'
+              ? MobileMusicLibrary(libraryId: library.id)
+              : MobileLibrary(libraryId: library.id),
         ),
       ),
       child: SizedBox(
@@ -1168,7 +1170,9 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => MobileLibrary(libraryId: library.id),
+                        builder: (_) => library.collectionType?.toLowerCase() == 'music'
+                            ? MobileMusicLibrary(libraryId: library.id)
+                            : MobileLibrary(libraryId: library.id),
                       ),
                     ),
                     child: Container(
