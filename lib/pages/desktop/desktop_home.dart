@@ -154,7 +154,13 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         context,
         MaterialPageRoute(builder: (_) => const DesktopDownloads()),
       );
-    } else if (index < 4 + libraries.length) {
+    } else if (index == 100) {
+      // Settings
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DesktopSettings()),
+      );
+    } else if (index >= 4 && index < 4 + libraries.length) {
       // Library
       final library = libraries[index - 4];
       setState(() {
@@ -163,12 +169,6 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         _selectedIndex = -1;
         _sidebarFocused = false;
       });
-    } else {
-      // Settings
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const DesktopSettings()),
-      );
     }
   }
 
