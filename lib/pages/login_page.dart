@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/colors.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/glass_container.dart';
 
 /// Adaptive login page for TV, Mobile, and Desktop
