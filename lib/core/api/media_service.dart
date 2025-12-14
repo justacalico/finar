@@ -154,7 +154,8 @@ class MediaService {
     String streamUrl;
     bool isTranscoding = false;
 
-    if (source.supportsDirectPlay == true || source.supportsDirectStream == true) {
+    if (source.supportsDirectPlay == true ||
+        source.supportsDirectStream == true) {
       // Direct play/stream
       streamUrl = _api.getStreamUrl(
         itemId,
@@ -210,16 +211,18 @@ class MediaService {
     int? positionTicks,
     String playMethod = 'DirectPlay',
   }) async {
-    await _api.reportPlaybackStart(PlaybackStartInfo(
-      itemId: itemId,
-      mediaSourceId: mediaSourceId,
-      playSessionId: playSessionId,
-      audioStreamIndex: audioStreamIndex,
-      subtitleStreamIndex: subtitleStreamIndex,
-      positionTicks: positionTicks,
-      playMethod: playMethod,
-      canSeek: true,
-    ));
+    await _api.reportPlaybackStart(
+      PlaybackStartInfo(
+        itemId: itemId,
+        mediaSourceId: mediaSourceId,
+        playSessionId: playSessionId,
+        audioStreamIndex: audioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex,
+        positionTicks: positionTicks,
+        playMethod: playMethod,
+        canSeek: true,
+      ),
+    );
   }
 
   /// Report playback progress
@@ -235,19 +238,21 @@ class MediaService {
     int? subtitleStreamIndex,
     String playMethod = 'DirectPlay',
   }) async {
-    await _api.reportPlaybackProgress(PlaybackProgressInfo(
-      itemId: itemId,
-      mediaSourceId: mediaSourceId,
-      playSessionId: playSessionId,
-      positionTicks: positionTicks,
-      isPaused: isPaused,
-      isMuted: isMuted,
-      volumeLevel: volumeLevel,
-      audioStreamIndex: audioStreamIndex,
-      subtitleStreamIndex: subtitleStreamIndex,
-      playMethod: playMethod,
-      canSeek: true,
-    ));
+    await _api.reportPlaybackProgress(
+      PlaybackProgressInfo(
+        itemId: itemId,
+        mediaSourceId: mediaSourceId,
+        playSessionId: playSessionId,
+        positionTicks: positionTicks,
+        isPaused: isPaused,
+        isMuted: isMuted,
+        volumeLevel: volumeLevel,
+        audioStreamIndex: audioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex,
+        playMethod: playMethod,
+        canSeek: true,
+      ),
+    );
   }
 
   /// Report playback stopped
@@ -257,12 +262,14 @@ class MediaService {
     String? playSessionId,
     required int positionTicks,
   }) async {
-    await _api.reportPlaybackStopped(PlaybackStopInfo(
-      itemId: itemId,
-      mediaSourceId: mediaSourceId,
-      playSessionId: playSessionId,
-      positionTicks: positionTicks,
-    ));
+    await _api.reportPlaybackStopped(
+      PlaybackStopInfo(
+        itemId: itemId,
+        mediaSourceId: mediaSourceId,
+        playSessionId: playSessionId,
+        positionTicks: positionTicks,
+      ),
+    );
   }
 
   /// Toggle favorite status
@@ -289,14 +296,19 @@ class MediaService {
   /// Search for content
   Future<SearchResults> search(String query) async {
     final hints = await _api.search(query);
-    
+
     return SearchResults(
       movies: hints.where((h) => h.type == 'Movie').toList(),
       series: hints.where((h) => h.type == 'Series').toList(),
       episodes: hints.where((h) => h.type == 'Episode').toList(),
-      music: hints.where((h) => 
-        h.type == 'Audio' || h.type == 'MusicAlbum' || h.type == 'MusicArtist'
-      ).toList(),
+      music: hints
+          .where(
+            (h) =>
+                h.type == 'Audio' ||
+                h.type == 'MusicAlbum' ||
+                h.type == 'MusicArtist',
+          )
+          .toList(),
       all: hints,
     );
   }
@@ -359,7 +371,10 @@ class MediaService {
   }
 
   /// Get similar items
-  Future<List<MediaItem>> getSimilarItems(String itemId, {int limit = 12}) async {
+  Future<List<MediaItem>> getSimilarItems(
+    String itemId, {
+    int limit = 12,
+  }) async {
     return await _api.getSimilarItems(itemId, limit: limit);
   }
 
@@ -442,10 +457,7 @@ class MovieDetails {
   final MediaItem movie;
   final List<MediaItem> similar;
 
-  const MovieDetails({
-    required this.movie,
-    required this.similar,
-  });
+  const MovieDetails({required this.movie, required this.similar});
 }
 
 /// Series details with seasons
