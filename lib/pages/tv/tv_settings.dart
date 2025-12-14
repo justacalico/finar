@@ -579,7 +579,7 @@ class _TvSettingsState extends ConsumerState<TvSettings> {
           Switch(
             value: value,
             onChanged: (_) => onToggle(),
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
