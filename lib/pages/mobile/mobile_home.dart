@@ -370,34 +370,6 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                       size: 40,
                       onPressed: () {},
                     ),
-                    const SizedBox(width: 8),
-                    // User avatar
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final user = ref.watch(authProvider).user;
-                        return GestureDetector(
-                          onTap: () => _showUserMenu(),
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: _accentColor, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundColor: _dominantColor.withValues(alpha: 0.5),
-                              child: Text(
-                                user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                                style: AppTextStyles.labelMedium.copyWith(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                   ],
                 ),
               ),
