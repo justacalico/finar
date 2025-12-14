@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/player_provider.dart';
 import '../providers/providers.dart';
 import '../core/api/models/media_item.dart';
 
@@ -15,7 +14,7 @@ class QueueView extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.9),
+        color: Colors.black.withValues(alpha: 0.9),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -26,7 +25,7 @@ class QueueView extends ConsumerWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -48,7 +47,7 @@ class QueueView extends ConsumerWidget {
                     Text(
                       '${playlist.length} tracks',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 14,
                       ),
                     ),
@@ -108,14 +107,14 @@ class QueueView extends ConsumerWidget {
                   children: [
                     Icon(
                       Icons.queue_music,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       size: 16,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Up Next',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
@@ -135,13 +134,13 @@ class QueueView extends ConsumerWidget {
                         Icon(
                           Icons.queue_music,
                           size: 64,
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Queue is empty',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             fontSize: 16,
                           ),
                         ),
@@ -149,7 +148,7 @@ class QueueView extends ConsumerWidget {
                         Text(
                           'Add songs to start playing',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             fontSize: 14,
                           ),
                         ),

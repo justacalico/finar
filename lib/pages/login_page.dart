@@ -877,7 +877,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           final hasFocus = Focus.of(context).hasFocus;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            transform: Matrix4.identity()..scale(hasFocus ? 1.02 : 1.0),
+            transform: Matrix4.identity()..scale(hasFocus ? 1.02 : 1.0, hasFocus ? 1.02 : 1.0),
             child: Material(
               color: Colors.transparent,
               child: InkWell(

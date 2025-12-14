@@ -708,4 +708,4 @@ class _TrackPickerSheet extends StatelessWidget {
 }
 
 /// Empty controls for Video widget
-Widget NoVideoControls(VideoState state) => const SizedBox.shrink();
+Widget noVideoControls(VideoState state) => const SizedBox.shrink();
