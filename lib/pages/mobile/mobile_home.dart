@@ -98,56 +98,156 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   Widget _buildBottomNav() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            _dominantColor.withValues(alpha: 0.3),
-            _dominantColor.withValues(alpha: 0.5),
-          ],
-        ),
-      ),
-      child: BlurBackdrop(
-        blur: AppTheme.blurMedium,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: _accentColor.withValues(alpha: 0.2),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutCubic,
+            height: 72,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              // Liquid glass layered effect
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.18),
+                  Colors.white.withValues(alpha: 0.08),
+                  _accentColor.withValues(alpha: 0.08),
+                  Colors.white.withValues(alpha: 0.12),
+                ],
+                stops: const [0.0, 0.3, 0.7, 1.0],
               ),
+              border: Border.all(
+                width: 1.2,
+                color: Colors.white.withValues(alpha: 0.25),
+              ),
+              boxShadow: [
+                // Outer glow
+                BoxShadow(
+                  color: _accentColor.withValues(alpha: 0.15),
+                  blurRadius: 24,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 8),
+                ),
+                // Inner shadow for depth
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 12,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Animated liquid highlight that follows selection
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOutBack,
+                  left: _getIndicatorPosition(context),
+                  top: 8,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeOutCubic,
+                    width: 64,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          _accentColor.withValues(alpha: 0.35),
+                          _accentColor.withValues(alpha: 0.15),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: _accentColor.withValues(alpha: 0.4),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _accentColor.withValues(alpha: 0.3),
+                          blurRadius: 16,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Navigation items
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+                    _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search'),
+                    _buildNavItem(2, Icons.video_library_outlined, Icons.video_library_rounded, 'Library'),
+                    _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads'),
+                  ],
+                ),
+              ],
             ),
           ),
-          child: NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (index) {
-              setState(() => _currentIndex = index);
-              _pageController.jumpToPage(index);
-            },
-            backgroundColor: Colors.transparent,
-            indicatorColor: _accentColor.withValues(alpha: 0.2),
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home, color: _accentColor),
-                label: 'Home',
+        ),
+      ),
+    );
+  }
+
+  double _getIndicatorPosition(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for margin
+    final itemWidth = screenWidth / 4;
+    return (itemWidth * _currentIndex) + (itemWidth / 2) - 32;
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label) {
+    final isSelected = _currentIndex == index;
+    
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() => _currentIndex = index);
+          _pageController.jumpToPage(index);
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedScale(
+                scale: isSelected ? 1.15 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  child: Icon(
+                    isSelected ? selectedIcon : icon,
+                    size: 26,
+                    color: isSelected 
+                        ? Colors.white 
+                        : Colors.white.withValues(alpha: 0.6),
+                  ),
+                ),
               ),
-              NavigationDestination(
-                icon: const Icon(Icons.search_outlined),
-                selectedIcon: Icon(Icons.search, color: _accentColor),
-                label: 'Search',
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.video_library_outlined),
-                selectedIcon: Icon(Icons.video_library, color: _accentColor),
-                label: 'Library',
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.download_outlined),
-                selectedIcon: Icon(Icons.download_done, color: _accentColor),
-                label: 'Downloads',
+              const SizedBox(height: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  fontSize: isSelected ? 11 : 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected 
+                      ? Colors.white 
+                      : Colors.white.withValues(alpha: 0.6),
+                  letterSpacing: isSelected ? 0.3 : 0,
+                ),
+                child: Text(label),
               ),
             ],
           ),
