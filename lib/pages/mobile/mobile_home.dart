@@ -11,6 +11,7 @@ import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'mobile_library.dart';
+import 'mobile_music_library.dart';
 import 'mobile_detail.dart';
 import 'mobile_settings.dart';
 
