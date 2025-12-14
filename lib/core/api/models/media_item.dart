@@ -220,6 +220,9 @@ class MediaItem {
   @HiveField(42)
   final String? albumId;
 
+  @HiveField(43)
+  final String? playlistItemId;
+
   const MediaItem({
     required this.id,
     required this.name,
@@ -264,6 +267,7 @@ class MediaItem {
     this.artists,
     this.album,
     this.albumId,
+    this.playlistItemId,
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) {
