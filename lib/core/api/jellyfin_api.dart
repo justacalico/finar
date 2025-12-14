@@ -761,6 +761,128 @@ class JellyfinApi {
     }
   }
 
+  /// Get all playlists for the current user
+  Future<List<MediaItem>> getPlaylists() async {
+    final result = await getItems(
+      includeItemTypes: ['Playlist'],
+      recursive: true,
+      sortBy: 'SortName',
+      sortOrder: 'Ascending',
+    );
+    return result.items;
+  }
+
+  /// Get or create a watchlist playlist
+  Future<MediaItem?> getOrCreateWatchlist() async {
+    final playlists = await getPlaylists();
+    
+    // Look for existing watchlist
+    final watchlist = playlists.where((p) => 
+      p.name.toLowerCase() == 'watchlist' || 
+      p.name.toLowerCase() == 'watch list'
+    ).firstOrNull;
+    
+    if (watchlist != null) {
+      return watchlist;
+    }
+    
+    // Create a new watchlist
+    final response = await _dio.post(
+      '/Playlists',
+      queryParameters: {
+        'Name': 'Watchlist',
+        'UserId': _userId,
+      },
+    );
+    
+    final playlistId = response.data['Id'] as String?;
+    if (playlistId != null) {
+      // Fetch the created playlist
+      final result = await getItems(ids: [playlistId]);
+      return result.items.firstOrNull;
+    }
+    
+    return null;
+  }
+
+  /// Get items in a playlist
+  Future<List<MediaItem>> getPlaylistItems(String playlistId) async {
+    final response = await _dio.get(
+      '/Playlists/$playlistId/Items',
+      queryParameters: {
+        'UserId': _userId,
+        'Fields': 'Overview,MediaSources',
+      },
+    );
+    return (response.data['Items'] as List<dynamic>?)
+        ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
+        .toList() ?? [];
+  }
+
+  /// Add item to playlist
+  Future<void> addToPlaylist(String playlistId, String itemId) async {
+    await _dio.post(
+      '/Playlists/$playlistId/Items',
+      queryParameters: {
+        'Ids': itemId,
+        'UserId': _userId,
+      },
+    );
+  }
+
+  /// Remove item from playlist
+  Future<void> removeFromPlaylist(String playlistId, String entryId) async {
+    await _dio.delete(
+      '/Playlists/$playlistId/Items',
+      queryParameters: {
+        'EntryIds': entryId,
+      },
+    );
+  }
+
+  /// Check if item is in watchlist
+  Future<bool> isInWatchlist(String itemId) async {
+    final watchlist = await getOrCreateWatchlist();
+    if (watchlist == null) return false;
+    
+    final items = await getPlaylistItems(watchlist.id);
+    return items.any((item) => item.id == itemId);
+  }
+
+  /// Add item to watchlist
+  Future<void> addToWatchlist(String itemId) async {
+    final watchlist = await getOrCreateWatchlist();
+    if (watchlist != null) {
+      await addToPlaylist(watchlist.id, itemId);
+    }
+  }
+
+  /// Remove item from watchlist
+  Future<void> removeFromWatchlist(String itemId) async {
+    final watchlist = await getOrCreateWatchlist();
+    if (watchlist == null) return;
+    
+    final items = await getPlaylistItems(watchlist.id);
+    final entry = items.where((item) => item.id == itemId).firstOrNull;
+    if (entry != null) {
+      // The playlist entry ID is usually the same as the item ID in the playlist context
+      // But we need to use PlaylistItemId if available
+      await removeFromPlaylist(watchlist.id, entry.playlistItemId ?? entry.id);
+    }
+  }
+
+  /// Toggle watchlist status for an item
+  Future<bool> toggleWatchlist(String itemId) async {
+    final isInList = await isInWatchlist(itemId);
+    if (isInList) {
+      await removeFromWatchlist(itemId);
+      return false;
+    } else {
+      await addToWatchlist(itemId);
+      return true;
+    }
+  }
+
   /// Get external subtitle URL
   String getSubtitleUrl(
     String itemId,
