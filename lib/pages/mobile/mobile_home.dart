@@ -155,69 +155,136 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   Widget _buildHomePage() {
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    
+    // Get featured items for hero carousel
+    final heroItems = <dynamic>[
+      if (libraryState.featuredItem != null) libraryState.featuredItem,
+      ...libraryState.recentlyAdded.take(4),
+    ].take(5).toList();
+    
+    // Extract colors from current hero item
+    if (heroItems.isNotEmpty && _currentHeroIndex < heroItems.length) {
+      _extractColorsFromItem(heroItems[_currentHeroIndex], serverUrl);
+    }
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(libraryProvider.notifier).loadHomeData();
-      },
-      color: AppColors.primary,
-      child: CustomScrollView(
-        slivers: [
-          // App bar
-          SliverAppBar(
-            floating: true,
-            backgroundColor: Colors.transparent,
-            flexibleSpace: BlurBackdrop(
-              blur: AppTheme.blurLight,
-              child: const SizedBox.expand(),
-            ),
-            title: Row(
-              children: [
-                Text(
-                  'Finar',
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                // User avatar
-                Consumer(
-                  builder: (context, ref, _) {
-                    final user = ref.watch(authProvider).user;
-                    return GestureDetector(
-                      onTap: () => _showUserMenu(),
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppColors.surface,
-                        child: Text(
-                          user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                          style: AppTextStyles.labelMedium,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+    return Stack(
+      children: [
+        // Animated gradient background
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                _dominantColor.withValues(alpha: 0.6),
+                _accentColor.withValues(alpha: 0.2),
+                AppColors.background,
               ],
+              stops: const [0.0, 0.3, 0.6],
             ),
           ),
+        ),
+        
+        RefreshIndicator(
+          onRefresh: () async {
+            await ref.read(libraryProvider.notifier).loadHomeData();
+          },
+          color: _accentColor,
+          child: CustomScrollView(
+            slivers: [
+              // App bar
+              SliverAppBar(
+                floating: true,
+                pinned: false,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                toolbarHeight: 70,
+                title: Row(
+                  children: [
+                    // Animated logo
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            _accentColor.withValues(alpha: 0.3),
+                            _dominantColor.withValues(alpha: 0.2),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.play_circle_filled, color: _accentColor, size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Finar',
+                            style: AppTextStyles.titleLarge.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    // Notifications (placeholder)
+                    GlassIconButton(
+                      icon: Icons.notifications_outlined,
+                      size: 40,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 8),
+                    // User avatar
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final user = ref.watch(authProvider).user;
+                        return GestureDetector(
+                          onTap: () => _showUserMenu(),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: _accentColor, width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor: _dominantColor.withValues(alpha: 0.5),
+                              child: Text(
+                                user?.name.substring(0, 1).toUpperCase() ?? 'U',
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
 
-          // Hero banner
-          if (libraryState.featuredItem != null)
-            SliverToBoxAdapter(
-              child: _buildHeroBanner(libraryState.featuredItem!, serverUrl),
-            ),
+              // Hero carousel
+              if (heroItems.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildHeroCarousel(heroItems, serverUrl),
+                ),
 
-          // Continue watching
-          if (libraryState.continueWatching.isNotEmpty) ...[
-            _buildSectionHeader('Continue Watching'),
-            SliverToBoxAdapter(
-              child: _buildContinueWatchingRow(
-                  libraryState.continueWatching, serverUrl),
-            ),
-          ],
+              // Continue watching
+              if (libraryState.continueWatching.isNotEmpty) ...[
+                _buildSectionHeader('Continue Watching', icon: Icons.play_circle_outline),
+                SliverToBoxAdapter(
+                  child: _buildContinueWatchingRow(
+                      libraryState.continueWatching, serverUrl),
+                ),
+              ],
 
-          // Next Up
+              // Next Up
           if (libraryState.nextUp.isNotEmpty) ...[
             _buildSectionHeader('Next Up'),
             SliverToBoxAdapter(
