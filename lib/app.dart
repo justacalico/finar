@@ -55,6 +55,10 @@ class _FinarAppState extends ConsumerState<FinarApp> {
 class _AppRouter extends ConsumerWidget {
   const _AppRouter();
 
+  // Responsive breakpoints
+  static const double mobileMaxWidth = 600;
+  static const double tabletMaxWidth = 1024;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
@@ -70,27 +74,47 @@ class _AppRouter extends ConsumerWidget {
       return const LoginPage();
     }
 
-    // Show appropriate UI based on forced mode or platform
-    return _buildHomeForUiMode(forcedUiMode);
+    // Use LayoutBuilder for responsive UI based on window size
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return _buildHomeForUiMode(forcedUiMode, constraints.maxWidth);
+      },
+    );
   }
 
-  Widget _buildHomeForUiMode(UiMode mode) {
-    switch (mode) {
-      case UiMode.desktop:
-        return const DesktopHome();
-      case UiMode.mobile:
-        return const MobileHome();
-      case UiMode.tv:
-        return const TvHome();
-      case UiMode.auto:
-        // Use platform detection
-        if (PlatformDetector.isTV) {
-          return const TvHome();
-        } else if (PlatformDetector.isDesktop) {
+  Widget _buildHomeForUiMode(UiMode mode, double screenWidth) {
+    // If a specific mode is forced, use it
+    if (mode != UiMode.auto) {
+      switch (mode) {
+        case UiMode.desktop:
           return const DesktopHome();
-        } else {
+        case UiMode.mobile:
           return const MobileHome();
-        }
+        case UiMode.tv:
+          return const TvHome();
+        case UiMode.auto:
+          break; // Will fall through to responsive logic
+      }
+    }
+
+    // TV mode is only triggered by actual TV platform detection, not window size
+    if (PlatformDetector.isTV) {
+      return const TvHome();
+    }
+
+    // Responsive UI based on window width
+    if (screenWidth <= mobileMaxWidth) {
+      // Small screens get mobile UI
+      return const MobileHome();
+    } else if (screenWidth <= tabletMaxWidth) {
+      // Medium screens - use mobile on touch devices, desktop otherwise
+      if (PlatformDetector.isMobile) {
+        return const MobileHome();
+      }
+      return const DesktopHome();
+    } else {
+      // Large screens get desktop UI
+      return const DesktopHome();
     }
   }
 }
