@@ -343,9 +343,11 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     required IconData activeIcon,
     required String label,
     required int index,
+    int? focusIndex,
     VoidCallback? onTap,
   }) {
     final isSelected = _selectedIndex == index && _selectedLibraryId == null;
+    final isFocused = _sidebarFocused && _focusedNavIndex == (focusIndex ?? index);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -365,21 +367,27 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.15)
-                  : Colors.transparent,
+                  : isFocused
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: isFocused ? Border.all(
+                color: AppColors.primary,
+                width: 2,
+              ) : null,
             ),
             child: Row(
               children: [
                 Icon(
                   isSelected ? activeIcon : icon,
                   size: 22,
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected || isFocused ? AppColors.primary : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   label,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                    color: isSelected || isFocused ? AppColors.primary : AppColors.textPrimary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
