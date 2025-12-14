@@ -926,7 +926,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
       return CachedNetworkImage(
         imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
         fit: BoxFit.cover,
-        placeholder: (_, __) => _buildPlaceholder(),
+        placeholder: (_, _) => _buildPlaceholder(),
         errorWidget: (_, __, ___) => _buildPlaceholder(),
       );
     }
