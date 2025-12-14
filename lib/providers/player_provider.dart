@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -206,13 +207,17 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       final localFile = localPath != null ? File(localPath) : null;
       final hasLocalFile = localFile != null && await localFile.exists();
       
-      print('PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile');
+      if (kDebugMode) {
+        print('PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile');
+      }
 
       if (hasLocalFile && localPath != null) {
         // Play from local file
         _isPlayingLocal = true;
         
-        print('Playing from local file: $localPath');
+        if (kDebugMode) {
+          print('Playing from local file: $localPath');
+        }
         await _player.open(Media(localPath));
 
         // Seek to start position if provided
@@ -289,7 +294,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         );
       } catch (e) {
         // Silently ignore - we're playing locally, server reporting is optional
-        print('Local playback: Server reporting skipped (offline or error)');
+        if (kDebugMode) {
+          print('Local playback: Server reporting skipped (offline or error)');
+        }
       }
     });
   }
