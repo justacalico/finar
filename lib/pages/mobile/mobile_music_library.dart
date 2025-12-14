@@ -13,10 +13,7 @@ import 'mobile_detail.dart';
 class MobileMusicLibrary extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const MobileMusicLibrary({
-    super.key,
-    required this.libraryId,
-  });
+  const MobileMusicLibrary({super.key, required this.libraryId});
 
   @override
   ConsumerState<MobileMusicLibrary> createState() => _MobileMusicLibraryState();
@@ -132,8 +129,12 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.read(musicLibraryProvider(widget.libraryId).notifier).setTab(MusicTab.albums);
-        await ref.read(musicLibraryProvider(widget.libraryId).notifier).refresh();
+        ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .setTab(MusicTab.albums);
+        await ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .refresh();
       },
       color: AppColors.primary,
       child: GridView.builder(
@@ -159,56 +160,68 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
   Widget _buildAlbumCard(MediaItem album, String serverUrl, int index) {
     return GestureDetector(
-      onTap: () => _navigateToDetail(album.id),
-      child: GlassContainer(
-        borderRadius: AppTheme.radiusMd,
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Album art
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.network(
-                    album.getPrimaryImageUrl(serverUrl, width: 300),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.surface,
-                      child: const Icon(Icons.album, size: 48, color: AppColors.textSecondary),
+          onTap: () => _navigateToDetail(album.id),
+          child: GlassContainer(
+            borderRadius: AppTheme.radiusMd,
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Album art
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Image.network(
+                        album.getPrimaryImageUrl(serverUrl, width: 300),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.album,
+                            size: 48,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                // Album name
+                Text(
+                  album.name,
+                  style: AppTextStyles.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                // Artist name
+                if (album.albumArtist != null ||
+                    album.artists?.isNotEmpty == true)
+                  Text(
+                    album.albumArtist ?? album.artists?.first ?? '',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                // Year
+                if (album.productionYear != null)
+                  Text(
+                    album.productionYear.toString(),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+              ],
             ),
-            const SizedBox(height: 8),
-            // Album name
-            Text(
-              album.name,
-              style: AppTextStyles.titleSmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            // Artist name
-            if (album.albumArtist != null || album.artists?.isNotEmpty == true)
-              Text(
-                album.albumArtist ?? album.artists?.first ?? '',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            // Year
-            if (album.productionYear != null)
-              Text(
-                album.productionYear.toString(),
-                style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
-              ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 10) * 50)).scale(
+          ),
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 10) * 50))
+        .scale(
           begin: const Offset(0.9, 0.9),
           end: const Offset(1, 1),
           curve: Curves.easeOut,
@@ -226,8 +239,12 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.read(musicLibraryProvider(widget.libraryId).notifier).setTab(MusicTab.tracks);
-        await ref.read(musicLibraryProvider(widget.libraryId).notifier).refresh();
+        ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .setTab(MusicTab.tracks);
+        await ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .refresh();
       },
       color: AppColors.primary,
       child: ListView.builder(
@@ -257,87 +274,88 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
         : '';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GlassContainer(
-        borderRadius: AppTheme.radiusMd,
-        padding: const EdgeInsets.all(12),
-        child: InkWell(
-          onTap: () => _playTrack(track),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          child: Row(
-            children: [
-              // Track number or album art
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Image.network(
-                    track.getPrimaryImageUrl(serverUrl, width: 100),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.surface,
-                      child: Center(
-                        child: Text(
-                          track.indexNumber?.toString() ?? '#',
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: AppColors.textSecondary,
+          padding: const EdgeInsets.only(bottom: 8),
+          child: GlassContainer(
+            borderRadius: AppTheme.radiusMd,
+            padding: const EdgeInsets.all(12),
+            child: InkWell(
+              onTap: () => _playTrack(track),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              child: Row(
+                children: [
+                  // Track number or album art
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Image.network(
+                        track.getPrimaryImageUrl(serverUrl, width: 100),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.surface,
+                          child: Center(
+                            child: Text(
+                              track.indexNumber?.toString() ?? '#',
+                              style: AppTextStyles.titleMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Track info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      track.name,
-                      style: AppTextStyles.titleSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 12),
+                  // Track info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          track.name,
+                          style: AppTextStyles.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          [
+                            if (track.artists?.isNotEmpty == true)
+                              track.artists!.first,
+                            if (track.album != null) track.album,
+                          ].join(' • '),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      [
-                        if (track.artists?.isNotEmpty == true) track.artists!.first,
-                        if (track.album != null) track.album,
-                      ].join(' • '),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                  // Duration
+                  Text(
+                    durationStr,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Play button
+                  IconButton(
+                    icon: const Icon(Icons.play_circle_outline),
+                    color: AppColors.primary,
+                    onPressed: () => _playTrack(track),
+                  ),
+                ],
               ),
-              // Duration
-              Text(
-                durationStr,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Play button
-              IconButton(
-                icon: const Icon(Icons.play_circle_outline),
-                color: AppColors.primary,
-                onPressed: () => _playTrack(track),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 15) * 30)).slideX(
-          begin: 0.05,
-          end: 0,
-        );
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 15) * 30))
+        .slideX(begin: 0.05, end: 0);
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -351,8 +369,12 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.read(musicLibraryProvider(widget.libraryId).notifier).setTab(MusicTab.artists);
-        await ref.read(musicLibraryProvider(widget.libraryId).notifier).refresh();
+        ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .setTab(MusicTab.artists);
+        await ref
+            .read(musicLibraryProvider(widget.libraryId).notifier)
+            .refresh();
       },
       color: AppColors.primary,
       child: GridView.builder(
@@ -378,49 +400,56 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
   Widget _buildArtistCard(MediaItem artist, String serverUrl, int index) {
     return GestureDetector(
-      onTap: () => _navigateToDetail(artist.id),
-      child: Column(
-        children: [
-          // Artist image (circular)
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+          onTap: () => _navigateToDetail(artist.id),
+          child: Column(
+            children: [
+              // Artist image (circular)
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.network(
-                    artist.getPrimaryImageUrl(serverUrl, width: 200),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.surface,
-                      child: const Icon(Icons.person, size: 48, color: AppColors.textSecondary),
+                    child: ClipOval(
+                      child: Image.network(
+                        artist.getPrimaryImageUrl(serverUrl, width: 200),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.person,
+                            size: 48,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              // Artist name
+              Text(
+                artist.name,
+                style: AppTextStyles.titleSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          // Artist name
-          Text(
-            artist.name,
-            style: AppTextStyles.titleSmall,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: Duration(milliseconds: (index % 10) * 50)).scale(
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: (index % 10) * 50))
+        .scale(
           begin: const Offset(0.9, 0.9),
           end: const Offset(1, 1),
           curve: Curves.easeOut,
@@ -438,9 +467,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
       ),
       itemCount: 6,
       itemBuilder: (context, index) {
-        return ShimmerLoading(
-          borderRadius: isCircle ? 100 : AppTheme.radiusMd,
-        );
+        return ShimmerLoading(borderRadius: isCircle ? 100 : AppTheme.radiusMd);
       },
     );
   }
@@ -452,10 +479,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: ShimmerLoading(
-            height: 72,
-            borderRadius: AppTheme.radiusMd,
-          ),
+          child: ShimmerLoading(height: 72, borderRadius: AppTheme.radiusMd),
         );
       },
     );
@@ -577,9 +601,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MobileDetail(itemId: itemId),
-      ),
+      MaterialPageRoute(builder: (_) => MobileDetail(itemId: itemId)),
     );
   }
 
