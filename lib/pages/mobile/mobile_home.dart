@@ -249,7 +249,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                transform: Matrix4.identity()..scale(isSelected ? 1.1 : 1.0, isSelected ? 1.1 : 1.0),
+                transform: Matrix4.diagonal3Values(isSelected ? 1.1 : 1.0, isSelected ? 1.1 : 1.0, 1.0),
                 transformAlignment: Alignment.center,
                 child: Icon(
                   isSelected ? selectedIcon : icon,
