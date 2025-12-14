@@ -514,7 +514,7 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       return;
     }
     
-    // Create a minimal MediaItem for the player - play from local file
+    // Create a minimal MediaItem for the player
     final item = MediaItem(
       id: download.itemId,
       name: download.itemName,
@@ -522,7 +522,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     );
     
     try {
-      await ref.read(playerProvider.notifier).play(item);
+      // Use playLocalFile to play directly from the file path
+      // This avoids any server lookups which would fail for items from other servers
+      await ref.read(playerProvider.notifier).playLocalFile(item, download.localPath!);
       if (mounted) {
         Navigator.push(
           context,
