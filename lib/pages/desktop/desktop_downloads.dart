@@ -899,6 +899,49 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
     ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.95, 0.95));
   }
 
+  /// Build poster image - prefer local file, fall back to network
+  Widget _buildPosterImage(DownloadTask download, String serverUrl) {
+    // Check if we have a local image first
+    if (download.localPrimaryImagePath != null) {
+      final file = File(download.localPrimaryImagePath!);
+      return FutureBuilder<bool>(
+        future: file.exists(),
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            return Image.file(
+              file,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _buildNetworkPoster(download, serverUrl),
+            );
+          }
+          return _buildNetworkPoster(download, serverUrl);
+        },
+      );
+    }
+    return _buildNetworkPoster(download, serverUrl);
+  }
+
+  Widget _buildNetworkPoster(DownloadTask download, String serverUrl) {
+    if (download.primaryImageTag != null) {
+      return CachedNetworkImage(
+        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
+        fit: BoxFit.cover,
+        placeholder: (_, __) => _buildPlaceholder(),
+        errorWidget: (_, __, ___) => _buildPlaceholder(),
+      );
+    }
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: AppColors.surfaceElevated,
+      child: const Center(
+        child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
+      ),
+    );
+  }
+
   Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed, {bool isDestructive = false}) {
     return Tooltip(
       message: label,
