@@ -153,11 +153,10 @@ class MusicLibraryState {
 /// Notifier for music library content
 class MusicLibraryNotifier extends StateNotifier<MusicLibraryState> {
   final MediaService _mediaService;
-  final JellyfinApi _api;
   final String _libraryId;
   static const int _pageSize = 50;
 
-  MusicLibraryNotifier(this._mediaService, this._api, this._libraryId)
+  MusicLibraryNotifier(this._mediaService, this._libraryId)
     : super(const MusicLibraryState()) {
     _loadInitialData();
   }
