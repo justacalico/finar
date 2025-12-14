@@ -398,7 +398,7 @@ class _TvMusicLibraryState extends ConsumerState<TvMusicLibrary>
                     Image.network(
                       album.getPrimaryImageUrl(serverUrl, width: 400),
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, ___) => Container(
                         color: AppColors.surface,
                         child: const Icon(
                           Icons.album,
