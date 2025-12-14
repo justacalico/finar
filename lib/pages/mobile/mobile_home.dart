@@ -320,10 +320,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 // Navigation items
                 Row(
                   children: [
-                    _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
-                    _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search'),
-                    _buildNavItem(2, Icons.video_library_outlined, Icons.video_library_rounded, 'Library'),
-                    _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads'),
+                    _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home', isOnline: isOnline),
+                    _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search', isOnline: isOnline),
+                    _buildNavItem(2, Icons.video_library_outlined, Icons.video_library_rounded, 'Library', isOnline: isOnline),
+                    _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads', isOnline: isOnline),
                   ],
                 ),
               ],
