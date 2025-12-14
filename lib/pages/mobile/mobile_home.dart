@@ -1628,7 +1628,7 @@ class _DownloadListTile extends StatelessWidget {
         height: 80,
         fit: BoxFit.cover,
         placeholder: (_, _) => _buildPlaceholder(),
-        errorWidget: (_, _, ___) => _buildPlaceholder(),
+        errorWidget: (_, _, _) => _buildPlaceholder(),
       );
     }
     return _buildPlaceholder();
