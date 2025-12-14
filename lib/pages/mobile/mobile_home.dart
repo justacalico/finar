@@ -379,9 +379,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected 
-                      ? Colors.white 
-                      : Colors.white.withValues(alpha: 0.5),
+                  color: isDisabled
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : isSelected 
+                          ? Colors.white 
+                          : Colors.white.withValues(alpha: 0.5),
                 ),
                 child: Text(label),
               ),
