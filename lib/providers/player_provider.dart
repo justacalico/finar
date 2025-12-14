@@ -17,6 +17,7 @@ class PlayerState {
   final bool isPlaying;
   final bool isBuffering;
   final bool isLoading;
+  final bool isPlayingLocal;
   final Duration position;
   final Duration duration;
   final Duration bufferedPosition;
@@ -42,6 +43,7 @@ class PlayerState {
     this.isPlaying = false,
     this.isBuffering = false,
     this.isLoading = false,
+    this.isPlayingLocal = false,
     this.position = Duration.zero,
     this.duration = Duration.zero,
     this.bufferedPosition = Duration.zero,
@@ -68,6 +70,7 @@ class PlayerState {
     bool? isPlaying,
     bool? isBuffering,
     bool? isLoading,
+    bool? isPlayingLocal,
     Duration? position,
     Duration? duration,
     Duration? bufferedPosition,
@@ -93,6 +96,7 @@ class PlayerState {
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
       isLoading: isLoading ?? this.isLoading,
+      isPlayingLocal: isPlayingLocal ?? this.isPlayingLocal,
       position: position ?? this.position,
       duration: duration ?? this.duration,
       bufferedPosition: bufferedPosition ?? this.bufferedPosition,
