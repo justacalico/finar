@@ -172,14 +172,14 @@ build_release_apk:
     - |
       if [[ -n "$ANDROID_KEYSTORE_BASE64" ]]; then
         echo "Setting up release signing from CI variables..."
-        mkdir -p android/keystore
-        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/keystore/upload-keystore.jks
-        # Create key.properties file
+        mkdir -p android/app/keystore
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/keystore/upload-keystore.jks
+        # Create key.properties file in android/ directory
         cat > android/key.properties << EOF
       storePassword=$ANDROID_KEYSTORE_PASSWORD
       keyPassword=$ANDROID_KEY_PASSWORD
       keyAlias=$ANDROID_KEY_ALIAS
-      storeFile=keystore/upload-keystore.jks
+      storeFile=app/keystore/upload-keystore.jks
       EOF
         echo "Release signing configured"
       else
