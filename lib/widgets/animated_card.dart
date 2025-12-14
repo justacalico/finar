@@ -228,31 +228,18 @@ class _AnimatedCardState extends State<AnimatedCard> {
 
   Widget _buildImage() {
     if (widget.imageUrl == null || widget.imageUrl!.isEmpty) {
-      return Container(
-        color: AppColors.surface,
-        child: const Center(
-          child: Icon(
-            Icons.movie_outlined,
-            size: 48,
-            color: AppColors.textTertiary,
-          ),
-        ),
-      );
+      return const _PlaceholderIcon(icon: Icons.movie_outlined);
     }
 
-    return CachedNetworkImage(
-      imageUrl: widget.imageUrl!,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => const ShimmerLoading(),
-      errorWidget: (context, url, error) => Container(
-        color: AppColors.surface,
-        child: const Center(
-          child: Icon(
-            Icons.broken_image_outlined,
-            size: 48,
-            color: AppColors.textTertiary,
-          ),
-        ),
+    return RepaintBoundary(
+      child: CachedNetworkImage(
+        imageUrl: widget.imageUrl!,
+        fit: BoxFit.cover,
+        memCacheWidth: 400, // Limit memory cache size for better performance
+        fadeInDuration: const Duration(milliseconds: 150),
+        fadeOutDuration: const Duration(milliseconds: 150),
+        placeholder: (context, url) => const ShimmerLoading(),
+        errorWidget: (context, url, error) => const _PlaceholderIcon(icon: Icons.broken_image_outlined),
       ),
     );
   }
