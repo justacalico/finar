@@ -405,8 +405,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     );
   }
 
-  Widget _buildLibraryItem(Library library) {
+  Widget _buildLibraryItem(Library library, int focusIndex) {
     final isSelected = _selectedLibraryId == library.id;
+    final isFocused = _sidebarFocused && _focusedNavIndex == focusIndex;
     final icon = _getLibraryIcon(library.icon);
 
     return Padding(
@@ -427,8 +428,13 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.15)
-                  : Colors.transparent,
+                  : isFocused
+                      ? AppColors.glassBackground
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: isFocused
+                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.5), width: 2)
+                  : null,
             ),
             child: Row(
               children: [
