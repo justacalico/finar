@@ -33,7 +33,20 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
     return itemAsync.when(
-      data: (item) => _buildContent(item, serverUrl),
+      data: (item) {
+        // If this is a track, redirect to the album instead
+        if (item.type == MediaType.audio && item.albumId != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => DesktopDetail(itemId: item.albumId!),
+              ),
+            );
+          });
+          return const _DetailLoadingView();
+        }
+        return _buildContent(item, serverUrl);
+      },
       loading: () => const _DetailLoadingView(),
       error: (error, stack) => _DetailErrorView(
         error: error.toString(),
