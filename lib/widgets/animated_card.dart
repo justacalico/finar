@@ -111,7 +111,9 @@ class _AnimatedCardState extends State<AnimatedCard> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveAspectRatio = widget.isLandscape ? 16 / 9 : widget.aspectRatio;
+    final effectiveAspectRatio = widget.isLandscape
+        ? 16 / 9
+        : widget.aspectRatio;
     final isHighlighted = _isHovered || _isFocused;
 
     Widget cardContent = Stack(
@@ -119,28 +121,23 @@ class _AnimatedCardState extends State<AnimatedCard> {
       children: [
         // Image
         _buildImage(),
-        
+
         // Gradient overlay
         _buildGradientOverlay(),
-        
+
         // Content overlay
         _buildContentOverlay(),
-        
+
         // Progress bar
-        if (widget.showProgress && widget.progress != null)
-          _buildProgressBar(),
-        
+        if (widget.showProgress && widget.progress != null) _buildProgressBar(),
+
         // Badge
         if (widget.badge != null)
-          Positioned(
-            top: 8,
-            right: 8,
-            child: widget.badge!,
-          ),
-        
+          Positioned(top: 8, right: 8, child: widget.badge!),
+
         // Custom overlay
         if (widget.overlay != null) widget.overlay!,
-        
+
         // Hover/Focus glow effect
         AnimatedOpacity(
           opacity: isHighlighted ? 1.0 : 0.0,
@@ -148,19 +145,21 @@ class _AnimatedCardState extends State<AnimatedCard> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: _isFocused 
-                    ? AppColors.primary 
+                color: _isFocused
+                    ? AppColors.primary
                     : AppColors.primary.withValues(alpha: 0.5),
                 width: _isFocused ? 3 : 2,
               ),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              boxShadow: _isFocused ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                ),
-              ] : null,
+              boxShadow: _isFocused
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
             ),
           ),
         ),
@@ -177,41 +176,40 @@ class _AnimatedCardState extends State<AnimatedCard> {
                 child: cardContent,
               ),
             )
-          : AspectRatio(
-              aspectRatio: effectiveAspectRatio,
-              child: cardContent,
-            ),
+          : AspectRatio(aspectRatio: effectiveAspectRatio, child: cardContent),
     );
 
     return Focus(
-      focusNode: _focusNode,
-      autofocus: widget.autofocus,
-      onKeyEvent: _handleKeyEvent,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTapDown: (_) => setState(() => _isPressed = true),
-          onTapUp: (_) => setState(() => _isPressed = false),
-          onTapCancel: () => setState(() => _isPressed = false),
-          onTap: widget.onTap,
-          onLongPress: widget.onLongPress,
-          child: AnimatedScale(
-            scale: _isPressed ? 0.95 : (isHighlighted ? 1.03 : 1.0),
-            duration: AppTheme.durationFast,
-            curve: AppTheme.curveSmooth,
-            child: Container(
-              width: widget.width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                boxShadow: isHighlighted ? AppTheme.shadowMedium : AppTheme.shadowSmall,
+          focusNode: _focusNode,
+          autofocus: widget.autofocus,
+          onKeyEvent: _handleKeyEvent,
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _isHovered = true),
+            onExit: (_) => setState(() => _isHovered = false),
+            child: GestureDetector(
+              onTapDown: (_) => setState(() => _isPressed = true),
+              onTapUp: (_) => setState(() => _isPressed = false),
+              onTapCancel: () => setState(() => _isPressed = false),
+              onTap: widget.onTap,
+              onLongPress: widget.onLongPress,
+              child: AnimatedScale(
+                scale: _isPressed ? 0.95 : (isHighlighted ? 1.03 : 1.0),
+                duration: AppTheme.durationFast,
+                curve: AppTheme.curveSmooth,
+                child: Container(
+                  width: widget.width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    boxShadow: isHighlighted
+                        ? AppTheme.shadowMedium
+                        : AppTheme.shadowSmall,
+                  ),
+                  child: card,
+                ),
               ),
-              child: card,
             ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(
           delay: Duration(milliseconds: widget.animationIndex * 50),
@@ -239,7 +237,8 @@ class _AnimatedCardState extends State<AnimatedCard> {
         fadeInDuration: const Duration(milliseconds: 150),
         fadeOutDuration: const Duration(milliseconds: 150),
         placeholder: (context, url) => const ShimmerLoading(),
-        errorWidget: (context, url, error) => const _PlaceholderIcon(icon: Icons.broken_image_outlined),
+        errorWidget: (context, url, error) =>
+            const _PlaceholderIcon(icon: Icons.broken_image_outlined),
       ),
     );
   }
@@ -381,7 +380,7 @@ class _HeroCardState extends State<HeroCard> {
     }
 
     final action = ControllerService.getAction(event);
-    
+
     switch (action) {
       case ControllerAction.select:
         if (_focusedButtonIndex == 0) {
@@ -397,7 +396,8 @@ class _HeroCardState extends State<HeroCard> {
         }
         break;
       case ControllerAction.right:
-        final buttonCount = (widget.onPlay != null ? 1 : 0) + (widget.onInfo != null ? 1 : 0);
+        final buttonCount =
+            (widget.onPlay != null ? 1 : 0) + (widget.onInfo != null ? 1 : 0);
         if (_focusedButtonIndex < buttonCount - 1) {
           setState(() => _focusedButtonIndex++);
           return KeyEventResult.handled;
@@ -421,10 +421,9 @@ class _HeroCardState extends State<HeroCard> {
         child: AnimatedContainer(
           duration: AppTheme.durationFast,
           decoration: BoxDecoration(
-            border: _isFocused ? Border.all(
-              color: AppColors.primary,
-              width: 3,
-            ) : null,
+            border: _isFocused
+                ? Border.all(color: AppColors.primary, width: 3)
+                : null,
             borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           ),
           child: SizedBox(
@@ -439,21 +438,19 @@ class _HeroCardState extends State<HeroCard> {
                     CachedNetworkImage(
                       imageUrl: widget.imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: AppColors.surface,
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: AppColors.surface,
-                      ),
+                      placeholder: (context, url) =>
+                          Container(color: AppColors.surface),
+                      errorWidget: (context, url, error) =>
+                          Container(color: AppColors.surface),
                     ),
-                  
+
                   // Gradient overlay
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: AppColors.imageOverlayFull,
                     ),
                   ),
-                  
+
                   // Focus glow effect
                   if (_isFocused)
                     Container(
@@ -467,7 +464,7 @@ class _HeroCardState extends State<HeroCard> {
                         ],
                       ),
                     ),
-                  
+
                   // Content
                   Positioned(
                     left: 24,
@@ -478,7 +475,9 @@ class _HeroCardState extends State<HeroCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Metadata row
-                        if (widget.genres != null || widget.year != null || widget.runtime != null)
+                        if (widget.genres != null ||
+                            widget.year != null ||
+                            widget.runtime != null)
                           Wrap(
                             spacing: 8,
                             children: [
@@ -493,14 +492,14 @@ class _HeroCardState extends State<HeroCard> {
                               if (widget.runtime != null)
                                 _MetadataBadge(text: widget.runtime!),
                               if (widget.genres != null)
-                                ...widget.genres!.take(2).map(
-                                      (g) => _MetadataBadge(text: g),
-                                    ),
+                                ...widget.genres!
+                                    .take(2)
+                                    .map((g) => _MetadataBadge(text: g)),
                             ],
                           ),
-                        
+
                         const SizedBox(height: 12),
-                        
+
                         // Title
                         Text(
                           widget.title,
@@ -508,7 +507,7 @@ class _HeroCardState extends State<HeroCard> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        
+
                         if (widget.subtitle != null) ...[
                           const SizedBox(height: 4),
                           Text(
@@ -518,7 +517,7 @@ class _HeroCardState extends State<HeroCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                        
+
                         if (widget.description != null) ...[
                           const SizedBox(height: 12),
                           Text(
@@ -530,15 +529,16 @@ class _HeroCardState extends State<HeroCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Action buttons with focus indicators
                         Row(
                           children: [
                             if (widget.onPlay != null)
                               _FocusableHeroButton(
-                                isFocused: _isFocused && _focusedButtonIndex == 0,
+                                isFocused:
+                                    _isFocused && _focusedButtonIndex == 0,
                                 isPrimary: true,
                                 icon: Icons.play_arrow,
                                 label: 'Play',
@@ -548,7 +548,10 @@ class _HeroCardState extends State<HeroCard> {
                               const SizedBox(width: 12),
                             if (widget.onInfo != null)
                               _FocusableHeroButton(
-                                isFocused: _isFocused && _focusedButtonIndex == (widget.onPlay != null ? 1 : 0),
+                                isFocused:
+                                    _isFocused &&
+                                    _focusedButtonIndex ==
+                                        (widget.onPlay != null ? 1 : 0),
                                 isPrimary: false,
                                 icon: Icons.info_outline,
                                 label: 'More Info',
@@ -590,13 +593,15 @@ class _FocusableHeroButton extends StatelessWidget {
       duration: AppTheme.durationFast,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        boxShadow: isFocused ? [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.5),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ] : null,
+        boxShadow: isFocused
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
       ),
       child: AnimatedScale(
         scale: isFocused ? 1.05 : 1.0,
@@ -607,7 +612,9 @@ class _FocusableHeroButton extends StatelessWidget {
                 icon: Icon(icon),
                 label: Text(label),
                 style: ElevatedButton.styleFrom(
-                  side: isFocused ? const BorderSide(color: AppColors.white, width: 2) : null,
+                  side: isFocused
+                      ? const BorderSide(color: AppColors.white, width: 2)
+                      : null,
                 ),
               )
             : OutlinedButton.icon(
@@ -616,7 +623,9 @@ class _FocusableHeroButton extends StatelessWidget {
                 label: Text(label),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
-                    color: isFocused ? AppColors.primary : AppColors.white.withValues(alpha: 0.5),
+                    color: isFocused
+                        ? AppColors.primary
+                        : AppColors.white.withValues(alpha: 0.5),
                     width: isFocused ? 2 : 1,
                   ),
                 ),
@@ -631,11 +640,7 @@ class _MetadataBadge extends StatelessWidget {
   final String text;
   final Color? color;
 
-  const _MetadataBadge({
-    this.icon,
-    required this.text,
-    this.color,
-  });
+  const _MetadataBadge({this.icon, required this.text, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -693,10 +698,7 @@ class CardRow extends StatelessWidget {
             children: [
               Text(title, style: AppTextStyles.headlineSmall),
               if (onSeeAll != null)
-                TextButton(
-                  onPressed: onSeeAll,
-                  child: const Text('See All'),
-                ),
+                TextButton(onPressed: onSeeAll, child: const Text('See All')),
             ],
           ),
         ),
@@ -710,10 +712,8 @@ class CardRow extends StatelessWidget {
             addRepaintBoundaries: true,
             addAutomaticKeepAlives: false,
             separatorBuilder: (_, _) => SizedBox(width: spacing),
-            itemBuilder: (context, index) => SizedBox(
-              width: 130,
-              child: cards[index],
-            ),
+            itemBuilder: (context, index) =>
+                SizedBox(width: 130, child: cards[index]),
           ),
         ),
       ],
@@ -724,20 +724,14 @@ class CardRow extends StatelessWidget {
 /// Optimized placeholder icon widget - const for better performance
 class _PlaceholderIcon extends StatelessWidget {
   final IconData icon;
-  
+
   const _PlaceholderIcon({required this.icon});
-  
+
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
       color: AppColors.surface,
-      child: Center(
-        child: Icon(
-          icon,
-          size: 48,
-          color: AppColors.textTertiary,
-        ),
-      ),
+      child: Center(child: Icon(icon, size: 48, color: AppColors.textTertiary)),
     );
   }
 }
