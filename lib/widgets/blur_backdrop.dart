@@ -4,6 +4,7 @@ import '../core/theme/colors.dart';
 import '../core/theme/app_theme.dart';
 
 /// A backdrop blur widget that can be used behind content
+/// Wrapped in RepaintBoundary for better performance
 class BlurBackdrop extends StatelessWidget {
   final Widget child;
   final double blur;
@@ -20,12 +21,14 @@ class BlurBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          color: (color ?? AppColors.black).withValues(alpha: opacity),
-          child: child,
+    return RepaintBoundary(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: ColoredBox(
+            color: (color ?? AppColors.black).withValues(alpha: opacity),
+            child: child,
+          ),
         ),
       ),
     );
