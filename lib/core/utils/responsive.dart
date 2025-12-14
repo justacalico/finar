@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'platform_detector.dart';
 
 /// Responsive layout utilities
 class Responsive {
@@ -54,13 +53,10 @@ class Responsive {
     T? tablet,
     T? desktop,
     T? largeDesktop,
-    T? tv,
   }) {
     final deviceType = getDeviceType(context);
     
     switch (deviceType) {
-      case DeviceType.tv:
-        return tv ?? desktop ?? tablet ?? mobile;
       case DeviceType.largeDesktop:
         return largeDesktop ?? desktop ?? tablet ?? mobile;
       case DeviceType.desktop:
@@ -80,7 +76,6 @@ class Responsive {
       tablet: 3,
       desktop: 4,
       largeDesktop: 6,
-      tv: 5,
     );
   }
 
@@ -92,7 +87,6 @@ class Responsive {
         mobile: 16 / 9,
         tablet: 16 / 9,
         desktop: 16 / 9,
-        tv: 16 / 9,
       );
     }
     return value(
@@ -100,7 +94,6 @@ class Responsive {
       mobile: 2 / 3,
       tablet: 2 / 3,
       desktop: 2 / 3,
-      tv: 2 / 3,
     );
   }
 
@@ -112,7 +105,6 @@ class Responsive {
       tablet: 24.0,
       desktop: 32.0,
       largeDesktop: 48.0,
-      tv: 64.0,
     );
   }
 
@@ -176,14 +168,12 @@ class ResponsiveLayout extends StatelessWidget {
   final Widget mobile;
   final Widget? tablet;
   final Widget? desktop;
-  final Widget? tv;
 
   const ResponsiveLayout({
     super.key,
     required this.mobile,
     this.tablet,
     this.desktop,
-    this.tv,
   });
 
   @override
@@ -208,7 +198,6 @@ class ResponsiveVisibility extends StatelessWidget {
   final bool visibleOnMobile;
   final bool visibleOnTablet;
   final bool visibleOnDesktop;
-  final bool visibleOnTV;
   final Widget? replacement;
 
   const ResponsiveVisibility({
@@ -217,7 +206,6 @@ class ResponsiveVisibility extends StatelessWidget {
     this.visibleOnMobile = true,
     this.visibleOnTablet = true,
     this.visibleOnDesktop = true,
-    this.visibleOnTV = true,
     this.replacement,
   });
 
