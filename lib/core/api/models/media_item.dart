@@ -331,6 +331,7 @@ class MediaItem {
       artists: (json['Artists'] as List<dynamic>?)?.map((e) => e as String).toList(),
       album: json['Album'] as String?,
       albumId: json['AlbumId'] as String?,
+      playlistItemId: json['PlaylistItemId'] as String?,
     );
   }
 
@@ -378,6 +379,7 @@ class MediaItem {
       'Artists': artists,
       'Album': album,
       'AlbumId': albumId,
+      'PlaylistItemId': playlistItemId,
     };
   }
 
