@@ -663,14 +663,26 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          item.name,
-                          style: isCompact 
-                              ? AppTextStyles.titleLarge 
-                              : AppTextStyles.headlineSmall,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                item.name,
+                                style: isCompact 
+                                    ? AppTextStyles.titleLarge 
+                                    : AppTextStyles.headlineSmall,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _FavoriteButton(
+                              item: item,
+                              size: isCompact ? 24 : 28,
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
