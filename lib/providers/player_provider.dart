@@ -275,6 +275,23 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   /// Check if currently playing from local file
   bool get isPlayingLocal => _isPlayingLocal;
 
+  /// Report local playback started (fire and forget, non-blocking)
+  void _reportLocalPlaybackStarted(String itemId, int? positionTicks) {
+    // Don't await - fire and forget
+    Future(() async {
+      try {
+        await _mediaService.reportPlaybackStarted(
+          itemId,
+          positionTicks: positionTicks,
+          playMethod: 'DirectPlay',
+        );
+      } catch (e) {
+        // Silently ignore - we're playing locally, server reporting is optional
+        print('Local playback: Server reporting skipped (offline or error)');
+      }
+    });
+  }
+
   /// Play from a playlist
   Future<void> playPlaylist(List<MediaItem> playlist, int startIndex) async {
     if (playlist.isEmpty || startIndex >= playlist.length) return;
