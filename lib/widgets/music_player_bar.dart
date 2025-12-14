@@ -6,6 +6,7 @@ import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/providers.dart';
 import 'glass_container.dart';
+import 'queue_view.dart';
 
 /// Mini music player bar for mobile - shows at bottom with expandable controls
 class MobileMiniPlayer extends ConsumerWidget {
@@ -456,6 +457,19 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       ],
 
                       SizedBox(width: isTV ? 16 : 8),
+
+                      // Queue button
+                      IconButton(
+                        icon: const Icon(Icons.queue_music),
+                        iconSize: isTV ? 24 : 20,
+                        color: AppColors.textSecondary,
+                        onPressed: () {
+                          showQueueBottomSheet(context);
+                        },
+                        tooltip: 'Queue',
+                      ),
+
+                      SizedBox(width: isTV ? 8 : 4),
 
                       // Close button
                       IconButton(
