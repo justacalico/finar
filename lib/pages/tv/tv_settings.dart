@@ -446,15 +446,90 @@ class _TvSettingsState extends ConsumerState<TvSettings> {
       children: [
         _buildSectionTitle('About'),
         const SizedBox(height: 32),
-        _buildTvInfoItem(title: 'App Version', value: '1.0.0'),
+        FutureBuilder<PackageInfo>(
+          future: PackageInfo.fromPlatform(),
+          builder: (context, snapshot) {
+            final version = snapshot.data?.version ?? '...';
+            final buildNumber = snapshot.data?.buildNumber ?? '';
+            return _buildTvInfoItem(
+              title: 'App Version',
+              value: buildNumber.isNotEmpty ? '$version+$buildNumber' : version,
+            );
+          },
+        ),
         const SizedBox(height: 16),
         _buildTvInfoItem(title: 'Platform', value: PlatformDetector.current.name.toUpperCase()),
         const SizedBox(height: 16),
         _buildTvInfoItem(title: 'Server', value: serverUrl ?? 'Not connected'),
         const SizedBox(height: 16),
         _buildTvInfoItem(title: 'User', value: user?.name ?? 'Unknown'),
+        const SizedBox(height: 32),
+        _buildSectionTitle('Links'),
+        const SizedBox(height: 16),
+        _buildTvLinkItem(
+          title: 'Website',
+          subtitle: 'openlyst.onrender.com',
+          icon: Icons.language,
+          iconColor: AppColors.primary,
+          onTap: () => _launchUrl('https://openlyst.onrender.com'),
+        ),
+        const SizedBox(height: 16),
+        _buildTvLinkItem(
+          title: 'Source Code',
+          subtitle: 'GitLab Repository',
+          icon: Icons.code,
+          iconColor: AppColors.accentOrange,
+          onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
+        ),
       ],
     );
+  }
+
+  Widget _buildTvLinkItem({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppColors.glassBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor, size: 32),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.titleLarge),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.open_in_new, color: AppColors.textSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   Widget _buildSectionTitle(String title) {
