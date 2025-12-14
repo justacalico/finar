@@ -337,54 +337,6 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     );
   }
 
-  IconData _getDownloadIcon(DownloadTask? task) {
-    if (task == null) return Icons.download_outlined;
-    switch (task.status) {
-      case DownloadStatus.downloading:
-        return Icons.downloading;
-      case DownloadStatus.paused:
-        return Icons.pause_circle_outline;
-      case DownloadStatus.completed:
-        return Icons.download_done;
-      case DownloadStatus.failed:
-        return Icons.refresh;
-      default:
-        return Icons.hourglass_empty;
-    }
-  }
-
-  Color _getDownloadIconColor(DownloadTask? task) {
-    if (task == null) return AppColors.textPrimary;
-    switch (task.status) {
-      case DownloadStatus.downloading:
-        return AppColors.primary;
-      case DownloadStatus.paused:
-        return AppColors.accentYellow;
-      case DownloadStatus.completed:
-        return AppColors.success;
-      case DownloadStatus.failed:
-        return AppColors.error;
-      default:
-        return AppColors.textPrimary;
-    }
-  }
-
-  String _getDownloadText(DownloadTask? task) {
-    if (task == null) return 'Download';
-    switch (task.status) {
-      case DownloadStatus.downloading:
-        return 'Downloading (${(task.progress * 100).toInt()}%)';
-      case DownloadStatus.paused:
-        return 'Resume Download';
-      case DownloadStatus.completed:
-        return 'Downloaded';
-      case DownloadStatus.failed:
-        return 'Retry Download';
-      default:
-        return 'Download Pending';
-    }
-  }
-
   void _handleDownloadAction(MediaItem item, DownloadTask? task) {
     if (task == null) {
       _downloadItem(item);
