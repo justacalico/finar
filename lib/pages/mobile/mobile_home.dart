@@ -251,45 +251,6 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   Widget _buildHomePage() {
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedScale(
-                scale: isSelected ? 1.15 : 1.0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(
-                    isSelected ? selectedIcon : icon,
-                    size: 26,
-                    color: isSelected 
-                        ? Colors.white 
-                        : Colors.white.withValues(alpha: 0.6),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(
-                  fontSize: isSelected ? 11 : 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected 
-                      ? Colors.white 
-                      : Colors.white.withValues(alpha: 0.6),
-                  letterSpacing: isSelected ? 0.3 : 0,
-                ),
-                child: Text(label),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHomePage() {
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     
