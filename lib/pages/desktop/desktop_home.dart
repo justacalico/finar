@@ -177,8 +177,14 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final libraries = ref.watch(librariesProvider);
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
+    final isOnline = ref.watch(isOnlineProvider);
     final isMusic = playerState.currentItem?.type.name == 'audio' || 
                     playerState.currentItem?.type.name == 'album';
+
+    // If offline, redirect to downloads page
+    if (!isOnline) {
+      return _buildOfflineView(libraries, showMiniPlayer, isMusic);
+    }
 
     return Focus(
       focusNode: _mainFocusNode,
