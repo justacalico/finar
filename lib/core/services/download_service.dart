@@ -75,13 +75,25 @@ class DownloadTask extends HiveObject {
   @HiveField(14)
   String? mediaSourceId;
 
+  @HiveField(15)
+  String? localPrimaryImagePath;
+
+  @HiveField(16)
+  String? localBackdropImagePath;
+
+  @HiveField(17)
+  String? backdropImageTag;
+
   DownloadTask({
     required this.id,
     required this.itemId,
     required this.itemName,
     this.itemType,
     this.primaryImageTag,
+    this.backdropImageTag,
     this.localPath,
+    this.localPrimaryImagePath,
+    this.localBackdropImagePath,
     this.status = DownloadStatus.pending,
     this.progress = 0.0,
     this.totalBytes = 0,
