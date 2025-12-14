@@ -175,7 +175,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
                       child: Image.network(
                         album.getPrimaryImageUrl(serverUrl, width: 300),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, __, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.album,
