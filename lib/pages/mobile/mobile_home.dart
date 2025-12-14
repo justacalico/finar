@@ -1422,7 +1422,8 @@ class _MobileDownloadsPage extends ConsumerWidget {
                   onRemove: () => ref.read(downloadProvider.notifier).deleteDownload(download.id),
                   onTap: () async {
                     if (download.status == DownloadStatus.completed && download.localPath != null) {
-                      // Play directly from local file
+                      // Play directly from local file using playLocalFile
+                      // This avoids server lookups which fail for items from other servers
                       final playerNotifier = ref.read(playerProvider.notifier);
                       
                       // Create a minimal MediaItem for the player
@@ -1432,16 +1433,27 @@ class _MobileDownloadsPage extends ConsumerWidget {
                         type: _getMediaTypeFromString(download.itemType),
                       );
                       
-                      await playerNotifier.play(item);
-                      
-                      // Navigate to player
-                      if (context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MobilePlayer(),
-                          ),
-                        );
+                      try {
+                        await playerNotifier.playLocalFile(item, download.localPath!);
+                        
+                        // Navigate to player
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MobilePlayer(),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to play: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
                       }
                     }
                   },
