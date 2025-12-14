@@ -631,10 +631,20 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
           title: 'Finar',
           icon: Icons.play_circle_fill,
           children: [
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text('Version', style: AppTextStyles.bodyLarge),
-              trailing: Text('1.0.0', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                final version = snapshot.data?.version ?? '...';
+                final buildNumber = snapshot.data?.buildNumber ?? '';
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('Version', style: AppTextStyles.bodyLarge),
+                  trailing: Text(
+                    buildNumber.isNotEmpty ? '$version+$buildNumber' : version,
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  ),
+                );
+              },
             ),
             const Divider(color: AppColors.glassBorder),
             ListTile(
@@ -692,8 +702,47 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
             ),
           ],
         ),
+        
+        const SizedBox(height: 16),
+        
+        _buildSettingsCard(
+          title: 'Links',
+          icon: Icons.link,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.language, color: AppColors.primary),
+              title: Text('Website', style: AppTextStyles.bodyLarge),
+              subtitle: Text(
+                'openlyst.onrender.com',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              ),
+              trailing: const Icon(Icons.open_in_new, size: 20),
+              onTap: () => _launchUrl('https://openlyst.onrender.com'),
+            ),
+            const Divider(color: AppColors.glassBorder),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.code, color: AppColors.accentOrange),
+              title: Text('Source Code', style: AppTextStyles.bodyLarge),
+              subtitle: Text(
+                'GitLab Repository',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              ),
+              trailing: const Icon(Icons.open_in_new, size: 20),
+              onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
+            ),
+          ],
+        ),
       ],
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   // Helper widgets
