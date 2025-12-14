@@ -148,6 +148,11 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           SliverToBoxAdapter(child: _buildEpisodesSection(item, serverUrl)),
         ],
 
+        // Album tracks section for music albums
+        if (item.type == MediaType.album) ...[
+          SliverToBoxAdapter(child: _buildAlbumTracksSection(item, serverUrl)),
+        ],
+
         // Cast section
         if (item.people?.isNotEmpty == true)
           SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
