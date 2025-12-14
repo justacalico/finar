@@ -159,7 +159,8 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
   Widget _buildAlbumCard(MediaItem album, String serverUrl, int index) {
     return GestureDetector(
-          onTap: () => _navigateToDetail(album.id),
+          onTap: () => _playAlbum(album),
+          onLongPress: () => _navigateToDetail(album.id),
           child: GlassContainer(
             borderRadius: AppTheme.radiusMd,
             padding: const EdgeInsets.all(12),
@@ -606,5 +607,21 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
 
   void _playTrack(MediaItem track) {
     ref.read(playerProvider.notifier).play(track);
+  }
+
+  Future<void> _playAlbum(MediaItem album) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final tracks = await mediaService.getAlbumTracks(album.id);
+      if (tracks.isNotEmpty) {
+        ref.read(playerProvider.notifier).playPlaylist(tracks, 0);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play album: $e')),
+        );
+      }
+    }
   }
 }
