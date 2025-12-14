@@ -521,6 +521,12 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
     if (item == null) return;
 
+    // Skip server reporting if playing locally and no streamInfo
+    // This prevents 404 errors when offline
+    if (_isPlayingLocal && streamInfo == null) {
+      return;
+    }
+
     try {
       await _mediaService.reportPlaybackProgress(
         item.id,
@@ -533,7 +539,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         subtitleStreamIndex: state.subtitleTrackIndex,
         playMethod: streamInfo?.isTranscoding == true ? 'Transcode' : 'DirectPlay',
       );
-    } catch (_) {}
+    } catch (_) {
+      // Silently ignore progress reporting errors
+    }
   }
 
   Future<void> _loadNextItem() async {
