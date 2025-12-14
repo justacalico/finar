@@ -294,6 +294,49 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     });
   }
 
+  /// Play directly from a local file path (for downloaded content)
+  /// This method bypasses the download lookup and plays the file directly
+  Future<void> playLocalFile(
+    MediaItem item,
+    String localPath, {
+    int? startPositionTicks,
+  }) async {
+    state = state.copyWith(
+      isLoading: true,
+      currentItem: item,
+      error: null,
+      playlist: null,
+      playlistIndex: null,
+    );
+
+    try {
+      // Verify file exists
+      final file = File(localPath);
+      if (!await file.exists()) {
+        throw Exception('Local file not found: $localPath');
+      }
+
+      _isPlayingLocal = true;
+      print('Playing from local file (direct): $localPath');
+      await _player.open(Media(localPath));
+
+      // Seek to start position if provided
+      if (startPositionTicks != null) {
+        final startPosition = Duration(microseconds: startPositionTicks ~/ 10);
+        await Future.delayed(const Duration(milliseconds: 100));
+        await _player.seek(startPosition);
+      }
+
+      // Don't report to server - this file might be from a different server
+      // Skip progress reporting too to avoid errors
+
+      state = state.copyWith(isLoading: false, isPlayingLocal: true);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, isPlayingLocal: false, error: e.toString());
+      rethrow;
+    }
+  }
+
   /// Play from a playlist
   Future<void> playPlaylist(List<MediaItem> playlist, int startIndex) async {
     if (playlist.isEmpty || startIndex >= playlist.length) return;
