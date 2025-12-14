@@ -1001,25 +1001,6 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     return const _MobileDownloadsPage();
   }
 
-  void _showUserMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _UserMenuSheet(
-        onLogout: () {
-          ref.read(authProvider.notifier).logout();
-          Navigator.of(context).pop();
-        },
-        onSettings: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MobileSettings()),
-          );
-        },
-      ),
-    );
-  }
-
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
