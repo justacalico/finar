@@ -339,8 +339,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(playlist: newPlaylist);
   }
 
-  /// Play item next (insert after current)
-  void playNext(MediaItem item) {
+  /// Insert item to play next (after current)
+  void insertNext(MediaItem item) {
     final currentPlaylist = state.playlist ?? [];
     final currentIndex = state.playlistIndex ?? 0;
     final newPlaylist = List<MediaItem>.from(currentPlaylist);
