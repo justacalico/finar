@@ -30,10 +30,10 @@ MediaType _getMediaTypeFromString(String? typeString) {
       return MediaType.audio;
     case 'musicvideo':
       return MediaType.musicVideo;
-    case 'video':
-      return MediaType.video;
+    case 'album':
+      return MediaType.album;
     default:
-      return MediaType.video;
+      return MediaType.movie;
   }
 }
 
