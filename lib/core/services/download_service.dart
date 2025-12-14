@@ -113,6 +113,9 @@ class DownloadTask extends HiveObject {
       itemName: item.name,
       itemType: item.typeString,
       primaryImageTag: item.imageTags?.primary,
+      backdropImageTag: item.backdropImageTags?.isNotEmpty == true 
+          ? item.backdropImageTags!.first 
+          : null,
       serverUrl: serverUrl,
     );
   }
