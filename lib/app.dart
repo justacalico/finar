@@ -53,9 +53,8 @@ class _FinarAppState extends ConsumerState<FinarApp> {
 class _AppRouter extends ConsumerWidget {
   const _AppRouter();
 
-  // Responsive breakpoints
+  // Responsive breakpoint
   static const double mobileMaxWidth = 600;
-  static const double tabletMaxWidth = 1024;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
