@@ -11,13 +11,15 @@ enum MusicTab { albums, tracks, artists }
 
 /// Provider for music library content with tabs
 final musicLibraryProvider =
-    StateNotifierProvider.family<MusicLibraryNotifier, MusicLibraryState, String>(
-  (ref, libraryId) {
-    final mediaService = ref.watch(mediaServiceProvider);
-    final api = ref.watch(jellyfinApiProvider);
-    return MusicLibraryNotifier(mediaService, api, libraryId);
-  },
-);
+    StateNotifierProvider.family<
+      MusicLibraryNotifier,
+      MusicLibraryState,
+      String
+    >((ref, libraryId) {
+      final mediaService = ref.watch(mediaServiceProvider);
+      final api = ref.watch(jellyfinApiProvider);
+      return MusicLibraryNotifier(mediaService, api, libraryId);
+    });
 
 /// State for music library content
 class MusicLibraryState {
@@ -160,7 +162,7 @@ class MusicLibraryNotifier extends StateNotifier<MusicLibraryState> {
   static const int _pageSize = 50;
 
   MusicLibraryNotifier(this._mediaService, this._api, this._libraryId)
-      : super(const MusicLibraryState()) {
+    : super(const MusicLibraryState()) {
     _loadInitialData();
   }
 
@@ -196,14 +198,15 @@ class MusicLibraryNotifier extends StateNotifier<MusicLibraryState> {
       state = state.copyWith(
         albums: refresh ? result.items : [...state.albums, ...result.items],
         albumsTotal: result.totalCount,
-        albumsHasMore: (refresh ? result.items.length : state.albums.length + result.items.length) < result.totalCount,
+        albumsHasMore:
+            (refresh
+                ? result.items.length
+                : state.albums.length + result.items.length) <
+            result.totalCount,
         albumsLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        albumsLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(albumsLoading: false, error: e.toString());
     }
   }
 
@@ -226,14 +229,15 @@ class MusicLibraryNotifier extends StateNotifier<MusicLibraryState> {
       state = state.copyWith(
         tracks: refresh ? result.items : [...state.tracks, ...result.items],
         tracksTotal: result.totalCount,
-        tracksHasMore: (refresh ? result.items.length : state.tracks.length + result.items.length) < result.totalCount,
+        tracksHasMore:
+            (refresh
+                ? result.items.length
+                : state.tracks.length + result.items.length) <
+            result.totalCount,
         tracksLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        tracksLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(tracksLoading: false, error: e.toString());
     }
   }
 
@@ -256,14 +260,15 @@ class MusicLibraryNotifier extends StateNotifier<MusicLibraryState> {
       state = state.copyWith(
         artists: refresh ? result.items : [...state.artists, ...result.items],
         artistsTotal: result.totalCount,
-        artistsHasMore: (refresh ? result.items.length : state.artists.length + result.items.length) < result.totalCount,
+        artistsHasMore:
+            (refresh
+                ? result.items.length
+                : state.artists.length + result.items.length) <
+            result.totalCount,
         artistsLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        artistsLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(artistsLoading: false, error: e.toString());
     }
   }
 
