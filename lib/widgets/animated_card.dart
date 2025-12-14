@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
+import '../core/services/controller_service.dart';
 import 'blur_backdrop.dart';
 
-/// Animated media card with hover and tap effects
+/// Animated media card with hover, tap, and controller/focus support
 class AnimatedCard extends StatefulWidget {
   final String? imageUrl;
   final String title;
@@ -22,6 +24,8 @@ class AnimatedCard extends StatefulWidget {
   final int animationIndex;
   final double? width;
   final double? height;
+  final bool autofocus;
+  final FocusNode? focusNode;
 
   const AnimatedCard({
     super.key,
@@ -39,6 +43,8 @@ class AnimatedCard extends StatefulWidget {
     this.animationIndex = 0,
     this.width,
     this.height,
+    this.autofocus = false,
+    this.focusNode,
   });
 
   @override
@@ -48,10 +54,66 @@ class AnimatedCard extends StatefulWidget {
 class _AnimatedCardState extends State<AnimatedCard> {
   bool _isHovered = false;
   bool _isPressed = false;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+      // Ensure the focused item is visible in scrollable containers
+      if (_isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    if (action == ControllerAction.select) {
+      setState(() => _isPressed = true);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() => _isPressed = false);
+          widget.onTap?.call();
+        }
+      });
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
 
   @override
   Widget build(BuildContext context) {
     final effectiveAspectRatio = widget.isLandscape ? 16 / 9 : widget.aspectRatio;
+    final isHighlighted = _isHovered || _isFocused;
 
     Widget cardContent = Stack(
       fit: StackFit.expand,
@@ -80,17 +142,26 @@ class _AnimatedCardState extends State<AnimatedCard> {
         // Custom overlay
         if (widget.overlay != null) widget.overlay!,
         
-        // Hover glow effect
+        // Hover/Focus glow effect
         AnimatedOpacity(
-          opacity: _isHovered ? 1.0 : 0.0,
+          opacity: isHighlighted ? 1.0 : 0.0,
           duration: AppTheme.durationFast,
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.5),
-                width: 2,
+                color: _isFocused 
+                    ? AppColors.primary 
+                    : AppColors.primary.withValues(alpha: 0.5),
+                width: _isFocused ? 3 : 2,
               ),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              boxShadow: _isFocused ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ] : null,
             ),
           ),
         ),
@@ -113,26 +184,31 @@ class _AnimatedCardState extends State<AnimatedCard> {
             ),
     );
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        onTap: widget.onTap,
-        onLongPress: widget.onLongPress,
-        child: AnimatedScale(
-          scale: _isPressed ? 0.95 : (_isHovered ? 1.03 : 1.0),
-          duration: AppTheme.durationFast,
-          curve: AppTheme.curveSmooth,
-          child: Container(
-            width: widget.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              boxShadow: _isHovered ? AppTheme.shadowMedium : AppTheme.shadowSmall,
+    return Focus(
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      onKeyEvent: _handleKeyEvent,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: widget.onTap,
+          onLongPress: widget.onLongPress,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.95 : (isHighlighted ? 1.03 : 1.0),
+            duration: AppTheme.durationFast,
+            curve: AppTheme.curveSmooth,
+            child: Container(
+              width: widget.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                boxShadow: isHighlighted ? AppTheme.shadowMedium : AppTheme.shadowSmall,
+              ),
+              child: card,
             ),
-            child: card,
           ),
         ),
       ),
