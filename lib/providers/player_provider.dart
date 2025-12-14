@@ -209,6 +209,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       if (hasLocalFile && localPath != null) {
         // Play from local file
         _isPlayingLocal = true;
+        
+        print('Playing from local file: $localPath');
         await _player.open(Media(localPath));
 
         // Seek to start position if provided
@@ -219,18 +221,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
           await _player.seek(startPosition);
         }
 
-        // Still report playback started to server for tracking
-        try {
-          await _mediaService.reportPlaybackStarted(
-            item.id,
-            positionTicks: startPositionTicks,
-            playMethod: 'DirectPlay',
-          );
-        } catch (_) {
-          // Ignore errors when reporting - we're playing locally
-        }
+        // Optionally report playback started to server for tracking (non-blocking)
+        // We don't await this and ignore all errors since we're playing locally
+        _reportLocalPlaybackStarted(item.id, startPositionTicks);
 
-        // Start progress reporting
+        // Start progress reporting (with error handling for offline)
         _startProgressReporting();
 
         state = state.copyWith(isLoading: false, isPlayingLocal: true);
