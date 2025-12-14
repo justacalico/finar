@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/app_theme.dart';
 
-/// A shimmer loading placeholder
+/// A shimmer loading placeholder - optimized with RepaintBoundary
 class ShimmerLoading extends StatelessWidget {
   final double? width;
   final double? height;
@@ -18,21 +18,22 @@ class ShimmerLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-    )
-        .animate(
-          onPlay: (controller) => controller.repeat(),
-        )
-        .shimmer(
-          duration: const Duration(milliseconds: 1500),
-          color: AppColors.white.withValues(alpha: 0.1),
-        );
+    return RepaintBoundary(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: SizedBox(width: width, height: height),
+      )
+          .animate(
+            onPlay: (controller) => controller.repeat(),
+          )
+          .shimmer(
+            duration: const Duration(milliseconds: 1500),
+            color: AppColors.white.withValues(alpha: 0.1),
+          ),
+    );
   }
 }
 
