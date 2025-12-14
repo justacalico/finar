@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'core/utils/platform_detector.dart';
 import 'providers/providers.dart';
 import 'pages/desktop/desktop_home.dart';
 import 'pages/mobile/mobile_home.dart';
-import 'pages/tv/tv_home.dart';
 import 'pages/login_page.dart';
 
 class FinarApp extends ConsumerStatefulWidget {
@@ -90,30 +88,17 @@ class _AppRouter extends ConsumerWidget {
           return const DesktopHome();
         case UiMode.mobile:
           return const MobileHome();
-        case UiMode.tv:
-          return const TvHome();
         case UiMode.auto:
           break; // Will fall through to responsive logic
       }
-    }
-
-    // TV mode is only triggered by actual TV platform detection, not window size
-    if (PlatformDetector.isTV) {
-      return const TvHome();
     }
 
     // Responsive UI based on window width
     if (screenWidth <= mobileMaxWidth) {
       // Small screens get mobile UI
       return const MobileHome();
-    } else if (screenWidth <= tabletMaxWidth) {
-      // Medium screens - use mobile on touch devices, desktop otherwise
-      if (PlatformDetector.isMobile) {
-        return const MobileHome();
-      }
-      return const DesktopHome();
     } else {
-      // Large screens get desktop UI
+      // Large screens and tablets get desktop UI
       return const DesktopHome();
     }
   }
