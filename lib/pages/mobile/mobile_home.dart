@@ -658,8 +658,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   Widget _buildContinueWatchingCard(dynamic item, String serverUrl, int index) {
     final progress = item.progressPercent ?? 0.0;
-    final remainingMinutes = item.remainingRuntime != null 
-        ? (item.remainingRuntime / 60000000).round() 
+    // Calculate remaining runtime from runtimeTicks and playbackPositionTicks
+    final runtimeTicks = item.runtimeTicks ?? item.userData?.runtimeTicks;
+    final positionTicks = item.userData?.playbackPositionTicks ?? item.playbackPositionTicks ?? 0;
+    final remainingTicks = (runtimeTicks != null && runtimeTicks > positionTicks) 
+        ? runtimeTicks - positionTicks 
+        : null;
+    final remainingMinutes = remainingTicks != null 
+        ? (remainingTicks / 600000000).round()  // Ticks to minutes (10,000 ticks per ms, 60,000 ms per min)
         : null;
     
     return GestureDetector(
