@@ -200,8 +200,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           onTap: onTap ?? () {
             setState(() {
               _selectedIndex = index;
-              _selectedLibraryId = null;
-            });
+              _selectedLibraryId = null;              _selectedLibraryType = null;            });
           },
           child: AnimatedContainer(
             duration: AppTheme.durationFast,
