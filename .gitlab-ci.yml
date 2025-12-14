@@ -100,6 +100,7 @@ build_release_aab:
   script:
     - export GRADLE_USER_HOME="$CI_PROJECT_DIR/android/.gradle"
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Extract version from pubspec.yaml or git tag
     - |
       if [[ -n "$CI_COMMIT_TAG" && "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
@@ -193,6 +194,7 @@ build_release_apk:
   script:
     - export GRADLE_USER_HOME="$CI_PROJECT_DIR/android/.gradle"
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Extract version from pubspec.yaml or git tag
     - |
       if [[ -n "$CI_COMMIT_TAG" && "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
@@ -263,6 +265,7 @@ build_debug_apk:
   script:
     - export GRADLE_USER_HOME="$CI_PROJECT_DIR/android/.gradle"
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Use a smaller build number based on timestamp to stay under Android's 2.1B limit
     - BUILD_NUMBER=$(date +%s)
     - echo "Using build number:" $BUILD_NUMBER
@@ -296,6 +299,7 @@ build_release_linux:
   script:
     - flutter config --enable-linux-desktop
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Extract version from pubspec.yaml or git tag
     - |
       if [[ -n "$CI_COMMIT_TAG" && "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
@@ -342,6 +346,7 @@ build_linux_deb:
   script:
     - flutter config --enable-linux-desktop
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Build DEB using fastforge
     - $CI_PROJECT_DIR/.pub-cache/bin/fastforge package --platform linux --targets deb
     # Move the output to a predictable location
@@ -389,6 +394,7 @@ build_linux_appimage:
   script:
     - flutter config --enable-linux-desktop
     - flutter pub get --no-precompile
+    - dart run build_runner build --delete-conflicting-outputs
     # Build AppImage using fastforge
     - $CI_PROJECT_DIR/.pub-cache/bin/fastforge package --platform linux --targets appimage
     # Move the output to a predictable location
