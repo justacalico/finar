@@ -337,32 +337,239 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 _buildSectionHeader('Top Rated', icon: Icons.star_outline),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.topRated, serverUrl),
-            ),
-          ],
+                ),
+              ],
 
-          // Favorites
-          if (libraryState.favorites.isNotEmpty) ...[
-            _buildSectionHeader('My Favorites'),
-            SliverToBoxAdapter(
-              child: _buildMediaRow(libraryState.favorites, serverUrl),
-            ),
-          ],
+              // Favorites
+              if (libraryState.favorites.isNotEmpty) ...[
+                _buildSectionHeader('My Favorites', icon: Icons.favorite_outline),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.favorites, serverUrl),
+                ),
+              ],
 
-          // Libraries
-          if (libraryState.libraries.isNotEmpty) ...[
-            _buildSectionHeader('My Libraries'),
-            SliverToBoxAdapter(
-              child: _buildLibrariesRow(libraryState.libraries, serverUrl),
-            ),
-          ],
+              // Libraries
+              if (libraryState.libraries.isNotEmpty) ...[
+                _buildSectionHeader('My Libraries', icon: Icons.folder_outlined),
+                SliverToBoxAdapter(
+                  child: _buildLibrariesRow(libraryState.libraries, serverUrl),
+                ),
+              ],
 
-          // Bottom padding
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+              // Bottom padding
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 100),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildHeroCarousel(List<dynamic> items, String serverUrl) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 320,
+          child: PageView.builder(
+            controller: _heroPageController,
+            itemCount: items.length,
+            onPageChanged: (index) {
+              setState(() => _currentHeroIndex = index);
+              _extractColorsFromItem(items[index], serverUrl);
+            },
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return AnimatedBuilder(
+                animation: _heroPageController,
+                builder: (context, child) {
+                  double value = 1.0;
+                  if (_heroPageController.position.haveDimensions) {
+                    value = _heroPageController.page! - index;
+                    value = (1 - (value.abs() * 0.2)).clamp(0.85, 1.0);
+                  }
+                  return Transform.scale(
+                    scale: value,
+                    child: _buildHeroCard(item, serverUrl, index == _currentHeroIndex),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Page indicator
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            items.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: index == _currentHeroIndex ? 24 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: index == _currentHeroIndex 
+                    ? _accentColor 
+                    : AppColors.textSecondary.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildHeroCard(dynamic item, String serverUrl, bool isActive) {
+    return GestureDetector(
+      onTap: () => _navigateToDetail(item.id),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          boxShadow: isActive ? [
+            BoxShadow(
+              color: _accentColor.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ] : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background image
+              CachedNetworkImage(
+                imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
+                fit: BoxFit.cover,
+                placeholder: (_, _) => Container(
+                  color: _dominantColor.withValues(alpha: 0.3),
+                  child: const ShimmerLoading(),
+                ),
+                errorWidget: (_, _, _) => Container(
+                  color: AppColors.surface,
+                  child: const Icon(Icons.movie, size: 48),
+                ),
+              ),
+
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                      _dominantColor.withValues(alpha: 0.7),
+                      _dominantColor.withValues(alpha: 0.95),
+                    ],
+                    stops: const [0.0, 0.4, 0.7, 1.0],
+                  ),
+                ),
+              ),
+
+              // Content
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Type badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _accentColor.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        item.type?.toString().split('.').last.toUpperCase() ?? 'MOVIE',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.name ?? '',
+                      style: AppTextStyles.headlineSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    // Meta info row
+                    Row(
+                      children: [
+                        if (item.productionYear != null) ...[
+                          Text(
+                            item.productionYear.toString(),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (item.communityRating != null) ...[
+                          Icon(Icons.star, size: 14, color: Colors.amber),
+                          const SizedBox(width: 4),
+                          Text(
+                            item.communityRating.toStringAsFixed(1),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Action buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _playItem(item),
+                            icon: const Icon(Icons.play_arrow, size: 20),
+                            label: const Text('Play'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _accentColor,
+                              foregroundColor: AppColors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        GlassIconButton(
+                          icon: Icons.add,
+                          size: 44,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          icon: Icons.info_outline,
+                          size: 44,
+                          onPressed: () => _navigateToDetail(item.id),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fadeIn(duration: 300.ms);
   }
 
   Widget _buildHeroBanner(dynamic item, String serverUrl) {
@@ -444,17 +651,57 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95));
   }
 
-  SliverToBoxAdapter _buildSectionHeader(String title) {
+  SliverToBoxAdapter _buildSectionHeader(String title, {IconData? icon}) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
         child: Row(
           children: [
-            Text(title, style: AppTextStyles.titleLarge),
-            const Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: const Text('See All'),
+            if (icon != null) ...[
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _accentColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 18, color: _accentColor),
+              ),
+              const SizedBox(width: 10),
+            ],
+            Expanded(
+              child: Text(
+                title, 
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
+              ),
+              child: TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'See All',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: _accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios, size: 10, color: _accentColor),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
