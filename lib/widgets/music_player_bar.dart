@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
+import '../core/api/models/media_item.dart';
 import '../providers/providers.dart';
 import '../providers/library_provider.dart';
 import 'glass_container.dart';
