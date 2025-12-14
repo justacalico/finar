@@ -1,0 +1,21 @@
+display_name: Finar
+package_name: finar
+maintainer: Openlyst <contact@openlyst.com>
+description: A beautiful multi-platform Jellyfin client
+icon: linux/icons/app_icon.png
+keywords:
+  - jellyfin
+  - media
+  - streaming
+  - movies
+  - tv
+categories:
+  - AudioVideo
+  - Video
+  - Player
+priority: optional
+section: video
+installed_size: 0
+essential: false
+postinstall_scripts: []
+postuninstall_scripts: []
