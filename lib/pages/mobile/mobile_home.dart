@@ -97,83 +97,83 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   Widget _buildBottomNav() {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      margin: EdgeInsets.fromLTRB(20, 0, 20, bottomPadding > 0 ? bottomPadding : 12),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.easeOutCubic,
-            height: 72,
+            height: 68,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              // Liquid glass layered effect
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.18),
-                  Colors.white.withValues(alpha: 0.08),
-                  _accentColor.withValues(alpha: 0.08),
-                  Colors.white.withValues(alpha: 0.12),
-                ],
-                stops: const [0.0, 0.3, 0.7, 1.0],
-              ),
+              borderRadius: BorderRadius.circular(32),
+              // Refined liquid glass effect
+              color: Colors.black.withValues(alpha: 0.25),
               border: Border.all(
-                width: 1.2,
-                color: Colors.white.withValues(alpha: 0.25),
+                width: 0.5,
+                color: Colors.white.withValues(alpha: 0.15),
               ),
               boxShadow: [
-                // Outer glow
+                // Soft ambient shadow
                 BoxShadow(
-                  color: _accentColor.withValues(alpha: 0.15),
-                  blurRadius: 24,
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 20,
                   spreadRadius: 0,
-                  offset: const Offset(0, 8),
-                ),
-                // Inner shadow for depth
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 12,
-                  spreadRadius: -4,
-                  offset: const Offset(0, 4),
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
             child: Stack(
               children: [
-                // Animated liquid highlight that follows selection
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOutBack,
-                  left: _getIndicatorPosition(context),
-                  top: 8,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOutCubic,
-                    width: 64,
-                    height: 56,
+                // Subtle inner highlight at top
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 1,
+                  child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                       gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
                         colors: [
-                          _accentColor.withValues(alpha: 0.35),
-                          _accentColor.withValues(alpha: 0.15),
+                          Colors.transparent,
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.15),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.transparent,
                         ],
                       ),
-                      border: Border.all(
-                        color: _accentColor.withValues(alpha: 0.4),
-                        width: 1,
+                    ),
+                  ),
+                ),
+                // Animated pill indicator
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeOutCubic,
+                  left: _getIndicatorPosition(context),
+                  top: 6,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: RadialGradient(
+                        center: Alignment.topCenter,
+                        radius: 1.2,
+                        colors: [
+                          _accentColor.withValues(alpha: 0.5),
+                          _accentColor.withValues(alpha: 0.25),
+                        ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _accentColor.withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          spreadRadius: 0,
+                          color: _accentColor.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          spreadRadius: -2,
                         ),
                       ],
                     ),
@@ -181,7 +181,6 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 ),
                 // Navigation items
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
                     _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search'),
@@ -198,9 +197,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   double _getIndicatorPosition(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for margin
+    final screenWidth = MediaQuery.of(context).size.width - 40; // Account for margin
     final itemWidth = screenWidth / 4;
-    return (itemWidth * _currentIndex) + (itemWidth / 2) - 32;
+    return (itemWidth * _currentIndex) + (itemWidth / 2) - 28;
   }
 
   Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label) {
@@ -216,8 +215,42 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                transform: Matrix4.identity()..scale(isSelected ? 1.1 : 1.0),
+                transformAlignment: Alignment.center,
+                child: Icon(
+                  isSelected ? selectedIcon : icon,
+                  size: 24,
+                  color: isSelected 
+                      ? Colors.white 
+                      : Colors.white.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected 
+                      ? Colors.white 
+                      : Colors.white.withValues(alpha: 0.5),
+                ),
+                child: Text(label),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomePage() {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
