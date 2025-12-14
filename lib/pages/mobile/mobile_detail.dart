@@ -871,10 +871,40 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   void _playItem(MediaItem item) {
-    ref.read(playerProvider.notifier).play(item);
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+    // Check if this is music content
+    final isMusic = item.type == MediaType.audio || 
+                    item.type == MediaType.album ||
+                    item.type == MediaType.musicVideo;
+    
+    if (item.type == MediaType.album) {
+      // For albums, fetch tracks and play as playlist
+      _playAlbum(item);
+    } else {
+      ref.read(playerProvider.notifier).play(item);
+      
+      // Only navigate to video player for non-music content
+      if (!isMusic) {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+      }
+    }
+  }
+
+  Future<void> _playAlbum(MediaItem album) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final tracks = await mediaService.getAlbumTracks(album.id);
+      if (tracks.isNotEmpty) {
+        ref.read(playerProvider.notifier).playPlaylist(tracks, 0);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play album: $e')),
+        );
+      }
+    }
   }
 
   void _playTrailer(MediaItem item) {
