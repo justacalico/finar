@@ -166,6 +166,20 @@ class MobileMiniPlayer extends ConsumerWidget {
                             ),
                           ),
                         
+                        // Queue button
+                        IconButton(
+                          icon: const Icon(Icons.queue_music, size: 20),
+                          color: AppColors.textSecondary,
+                          onPressed: () {
+                            showQueueBottomSheet(context);
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                        ),
+                        
                         // Close
                         IconButton(
                           icon: const Icon(Icons.close, size: 20),
