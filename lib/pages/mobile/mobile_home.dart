@@ -156,6 +156,13 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     
+    // Show loading state
+    if (libraryState.isLoading && libraryState.homeData == null) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+    
     // Get featured items for hero carousel
     final heroItems = <dynamic>[
       if (libraryState.featuredItem != null) libraryState.featuredItem,
