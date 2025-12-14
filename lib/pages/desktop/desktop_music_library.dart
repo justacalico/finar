@@ -453,7 +453,7 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
                           child: Image.network(
                             track.getPrimaryImageUrl(serverUrl, width: 100),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, ___) => Container(
                               color: AppColors.surface,
                               child: const Icon(
                                 Icons.music_note,
