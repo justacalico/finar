@@ -27,6 +27,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   final PageController _pageController = PageController();
   final PageController _heroPageController = PageController(viewportFraction: 0.92);
   int _currentHeroIndex = 0;
+  bool _isPlayerExpanded = false;
   
   // Dynamic colors from hero artwork
   Color _dominantColor = AppColors.background;
