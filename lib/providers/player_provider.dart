@@ -325,6 +325,97 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     );
   }
 
+  /// Add item to end of queue
+  void addToQueue(MediaItem item) {
+    final currentPlaylist = state.playlist ?? [];
+    final newPlaylist = [...currentPlaylist, item];
+    state = state.copyWith(playlist: newPlaylist);
+  }
+
+  /// Add items to end of queue
+  void addAllToQueue(List<MediaItem> items) {
+    final currentPlaylist = state.playlist ?? [];
+    final newPlaylist = [...currentPlaylist, ...items];
+    state = state.copyWith(playlist: newPlaylist);
+  }
+
+  /// Play item next (insert after current)
+  void playNext(MediaItem item) {
+    final currentPlaylist = state.playlist ?? [];
+    final currentIndex = state.playlistIndex ?? 0;
+    final newPlaylist = List<MediaItem>.from(currentPlaylist);
+    newPlaylist.insert(currentIndex + 1, item);
+    state = state.copyWith(playlist: newPlaylist);
+  }
+
+  /// Remove item from queue by index
+  void removeFromQueue(int index) {
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length) return;
+    
+    final newPlaylist = List<MediaItem>.from(state.playlist!);
+    newPlaylist.removeAt(index);
+    
+    // Adjust current index if needed
+    int? newIndex = state.playlistIndex;
+    if (newIndex != null) {
+      if (index < newIndex) {
+        newIndex--;
+      } else if (index == newIndex && newPlaylist.isEmpty) {
+        newIndex = null;
+      }
+    }
+    
+    state = state.copyWith(
+      playlist: newPlaylist.isEmpty ? null : newPlaylist,
+      playlistIndex: newIndex,
+    );
+  }
+
+  /// Clear the queue (except current playing item)
+  void clearQueue() {
+    if (state.currentItem == null) {
+      state = state.copyWith(playlist: null, playlistIndex: null);
+    } else {
+      state = state.copyWith(
+        playlist: [state.currentItem!],
+        playlistIndex: 0,
+      );
+    }
+  }
+
+  /// Move item in queue
+  void reorderQueue(int oldIndex, int newIndex) {
+    if (state.playlist == null) return;
+    
+    final newPlaylist = List<MediaItem>.from(state.playlist!);
+    final item = newPlaylist.removeAt(oldIndex);
+    newPlaylist.insert(newIndex > oldIndex ? newIndex - 1 : newIndex, item);
+    
+    // Adjust current index
+    int? currentIndex = state.playlistIndex;
+    if (currentIndex != null) {
+      if (oldIndex == currentIndex) {
+        currentIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
+      } else if (oldIndex < currentIndex && newIndex >= currentIndex) {
+        currentIndex--;
+      } else if (oldIndex > currentIndex && newIndex <= currentIndex) {
+        currentIndex++;
+      }
+    }
+    
+    state = state.copyWith(playlist: newPlaylist, playlistIndex: currentIndex);
+  }
+
+  /// Play item at specific index in queue
+  Future<void> playAtIndex(int index) async {
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length) return;
+    await play(
+      state.playlist![index],
+      playlist: state.playlist,
+      playlistIndex: index,
+    );
+  }
+
   /// Stop playback
   Future<void> stop() async {
     _stopProgressReporting();
