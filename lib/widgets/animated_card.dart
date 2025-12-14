@@ -709,7 +709,7 @@ class CardRow extends StatelessWidget {
             itemCount: cards.length,
             addRepaintBoundaries: true,
             addAutomaticKeepAlives: false,
-            separatorBuilder: (_, __) => SizedBox(width: spacing),
+            separatorBuilder: (_, _) => SizedBox(width: spacing),
             itemBuilder: (context, index) => SizedBox(
               width: 130,
               child: cards[index],
