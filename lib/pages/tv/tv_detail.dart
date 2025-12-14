@@ -151,6 +151,13 @@ class _TvDetailState extends ConsumerState<TvDetail> {
                 flex: 4,
                 child: _buildEpisodesPanel(item, serverUrl),
               ),
+
+            // Right side - Tracks (for music albums)
+            if (item.type == MediaType.album)
+              Expanded(
+                flex: 4,
+                child: _buildAlbumTracksPanel(item, serverUrl),
+              ),
           ],
         ),
       ],
