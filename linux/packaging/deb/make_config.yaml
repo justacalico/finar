@@ -3,12 +3,7 @@ package_name: finar
 maintainer: Openlyst <contact@openlyst.com>
 description: A beautiful multi-platform Jellyfin client
 icon: linux/icons/app_icon.png
-keywords:
-  - jellyfin
-  - media
-  - streaming
-  - movies
-  - tv
+keywords: jellyfin,media,streaming,movies,tv
 priority: optional
 section: video
 essential: false
