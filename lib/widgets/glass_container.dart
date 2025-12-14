@@ -47,17 +47,20 @@ class GlassContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     // Cache decorations for better performance
     final effectiveOpacity = opacity;
-    final effectiveColor = color?.withValues(alpha: effectiveOpacity) ?? 
-                           AppColors.white.withValues(alpha: effectiveOpacity);
-    final effectiveGradient = gradient ?? LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        AppColors.white.withValues(alpha: effectiveOpacity * 1.5),
-        AppColors.white.withValues(alpha: effectiveOpacity * 0.5),
-      ],
-    );
-    
+    final effectiveColor =
+        color?.withValues(alpha: effectiveOpacity) ??
+        AppColors.white.withValues(alpha: effectiveOpacity);
+    final effectiveGradient =
+        gradient ??
+        LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.white.withValues(alpha: effectiveOpacity * 1.5),
+            AppColors.white.withValues(alpha: effectiveOpacity * 0.5),
+          ],
+        );
+
     Widget container = RepaintBoundary(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -79,7 +82,7 @@ class GlassContainer extends StatelessWidget {
             child: SizedBox(
               width: width,
               height: height,
-              child: padding != null 
+              child: padding != null
                   ? Padding(padding: padding!, child: child)
                   : child,
             ),
@@ -89,17 +92,11 @@ class GlassContainer extends StatelessWidget {
     );
 
     if (margin != null) {
-      container = Padding(
-        padding: margin!,
-        child: container,
-      );
+      container = Padding(padding: margin!, child: container);
     }
 
     if (onTap != null) {
-      container = GestureDetector(
-        onTap: onTap,
-        child: container,
-      );
+      container = GestureDetector(onTap: onTap, child: container);
     }
 
     return container;
@@ -147,8 +144,12 @@ class _GlassCardState extends State<GlassCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: widget.enableHover ? (_) => setState(() => _isHovered = true) : null,
-      onExit: widget.enableHover ? (_) => setState(() => _isHovered = false) : null,
+      onEnter: widget.enableHover
+          ? (_) => setState(() => _isHovered = true)
+          : null,
+      onExit: widget.enableHover
+          ? (_) => setState(() => _isHovered = false)
+          : null,
       child: AnimatedScale(
         scale: _isHovered ? widget.hoverScale : 1.0,
         duration: widget.animationDuration,
@@ -165,8 +166,8 @@ class _GlassCardState extends State<GlassCard> {
             borderRadius: widget.borderRadius,
             padding: widget.padding,
             showBorder: true,
-            borderColor: _isHovered 
-                ? AppColors.primary.withValues(alpha: 0.3) 
+            borderColor: _isHovered
+                ? AppColors.primary.withValues(alpha: 0.3)
                 : AppColors.glassBorder,
             shadows: _isHovered ? AppTheme.shadowMedium : null,
             onTap: widget.onTap,
@@ -217,7 +218,8 @@ class _GlassButtonState extends State<GlassButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = !widget.isDisabled && !widget.isLoading && widget.onPressed != null;
+    final isEnabled =
+        !widget.isDisabled && !widget.isLoading && widget.onPressed != null;
 
     return GestureDetector(
       onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
@@ -238,8 +240,8 @@ class _GlassButtonState extends State<GlassButton> {
             padding: widget.padding,
             color: widget.backgroundColor ?? AppColors.white,
             showBorder: true,
-            borderColor: _isPressed 
-                ? AppColors.primary.withValues(alpha: 0.5) 
+            borderColor: _isPressed
+                ? AppColors.primary.withValues(alpha: 0.5)
                 : AppColors.glassBorder,
             child: DefaultTextStyle(
               style: TextStyle(
@@ -357,20 +359,20 @@ class _GlassIconButtonState extends State<GlassIconButton> {
   @override
   Widget build(BuildContext context) {
     final isHighlighted = _isFocused || widget.isActive;
-    
+
     return Focus(
       focusNode: _focusNode,
       autofocus: widget.autofocus,
       onKeyEvent: _handleKeyEvent,
       child: GestureDetector(
-        onTapDown: widget.onPressed != null 
-            ? (_) => setState(() => _isPressed = true) 
+        onTapDown: widget.onPressed != null
+            ? (_) => setState(() => _isPressed = true)
             : null,
-        onTapUp: widget.onPressed != null 
-            ? (_) => setState(() => _isPressed = false) 
+        onTapUp: widget.onPressed != null
+            ? (_) => setState(() => _isPressed = false)
             : null,
-        onTapCancel: widget.onPressed != null 
-            ? () => setState(() => _isPressed = false) 
+        onTapCancel: widget.onPressed != null
+            ? () => setState(() => _isPressed = false)
             : null,
         onTap: widget.onPressed,
         child: AnimatedScale(
@@ -400,18 +402,20 @@ class _GlassIconButtonState extends State<GlassIconButton> {
               blur: widget.blur,
               opacity: isHighlighted ? widget.opacity * 2 : widget.opacity,
               borderRadius: widget.size / 2,
-              color: widget.isActive 
-                  ? AppColors.primary 
+              color: widget.isActive
+                  ? AppColors.primary
                   : widget.backgroundColor ?? AppColors.white,
               showBorder: !widget.isActive && !_isFocused,
               child: Center(
                 child: Icon(
                   widget.icon,
                   size: widget.iconSize,
-                  color: _isFocused 
+                  color: _isFocused
                       ? AppColors.primary
-                      : (widget.iconColor ?? 
-                          (widget.isActive ? AppColors.black : AppColors.textPrimary)),
+                      : (widget.iconColor ??
+                            (widget.isActive
+                                ? AppColors.black
+                                : AppColors.textPrimary)),
                 ),
               ),
             ),
@@ -451,8 +455,8 @@ class GlassNavItem extends StatelessWidget {
           vertical: AppTheme.spacingSm,
         ),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? AppColors.primary.withValues(alpha: 0.15) 
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
