@@ -226,6 +226,81 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     );
   }
 
+  Widget _buildOfflineView(AsyncValue<List<Library>> libraries, bool showMiniPlayer, bool isMusic) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Column(
+        children: [
+          // Offline banner
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withValues(alpha: 0.9),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.wifi_off_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'You\'re offline',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Only downloaded content is available',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    ref.read(connectivityProvider.notifier).refresh();
+                  },
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  label: Text(
+                    'Retry',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Show downloads page directly
+          const Expanded(
+            child: DesktopDownloads(),
+          ),
+          
+          // Music player bar at bottom
+          if (showMiniPlayer && isMusic)
+            const DesktopMusicPlayerBar(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSidebar(AsyncValue<List<Library>> librariesAsync) {
     return GlassContainer(
       width: 240,
