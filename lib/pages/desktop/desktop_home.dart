@@ -723,7 +723,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               addRepaintBoundaries: true,
               addAutomaticKeepAlives: false,
               cacheExtent: 500, // Pre-cache items for smoother scrolling
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              separatorBuilder: (_, _) => const SizedBox(width: 16),
               itemBuilder: (context, index) {
                 final item = items[index];
                 return SizedBox(
