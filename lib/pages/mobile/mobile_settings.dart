@@ -133,7 +133,6 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
       (UiMode.auto, 'Auto', Icons.auto_awesome, _getAutoModeDescription()),
       (UiMode.desktop, 'Desktop', Icons.desktop_windows, 'Wide layout with sidebar'),
       (UiMode.mobile, 'Mobile', Icons.phone_android, 'Compact touch layout'),
-      (UiMode.tv, 'TV', Icons.tv, 'Large remote-friendly UI'),
     ];
 
     return modes.map((mode) {
@@ -194,9 +193,7 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   String _getAutoModeDescription() {
-    if (PlatformDetector.isTV) {
-      return 'Currently: TV (detected)';
-    } else if (PlatformDetector.isDesktop) {
+    if (PlatformDetector.isDesktop) {
       return 'Currently: Desktop (detected)';
     } else {
       return 'Currently: Mobile (detected)';
