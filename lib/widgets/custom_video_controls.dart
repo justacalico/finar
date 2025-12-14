@@ -224,7 +224,7 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
           // Video
           Video(
             controller: widget.controller,
-            controls: NoVideoControls,
+            controls: noVideoControls,
           ),
           
           // Controls overlay
