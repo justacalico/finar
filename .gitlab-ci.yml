@@ -339,15 +339,17 @@ build_linux_deb:
     - export PATH="$PATH:$PUB_CACHE/bin"
   script:
     - flutter config --enable-linux-desktop
-    - flutter pub get --no-precompile
+    - flutter pub get
+    # Generate code (Hive adapters, etc.)
+    - dart run build_runner build --delete-conflicting-outputs
     # Build DEB using fastforge
     - $CI_PROJECT_DIR/.pub-cache/bin/fastforge package --platform linux --targets deb
     # Move the output to a predictable location
     - mkdir -p artifacts
-    - find dist -name "*.deb" -exec cp {} artifacts/klit-linux-amd64.deb \;
+    - find dist -name "*.deb" -exec cp {} artifacts/finar-linux-amd64.deb \;
   artifacts:
     paths:
-      - artifacts/klit-linux-amd64.deb
+      - artifacts/finar-linux-amd64.deb
     expire_in: never
   timeout: 1h
 
@@ -386,14 +388,16 @@ build_linux_appimage:
     - export PATH="$PATH:$PUB_CACHE/bin"
   script:
     - flutter config --enable-linux-desktop
-    - flutter pub get --no-precompile
+    - flutter pub get
+    # Generate code (Hive adapters, etc.)
+    - dart run build_runner build --delete-conflicting-outputs
     # Build AppImage using fastforge
     - $CI_PROJECT_DIR/.pub-cache/bin/fastforge package --platform linux --targets appimage
     # Move the output to a predictable location
     - mkdir -p artifacts
-    - find dist -name "*.AppImage" -exec cp {} artifacts/klit-linux-x86_64.AppImage \;
+    - find dist -name "*.AppImage" -exec cp {} artifacts/finar-linux-x86_64.AppImage \;
   artifacts:
     paths:
-      - artifacts/klit-linux-x86_64.AppImage
+      - artifacts/finar-linux-x86_64.AppImage
     expire_in: never
   timeout: 1h
