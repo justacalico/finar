@@ -312,104 +312,27 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   Widget _buildMoreOptionsMenu(MediaItem item) {
-    final downloadTask = ref.watch(downloadTaskProvider(item.id));
+    return GlassIconButton(
+      icon: Icons.more_vert,
+      onPressed: () => _showLiquidGlassMenu(item),
+    );
+  }
 
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+  void _showLiquidGlassMenu(MediaItem item) {
+    final downloadTask = ref.read(downloadTaskProvider(item.id));
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _LiquidGlassMenu(
+        item: item,
+        downloadTask: downloadTask,
+        onFavorite: () => _toggleFavorite(item),
+        onWatched: () => _toggleWatched(item),
+        onDownload: () => _handleDownloadAction(item, downloadTask),
+        onShare: () => _shareItem(item),
       ),
-      itemBuilder: (context) => [
-        // Favorite
-        PopupMenuItem(
-          value: 'favorite',
-          child: Row(
-            children: [
-              Icon(
-                (item.isFavorite == true)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: (item.isFavorite == true)
-                    ? AppColors.accentRed
-                    : AppColors.textPrimary,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                (item.isFavorite == true)
-                    ? 'Remove from Favorites'
-                    : 'Add to Favorites',
-              ),
-            ],
-          ),
-        ),
-        // Mark as watched
-        PopupMenuItem(
-          value: 'watched',
-          child: Row(
-            children: [
-              Icon(
-                (item.isPlayed == true)
-                    ? Icons.check_circle
-                    : Icons.check_circle_outline,
-                color: (item.isPlayed == true)
-                    ? AppColors.primary
-                    : AppColors.textPrimary,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                (item.isPlayed == true)
-                    ? 'Mark as Unwatched'
-                    : 'Mark as Watched',
-              ),
-            ],
-          ),
-        ),
-        // Download
-        PopupMenuItem(
-          value: 'download',
-          child: Row(
-            children: [
-              Icon(
-                _getDownloadIcon(downloadTask),
-                color: _getDownloadIconColor(downloadTask),
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(_getDownloadText(downloadTask)),
-            ],
-          ),
-        ),
-        // Share
-        const PopupMenuItem(
-          value: 'share',
-          child: Row(
-            children: [
-              Icon(Icons.share_outlined, size: 20),
-              SizedBox(width: 12),
-              Text('Share'),
-            ],
-          ),
-        ),
-      ],
-      onSelected: (value) {
-        switch (value) {
-          case 'favorite':
-            _toggleFavorite(item);
-            break;
-          case 'watched':
-            _toggleWatched(item);
-            break;
-          case 'download':
-            _handleDownloadAction(item, downloadTask);
-            break;
-          case 'share':
-            _shareItem(item);
-            break;
-        }
-      },
     );
   }
 
