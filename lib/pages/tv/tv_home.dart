@@ -9,6 +9,7 @@ import '../../core/theme/app_theme.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'tv_library.dart';
+import 'tv_music_library.dart';
 import 'tv_detail.dart';
 import 'tv_downloads.dart';
 import 'tv_settings.dart';
