@@ -291,7 +291,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
                       child: Image.network(
                         track.getPrimaryImageUrl(serverUrl, width: 100),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: Center(
                             child: Text(
