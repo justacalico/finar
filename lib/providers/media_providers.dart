@@ -7,14 +7,22 @@ import '../core/api/models/library.dart';
 import 'auth_provider.dart';
 import 'library_provider.dart';
 
-/// Provider for media item detail
+/// Provider for media item detail - cached for 5 minutes
 final mediaItemDetailProvider = FutureProvider.family<MediaItem, String>((ref, itemId) async {
+  // Keep alive for 5 minutes to avoid re-fetching
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 5), () => link.close());
+  
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getItemDetails(itemId);
 });
 
-/// Provider for album tracks
+/// Provider for album tracks - cached for 5 minutes
 final albumTracksProvider = FutureProvider.family<List<MediaItem>, String>((ref, albumId) async {
+  // Keep alive for 5 minutes to avoid re-fetching
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 5), () => link.close());
+  
   final mediaService = ref.watch(mediaServiceProvider);
   return mediaService.getAlbumTracks(albumId);
 });
