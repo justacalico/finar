@@ -321,6 +321,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   activeIcon: Icons.settings,
                   label: 'Settings',
                   index: 100,
+                  focusIndex: 100, // Settings always at high index
                   onTap: () {
                     Navigator.push(
                       context,
