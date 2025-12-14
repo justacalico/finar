@@ -30,7 +30,7 @@ A beautiful, modern multi-platform Jellyfin client built with Flutter.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/finar.git
+   git clone https://github.com/openlyst/finar.git
    cd finar
    ```
 
