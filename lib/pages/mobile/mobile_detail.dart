@@ -487,64 +487,6 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     }
   }
 
-  Widget _buildDownloadButton(MediaItem item) {
-    final downloadTask = ref.watch(downloadTaskProvider(item.id));
-    
-    if (downloadTask == null) {
-      return GlassIconButton(
-        icon: Icons.download_outlined,
-        onPressed: () => _downloadItem(item),
-      );
-    }
-    
-    switch (downloadTask.status) {
-      case DownloadStatus.downloading:
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: CircularProgressIndicator(
-                value: downloadTask.progress,
-                strokeWidth: 2,
-                backgroundColor: AppColors.divider,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-              ),
-            ),
-            GlassIconButton(
-              icon: Icons.pause,
-              size: 36,
-              onPressed: () => ref.read(downloadProvider.notifier).pauseDownload(downloadTask.id),
-            ),
-          ],
-        );
-      case DownloadStatus.paused:
-        return GlassIconButton(
-          icon: Icons.play_arrow,
-          iconColor: AppColors.accentYellow,
-          onPressed: () => ref.read(downloadProvider.notifier).resumeDownload(downloadTask.id),
-        );
-      case DownloadStatus.completed:
-        return GlassIconButton(
-          icon: Icons.download_done,
-          iconColor: AppColors.success,
-          onPressed: () => _downloadItem(item),
-        );
-      case DownloadStatus.failed:
-        return GlassIconButton(
-          icon: Icons.refresh,
-          iconColor: AppColors.error,
-          onPressed: () => ref.read(downloadProvider.notifier).resumeDownload(downloadTask.id),
-        );
-      default:
-        return GlassIconButton(
-          icon: Icons.hourglass_empty,
-          onPressed: () => _downloadItem(item),
-        );
-    }
-  }
-
   Widget _buildEpisodesSection(MediaItem item, String serverUrl) {
     final seasonsAsync = ref.watch(seasonsProvider(item.id));
 
