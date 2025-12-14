@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/jellyfin_api.dart';
 import '../core/api/auth_service.dart';
@@ -13,6 +15,68 @@ final authServiceProvider = Provider<AuthService>((ref) {
   final api = ref.watch(jellyfinApiProvider);
   return AuthService(api);
 });
+
+/// Helper to convert exceptions to user-friendly messages
+String _getErrorMessage(dynamic error) {
+  if (kDebugMode) {
+    print('Auth error: $error');
+  }
+  
+  if (error is DioException) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'Connection timed out. Please check your server URL and network connection.';
+      case DioExceptionType.connectionError:
+        return 'Could not connect to server. Please check the URL and ensure the server is running.';
+      case DioExceptionType.badResponse:
+        final statusCode = error.response?.statusCode;
+        if (statusCode == 401) {
+          return 'Invalid username or password.';
+        } else if (statusCode == 403) {
+          return 'Access denied. Your account may be disabled.';
+        } else if (statusCode == 404) {
+          return 'Server not found. Please check the URL.';
+        } else if (statusCode != null && statusCode >= 500) {
+          return 'Server error. Please try again later.';
+        }
+        return 'Server returned an error (${statusCode ?? 'unknown'}).';
+      case DioExceptionType.cancel:
+        return 'Request was cancelled.';
+      case DioExceptionType.unknown:
+        if (error.error.toString().contains('XMLHttpRequest')) {
+          return 'Network request blocked. This may be a CORS issue - the server may need to allow requests from this origin.';
+        }
+        if (error.error.toString().contains('SocketException') ||
+            error.error.toString().contains('Connection refused')) {
+          return 'Could not connect to server. Please verify the server is running and accessible.';
+        }
+        return 'Network error. Please check your connection.';
+      default:
+        return 'Connection error. Please try again.';
+    }
+  }
+  
+  final errorString = error.toString().toLowerCase();
+  if (errorString.contains('socketexception') || 
+      errorString.contains('connection refused')) {
+    return 'Could not connect to server. Please check the URL.';
+  }
+  if (errorString.contains('handshake') || 
+      errorString.contains('certificate')) {
+    return 'SSL/TLS error. The server certificate may be invalid.';
+  }
+  if (errorString.contains('timeout')) {
+    return 'Connection timed out. Please try again.';
+  }
+  if (errorString.contains('cors') || 
+      errorString.contains('xmlhttprequest')) {
+    return 'Cross-origin request blocked. Please check server CORS settings.';
+  }
+  
+  return 'An error occurred. Please try again.';
+}
 
 /// Auth state notifier
 class AuthNotifier extends StateNotifier<AuthState> {
