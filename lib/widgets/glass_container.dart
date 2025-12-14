@@ -255,7 +255,7 @@ class _GlassButtonState extends State<GlassButton> {
   }
 }
 
-/// A glass icon button
+/// A glass icon button with focus support for controller/keyboard navigation
 class GlassIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onPressed;
@@ -266,6 +266,8 @@ class GlassIconButton extends StatefulWidget {
   final Color? iconColor;
   final Color? backgroundColor;
   final bool isActive;
+  final bool autofocus;
+  final FocusNode? focusNode;
 
   const GlassIconButton({
     super.key,
@@ -278,6 +280,8 @@ class GlassIconButton extends StatefulWidget {
     this.iconColor,
     this.backgroundColor,
     this.isActive = false,
+    this.autofocus = false,
+    this.focusNode,
   });
 
   @override
@@ -286,40 +290,121 @@ class GlassIconButton extends StatefulWidget {
 
 class _GlassIconButtonState extends State<GlassIconButton> {
   bool _isPressed = false;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+      if (_isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    if (action == ControllerAction.select && widget.onPressed != null) {
+      setState(() => _isPressed = true);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() => _isPressed = false);
+          widget.onPressed?.call();
+        }
+      });
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onPressed != null 
-          ? (_) => setState(() => _isPressed = true) 
-          : null,
-      onTapUp: widget.onPressed != null 
-          ? (_) => setState(() => _isPressed = false) 
-          : null,
-      onTapCancel: widget.onPressed != null 
-          ? () => setState(() => _isPressed = false) 
-          : null,
-      onTap: widget.onPressed,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.9 : 1.0,
-        duration: AppTheme.durationFast,
-        curve: AppTheme.curveSmooth,
-        child: GlassContainer(
-          width: widget.size,
-          height: widget.size,
-          blur: widget.blur,
-          opacity: widget.isActive ? widget.opacity * 2 : widget.opacity,
-          borderRadius: widget.size / 2,
-          color: widget.isActive 
-              ? AppColors.primary 
-              : widget.backgroundColor ?? AppColors.white,
-          showBorder: !widget.isActive,
-          child: Center(
-            child: Icon(
-              widget.icon,
-              size: widget.iconSize,
-              color: widget.iconColor ?? 
-                  (widget.isActive ? AppColors.black : AppColors.textPrimary),
+    final isHighlighted = _isFocused || widget.isActive;
+    
+    return Focus(
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTapDown: widget.onPressed != null 
+            ? (_) => setState(() => _isPressed = true) 
+            : null,
+        onTapUp: widget.onPressed != null 
+            ? (_) => setState(() => _isPressed = false) 
+            : null,
+        onTapCancel: widget.onPressed != null 
+            ? () => setState(() => _isPressed = false) 
+            : null,
+        onTap: widget.onPressed,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.9 : 1.0,
+          duration: AppTheme.durationFast,
+          curve: AppTheme.curveSmooth,
+          child: AnimatedContainer(
+            duration: AppTheme.durationFast,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: _isFocused
+                  ? Border.all(color: AppColors.primary, width: 2)
+                  : null,
+              boxShadow: _isFocused
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: GlassContainer(
+              width: widget.size,
+              height: widget.size,
+              blur: widget.blur,
+              opacity: isHighlighted ? widget.opacity * 2 : widget.opacity,
+              borderRadius: widget.size / 2,
+              color: widget.isActive 
+                  ? AppColors.primary 
+                  : widget.backgroundColor ?? AppColors.white,
+              showBorder: !widget.isActive && !_isFocused,
+              child: Center(
+                child: Icon(
+                  widget.icon,
+                  size: widget.iconSize,
+                  color: _isFocused 
+                      ? AppColors.primary
+                      : (widget.iconColor ?? 
+                          (widget.isActive ? AppColors.black : AppColors.textPrimary)),
+                ),
+              ),
             ),
           ),
         ),
