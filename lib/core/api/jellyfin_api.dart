@@ -546,6 +546,50 @@ class JellyfinApi {
     return result.items;
   }
 
+  /// Get all artists from a music library
+  Future<ItemsResult> getArtists({
+    String? parentId,
+    int? startIndex,
+    int? limit,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    return await getItems(
+      parentId: parentId,
+      includeItemTypes: ['MusicArtist'],
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      recursive: true,
+      fields: ['Overview', 'PrimaryImageAspectRatio'],
+      searchTerm: searchTerm,
+    );
+  }
+
+  /// Get all tracks from a music library
+  Future<ItemsResult> getTracks({
+    String? parentId,
+    int? startIndex,
+    int? limit,
+    String sortBy = 'SortName',
+    String sortOrder = 'Ascending',
+    String? searchTerm,
+  }) async {
+    return await getItems(
+      parentId: parentId,
+      includeItemTypes: ['Audio'],
+      startIndex: startIndex,
+      limit: limit,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      recursive: true,
+      fields: ['MediaSources', 'Artists', 'AlbumArtist', 'Album'],
+      searchTerm: searchTerm,
+    );
+  }
+
   /// Search for items
   Future<List<SearchHint>> search(String query, {int limit = 20}) async {
     final response = await _dio.get(
