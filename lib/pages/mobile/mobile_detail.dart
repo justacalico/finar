@@ -1393,6 +1393,23 @@ class _LiquidGlassMenu extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Watchlist
+                    _LiquidGlassMenuItem(
+                      icon: isInWatchlist
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
+                      iconColor: isInWatchlist
+                          ? AppColors.accentYellow
+                          : AppColors.white,
+                      label: isInWatchlist
+                          ? 'Remove from Watchlist'
+                          : 'Add to Watchlist',
+                      onTap: () {
+                        Navigator.pop(context);
+                        onWatchlist();
+                      },
+                    ),
+                    _buildDivider(),
                     // Favorite
                     _LiquidGlassMenuItem(
                       icon: (item.isFavorite == true)
