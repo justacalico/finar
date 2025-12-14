@@ -139,9 +139,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       
       // Connect to server first if URL provided
       if (serverUrl != null && serverUrl.isNotEmpty) {
-        final connected = await _authService.connectToServer(serverUrl);
-        if (!connected) {
-          state = const AuthState.error('Failed to connect to server');
+        try {
+          final connected = await _authService.connectToServer(serverUrl);
+          if (!connected) {
+            state = const AuthState.error('Could not connect to server. Please check the URL and ensure the server is running.');
+            return false;
+          }
+        } catch (e) {
+          state = AuthState.error(_getErrorMessage(e));
           return false;
         }
       }
@@ -153,7 +158,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.authenticated(user: result.user);
       return true;
     } catch (e) {
-      state = AuthState.error(e.toString());
+      state = AuthState.error(_getErrorMessage(e));
       return false;
     }
   }
