@@ -88,6 +88,11 @@ class _TvHomeState extends ConsumerState<TvHome> {
       }
     }
     selectedItem ??= libraryState.featuredItem;
+    
+    final showMiniPlayer = ref.watch(showMiniPlayerProvider);
+    final playerState = ref.watch(playerProvider);
+    final isMusic = playerState.currentItem?.type.name == 'audio' || 
+                    playerState.currentItem?.type.name == 'album';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -101,15 +106,25 @@ class _TvHomeState extends ConsumerState<TvHome> {
               _buildBackground(selectedItem, serverUrl),
 
             // Main content
-            Row(
+            Column(
               children: [
-                // Sidebar navigation
-                _buildSidebar(),
-
-                // Content area
                 Expanded(
-                  child: _buildContent(libraryState, serverUrl),
+                  child: Row(
+                    children: [
+                      // Sidebar navigation
+                      _buildSidebar(),
+
+                      // Content area
+                      Expanded(
+                        child: _buildContent(libraryState, serverUrl),
+                      ),
+                    ],
+                  ),
                 ),
+                
+                // Music player bar at bottom
+                if (showMiniPlayer && isMusic)
+                  const DesktopMusicPlayerBar(isTV: true),
               ],
             ),
           ],
