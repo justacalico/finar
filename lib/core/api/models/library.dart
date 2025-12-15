@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import '../../utils/web_image_proxy.dart';
 
 part 'library.g.dart';
 
@@ -75,8 +74,7 @@ class Library {
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     params.add('tag=$primaryImageTag');
-    final url = '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
-    return proxyImageUrl(url);
+    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
   }
 
   String getBackdropUrl(String baseUrl, {int? width}) {
@@ -84,8 +82,7 @@ class Library {
     final params = <String>[];
     if (width != null) params.add('maxWidth=$width');
     params.add('tag=$backdropImageTag');
-    final url = '$baseUrl/Items/$id/Images/Backdrop?${params.join('&')}';
-    return proxyImageUrl(url);
+    return '$baseUrl/Items/$id/Images/Backdrop?${params.join('&')}';
   }
 
   /// Get the icon for this library type
@@ -287,8 +284,7 @@ class SearchHint {
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     params.add('tag=$primaryImageTag');
-    final url = '$baseUrl/Items/$itemId/Images/Primary?${params.join('&')}';
-    return proxyImageUrl(url);
+    return '$baseUrl/Items/$itemId/Images/Primary?${params.join('&')}';
   }
 }
 
@@ -318,7 +314,6 @@ class GenreInfo {
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     params.add('tag=$primaryImageTag');
-    final url = '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
-    return proxyImageUrl(url);
+    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
   }
 }
