@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import '../../utils/web_image_proxy.dart';
 
 part 'media_item.g.dart';
 
@@ -394,7 +395,8 @@ class MediaItem {
     if (quality != null) params.add('quality=$quality');
     params.add('tag=$tag');
     
-    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    final url = '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    return proxyImageUrl(url);
   }
 
   /// Get backdrop image URL
@@ -416,7 +418,8 @@ class MediaItem {
     if (quality != null) params.add('quality=$quality');
     params.add('tag=$tag');
     
-    return '$baseUrl/Items/$itemId/Images/Backdrop/$index?${params.join('&')}';
+    final url = '$baseUrl/Items/$itemId/Images/Backdrop/$index?${params.join('&')}';
+    return proxyImageUrl(url);
   }
 
   /// Get thumb image URL
