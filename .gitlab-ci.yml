@@ -437,8 +437,8 @@ build_web:
         VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
       fi
       echo "Building Web version $VERSION"
-    # Build web release with CanvasKit renderer for better performance
-    - flutter build web --release --web-renderer canvaskit --build-name=$VERSION --build-number=$CI_PIPELINE_ID
+    # Build web release (CanvasKit is the default renderer in Flutter 3.38+)
+    - flutter build web --release --build-name=$VERSION --build-number=$CI_PIPELINE_ID
     # Create zip archive of the web build
     - cd build
     - zip -r $CI_PROJECT_DIR/finar-$VERSION-web.zip web/
