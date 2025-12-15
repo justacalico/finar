@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import '../../utils/web_image_proxy.dart';
 
 part 'library.g.dart';
 
@@ -74,7 +75,8 @@ class Library {
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     params.add('tag=$primaryImageTag');
-    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    final url = '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    return proxyImageUrl(url);
   }
 
   String getBackdropUrl(String baseUrl, {int? width}) {
@@ -82,7 +84,8 @@ class Library {
     final params = <String>[];
     if (width != null) params.add('maxWidth=$width');
     params.add('tag=$backdropImageTag');
-    return '$baseUrl/Items/$id/Images/Backdrop?${params.join('&')}';
+    final url = '$baseUrl/Items/$id/Images/Backdrop?${params.join('&')}';
+    return proxyImageUrl(url);
   }
 
   /// Get the icon for this library type
