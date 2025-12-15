@@ -3,14 +3,11 @@ FROM ghcr.io/cirruslabs/flutter:stable AS builder
 
 WORKDIR /app
 
-# Copy pubspec files first for better caching
-COPY pubspec.yaml pubspec.lock ./
+# Copy the entire project
+COPY . .
 
 # Get dependencies
 RUN flutter pub get --no-precompile
-
-# Copy the rest of the source code
-COPY . .
 
 # Run build_runner for code generation
 RUN dart run build_runner build --delete-conflicting-outputs
