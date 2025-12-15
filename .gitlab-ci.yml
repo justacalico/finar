@@ -11,6 +11,7 @@ stages:
   - build
   - build-linux
   - build-web
+  - build-docker
 
 variables:
   PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
