@@ -82,7 +82,8 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
 
   /// Verify we can actually reach the internet by attempting a connection
   Future<void> _verifyInternetAccess() async {
-    if (!state.hasNetworkConnection) {
+    // On web, connectivity_plus may not report correctly, so we always verify
+    if (!kIsWeb && !state.hasNetworkConnection) {
       state = state.copyWith(isOnline: false, isChecking: false);
       return;
     }
@@ -90,22 +91,18 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
     state = state.copyWith(isChecking: true);
 
     try {
-      // Try to look up a reliable host
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
+      // Use HTTP request which works on all platforms including web
+      final response = await http.head(
+        Uri.parse('https://www.google.com'),
+      ).timeout(const Duration(seconds: 5));
       
-      final hasInternet = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+      final hasInternet = response.statusCode == 200;
       
       if (kDebugMode) {
         print('Internet access verified: $hasInternet');
       }
       
       state = state.copyWith(isOnline: hasInternet, isChecking: false);
-    } on SocketException catch (_) {
-      if (kDebugMode) {
-        print('No internet access (SocketException)');
-      }
-      state = state.copyWith(isOnline: false, isChecking: false);
     } on TimeoutException catch (_) {
       if (kDebugMode) {
         print('No internet access (Timeout)');
