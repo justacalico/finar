@@ -615,7 +615,8 @@ class PersonInfo {
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     params.add('tag=$primaryImageTag');
-    return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    final url = '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+    return proxyImageUrl(url);
   }
 }
 
