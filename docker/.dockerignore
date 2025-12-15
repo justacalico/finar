@@ -1,0 +1,39 @@
+# Build outputs
+build/
+.dart_tool/
+.packages
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.gitlab-ci.yml
+
+# Android/iOS builds (not needed for web)
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+
+# Test files
+test/
+integration_test/
+
+# Documentation
+*.md
+!README.md
+
+# Other platforms (not needed for web Docker)
+linux/
+macos/
+windows/
