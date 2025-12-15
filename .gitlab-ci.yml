@@ -450,3 +450,58 @@ build_web:
       - finar-*-web.zip
     expire_in: never
   timeout: 1h
+
+# Build Docker image for web deployment
+build_docker:
+  stage: build-docker
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - linux
+  allow_failure: true
+  needs:
+    - job: build_web
+      artifacts: true
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    # GitLab Container Registry
+    CI_REGISTRY_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
+  before_script:
+    - docker info
+    # Login to GitLab Container Registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    # Extract version
+    - |
+      if [[ -n "$CI_COMMIT_TAG" && "$CI_COMMIT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+        VERSION=${CI_COMMIT_TAG#v}
+      else
+        VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
+      fi
+      echo "Building Docker image version $VERSION"
+    # Build Docker image using pre-built web assets
+    - |
+      cat > Dockerfile.ci << 'EOF'
+      FROM nginx:alpine
+      RUN apk add --no-cache gettext
+      COPY build/web /usr/share/nginx/html
+      COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
+      COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+      RUN chmod +x /docker-entrypoint.sh
+      EXPOSE 80
+      HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+        CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+      ENTRYPOINT ["/docker-entrypoint.sh"]
+      CMD ["nginx", "-g", "daemon off;"]
+      EOF
+    - docker build -f Dockerfile.ci -t $CI_REGISTRY_IMAGE:$VERSION -t $CI_REGISTRY_IMAGE:latest .
+    # Push to registry
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
+    - docker push $CI_REGISTRY_IMAGE:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  timeout: 30m
