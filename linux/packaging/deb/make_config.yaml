@@ -1,6 +1,8 @@
 display_name: Finar
 package_name: finar
-maintainer: Openlyst <contact@openlyst.com>
+maintainer:
+  name: Openlyst
+  email: contact@openlyst.com
 description: A beautiful multi-platform Jellyfin client
 icon: linux/icons/app_icon.png
 keywords:
