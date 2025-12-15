@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart' as http;
 
 /// Connectivity state
 class ConnectivityState {
@@ -48,6 +47,12 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   }
 
   void _init() {
+    // On web, skip all connectivity checks - just assume online
+    if (kIsWeb) {
+      state = state.copyWith(isOnline: true, isChecking: false);
+      return;
+    }
+
     // Check initial connectivity
     _checkConnectivity();
 
@@ -68,6 +73,12 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   }
 
   Future<void> _checkConnectivity() async {
+    // Skip on web
+    if (kIsWeb) {
+      state = state.copyWith(isOnline: true, isChecking: false);
+      return;
+    }
+
     try {
       final results = await _connectivity.checkConnectivity();
       state = state.copyWith(connectivityResults: results);
@@ -82,38 +93,19 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
 
   /// Verify we can actually reach the internet by attempting a connection
   Future<void> _verifyInternetAccess() async {
-    // On web, connectivity_plus may not report correctly, so we always verify
-    if (!kIsWeb && !state.hasNetworkConnection) {
+    // Skip on web - always assume online
+    if (kIsWeb) {
+      state = state.copyWith(isOnline: true, isChecking: false);
+      return;
+    }
+
+    if (!state.hasNetworkConnection) {
       state = state.copyWith(isOnline: false, isChecking: false);
       return;
     }
 
-    state = state.copyWith(isChecking: true);
-
-    try {
-      // Use HTTP request which works on all platforms including web
-      final response = await http.head(
-        Uri.parse('https://www.google.com'),
-      ).timeout(const Duration(seconds: 5));
-      
-      final hasInternet = response.statusCode == 200;
-      
-      if (kDebugMode) {
-        print('Internet access verified: $hasInternet');
-      }
-      
-      state = state.copyWith(isOnline: hasInternet, isChecking: false);
-    } on TimeoutException catch (_) {
-      if (kDebugMode) {
-        print('No internet access (Timeout)');
-      }
-      state = state.copyWith(isOnline: false, isChecking: false);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error verifying internet: $e');
-      }
-      state = state.copyWith(isOnline: false, isChecking: false);
-    }
+    // For native platforms, just trust connectivity_plus results
+    state = state.copyWith(isOnline: state.hasNetworkConnection, isChecking: false);
   }
 
   /// Manually refresh connectivity status
