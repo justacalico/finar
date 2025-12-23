@@ -185,59 +185,66 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
       top: 0,
       left: 0,
       right: 0,
-      child: AnimatedSlide(
-        offset: _controlsVisible ? Offset.zero : const Offset(0, -1),
-        duration: AppTheme.durationNormal,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Back button
-                GlassIconButton(
-                  icon: Icons.arrow_back,
-                  onPressed: _onBack,
-                ),
+      child: IgnorePointer(
+        ignoring: !_controlsVisible,
+        child: AnimatedOpacity(
+          opacity: _controlsVisible ? 1.0 : 0.0,
+          duration: AppTheme.durationFast,
+          child: AnimatedSlide(
+            offset: _controlsVisible ? Offset.zero : const Offset(0, -1),
+            duration: AppTheme.durationNormal,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    // Back button
+                    GlassIconButton(
+                      icon: Icons.arrow_back,
+                      onPressed: _onBack,
+                    ),
 
-                const SizedBox(width: 16),
+                    const SizedBox(width: 16),
 
-                // Title
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        state.currentItem?.name ?? 'Now Playing',
-                        style: AppTextStyles.titleLarge,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (state.currentItem?.seriesName != null)
-                        Text(
-                          '${state.currentItem!.seriesName} • S${state.currentItem!.parentIndexNumber}E${state.currentItem!.indexNumber}',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
+                    // Title
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.currentItem?.name ?? 'Now Playing',
+                            style: AppTextStyles.titleLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                    ],
-                  ),
-                ),
+                          if (state.currentItem?.seriesName != null)
+                            Text(
+                              '${state.currentItem!.seriesName} • S${state.currentItem!.parentIndexNumber}E${state.currentItem!.indexNumber}',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
 
-                // Pip button
-                GlassIconButton(
-                  icon: Icons.picture_in_picture_alt,
-                  onPressed: _togglePip,
-                ),
+                    // Pip button
+                    GlassIconButton(
+                      icon: Icons.picture_in_picture_alt,
+                      onPressed: _togglePip,
+                    ),
 
-                const SizedBox(width: 8),
+                    const SizedBox(width: 8),
 
-                // Fullscreen button
-                GlassIconButton(
-                  icon:
-                      _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                  onPressed: _toggleFullscreen,
+                    // Fullscreen button
+                    GlassIconButton(
+                      icon:
+                          _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                      onPressed: _toggleFullscreen,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
