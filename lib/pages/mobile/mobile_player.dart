@@ -519,10 +519,10 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
           secondaryActiveTrackColor: AppColors.primary.withValues(alpha: 0.3),
         ),
         child: Slider(
-          value: position.inMilliseconds.toDouble(),
+          value: position.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
           min: 0,
           max: duration.inMilliseconds.toDouble().clamp(1, double.infinity),
-          secondaryTrackValue: state.bufferedPosition.inMilliseconds.toDouble(),
+          secondaryTrackValue: state.bufferedPosition.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
           onChanged: (value) {
             ref
                 .read(playerProvider.notifier)
