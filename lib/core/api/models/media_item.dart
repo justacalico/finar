@@ -223,6 +223,12 @@ class MediaItem {
   @HiveField(43)
   final String? playlistItemId;
 
+  @HiveField(44)
+  final int? localTrailerCount;
+
+  @HiveField(45)
+  final List<TrailerInfo>? remoteTrailers;
+
   const MediaItem({
     required this.id,
     required this.name,
@@ -268,6 +274,8 @@ class MediaItem {
     this.album,
     this.albumId,
     this.playlistItemId,
+    this.localTrailerCount,
+    this.remoteTrailers,
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) {
@@ -332,6 +340,10 @@ class MediaItem {
       album: json['Album'] as String?,
       albumId: json['AlbumId'] as String?,
       playlistItemId: json['PlaylistItemId'] as String?,
+      localTrailerCount: _parseInt(json['LocalTrailerCount']),
+      remoteTrailers: (json['RemoteTrailers'] as List<dynamic>?)
+          ?.map((e) => TrailerInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -496,10 +508,10 @@ class MediaItem {
   /// Get logo image tag
   String? get logoImageTag => imageTags?.logo;
 
-  /// Check if item has a trailer (simplified - Jellyfin doesn't always provide this)
+  /// Check if item has a trailer
   bool get hasTrailer {
-    // Note: This would require checking LocalTrailerCount from the API
-    return false;
+    return (localTrailerCount != null && localTrailerCount! > 0) ||
+           (remoteTrailers != null && remoteTrailers!.isNotEmpty);
   }
 
   /// Get taglines (from overview or empty)
@@ -995,4 +1007,29 @@ class MediaSourceInfo {
   /// Get subtitle streams
   List<MediaStream> get subtitleStreams =>
       mediaStreams?.where((s) => s.isSubtitle).toList() ?? [];
+}
+
+/// Remote trailer info
+class TrailerInfo {
+  final String? url;
+  final String? name;
+
+  const TrailerInfo({
+    this.url,
+    this.name,
+  });
+
+  factory TrailerInfo.fromJson(Map<String, dynamic> json) {
+    return TrailerInfo(
+      url: json['Url'] as String?,
+      name: json['Name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Url': url,
+      'Name': name,
+    };
+  }
 }
