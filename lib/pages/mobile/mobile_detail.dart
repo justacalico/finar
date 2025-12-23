@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -1301,7 +1302,39 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   void _shareItem(MediaItem item) {
-    // TODO: Implement share
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    
+    // Build share text
+    final StringBuffer shareText = StringBuffer();
+    shareText.write(item.name);
+    
+    if (item.productionYear != null) {
+      shareText.write(' (${item.productionYear})');
+    }
+    
+    if (item.overview != null && item.overview!.isNotEmpty) {
+      // Truncate overview if too long
+      final overview = item.overview!.length > 200 
+          ? '${item.overview!.substring(0, 200)}...'
+          : item.overview!;
+      shareText.write('\n\n$overview');
+    }
+    
+    if (item.communityRating != null) {
+      shareText.write('\n\n⭐ ${item.communityRating!.toStringAsFixed(1)}');
+    }
+    
+    if (item.genres?.isNotEmpty == true) {
+      shareText.write('\n🎬 ${item.genres!.take(3).join(', ')}');
+    }
+    
+    // Add a note about Finar
+    shareText.write('\n\nShared via Finar');
+    
+    Share.share(
+      shareText.toString(),
+      subject: item.name,
+    );
   }
 }
 
