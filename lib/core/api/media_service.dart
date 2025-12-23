@@ -131,6 +131,11 @@ class MediaService {
     return nextUpList.isNotEmpty ? nextUpList.first : null;
   }
 
+  /// Get local trailers for an item
+  Future<List<MediaItem>> getLocalTrailers(String itemId) async {
+    return await _api.getLocalTrailers(itemId);
+  }
+
   /// Get season episodes
   Future<List<MediaItem>> getSeasonEpisodes(
     String seriesId,
