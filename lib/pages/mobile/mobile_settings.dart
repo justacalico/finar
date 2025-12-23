@@ -304,8 +304,9 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                 )
                 .toList(),
             onChanged: (v) {
-              if (v != null)
+              if (v != null) {
                 ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
+              }
             },
           ),
         ],
@@ -339,8 +340,9 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                 )
                 .toList(),
             onChanged: (v) {
-              if (v != null)
+              if (v != null) {
                 ref.read(settingsProvider.notifier).setSubtitleLanguage(v);
+              }
             },
           ),
         ],
@@ -366,8 +368,9 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                 )
                 .toList(),
             onChanged: (v) {
-              if (v != null)
+              if (v != null) {
                 ref.read(settingsProvider.notifier).setAudioLanguage(v);
+              }
             },
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
