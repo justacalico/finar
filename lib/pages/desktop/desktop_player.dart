@@ -96,10 +96,16 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               children: [
                 // Video
                 Center(
-                  child: Video(
-                    controller: videoController,
-                    controls: noVideoControls,
-                    fit: BoxFit.contain,
+                  child: RepaintBoundary(
+                    child: Video(
+                      controller: videoController,
+                      controls: noVideoControls,
+                      fit: BoxFit.contain,
+                      // Optimize texture filtering for performance
+                      filterQuality: FilterQuality.medium,
+                      // Keep screen awake during playback
+                      wakelock: true,
+                    ),
                   ),
                 ),
 
