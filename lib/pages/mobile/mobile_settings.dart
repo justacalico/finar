@@ -561,7 +561,7 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
       ),
       value: value,
       onChanged: onChanged,
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
       activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
       inactiveThumbColor: AppColors.textSecondary,
       inactiveTrackColor: AppColors.divider.withValues(alpha: 0.3),
