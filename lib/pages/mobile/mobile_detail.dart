@@ -1085,6 +1085,44 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     }
   }
 
+  /// Play a downloaded item from local file
+  Future<void> _playDownloadedItem(DownloadTask task) async {
+    if (task.localPath == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Download file not found')),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Fetch the MediaItem details
+      final mediaService = ref.read(mediaServiceProvider);
+      final item = await mediaService.getItem(task.itemId);
+
+      // Play from local file
+      ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
+
+      // Navigate to player for video content
+      final isMusic = item.type == MediaType.audio ||
+          item.type == MediaType.album ||
+          item.type == MediaType.musicVideo;
+
+      if (!isMusic && mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const MobilePlayer()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play: $e')),
+        );
+      }
+    }
+  }
+
   void _showDownloadOptions(DownloadTask task) {
     showModalBottomSheet(
       context: context,
@@ -1435,6 +1473,44 @@ class _DownloadTile extends ConsumerWidget {
         return AppColors.accentYellow;
       default:
         return AppColors.textSecondary;
+    }
+  }
+
+  /// Play a downloaded item from local file
+  Future<void> _playDownloadedTask(
+    BuildContext context,
+    WidgetRef ref,
+    DownloadTask task,
+  ) async {
+    if (task.localPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Download file not found')),
+      );
+      return;
+    }
+
+    try {
+      // Fetch the MediaItem details
+      final mediaService = ref.read(mediaServiceProvider);
+      final item = await mediaService.getItem(task.itemId);
+
+      // Play from local file
+      ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
+
+      // Navigate to player for video content
+      final isMusic = item.type == MediaType.audio ||
+          item.type == MediaType.album ||
+          item.type == MediaType.musicVideo;
+
+      if (!isMusic) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const MobilePlayer()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to play: $e')),
+      );
     }
   }
 }
