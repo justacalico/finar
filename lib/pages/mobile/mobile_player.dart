@@ -109,6 +109,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
 
   @override
   void dispose() {
+    _resetBrightness();
     _exitFullscreen();
     super.dispose();
   }
