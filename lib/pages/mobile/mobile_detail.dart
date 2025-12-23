@@ -1489,6 +1489,10 @@ class _DownloadTile extends ConsumerWidget {
       return;
     }
 
+    // Capture references before async gap
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       // Fetch the MediaItem details
       final mediaService = ref.read(mediaServiceProvider);
@@ -1503,12 +1507,12 @@ class _DownloadTile extends ConsumerWidget {
           item.type == MediaType.musicVideo;
 
       if (!isMusic) {
-        Navigator.of(context).push(
+        navigator.push(
           MaterialPageRoute(builder: (_) => const MobilePlayer()),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Failed to play: $e')),
       );
     }
