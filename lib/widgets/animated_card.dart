@@ -25,6 +25,7 @@ class AnimatedCard extends StatefulWidget {
   final double? height;
   final bool autofocus;
   final FocusNode? focusNode;
+  final bool isWatched;
 
   const AnimatedCard({
     super.key,
@@ -44,6 +45,7 @@ class AnimatedCard extends StatefulWidget {
     this.height,
     this.autofocus = false,
     this.focusNode,
+    this.isWatched = false,
   });
 
   @override
