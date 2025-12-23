@@ -346,6 +346,19 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
         await _player.open(Media(streamInfo.url));
 
+        // Seek to start position if provided (for direct play, server may not handle start time)
+        if (startPositionTicks != null && startPositionTicks > 0) {
+          final startPosition = Duration(
+            microseconds: startPositionTicks ~/ 10,
+          );
+          // Wait briefly for player to initialize, then seek
+          await Future.delayed(const Duration(milliseconds: 300));
+          await _player.seek(startPosition);
+          if (kDebugMode) {
+            print('Seeking to resume position: $startPosition');
+          }
+        }
+
         // Report playback started
         await _mediaService.reportPlaybackStarted(
           item.id,
