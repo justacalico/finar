@@ -253,39 +253,42 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
   }
 
   Widget _buildCenterControls(PlayerState state) {
-    return AnimatedOpacity(
-      opacity: _controlsVisible ? 1.0 : 0.0,
-      duration: AppTheme.durationFast,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Rewind 10s
-            _buildCenterButton(
-              icon: Icons.replay_10,
-              onPressed: () => _seek(-10),
-              size: 48,
-            ),
+    return IgnorePointer(
+      ignoring: !_controlsVisible,
+      child: AnimatedOpacity(
+        opacity: _controlsVisible ? 1.0 : 0.0,
+        duration: AppTheme.durationFast,
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Rewind 10s
+              _buildCenterButton(
+                icon: Icons.replay_10,
+                onPressed: () => _seek(-10),
+                size: 48,
+              ),
 
-            const SizedBox(width: 32),
+              const SizedBox(width: 32),
 
-            // Play/Pause
-            _buildCenterButton(
-              icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
-              onPressed: _togglePlayPause,
-              size: 72,
-              isPrimary: true,
-            ),
+              // Play/Pause
+              _buildCenterButton(
+                icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
+                onPressed: _togglePlayPause,
+                size: 72,
+                isPrimary: true,
+              ),
 
-            const SizedBox(width: 32),
+              const SizedBox(width: 32),
 
-            // Forward 10s
-            _buildCenterButton(
-              icon: Icons.forward_10,
-              onPressed: () => _seek(10),
-              size: 48,
-            ),
-          ],
+              // Forward 10s
+              _buildCenterButton(
+                icon: Icons.forward_10,
+                onPressed: () => _seek(10),
+                size: 48,
+              ),
+            ],
+          ),
         ),
       ),
     );
