@@ -1125,6 +1125,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                         title: item.name,
                         subtitle: _getItemSubtitle(item),
                         animationIndex: index,
+                        isWatched: item.isPlayed == true,
                         onTap: () => _navigateToDetail(item),
                       ),
                     );
@@ -1204,6 +1205,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   title: item.name,
                   subtitle: _getItemSubtitle(item),
                   animationIndex: index,
+                  isWatched: item.isPlayed == true,
                   onTap: () => _navigateToDetail(item),
                 );
               },
