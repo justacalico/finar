@@ -275,10 +275,20 @@ class JellyfinApi {
     final response = await _dio.get(
       '/Users/$_userId/Items/$itemId',
       queryParameters: {
-        'Fields': 'Overview,People,Genres,MediaStreams,Chapters,Path,MediaSources',
+        'Fields': 'Overview,People,Genres,MediaStreams,Chapters,Path,MediaSources,LocalTrailerCount,RemoteTrailers',
       },
     );
     return MediaItem.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Get local trailers for an item
+  Future<List<MediaItem>> getLocalTrailers(String itemId) async {
+    final response = await _dio.get(
+      '/Users/$_userId/Items/$itemId/LocalTrailers',
+    );
+    return (response.data as List<dynamic>)
+        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Get similar items
