@@ -854,6 +854,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     final isLoading = ref.watch(libraryProvider).isLoading;
 
+    // Group results by type
+    final groupedResults = _groupMediaByType(searchResults);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -901,33 +904,205 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   )
                 : searchResults.isEmpty
                 ? _buildEmptySearch()
-                : GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 6,
-                          childAspectRatio: 2 / 3.2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                    itemCount: searchResults.length,
-                    itemBuilder: (context, index) {
-                      final item = searchResults[index];
-                      return AnimatedCard(
+                : _buildGroupedMediaGrid(groupedResults, serverUrl),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Groups media items by their type for organized display
+  Map<String, List<MediaItem>> _groupMediaByType(List<MediaItem> items) {
+    final Map<String, List<MediaItem>> grouped = {};
+
+    for (final item in items) {
+      final category = _getMediaCategory(item.type);
+      grouped.putIfAbsent(category, () => []);
+      grouped[category]!.add(item);
+    }
+
+    // Sort each category by name
+    for (final category in grouped.keys) {
+      grouped[category]!.sort((a, b) => a.name.compareTo(b.name));
+    }
+
+    return grouped;
+  }
+
+  /// Returns a user-friendly category name for the media type
+  String _getMediaCategory(MediaType type) {
+    switch (type) {
+      case MediaType.movie:
+        return 'Movies';
+      case MediaType.series:
+        return 'TV Shows';
+      case MediaType.episode:
+        return 'Episodes';
+      case MediaType.season:
+        return 'Seasons';
+      case MediaType.audio:
+      case MediaType.album:
+      case MediaType.artist:
+      case MediaType.musicVideo:
+        return 'Music';
+      case MediaType.playlist:
+        return 'Playlists';
+      case MediaType.boxSet:
+        return 'Collections';
+      default:
+        return 'Other';
+    }
+  }
+
+  /// Returns an icon for the media category
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Movies':
+        return Icons.movie_outlined;
+      case 'TV Shows':
+        return Icons.tv_outlined;
+      case 'Episodes':
+        return Icons.video_library_outlined;
+      case 'Seasons':
+        return Icons.folder_outlined;
+      case 'Music':
+        return Icons.music_note_outlined;
+      case 'Playlists':
+        return Icons.playlist_play_outlined;
+      case 'Collections':
+        return Icons.collections_bookmark_outlined;
+      default:
+        return Icons.folder_outlined;
+    }
+  }
+
+  /// Builds a grouped grid with sections for each media type
+  Widget _buildGroupedMediaGrid(
+    Map<String, List<MediaItem>> groupedItems,
+    String serverUrl,
+  ) {
+    // Define display order for categories
+    const categoryOrder = [
+      'Movies',
+      'TV Shows',
+      'Episodes',
+      'Seasons',
+      'Music',
+      'Playlists',
+      'Collections',
+      'Other',
+    ];
+
+    final sortedCategories = groupedItems.keys.toList()
+      ..sort((a, b) {
+        final aIndex = categoryOrder.indexOf(a);
+        final bIndex = categoryOrder.indexOf(b);
+        if (aIndex == -1 && bIndex == -1) return a.compareTo(b);
+        if (aIndex == -1) return 1;
+        if (bIndex == -1) return -1;
+        return aIndex.compareTo(bIndex);
+      });
+
+    return ListView.builder(
+      itemCount: sortedCategories.length,
+      itemBuilder: (context, sectionIndex) {
+        final category = sortedCategories[sectionIndex];
+        final items = groupedItems[category]!;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Section header
+              Row(
+                children: [
+                  Icon(
+                    _getCategoryIcon(category),
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    category,
+                    style: AppTextStyles.titleLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${items.length}',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Items grid (horizontal scrolling row)
+              SizedBox(
+                height: 220,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return SizedBox(
+                      width: 140,
+                      child: AnimatedCard(
                         imageUrl: item.getPrimaryImageUrl(
                           serverUrl,
                           width: 300,
                         ),
                         title: item.name,
-                        subtitle: item.productionYear?.toString(),
+                        subtitle: _getItemSubtitle(item),
                         animationIndex: index,
                         onTap: () => _navigateToDetail(item),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  /// Gets a contextual subtitle for the item based on its type
+  String? _getItemSubtitle(MediaItem item) {
+    switch (item.type) {
+      case MediaType.episode:
+        if (item.seriesName != null) {
+          final season = item.parentIndexNumber ?? 0;
+          final episode = item.indexNumber ?? 0;
+          return '${item.seriesName} • S${season}E$episode';
+        }
+        return item.productionYear?.toString();
+      case MediaType.audio:
+        return item.albumArtist ??
+            item.album ??
+            item.productionYear?.toString();
+      case MediaType.album:
+        return item.albumArtist ?? item.productionYear?.toString();
+      case MediaType.season:
+        return item.seriesName;
+      default:
+        return item.productionYear?.toString();
+    }
   }
 
   Widget _buildEmptySearch() {
@@ -985,25 +1160,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 if (items.isEmpty) {
                   return _buildEmptyFavorites();
                 }
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 6,
-                    childAspectRatio: 2 / 3.2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return AnimatedCard(
-                      imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
-                      title: item.name,
-                      subtitle: item.productionYear?.toString(),
-                      animationIndex: index,
-                      onTap: () => _navigateToDetail(item),
-                    );
-                  },
-                );
+                // Group favorites by type
+                final groupedItems = _groupMediaByType(items);
+                return _buildGroupedMediaGrid(groupedItems, serverUrl);
               },
               loading: () => const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
