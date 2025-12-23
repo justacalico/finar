@@ -573,8 +573,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Remove item from queue by index
   void removeFromQueue(int index) {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length)
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length) {
       return;
+    }
 
     final newPlaylist = List<MediaItem>.from(state.playlist!);
     newPlaylist.removeAt(index);
@@ -629,8 +630,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Play item at specific index in queue
   Future<void> playAtIndex(int index) async {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length)
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length) {
       return;
+    }
     await play(
       state.playlist![index],
       playlist: state.playlist,
