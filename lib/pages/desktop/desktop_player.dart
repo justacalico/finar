@@ -411,10 +411,12 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                         // Queue next episode (only for TV episodes)
                         if (state.currentItem?.type == MediaType.episode) ...[
                           const SizedBox(width: 8),
-                          GlassIconButton(
-                            icon: Icons.playlist_add,
-                            tooltip: 'Queue next episode',
-                            onPressed: () => _queueNextEpisode(state),
+                          Tooltip(
+                            message: 'Queue next episode',
+                            child: GlassIconButton(
+                              icon: Icons.playlist_add,
+                              onPressed: () => _queueNextEpisode(state),
+                            ),
                           ),
                         ],
                       ],
@@ -831,9 +833,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success 
-                ? 'Next episode queued'
-                : 'No next episode available',
+            success ? 'Next episode queued' : 'No next episode available',
           ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
