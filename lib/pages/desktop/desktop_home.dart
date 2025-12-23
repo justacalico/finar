@@ -29,6 +29,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   String? _selectedLibraryId;
   String? _selectedLibraryType;
 
+  // Expanded category for "See All" functionality
+  String? _expandedCategory;
+  List<MediaItem>? _expandedCategoryItems;
+
   // Focus management for controller navigation
   final FocusNode _mainFocusNode = FocusNode();
   bool _sidebarFocused = false;
@@ -474,6 +478,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   _selectedIndex = index;
                   _selectedLibraryId = null;
                   _selectedLibraryType = null;
+                  // Clear expanded category when navigating
+                  _expandedCategory = null;
+                  _expandedCategoryItems = null;
                 });
               },
           child: AnimatedContainer(
@@ -849,10 +856,35 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     );
   }
 
+  /// Shows expanded category view with all items in a grid
+  void _showExpandedCategory(String category, List<MediaItem> items) {
+    setState(() {
+      _expandedCategory = category;
+      _expandedCategoryItems = items;
+    });
+  }
+
+  /// Closes expanded category view and returns to grouped view
+  void _closeExpandedCategory() {
+    setState(() {
+      _expandedCategory = null;
+      _expandedCategoryItems = null;
+    });
+  }
+
   Widget _buildSearchView() {
     final searchResults = ref.watch(searchResultsProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     final isLoading = ref.watch(libraryProvider).isLoading;
+
+    // If a category is expanded, show the expanded view
+    if (_expandedCategory != null && _expandedCategoryItems != null) {
+      return _buildExpandedCategoryView(
+        _expandedCategory!,
+        _expandedCategoryItems!,
+        serverUrl,
+      );
+    }
 
     // Group results by type
     final groupedResults = _groupMediaByType(searchResults);
@@ -1047,6 +1079,30 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       ),
                     ),
                   ),
+                  const Spacer(),
+                  // See All button
+                  if (items.length > 5)
+                    TextButton(
+                      onPressed: () => _showExpandedCategory(category, items),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'See All',
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
+                            color: AppColors.primary,
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -1079,6 +1135,82 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           ),
         );
       },
+    );
+  }
+
+  /// Builds the expanded category view showing all items in a grid
+  Widget _buildExpandedCategoryView(
+    String category,
+    List<MediaItem> items,
+    String serverUrl,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with back button
+          Row(
+            children: [
+              IconButton(
+                onPressed: _closeExpandedCategory,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back',
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                _getCategoryIcon(category),
+                color: AppColors.primary,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Text(category, style: AppTextStyles.headlineLarge),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${items.length} items',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Grid of all items
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                childAspectRatio: 2 / 3.2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return AnimatedCard(
+                  imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                  title: item.name,
+                  subtitle: _getItemSubtitle(item),
+                  animationIndex: index,
+                  onTap: () => _navigateToDetail(item),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1137,6 +1269,15 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   Widget _buildFavoritesView() {
     final favorites = ref.watch(favoritesProvider(null));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+
+    // If a category is expanded, show the expanded view
+    if (_expandedCategory != null && _expandedCategoryItems != null) {
+      return _buildExpandedCategoryView(
+        _expandedCategory!,
+        _expandedCategoryItems!,
+        serverUrl,
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.all(24),
