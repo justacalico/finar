@@ -1349,8 +1349,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       final nextUp = await mediaService.getNextUpForSeries(series.id);
 
       if (nextUp != null) {
-        // Play the next up episode
-        ref.read(playerProvider.notifier).play(nextUp);
+        // Play the next up episode with resume position
+        final startPosition = nextUp.hasProgress 
+            ? (nextUp.userData?.playbackPositionTicks ?? nextUp.playbackPositionTicks)
+            : null;
+        ref.read(playerProvider.notifier).play(nextUp, startPositionTicks: startPosition);
         if (mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const DesktopPlayer()),
