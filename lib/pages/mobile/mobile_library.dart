@@ -4,9 +4,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import 'mobile_detail.dart';
+import 'mobile_player.dart';
 
 class MobileLibrary extends ConsumerStatefulWidget {
   final String libraryId;
@@ -450,7 +452,80 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
   }
 
   void _playItem(dynamic item) {
-    ref.read(playerProvider.notifier).play(item);
-    // Navigate to player
+    // Get the MediaType from the item
+    final itemType = item.type is MediaType 
+        ? item.type as MediaType 
+        : MediaType.values.firstWhere(
+            (e) => e.toString().split('.').last.toLowerCase() == item.type?.toString().toLowerCase(),
+            orElse: () => MediaType.unknown,
+          );
+    
+    if (itemType == MediaType.series) {
+      // For series, play the next up episode (continue watching)
+      _playSeries(item);
+    } else {
+      ref.read(playerProvider.notifier).play(item);
+      // Navigate to player for video content
+      final isMusic = itemType == MediaType.audio || 
+                      itemType == MediaType.album ||
+                      itemType == MediaType.musicVideo;
+      if (!isMusic) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const MobilePlayer()),
+        );
+      }
+    }
+  }
+
+  Future<void> _playSeries(dynamic series) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final nextUp = await mediaService.getNextUpForSeries(series.id);
+      
+      if (nextUp != null) {
+        // Play the next up episode
+        ref.read(playerProvider.notifier).play(nextUp);
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MobilePlayer()),
+          );
+        }
+      } else {
+        // No next up episode, get the first episode of the first season
+        final seasons = await mediaService.getSeasons(series.id);
+        if (seasons.isNotEmpty) {
+          final episodes = await mediaService.getSeasonEpisodes(
+            series.id,
+            seasons.first.id,
+          );
+          if (episodes.isNotEmpty) {
+            ref.read(playerProvider.notifier).play(episodes.first);
+            if (mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MobilePlayer()),
+              );
+            }
+          } else {
+            _showNoEpisodesError();
+          }
+        } else {
+          _showNoEpisodesError();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play series: $e')),
+        );
+      }
+    }
+  }
+
+  void _showNoEpisodesError() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No episodes available to play')),
+      );
+    }
   }
 }
