@@ -341,74 +341,81 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
       bottom: 0,
       left: 0,
       right: 0,
-      child: AnimatedSlide(
-        offset: _controlsVisible ? Offset.zero : const Offset(0, 1),
-        duration: AppTheme.durationNormal,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Progress bar
-                _buildProgressBar(state),
-
-                const SizedBox(height: 16),
-
-                // Control buttons row
-                Row(
+      child: IgnorePointer(
+        ignoring: !_controlsVisible,
+        child: AnimatedOpacity(
+          opacity: _controlsVisible ? 1.0 : 0.0,
+          duration: AppTheme.durationFast,
+          child: AnimatedSlide(
+            offset: _controlsVisible ? Offset.zero : const Offset(0, 1),
+            duration: AppTheme.durationNormal,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Volume
-                    _buildVolumeControl(state),
+                    // Progress bar
+                    _buildProgressBar(state),
 
-                    const Spacer(),
+                    const SizedBox(height: 16),
 
-                    // Skip previous
-                    if (state.hasPrevious)
-                      IconButton(
-                        icon: const Icon(Icons.skip_previous),
-                        onPressed: _playPrevious,
-                      ),
+                    // Control buttons row
+                    Row(
+                      children: [
+                        // Volume
+                        _buildVolumeControl(state),
 
-                    // Skip next
-                    if (state.hasNext)
-                      IconButton(
-                        icon: const Icon(Icons.skip_next),
-                        onPressed: _playNext,
-                      ),
+                        const Spacer(),
 
-                    const SizedBox(width: 16),
+                        // Skip previous
+                        if (state.hasPrevious)
+                          IconButton(
+                            icon: const Icon(Icons.skip_previous),
+                            onPressed: _playPrevious,
+                          ),
 
-                    // Subtitles
-                    GlassIconButton(
-                      icon: Icons.subtitles,
-                      iconColor: state.currentSubtitleTrack != null
-                          ? AppColors.primary
-                          : null,
-                      onPressed: () =>
-                          setState(() => _showSettings = !_showSettings),
-                    ),
+                        // Skip next
+                        if (state.hasNext)
+                          IconButton(
+                            icon: const Icon(Icons.skip_next),
+                            onPressed: _playNext,
+                          ),
 
-                    const SizedBox(width: 8),
+                        const SizedBox(width: 16),
 
-                    // Audio tracks
-                    GlassIconButton(
-                      icon: Icons.audiotrack,
-                      onPressed: () =>
-                          setState(() => _showSettings = !_showSettings),
-                    ),
+                        // Subtitles
+                        GlassIconButton(
+                          icon: Icons.subtitles,
+                          iconColor: state.currentSubtitleTrack != null
+                              ? AppColors.primary
+                              : null,
+                          onPressed: () =>
+                              setState(() => _showSettings = !_showSettings),
+                        ),
 
-                    const SizedBox(width: 8),
+                        const SizedBox(width: 8),
 
-                    // Quality
-                    GlassIconButton(
-                      icon: Icons.settings,
-                      onPressed: () =>
-                          setState(() => _showSettings = !_showSettings),
+                        // Audio tracks
+                        GlassIconButton(
+                          icon: Icons.audiotrack,
+                          onPressed: () =>
+                              setState(() => _showSettings = !_showSettings),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        // Quality
+                        GlassIconButton(
+                          icon: Icons.settings,
+                          onPressed: () =>
+                              setState(() => _showSettings = !_showSettings),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
