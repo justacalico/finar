@@ -333,13 +333,14 @@ class JellyfinApi {
   }
 
   /// Get next up episodes
-  Future<List<MediaItem>> getNextUp({int limit = 12}) async {
+  Future<List<MediaItem>> getNextUp({int limit = 12, String? seriesId}) async {
     final response = await _dio.get(
       '/Shows/NextUp',
       queryParameters: {
         'UserId': _userId,
         'Limit': limit,
         'Fields': 'Overview',
+        if (seriesId != null) 'SeriesId': seriesId,
       },
     );
     return (response.data['Items'] as List<dynamic>)
