@@ -189,10 +189,11 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final isMusic =
         playerState.currentItem?.type.name == 'audio' ||
         playerState.currentItem?.type.name == 'album';
+    final isVideo = playerState.currentItem != null && !isMusic;
 
     // If offline, redirect to downloads page
     if (!isOnline) {
-      return _buildOfflineView(libraries, showMiniPlayer, isMusic);
+      return _buildOfflineView(libraries, showMiniPlayer, isMusic, isVideo);
     }
 
     return Focus(
@@ -230,6 +231,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
             // Music player bar at bottom
             if (showMiniPlayer && isMusic) const DesktopMusicPlayerBar(),
+
+            // Video mini player bar (PiP mode)
+            if (showMiniPlayer && isVideo) _buildVideoMiniPlayer(),
           ],
         ),
       ),
@@ -240,6 +244,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     AsyncValue<List<Library>> libraries,
     bool showMiniPlayer,
     bool isMusic,
+    bool isVideo,
   ) {
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -307,6 +312,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
           // Music player bar at bottom
           if (showMiniPlayer && isMusic) const DesktopMusicPlayerBar(),
+
+          // Video mini player bar (PiP mode)
+          if (showMiniPlayer && isVideo) _buildVideoMiniPlayer(),
         ],
       ),
     );
@@ -1508,5 +1516,248 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         ],
       ),
     );
+  }
+
+  /// Builds a mini video player bar for PiP-like functionality
+  Widget _buildVideoMiniPlayer() {
+    final playerState = ref.watch(playerProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    final item = playerState.currentItem;
+
+    if (item == null) return const SizedBox.shrink();
+
+    final duration = playerState.duration;
+    final position = playerState.position;
+
+    return GlassContainer(
+      blur: AppTheme.blurMedium,
+      opacity: 0.1,
+      borderRadius: 0,
+      showBorder: false,
+      padding: EdgeInsets.zero,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Progress bar
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+              activeTrackColor: AppColors.primary,
+              inactiveTrackColor: AppColors.surface,
+              thumbColor: AppColors.primary,
+              overlayColor: AppColors.primary.withValues(alpha: 0.2),
+            ),
+            child: Slider(
+              value: playerState.progress.clamp(0.0, 1.0),
+              onChanged: (value) {
+                final newPosition = Duration(
+                  milliseconds: (duration.inMilliseconds * value).round(),
+                );
+                ref.read(playerProvider.notifier).seek(newPosition);
+              },
+            ),
+          ),
+
+          // Player content
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Row(
+              children: [
+                // Thumbnail
+                GestureDetector(
+                  onTap: () => _openFullPlayer(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    child: SizedBox(
+                      width: 80,
+                      height: 45,
+                      child: Image.network(
+                        item.getPrimaryImageUrl(serverUrl, width: 200),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.movie,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Track info
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () => _openFullPlayer(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.name,
+                          style: AppTextStyles.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _getVideoSubtitle(item),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Center controls
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Previous
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous),
+                        iconSize: 28,
+                        color: playerState.hasPrevious
+                            ? AppColors.textPrimary
+                            : AppColors.textTertiary,
+                        onPressed: playerState.hasPrevious
+                            ? () => ref
+                                  .read(playerProvider.notifier)
+                                  .playPrevious()
+                            : null,
+                        tooltip: 'Previous',
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Play/Pause
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                          boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            playerState.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                          ),
+                          iconSize: 28,
+                          color: Colors.white,
+                          onPressed: () {
+                            ref.read(playerProvider.notifier).playOrPause();
+                          },
+                          tooltip: playerState.isPlaying ? 'Pause' : 'Play',
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Next
+                      IconButton(
+                        icon: const Icon(Icons.skip_next),
+                        iconSize: 28,
+                        color: playerState.hasNext
+                            ? AppColors.textPrimary
+                            : AppColors.textTertiary,
+                        onPressed: playerState.hasNext
+                            ? () => ref.read(playerProvider.notifier).playNext()
+                            : null,
+                        tooltip: 'Next',
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Right side - time and actions
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Time
+                      Text(
+                        '${_formatDuration(position)} / ${_formatDuration(duration)}',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+
+                      const SizedBox(width: 16),
+
+                      // Expand to full player
+                      IconButton(
+                        icon: const Icon(Icons.open_in_full),
+                        iconSize: 20,
+                        color: AppColors.textSecondary,
+                        onPressed: () => _openFullPlayer(),
+                        tooltip: 'Open player',
+                      ),
+
+                      const SizedBox(width: 4),
+
+                      // Close button
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        iconSize: 20,
+                        color: AppColors.textSecondary,
+                        onPressed: () {
+                          ref.read(playerProvider.notifier).stop();
+                        },
+                        tooltip: 'Close player',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getVideoSubtitle(MediaItem item) {
+    final parts = <String>[];
+    if (item.seriesName != null) {
+      parts.add(item.seriesName!);
+      if (item.parentIndexNumber != null && item.indexNumber != null) {
+        parts.add('S${item.parentIndexNumber}E${item.indexNumber}');
+      }
+    } else if (item.productionYear != null) {
+      parts.add(item.productionYear.toString());
+    }
+    return parts.join(' • ');
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _openFullPlayer() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
   }
 }
