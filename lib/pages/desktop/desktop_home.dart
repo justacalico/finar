@@ -5,6 +5,7 @@ import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/library.dart';
+import '../../core/api/models/media_item.dart';
 import '../../core/api/media_service.dart';
 import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
@@ -14,6 +15,7 @@ import 'desktop_music_library.dart';
 import 'desktop_detail.dart';
 import 'desktop_downloads.dart';
 import 'desktop_settings.dart';
+import 'desktop_player.dart';
 
 class DesktopHome extends ConsumerStatefulWidget {
   const DesktopHome({super.key});
