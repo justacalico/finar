@@ -125,6 +125,12 @@ class MediaService {
     );
   }
 
+  /// Get next up episode for a specific series
+  Future<MediaItem?> getNextUpForSeries(String seriesId) async {
+    final nextUpList = await _api.getNextUp(limit: 1, seriesId: seriesId);
+    return nextUpList.isNotEmpty ? nextUpList.first : null;
+  }
+
   /// Get season episodes
   Future<List<MediaItem>> getSeasonEpisodes(
     String seriesId,
