@@ -837,10 +837,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     final delta = (_dragStartY - details.globalPosition.dy) / screenHeight;
 
     if (_showBrightness) {
-      setState(() {
-        _brightness = (_brightness + delta * 0.5).clamp(0.0, 1.0);
-      });
-      // TODO: Actually set screen brightness
+      final newBrightness = (_brightness + delta * 0.5).clamp(0.0, 1.0);
+      _setBrightness(newBrightness);
     } else if (_showVolume) {
       final currentVolume = ref.read(playerProvider).volume;
       ref
