@@ -976,9 +976,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success 
-                ? 'Next episode queued'
-                : 'No next episode available',
+            success ? 'Next episode queued' : 'No next episode available',
           ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
