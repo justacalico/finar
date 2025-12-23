@@ -131,6 +131,56 @@ class MediaService {
     return nextUpList.isNotEmpty ? nextUpList.first : null;
   }
 
+  /// Get the next episode after the current one
+  /// Returns null if no next episode exists (end of season/series)
+  Future<MediaItem?> getNextEpisode(MediaItem currentEpisode) async {
+    if (currentEpisode.seriesId == null || currentEpisode.seasonId == null) {
+      return null;
+    }
+
+    // Get all episodes in the current season
+    final episodes = await _api.getEpisodes(
+      currentEpisode.seriesId!,
+      seasonId: currentEpisode.seasonId!,
+    );
+
+    // Find current episode index
+    final currentIndex = episodes.indexWhere((e) => e.id == currentEpisode.id);
+    if (currentIndex == -1) return null;
+
+    // If there's a next episode in the same season
+    if (currentIndex < episodes.length - 1) {
+      return episodes[currentIndex + 1];
+    }
+
+    // Try to get next season's first episode
+    final seasons = await _api.getSeasons(currentEpisode.seriesId!);
+    final currentSeasonNumber = currentEpisode.parentIndexNumber ?? 0;
+    
+    // Find next season
+    final nextSeason = seasons.where(
+      (s) => (s.indexNumber ?? 0) > currentSeasonNumber
+    ).toList();
+    
+    if (nextSeason.isNotEmpty) {
+      // Sort by season number and get first
+      nextSeason.sort((a, b) => 
+        (a.indexNumber ?? 0).compareTo(b.indexNumber ?? 0)
+      );
+      
+      final nextSeasonEpisodes = await _api.getEpisodes(
+        currentEpisode.seriesId!,
+        seasonId: nextSeason.first.id,
+      );
+      
+      if (nextSeasonEpisodes.isNotEmpty) {
+        return nextSeasonEpisodes.first;
+      }
+    }
+
+    return null;
+  }
+
   /// Get local trailers for an item
   Future<List<MediaItem>> getLocalTrailers(String itemId) async {
     return await _api.getLocalTrailers(itemId);
