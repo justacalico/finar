@@ -1152,7 +1152,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                 title: const Text('Play Downloaded'),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Play from local file
+                  _playDownloadedItem(task);
                 },
               ),
             ListTile(
@@ -1392,8 +1392,9 @@ class _DownloadTile extends ConsumerWidget {
           onSelected: (value) {
             if (value == 'delete') {
               ref.read(downloadProvider.notifier).deleteDownload(task.id);
+            } else if (value == 'play') {
+              _playDownloadedTask(context, ref, task);
             }
-            // TODO: Handle play
           },
         );
       default:
