@@ -105,7 +105,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     return Scaffold(
       backgroundColor: AppColors.black,
       body: GestureDetector(
-        onTap: _onInteraction,
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleControls,
         onDoubleTapDown: (details) => _handleDoubleTap(details, context),
         onVerticalDragStart: _handleVerticalDragStart,
         onVerticalDragUpdate: _handleVerticalDragUpdate,
