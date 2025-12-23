@@ -467,10 +467,10 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               ),
             ),
             child: Slider(
-              value: position.inMilliseconds.toDouble(),
+              value: position.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
               min: 0,
               max: duration.inMilliseconds.toDouble().clamp(1, double.infinity),
-              secondaryTrackValue: buffered.inMilliseconds.toDouble(),
+              secondaryTrackValue: buffered.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
               onChanged: (value) {
                 ref
                     .read(playerProvider.notifier)
