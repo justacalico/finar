@@ -246,7 +246,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.accentYellow.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
@@ -273,7 +276,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     if (item.criticRating != null) ...[
                       const SizedBox(width: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accentRed.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
@@ -970,11 +976,13 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       _playSeries(item);
     } else {
       // Get the resume position if item has progress
-      final startPosition = item.hasProgress 
+      final startPosition = item.hasProgress
           ? (item.userData?.playbackPositionTicks ?? item.playbackPositionTicks)
           : null;
-      
-      ref.read(playerProvider.notifier).play(item, startPositionTicks: startPosition);
+
+      ref
+          .read(playerProvider.notifier)
+          .play(item, startPositionTicks: startPosition);
 
       // Only navigate to video player for non-music content
       if (!isMusic) {
@@ -992,10 +1000,13 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
       if (nextUp != null) {
         // Play the next up episode with resume position
-        final startPosition = nextUp.hasProgress 
-            ? (nextUp.userData?.playbackPositionTicks ?? nextUp.playbackPositionTicks)
+        final startPosition = nextUp.hasProgress
+            ? (nextUp.userData?.playbackPositionTicks ??
+                  nextUp.playbackPositionTicks)
             : null;
-        ref.read(playerProvider.notifier).play(nextUp, startPositionTicks: startPosition);
+        ref
+            .read(playerProvider.notifier)
+            .play(nextUp, startPositionTicks: startPosition);
         if (mounted) {
           Navigator.of(
             context,
@@ -1180,20 +1191,21 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
 
       // Navigate to player for video content
-      final isMusic = item.type == MediaType.audio ||
+      final isMusic =
+          item.type == MediaType.audio ||
           item.type == MediaType.album ||
           item.type == MediaType.musicVideo;
 
       if (!isMusic && mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const MobilePlayer()),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play: $e')));
       }
     }
   }
@@ -1313,34 +1325,31 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     // Build share text
     final StringBuffer shareText = StringBuffer();
     shareText.write(item.name);
-    
+
     if (item.productionYear != null) {
       shareText.write(' (${item.productionYear})');
     }
-    
+
     if (item.overview != null && item.overview!.isNotEmpty) {
       // Truncate overview if too long
-      final overview = item.overview!.length > 200 
+      final overview = item.overview!.length > 200
           ? '${item.overview!.substring(0, 200)}...'
           : item.overview!;
       shareText.write('\n\n$overview');
     }
-    
+
     if (item.communityRating != null) {
       shareText.write('\n\n⭐ ${item.communityRating!.toStringAsFixed(1)}');
     }
-    
+
     if (item.genres?.isNotEmpty == true) {
       shareText.write('\n🎬 ${item.genres!.take(3).join(', ')}');
     }
-    
+
     // Add a note about Finar
     shareText.write('\n\nShared via Finar');
-    
-    Share.share(
-      shareText.toString(),
-      subject: item.name,
-    );
+
+    Share.share(shareText.toString(), subject: item.name);
   }
 }
 
@@ -1588,9 +1597,9 @@ class _DownloadTile extends ConsumerWidget {
     DownloadTask task,
   ) async {
     if (task.localPath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Download file not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Download file not found')));
       return;
     }
 
@@ -1607,14 +1616,13 @@ class _DownloadTile extends ConsumerWidget {
       ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
 
       // Navigate to player for video content
-      final isMusic = item.type == MediaType.audio ||
+      final isMusic =
+          item.type == MediaType.audio ||
           item.type == MediaType.album ||
           item.type == MediaType.musicVideo;
 
       if (!isMusic) {
-        navigator.push(
-          MaterialPageRoute(builder: (_) => const MobilePlayer()),
-        );
+        navigator.push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
       }
     } catch (e) {
       scaffoldMessenger.showSnackBar(
