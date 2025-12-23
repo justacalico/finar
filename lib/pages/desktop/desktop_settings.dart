@@ -47,12 +47,17 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
   }
 
   Widget _buildSidebar() {
-    return GlassContainer(
+    return Container(
       width: 280,
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: 0,
-      showBorder: false,
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSecondary,
+        border: Border(
+          right: BorderSide(
+            color: AppColors.divider.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -61,28 +66,38 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.white.withValues(alpha: 0.1),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Text(
                   'Settings',
                   style: AppTextStyles.headlineMedium.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(color: AppColors.glassBorder),
+          Divider(
+            color: AppColors.divider.withValues(alpha: 0.5),
+            height: 1,
+          ),
           // Section list
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               itemCount: _sections.length,
               itemBuilder: (context, index) {
                 final section = _sections[index];
@@ -91,18 +106,24 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                   child: Material(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    borderRadius: BorderRadius.circular(12),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      borderRadius: BorderRadius.circular(12),
                       onTap: () => setState(() => _selectedSection = index),
                       child: AnimatedContainer(
                         duration: AppTheme.durationFast,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary.withValues(alpha: 0.15)
+                              ? AppColors.primary.withValues(alpha: 0.12)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(12),
+                          border: isSelected
+                              ? Border.all(
+                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  width: 1,
+                                )
+                              : null,
                         ),
                         child: Row(
                           children: [
@@ -114,9 +135,9 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
                             const SizedBox(width: 14),
                             Text(
                               section.$1,
-                              style: AppTextStyles.bodyLarge.copyWith(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                               ),
                             ),
                           ],
@@ -128,22 +149,26 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
               },
             ),
           ),
-          // Logout button
+          // Logout button with refined styling
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
+              height: 48,
               child: ElevatedButton.icon(
                 onPressed: () {
                   ref.read(authProvider.notifier).logout();
                   Navigator.pop(context);
                 },
-                icon: const Icon(Icons.logout, size: 20),
+                icon: const Icon(Icons.logout_rounded, size: 20),
                 label: const Text('Sign Out'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error.withValues(alpha: 0.2),
+                  backgroundColor: AppColors.error.withValues(alpha: 0.12),
                   foregroundColor: AppColors.error,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -153,7 +178,7 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
     )
         .animate()
         .fadeIn(duration: AppTheme.durationNormal)
-        .slideX(begin: -0.1, end: 0, duration: AppTheme.durationNormal);
+        .slideX(begin: -0.05, end: 0, duration: AppTheme.durationNormal);
   }
 
   Widget _buildContent() {

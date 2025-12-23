@@ -321,74 +321,90 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   }
 
   Widget _buildSidebar(AsyncValue<List<Library>> librariesAsync) {
-    return GlassContainer(
-          width: 240,
-          blur: AppTheme.blurLight,
-          opacity: 0.05,
-          borderRadius: 0,
-          showBorder: false,
+    return Container(
+          width: 260,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundSecondary,
+            border: Border(
+              right: BorderSide(
+                color: AppColors.divider.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+          ),
           child: Column(
             children: [
-              // App logo
-              Padding(
-                padding: const EdgeInsets.all(24),
+              // App logo with refined styling
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(10),
+                        gradient: AppColors.primarySoftGradient,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: const Icon(
-                        Icons.play_circle_fill,
-                        color: AppColors.black,
-                        size: 24,
+                        Icons.play_circle_fill_rounded,
+                        color: AppColors.textOnPrimary,
+                        size: 26,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Text(
                       'Finar',
                       style: AppTextStyles.headlineMedium.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const Divider(color: AppColors.glassBorder),
+              Divider(
+                color: AppColors.divider.withValues(alpha: 0.5),
+                height: 1,
+              ),
 
               // Navigation items
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   children: [
                     _buildNavItem(
                       icon: Icons.home_outlined,
-                      activeIcon: Icons.home,
+                      activeIcon: Icons.home_rounded,
                       label: 'Home',
                       index: 0,
                       focusIndex: 0,
                     ),
                     _buildNavItem(
                       icon: Icons.search_outlined,
-                      activeIcon: Icons.search,
+                      activeIcon: Icons.search_rounded,
                       label: 'Search',
                       index: 1,
                       focusIndex: 1,
                     ),
                     _buildNavItem(
-                      icon: Icons.favorite_outline,
-                      activeIcon: Icons.favorite,
+                      icon: Icons.favorite_outline_rounded,
+                      activeIcon: Icons.favorite_rounded,
                       label: 'Favorites',
                       index: 2,
                       focusIndex: 2,
                     ),
                     _buildNavItem(
                       icon: Icons.download_outlined,
-                      activeIcon: Icons.download,
+                      activeIcon: Icons.download_rounded,
                       label: 'Downloads',
                       index: 3,
                       focusIndex: 3,
@@ -402,12 +418,16 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       },
                     ),
 
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
+                      child: Text(
+                        'LIBRARIES',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                      child: Text('LIBRARIES', style: AppTextStyles.labelSmall),
                     ),
 
                     librariesAsync.when(
@@ -428,12 +448,16 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       error: (_, _) => const SizedBox(),
                     ),
 
-                    const SizedBox(height: 16),
-                    const Divider(color: AppColors.glassBorder),
+                    const SizedBox(height: 20),
+                    Divider(
+                      color: AppColors.divider.withValues(alpha: 0.5),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
 
                     _buildNavItem(
                       icon: Icons.settings_outlined,
-                      activeIcon: Icons.settings,
+                      activeIcon: Icons.settings_rounded,
                       label: 'Settings',
                       index: 100,
                       focusIndex: 100, // Settings always at high index
@@ -457,7 +481,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         )
         .animate()
         .fadeIn(duration: AppTheme.durationNormal)
-        .slideX(begin: -0.1, end: 0, duration: AppTheme.durationNormal);
+        .slideX(begin: -0.05, end: 0, duration: AppTheme.durationNormal);
   }
 
   Widget _buildNavItem({
@@ -473,12 +497,12 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         _sidebarFocused && _focusedNavIndex == (focusIndex ?? index);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          borderRadius: BorderRadius.circular(12),
           onTap:
               onTap ??
               () {
@@ -493,16 +517,18 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               },
           child: AnimatedContainer(
             duration: AppTheme.durationFast,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.15)
+                  ? AppColors.primary.withValues(alpha: 0.12)
                   : isFocused
-                  ? AppColors.primary.withValues(alpha: 0.1)
+                  ? AppColors.glassActive
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              borderRadius: BorderRadius.circular(12),
               border: isFocused
                   ? Border.all(color: AppColors.primary, width: 2)
+                  : isSelected
+                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1)
                   : null,
             ),
             child: Row(
@@ -514,16 +540,16 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       ? AppColors.primary
                       : AppColors.textSecondary,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Text(
                   label,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: isSelected || isFocused
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     fontWeight: isSelected
                         ? FontWeight.w600
-                        : FontWeight.normal,
+                        : FontWeight.w500,
                   ),
                 ),
               ],
@@ -540,12 +566,12 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final icon = _getLibraryIcon(library.icon);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          borderRadius: BorderRadius.circular(12),
           onTap: () {
             setState(() {
               _selectedLibraryId = library.id;
@@ -555,19 +581,21 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           },
           child: AnimatedContainer(
             duration: AppTheme.durationFast,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.15)
+                  ? AppColors.primary.withValues(alpha: 0.12)
                   : isFocused
-                  ? AppColors.glassBackground
+                  ? AppColors.glassActive
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              borderRadius: BorderRadius.circular(12),
               border: isFocused
                   ? Border.all(
                       color: AppColors.primary.withValues(alpha: 0.5),
                       width: 2,
                     )
+                  : isSelected
+                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1)
                   : null,
             ),
             child: Row(
@@ -579,26 +607,36 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       ? AppColors.primary
                       : AppColors.textSecondary,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     library.name,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textPrimary,
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                       fontWeight: isSelected
                           ? FontWeight.w600
-                          : FontWeight.normal,
+                          : FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (library.childCount != null)
-                  Text(
-                    library.childCount.toString(),
-                    style: AppTextStyles.caption,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      library.childCount.toString(),
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textTertiary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -637,20 +675,34 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final user = ref.watch(currentUserProvider);
     final authNotifier = ref.watch(authProvider.notifier);
 
-    return GlassContainer(
+    return Container(
       margin: const EdgeInsets.all(16),
-      blur: AppTheme.blurLight,
-      opacity: 0.1,
-      borderRadius: AppTheme.radiusMd,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.divider.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: AppColors.primary,
-            child: Text(
-              user?.name.substring(0, 1).toUpperCase() ?? '?',
-              style: AppTextStyles.titleMedium.copyWith(color: AppColors.black),
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              gradient: AppColors.primarySoftGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                user?.name.substring(0, 1).toUpperCase() ?? '?',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.textOnPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -660,13 +712,18 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               children: [
                 Text(
                   user?.name ?? 'Guest',
-                  style: AppTextStyles.titleSmall,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 2),
                 Text(
                   authNotifier.serverUrl ?? '',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -674,9 +731,13 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.logout, size: 20),
+            icon: const Icon(Icons.logout_rounded, size: 20),
             onPressed: () => _showLogoutDialog(),
-            tooltip: 'Logout',
+            tooltip: 'Sign out',
+            style: IconButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              backgroundColor: AppColors.glassWhite,
+            ),
           ),
         ],
       ),
@@ -817,7 +878,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 32),
+      padding: const EdgeInsets.only(bottom: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -826,14 +887,39 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: AppTextStyles.headlineSmall),
-                TextButton(onPressed: () {}, child: const Text('See All')),
+                Text(
+                  title,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'See All',
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           SizedBox(
-            height: 240,
+            height: 260,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -841,11 +927,11 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               addRepaintBoundaries: true,
               addAutomaticKeepAlives: false,
               cacheExtent: 500, // Pre-cache items for smoother scrolling
-              separatorBuilder: (_, _) => const SizedBox(width: 16),
+              separatorBuilder: (_, _) => const SizedBox(width: 20),
               itemBuilder: (context, index) {
                 final item = items[index];
                 return SizedBox(
-                  width: 160,
+                  width: 170,
                   child: AnimatedCard(
                     imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
                     title: item.name,

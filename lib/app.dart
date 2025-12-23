@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/colors.dart';
+import 'core/theme/text_styles.dart';
 import 'providers/providers.dart';
 import 'pages/desktop/desktop_home.dart';
 import 'pages/mobile/mobile_home.dart';
@@ -109,19 +111,49 @@ class _SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Finar',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            // Logo with gradient
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.play_circle_fill_rounded,
+                color: AppColors.textOnPrimary,
+                size: 48,
               ),
             ),
-            const SizedBox(height: 32),
-            const CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            Text(
+              'Finar',
+              style: AppTextStyles.displaySmall.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 48),
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+            ),
           ],
         ),
       ),

@@ -525,108 +525,123 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
   }
 
   Widget _buildSettingsPanel(PlayerState state) {
-    return Positioned(
-      right: 16,
-      bottom: 100,
-      child: GlassContainer(
-        blur: AppTheme.blurHeavy,
-        opacity: 0.15,
-        borderRadius: AppTheme.radiusMd,
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: 250,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Quality
-              Text(
-                'Quality',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: state.availableQualities
-                    .map(
-                      (q) => _buildSettingOption(
-                        q,
-                        isSelected: state.currentQuality == q,
-                        onTap: () =>
-                            ref.read(playerProvider.notifier).setQuality(q),
-                      ),
-                    )
-                    .toList(),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Audio
-              Text(
-                'Audio',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children:
-                    state.audioTracks
-                        ?.map(
-                          (track) => _buildSettingOption(
-                            track.displayTitle ?? 'Track ${track.index}',
-                            isSelected: state.currentAudioTrack == track.index,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .setAudioTrack(track.index),
-                          ),
-                        )
-                        .toList() ??
-                    [],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Subtitles
-              Text(
-                'Subtitles',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildSettingOption(
-                    'Off',
-                    isSelected: state.currentSubtitleTrack == null,
-                    onTap: () => ref
-                        .read(playerProvider.notifier)
-                        .setSubtitleTrack(null),
-                  ),
-                  if (state.subtitleTracks != null)
-                    ...state.subtitleTracks!.map(
-                      (track) => _buildSettingOption(
-                        track.displayTitle ?? 'Track ${track.index}',
-                        isSelected: state.currentSubtitleTrack == track.index,
-                        onTap: () => ref
-                            .read(playerProvider.notifier)
-                            .setSubtitleTrack(track.index),
-                      ),
-                    ),
-                ],
-              ),
-            ],
+    return Stack(
+      children: [
+        // Dismiss barrier - closes panel when tapping outside
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () => setState(() => _showSettings = false),
+            behavior: HitTestBehavior.opaque,
+            child: Container(color: Colors.transparent),
           ),
         ),
-      ).animate().fadeIn().slideX(begin: 0.1),
+        // Settings panel
+        Positioned(
+          right: 16,
+          bottom: 100,
+          child: GlassContainer(
+            blur: AppTheme.blurHeavy,
+            opacity: 0.15,
+            borderRadius: AppTheme.radiusMd,
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: 250,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Quality
+                  Text(
+                    'Quality',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: state.availableQualities
+                        .map(
+                          (q) => _buildSettingOption(
+                            q,
+                            isSelected: state.currentQuality == q,
+                            onTap: () =>
+                                ref.read(playerProvider.notifier).setQuality(q),
+                          ),
+                        )
+                        .toList(),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Audio
+                  Text(
+                    'Audio',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children:
+                        state.audioTracks
+                            ?.map(
+                              (track) => _buildSettingOption(
+                                track.displayTitle ?? 'Track ${track.index}',
+                                isSelected:
+                                    state.currentAudioTrack == track.index,
+                                onTap: () => ref
+                                    .read(playerProvider.notifier)
+                                    .setAudioTrack(track.index),
+                              ),
+                            )
+                            .toList() ??
+                        [],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Subtitles
+                  Text(
+                    'Subtitles',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildSettingOption(
+                        'Off',
+                        isSelected: state.currentSubtitleTrack == null,
+                        onTap: () => ref
+                            .read(playerProvider.notifier)
+                            .setSubtitleTrack(null),
+                      ),
+                      if (state.subtitleTracks != null)
+                        ...state.subtitleTracks!.map(
+                          (track) => _buildSettingOption(
+                            track.displayTitle ?? 'Track ${track.index}',
+                            isSelected:
+                                state.currentSubtitleTrack == track.index,
+                            onTap: () => ref
+                                .read(playerProvider.notifier)
+                                .setSubtitleTrack(track.index),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ).animate().fadeIn().slideX(begin: 0.1),
+        ),
+      ],
     );
   }
 

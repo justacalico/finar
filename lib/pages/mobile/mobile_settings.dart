@@ -4,10 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/utils/platform_detector.dart';
 import '../../providers/providers.dart';
-import '../../widgets/widgets.dart';
 
 class MobileSettings extends ConsumerStatefulWidget {
   const MobileSettings({super.key});
@@ -24,12 +22,27 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.backgroundSecondary,
         elevation: 0,
-        title: const Text('Settings'),
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back),
+        title: Text(
+          'Settings',
+          style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w600),
+        ),
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: AppColors.divider.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_rounded, size: 22),
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
       body: ListView(
@@ -37,63 +50,66 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
         children: [
           // UI Mode Section
           _buildSectionHeader('Interface Mode'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildUiModeCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Playback Section
           _buildSectionHeader('Playback'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildPlaybackCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Subtitles Section
           _buildSectionHeader('Subtitles'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildSubtitlesCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Audio Section
           _buildSectionHeader('Audio'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildAudioCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Appearance Section
           _buildSectionHeader('Appearance'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildAppearanceCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Network Section
           _buildSectionHeader('Network'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildNetworkCard(settings),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // About Section
           _buildSectionHeader('About'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildAboutCard(),
-          
-          const SizedBox(height: 24),
-          
+
+          const SizedBox(height: 28),
+
           // Reset button
           Center(
             child: TextButton.icon(
               onPressed: () => _showResetConfirmation(),
-              icon: const Icon(Icons.restore, color: AppColors.warning),
-              label: const Text('Reset to Defaults', style: TextStyle(color: AppColors.warning)),
+              icon: const Icon(Icons.restore_rounded, color: AppColors.warning),
+              label: const Text(
+                'Reset to Defaults',
+                style: TextStyle(color: AppColors.warning),
+              ),
             ),
           ),
-          
-          const SizedBox(height: 32),
+
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -103,25 +119,34 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
     return Text(
       title,
       style: AppTextStyles.titleMedium.copyWith(
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         color: AppColors.textSecondary,
+        letterSpacing: -0.2,
       ),
     );
   }
 
   Widget _buildUiModeCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.all(16),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.divider.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Force a specific UI layout',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textTertiary,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           ..._buildUiModeOptions(settings),
         ],
       ),
@@ -130,38 +155,68 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
 
   List<Widget> _buildUiModeOptions(AppSettings settings) {
     final modes = [
-      (UiMode.auto, 'Auto', Icons.auto_awesome, _getAutoModeDescription()),
-      (UiMode.desktop, 'Desktop', Icons.desktop_windows, 'Wide layout with sidebar'),
-      (UiMode.mobile, 'Mobile', Icons.phone_android, 'Compact touch layout'),
+      (
+        UiMode.auto,
+        'Auto',
+        Icons.auto_awesome_rounded,
+        _getAutoModeDescription(),
+      ),
+      (
+        UiMode.desktop,
+        'Desktop',
+        Icons.desktop_windows_rounded,
+        'Wide layout with sidebar',
+      ),
+      (
+        UiMode.mobile,
+        'Mobile',
+        Icons.phone_android_rounded,
+        'Compact touch layout',
+      ),
     ];
 
     return modes.map((mode) {
       final isSelected = settings.forcedUiMode == mode.$1;
       return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(bottom: 10),
         child: InkWell(
-          onTap: () => ref.read(settingsProvider.notifier).setForcedUiMode(mode.$1),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          onTap: () =>
+              ref.read(settingsProvider.notifier).setForcedUiMode(mode.$1),
+          borderRadius: BorderRadius.circular(14),
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isSelected 
-                  ? AppColors.primary.withValues(alpha: 0.15)
-                  : AppColors.white.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.12)
+                  : AppColors.backgroundSecondary,
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.glassBorder,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.divider.withValues(alpha: 0.5),
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Row(
               children: [
-                Icon(
-                  mode.$3,
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                  size: 24,
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : AppColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    mode.$3,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                    size: 22,
+                  ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,9 +225,12 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                         mode.$2,
                         style: AppTextStyles.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                          color: isSelected
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         mode.$4,
                         style: AppTextStyles.bodySmall.copyWith(
@@ -183,7 +241,11 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                   ),
                 ),
                 if (isSelected)
-                  const Icon(Icons.check_circle, color: AppColors.primary, size: 22),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
               ],
             ),
           ),
@@ -201,41 +263,49 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildPlaybackCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           _buildSwitchTile(
             title: 'Auto Play Next',
             subtitle: 'Automatically play next episode',
             value: settings.autoPlayNext,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setAutoPlayNext(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setAutoPlayNext(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Skip Intros',
             subtitle: 'Automatically skip intros',
             value: settings.skipIntros,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setSkipIntros(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setSkipIntros(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Skip Credits',
             subtitle: 'Automatically skip credits',
             value: settings.skipCredits,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setSkipCredits(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setSkipCredits(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildDropdownTile<int>(
             title: 'Default Quality',
             value: settings.defaultVideoQuality,
-            items: videoQualityOptions.map((q) =>
-              DropdownMenuItem(value: q.value, child: Text(q.label))
-            ).toList(),
+            items: videoQualityOptions
+                .map(
+                  (q) => DropdownMenuItem(value: q.value, child: Text(q.label)),
+                )
+                .toList(),
             onChanged: (v) {
-              if (v != null) ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
+              if (v != null)
+                ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
             },
           ),
         ],
@@ -244,27 +314,33 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildSubtitlesCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           _buildSwitchTile(
             title: 'Enable Subtitles',
             subtitle: 'Show subtitles when available',
             value: settings.subtitlesEnabled,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setSubtitlesEnabled(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setSubtitlesEnabled(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildDropdownTile<String>(
             title: 'Language',
             value: settings.subtitleLanguage,
-            items: languageOptions.map((l) =>
-              DropdownMenuItem(value: l.code, child: Text(l.name))
-            ).toList(),
+            items: languageOptions
+                .map(
+                  (l) => DropdownMenuItem(value: l.code, child: Text(l.name)),
+                )
+                .toList(),
             onChanged: (v) {
-              if (v != null) ref.read(settingsProvider.notifier).setSubtitleLanguage(v);
+              if (v != null)
+                ref.read(settingsProvider.notifier).setSubtitleLanguage(v);
             },
           ),
         ],
@@ -273,28 +349,34 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildAudioCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           _buildDropdownTile<String>(
             title: 'Preferred Language',
             value: settings.audioLanguage,
-            items: languageOptions.map((l) =>
-              DropdownMenuItem(value: l.code, child: Text(l.name))
-            ).toList(),
+            items: languageOptions
+                .map(
+                  (l) => DropdownMenuItem(value: l.code, child: Text(l.name)),
+                )
+                .toList(),
             onChanged: (v) {
-              if (v != null) ref.read(settingsProvider.notifier).setAudioLanguage(v);
+              if (v != null)
+                ref.read(settingsProvider.notifier).setAudioLanguage(v);
             },
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Normalize Volume',
             subtitle: 'Keep consistent volume levels',
             value: settings.normalizeVolume,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setNormalizeVolume(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setNormalizeVolume(v),
           ),
         ],
       ),
@@ -302,24 +384,28 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildAppearanceCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           _buildSwitchTile(
             title: 'Enable Animations',
             subtitle: 'Show smooth transitions',
             value: settings.enableAnimations,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setEnableAnimations(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setEnableAnimations(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Reduced Motion',
             subtitle: 'Minimize animations',
             value: settings.reducedMotion,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setReducedMotion(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setReducedMotion(v),
           ),
         ],
       ),
@@ -327,31 +413,37 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildNetworkCard(AppSettings settings) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           _buildSwitchTile(
             title: 'Allow Cellular Streaming',
             subtitle: 'Stream over mobile data',
             value: settings.allowCellularStreaming,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setAllowCellularStreaming(v),
+            onChanged: (v) => ref
+                .read(settingsProvider.notifier)
+                .setAllowCellularStreaming(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Preload Next Episode',
             subtitle: 'Buffer upcoming content',
             value: settings.preloadNextEpisode,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setPreloadNextEpisode(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setPreloadNextEpisode(v),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _buildSwitchTile(
             title: 'Cache Images',
             subtitle: 'Store images locally',
             value: settings.cacheImages,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setCacheImages(v),
+            onChanged: (v) =>
+                ref.read(settingsProvider.notifier).setCacheImages(v),
           ),
         ],
       ),
@@ -359,10 +451,12 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
   }
 
   Widget _buildAboutCard() {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
       child: Column(
         children: [
           FutureBuilder<PackageInfo>(
@@ -374,20 +468,24 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                 title: const Text('Version'),
                 trailing: Text(
                   buildNumber.isNotEmpty ? '$version+$buildNumber' : version,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               );
             },
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(
             title: const Text('Platform'),
             trailing: Text(
               PlatformDetector.current.name.toUpperCase(),
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           Consumer(
             builder: (context, ref, _) {
               final serverUrl = ref.read(authProvider.notifier).serverUrl;
@@ -395,31 +493,43 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
                 title: const Text('Server'),
                 subtitle: Text(
                   serverUrl ?? 'Not connected',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               );
             },
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(
-            leading: const Icon(Icons.language, color: AppColors.primary),
+            leading: const Icon(
+              Icons.language_rounded,
+              color: AppColors.primary,
+            ),
             title: const Text('Website'),
             subtitle: Text(
               'openlyst.onrender.com',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
             ),
-            trailing: const Icon(Icons.open_in_new, size: 20),
+            trailing: const Icon(Icons.open_in_new_rounded, size: 20),
             onTap: () => _launchUrl('https://openlyst.onrender.com'),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(
-            leading: const Icon(Icons.code, color: AppColors.accentOrange),
+            leading: const Icon(
+              Icons.code_rounded,
+              color: AppColors.accentOrange,
+            ),
             title: const Text('Source Code'),
             subtitle: Text(
               'GitLab Repository',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
             ),
-            trailing: const Icon(Icons.open_in_new, size: 20),
+            trailing: const Icon(Icons.open_in_new_rounded, size: 20),
             onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
           ),
         ],
@@ -441,14 +551,17 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
     required ValueChanged<bool> onChanged,
   }) {
     return SwitchListTile(
-      title: Text(title),
+      title: Text(title, style: AppTextStyles.bodyLarge),
       subtitle: Text(
         subtitle,
         style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
       ),
       value: value,
       onChanged: onChanged,
-      activeThumbColor: AppColors.primary,
+      activeColor: AppColors.primary,
+      activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
+      inactiveThumbColor: AppColors.textSecondary,
+      inactiveTrackColor: AppColors.divider.withValues(alpha: 0.3),
     );
   }
 
@@ -459,14 +572,21 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
     required ValueChanged<T?> onChanged,
   }) {
     return ListTile(
-      title: Text(title),
+      title: Text(title, style: AppTextStyles.bodyLarge),
       trailing: DropdownButton<T>(
         value: value,
         items: items,
         onChanged: onChanged,
         dropdownColor: AppColors.surfaceElevated,
         underline: const SizedBox(),
-        style: AppTextStyles.bodyMedium,
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textSecondary,
+        ),
+        icon: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppColors.textSecondary,
+        ),
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }
@@ -476,11 +596,38 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Reset Settings'),
-        content: const Text('Are you sure you want to reset all settings to their default values?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.refresh_rounded,
+                color: AppColors.warning,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            const Text('Reset Settings'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to reset all settings to their default values? This action cannot be undone.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -488,10 +635,24 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
               ref.read(settingsProvider.notifier).resetToDefaults();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Settings reset to defaults')),
+                SnackBar(
+                  content: const Text('Settings reset to defaults'),
+                  backgroundColor: AppColors.surfaceElevated,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.warning,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             child: const Text('Reset'),
           ),
         ],

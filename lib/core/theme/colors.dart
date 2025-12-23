@@ -65,11 +65,17 @@ class AppColors {
   static const Color error = Color(0xFFFF6B6B);
   static const Color info = Color(0xFF5B8DEF);
   
-  // Gradient colors
+  // Gradient colors - Refined
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [primary, accent],
+  );
+  
+  static const LinearGradient primarySoftGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF00E5B8), Color(0xFF00B8D9)],
   );
   
   static const LinearGradient purplePinkGradient = LinearGradient(
@@ -88,8 +94,8 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0x20FFFFFF),
-      Color(0x10FFFFFF),
+      Color(0x18FFFFFF),
+      Color(0x08FFFFFF),
     ],
   );
   
@@ -97,9 +103,21 @@ class AppColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF1C1C1E),
-      Color(0xFF0A0A0A),
+      Color(0xFF1A1A1E),
+      Color(0xFF0D0D0F),
     ],
+  );
+  
+  // Hero gradient for featured content
+  static const LinearGradient heroGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0x00000000),
+      Color(0x40000000),
+      Color(0xE6000000),
+    ],
+    stops: [0.0, 0.5, 1.0],
   );
   
   // Overlay gradients for images
@@ -118,20 +136,32 @@ class AppColors {
     end: Alignment.bottomCenter,
     colors: [
       Color(0x00000000),
-      Color(0xCC000000),
+      Color(0xE6000000),
     ],
-    stops: [0.5, 1.0],
+    stops: [0.4, 1.0],
   );
   
   static const LinearGradient imageOverlayFull = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0x66000000),
+      Color(0x4D000000),
       Color(0x00000000),
-      Color(0xB3000000),
+      Color(0xCC000000),
     ],
-    stops: [0.0, 0.4, 1.0],
+    stops: [0.0, 0.35, 1.0],
+  );
+  
+  // Card overlay gradients
+  static const LinearGradient cardOverlay = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0x00000000),
+      Color(0x80000000),
+      Color(0xE6000000),
+    ],
+    stops: [0.3, 0.7, 1.0],
   );
 
   // Platform-specific adjustments
@@ -140,6 +170,10 @@ class AppColors {
   }
 
   // Shimmer colors for loading states
-  static const Color shimmerBase = Color(0xFF1C1C1E);
-  static const Color shimmerHighlight = Color(0xFF2C2C2E);
+  static const Color shimmerBase = Color(0xFF1A1A1E);
+  static const Color shimmerHighlight = Color(0xFF2A2A2E);
+  
+  // Skeleton loading colors
+  static const Color skeletonBase = Color(0xFF242428);
+  static const Color skeletonHighlight = Color(0xFF2E2E34);
 }

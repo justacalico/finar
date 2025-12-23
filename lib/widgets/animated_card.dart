@@ -277,10 +277,10 @@ class _AnimatedCardState extends State<AnimatedCard> {
             end: Alignment.bottomCenter,
             colors: [
               Colors.transparent,
-              Colors.transparent,
-              AppColors.black.withValues(alpha: 0.8),
+              AppColors.black.withValues(alpha: 0.2),
+              AppColors.black.withValues(alpha: 0.85),
             ],
-            stops: const [0.0, 0.5, 1.0],
+            stops: const [0.0, 0.55, 1.0],
           ),
         ),
       ),
@@ -289,24 +289,29 @@ class _AnimatedCardState extends State<AnimatedCard> {
 
   Widget _buildContentOverlay() {
     return Positioned(
-      left: 8,
-      right: 8,
-      bottom: 8,
+      left: 10,
+      right: 10,
+      bottom: 10,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             widget.title,
-            style: AppTextStyles.titleSmall,
+            style: AppTextStyles.titleSmall.copyWith(
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           if (widget.subtitle != null) ...[
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               widget.subtitle!,
-              style: AppTextStyles.caption,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -321,11 +326,18 @@ class _AnimatedCardState extends State<AnimatedCard> {
       left: 0,
       right: 0,
       bottom: 0,
-      child: LinearProgressIndicator(
-        value: widget.progress,
-        backgroundColor: AppColors.black.withValues(alpha: 0.5),
-        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-        minHeight: 3,
+      child: Container(
+        height: 4,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: LinearProgressIndicator(
+          value: widget.progress,
+          backgroundColor: AppColors.black.withValues(alpha: 0.5),
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          minHeight: 4,
+        ),
       ),
     );
   }

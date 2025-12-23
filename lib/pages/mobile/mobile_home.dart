@@ -238,79 +238,58 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 0, 20, bottomPadding > 0 ? bottomPadding : 12),
+      margin: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding : 12),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutCubic,
-            height: 68,
+            height: 64,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
-              // Refined liquid glass effect
-              color: Colors.black.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(28),
+              // Refined glass effect
+              color: AppColors.backgroundSecondary.withValues(alpha: 0.85),
               border: Border.all(
-                width: 0.5,
-                color: Colors.white.withValues(alpha: 0.15),
+                width: 1,
+                color: AppColors.divider.withValues(alpha: 0.3),
               ),
               boxShadow: [
                 // Soft ambient shadow
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 20,
+                  color: Colors.black.withValues(alpha: 0.25),
+                  blurRadius: 16,
                   spreadRadius: 0,
-                  offset: const Offset(0, 10),
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: Stack(
               children: [
-                // Subtle inner highlight at top
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.1),
-                          Colors.white.withValues(alpha: 0.15),
-                          Colors.white.withValues(alpha: 0.1),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
                 // Animated pill indicator
                 AnimatedPositioned(
-                  duration: const Duration(milliseconds: 350),
+                  duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutCubic,
                   left: _getIndicatorPosition(context),
-                  top: 6,
+                  top: 4,
                   child: Container(
-                    width: 56,
+                    width: 52,
                     height: 56,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(22),
                       gradient: RadialGradient(
                         center: Alignment.topCenter,
                         radius: 1.2,
                         colors: [
-                          _accentColor.withValues(alpha: 0.5),
-                          _accentColor.withValues(alpha: 0.25),
+                          AppColors.primary.withValues(alpha: 0.4),
+                          AppColors.primary.withValues(alpha: 0.15),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _accentColor.withValues(alpha: 0.4),
-                          blurRadius: 20,
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 16,
                           spreadRadius: -2,
                         ),
                       ],
@@ -335,9 +314,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   double _getIndicatorPosition(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width - 40; // Account for margin
+    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for margin
     final itemWidth = screenWidth / 4;
-    return (itemWidth * _currentIndex) + (itemWidth / 2) - 28;
+    return (itemWidth * _currentIndex) + (itemWidth / 2) - 26;
   }
 
   Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label, {bool isOnline = true}) {
@@ -353,37 +332,37 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         },
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                transform: Matrix4.diagonal3Values(isSelected ? 1.1 : 1.0, isSelected ? 1.1 : 1.0, 1.0),
+                transform: Matrix4.diagonal3Values(isSelected ? 1.05 : 1.0, isSelected ? 1.05 : 1.0, 1.0),
                 transformAlignment: Alignment.center,
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 24,
                   color: isDisabled
-                      ? Colors.white.withValues(alpha: 0.2)
+                      ? AppColors.textDisabled
                       : isSelected 
-                          ? Colors.white 
-                          : Colors.white.withValues(alpha: 0.5),
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 250),
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isDisabled
-                      ? Colors.white.withValues(alpha: 0.2)
+                      ? AppColors.textDisabled
                       : isSelected 
-                          ? Colors.white 
-                          : Colors.white.withValues(alpha: 0.5),
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                 ),
                 child: Text(label),
               ),
@@ -440,63 +419,77 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
           onRefresh: () async {
             await ref.read(libraryProvider.notifier).loadHomeData();
           },
-          color: _accentColor,
+          color: AppColors.primary,
           child: CustomScrollView(
             slivers: [
-              // App bar
+              // App bar - refined styling
               SliverAppBar(
                 floating: true,
                 pinned: false,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                toolbarHeight: 70,
+                toolbarHeight: 64,
                 title: Row(
                   children: [
-                    // Animated logo
+                    // Logo with refined styling
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            _accentColor.withValues(alpha: 0.3),
-                            _dominantColor.withValues(alpha: 0.2),
-                          ],
+                        color: AppColors.backgroundSecondary.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.divider.withValues(alpha: 0.3),
+                          width: 1,
                         ),
-                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.play_circle_filled, color: _accentColor, size: 24),
-                          const SizedBox(width: 8),
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              gradient: AppColors.primarySoftGradient,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: AppColors.textOnPrimary,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
                           Text(
                             'Finar',
-                            style: AppTextStyles.titleLarge.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
                       ),
                     ),
                     const Spacer(),
-                    // Notifications (placeholder)
-                    GlassIconButton(
-                      icon: Icons.notifications_outlined,
-                      size: 40,
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 8),
-                    // Settings button
-                    GlassIconButton(
-                      icon: Icons.settings_outlined,
-                      size: 40,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const MobileSettings()),
-                        );
-                      },
+                    // Settings button with refined styling
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundSecondary.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.divider.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.settings_outlined, size: 22),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MobileSettings()),
+                          );
+                        },
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -808,37 +801,42 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   SliverToBoxAdapter _buildSectionHeader(String title, {IconData? icon}) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
         child: Row(
           children: [
             if (icon != null) ...[
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _accentColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: _accentColor),
+                child: Icon(icon, size: 18, color: AppColors.primary),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
             ],
             Expanded(
               child: Text(
                 title, 
                 style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                 ),
               ),
             ),
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.surface,
+                border: Border.all(
+                  color: AppColors.divider.withValues(alpha: 0.3),
+                  width: 1,
+                ),
               ),
               child: TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -847,12 +845,13 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                   children: [
                     Text(
                       'See All',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: _accentColor,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_ios, size: 10, color: _accentColor),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.primary),
                   ],
                 ),
               ),

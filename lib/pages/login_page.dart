@@ -234,39 +234,39 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   Widget _buildAnimatedBackground() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0A0A0A),
-            Color(0xFF0D1B2A),
-            Color(0xFF1B263B),
-            Color(0xFF0A0A0A),
+            AppColors.background,
+            const Color(0xFF0D1520),
+            const Color(0xFF0F1A28),
+            AppColors.background,
           ],
-          stops: [0.0, 0.3, 0.6, 1.0],
+          stops: const [0.0, 0.35, 0.65, 1.0],
         ),
       ),
       child: Stack(
         children: [
-          // Floating orbs
+          // Subtle floating orbs
           Positioned(
-            top: -100,
-            right: -100,
-            child: _buildGlowOrb(AppColors.primary.withValues(alpha: 0.3), 300),
+            top: -80,
+            right: -80,
+            child: _buildGlowOrb(AppColors.primary.withValues(alpha: 0.2), 280),
           ),
           Positioned(
-            bottom: -150,
-            left: -100,
+            bottom: -120,
+            left: -80,
             child: _buildGlowOrb(
-              AppColors.secondary.withValues(alpha: 0.2),
-              350,
+              AppColors.secondary.withValues(alpha: 0.15),
+              320,
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.4,
-            right: -50,
-            child: _buildGlowOrb(AppColors.accent.withValues(alpha: 0.15), 200),
+            top: MediaQuery.of(context).size.height * 0.45,
+            right: -30,
+            child: _buildGlowOrb(AppColors.accent.withValues(alpha: 0.1), 180),
           ),
         ],
       ),
@@ -286,9 +286,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
         )
         .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1.1, 1.1),
-          duration: const Duration(seconds: 4),
+          begin: const Offset(0.92, 0.92),
+          end: const Offset(1.08, 1.08),
+          duration: const Duration(seconds: 5),
           curve: Curves.easeInOut,
         );
   }
@@ -495,69 +495,78 @@ class _LoginPageState extends ConsumerState<LoginPage>
       crossAxisAlignment: alignment,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // App icon/logo
+        // App icon/logo with refined styling
         Container(
-              width: 80 * scale,
-              height: 80 * scale,
+              width: 76 * scale,
+              height: 76 * scale,
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(20 * scale),
-                boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                gradient: AppColors.primarySoftGradient,
+                borderRadius: BorderRadius.circular(18 * scale),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                    blurRadius: 24,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
-                Icons.play_circle_filled,
-                size: 48 * scale,
-                color: Colors.white,
+                Icons.play_circle_fill_rounded,
+                size: 44 * scale,
+                color: AppColors.textOnPrimary,
               ),
             )
             .animate()
-            .fadeIn(duration: 600.ms)
+            .fadeIn(duration: 500.ms)
             .scale(
-              begin: const Offset(0.5, 0.5),
+              begin: const Offset(0.6, 0.6),
               end: const Offset(1, 1),
-              curve: Curves.elasticOut,
-              duration: 800.ms,
+              curve: Curves.easeOutBack,
+              duration: 700.ms,
             ),
 
-        SizedBox(height: 24 * scale),
+        SizedBox(height: 20 * scale),
 
-        // App name
+        // App name with refined typography
         Text(
               'Finar',
               style: TextStyle(
-                fontSize: 48 * scale,
-                fontWeight: FontWeight.bold,
+                fontSize: 44 * scale,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -1,
                 foreground: Paint()
-                  ..shader = AppColors.primaryGradient.createShader(
-                    Rect.fromLTWH(0, 0, 200 * scale, 60 * scale),
+                  ..shader = AppColors.primarySoftGradient.createShader(
+                    Rect.fromLTWH(0, 0, 180 * scale, 55 * scale),
                   ),
               ),
             )
             .animate()
-            .fadeIn(delay: 200.ms, duration: 600.ms)
-            .slideY(begin: 0.3, end: 0, curve: Curves.easeOutCubic),
+            .fadeIn(delay: 150.ms, duration: 500.ms)
+            .slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
 
-        SizedBox(height: 8 * scale),
+        SizedBox(height: 6 * scale),
 
-        // Tagline
+        // Tagline with improved styling
         Text(
           'Your Jellyfin Experience',
           style: TextStyle(
-            fontSize: 16 * scale,
-            color: AppColors.textSecondary,
-            letterSpacing: 2,
+            fontSize: 14 * scale,
+            color: AppColors.textTertiary,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.w500,
           ),
-        ).animate().fadeIn(delay: 400.ms, duration: 600.ms),
+        ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
       ],
     );
   }
 
   Widget _buildFeatureList() {
     final features = [
-      (Icons.devices, 'Multi-Platform', 'Watch on any device'),
-      (Icons.download, 'Offline Mode', 'Download for later'),
-      (Icons.high_quality, 'High Quality', 'Stream in full resolution'),
-      (Icons.sync, 'Sync Progress', 'Continue where you left off'),
+      (Icons.devices_rounded, 'Multi-Platform', 'Watch on any device'),
+      (Icons.download_rounded, 'Offline Mode', 'Download for later'),
+      (Icons.high_quality_rounded, 'High Quality', 'Stream in full resolution'),
+      (Icons.sync_rounded, 'Sync Progress', 'Continue where you left off'),
     ];
 
     return Column(
@@ -566,35 +575,40 @@ class _LoginPageState extends ConsumerState<LoginPage>
         final index = entry.key;
         final feature = entry.value;
         return Padding(
-              padding: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.only(bottom: 18),
               child: Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
-                    child: Icon(feature.$1, color: AppColors.primary, size: 24),
+                    child: Icon(feature.$1, color: AppColors.primary, size: 22),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 14),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         feature.$2,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         feature.$3,
                         style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                          color: AppColors.textTertiary,
                         ),
                       ),
                     ],

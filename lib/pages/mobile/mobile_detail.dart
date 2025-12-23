@@ -185,33 +185,51 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Poster
+        // Poster with refined styling
         Hero(
           tag: 'poster_${item.id}',
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            child: CachedNetworkImage(
-              imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
-              width: 120,
-              height: 180,
-              fit: BoxFit.cover,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: CachedNetworkImage(
+                imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                width: 115,
+                height: 172,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
 
-        const SizedBox(width: 16),
+        const SizedBox(width: 18),
 
         // Info
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(item.name, style: AppTextStyles.headlineSmall),
-              const SizedBox(height: 8),
-              // Metadata
+              Text(
+                item.name,
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Metadata with refined chips
               Wrap(
                 spacing: 8,
-                runSpacing: 4,
+                runSpacing: 6,
                 children: [
                   if (item.productionYear != null)
                     _buildMetadataChip(item.productionYear.toString()),
@@ -221,38 +239,68 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     _buildMetadataChip(item.formattedRuntime),
                 ],
               ),
-              const SizedBox(height: 8),
-              // Rating
+              const SizedBox(height: 12),
+              // Rating with refined styling
               if (item.communityRating != null)
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      size: 18,
-                      color: AppColors.accentYellow,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      item.communityRating!.toStringAsFixed(1),
-                      style: AppTextStyles.rating,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentYellow.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 16,
+                            color: AppColors.accentYellow,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            item.communityRating!.toStringAsFixed(1),
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: AppColors.accentYellow,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     if (item.criticRating != null) ...[
-                      const SizedBox(width: 12),
-                      const Icon(
-                        Icons.reviews,
-                        size: 16,
-                        color: AppColors.accentRed,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${item.criticRating}%',
-                        style: AppTextStyles.bodyMedium,
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.accentRed.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.reviews_rounded,
+                              size: 14,
+                              color: AppColors.accentRed,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${item.criticRating}%',
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: AppColors.accentRed,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ],
                 ),
-              const SizedBox(height: 8),
-              // Genres
+              const SizedBox(height: 12),
+              // Genres with refined styling
               if (item.genres?.isNotEmpty == true)
                 Wrap(
                   spacing: 6,
@@ -260,14 +308,23 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   children: item.genres!.take(3).map((genre) {
                     return Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 10,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.divider.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
                       ),
-                      child: Text(genre, style: AppTextStyles.labelSmall),
+                      child: Text(
+                        genre,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     );
                   }).toList(),
                 ),
@@ -275,17 +332,26 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           ),
         ),
       ],
-    ).animate().fadeIn().slideY(begin: 0.1);
+    ).animate().fadeIn().slideY(begin: 0.05);
   }
 
   Widget _buildMetadataChip(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(4),
+        color: AppColors.surface,
+        border: Border.all(
+          color: AppColors.divider.withValues(alpha: 0.5),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(text, style: AppTextStyles.labelSmall),
+      child: Text(
+        text,
+        style: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      ),
     );
   }
 

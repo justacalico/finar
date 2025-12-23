@@ -4,7 +4,7 @@ import '../core/theme/colors.dart';
 import '../core/theme/app_theme.dart';
 import '../core/services/controller_service.dart';
 
-/// A glassmorphism container widget with blur and transparency effects
+/// A refined glassmorphism container widget with blur and transparency effects
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -29,7 +29,7 @@ class GlassContainer extends StatelessWidget {
     this.width,
     this.height,
     this.blur = AppTheme.blurMedium,
-    this.opacity = 0.1,
+    this.opacity = 0.08,
     this.borderRadius = AppTheme.radiusLg,
     this.color,
     this.gradient,
@@ -49,15 +49,15 @@ class GlassContainer extends StatelessWidget {
     final effectiveOpacity = opacity;
     final effectiveColor =
         color?.withValues(alpha: effectiveOpacity) ??
-        AppColors.white.withValues(alpha: effectiveOpacity);
+        AppColors.surface.withValues(alpha: effectiveOpacity + 0.4);
     final effectiveGradient =
         gradient ??
         LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.white.withValues(alpha: effectiveOpacity * 1.5),
-            AppColors.white.withValues(alpha: effectiveOpacity * 0.5),
+            AppColors.white.withValues(alpha: effectiveOpacity * 1.2),
+            AppColors.white.withValues(alpha: effectiveOpacity * 0.4),
           ],
         );
 

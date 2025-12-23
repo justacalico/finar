@@ -312,80 +312,130 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   Widget _buildActionButtons(MediaItem item) {
     return Row(
       children: [
-        // Play button
+        // Play button with refined styling
         SizedBox(
-          width: 180,
-          height: 56,
+          width: 200,
+          height: 54,
           child: ElevatedButton.icon(
             onPressed: () => _playItem(item),
-            icon: const Icon(Icons.play_arrow, size: 28),
+            icon: const Icon(Icons.play_arrow_rounded, size: 26),
             label: Text(
               item.hasProgress ? 'Resume' : 'Play',
-              style: AppTextStyles.buttonLarge,
+              style: AppTextStyles.buttonLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
 
         // Trailer button
         if (item.hasTrailer)
-          GlassButton(
-            onPressed: () => _playTrailer(item),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: const Row(
-              children: [
-                Icon(Icons.movie_outlined, size: 20),
-                SizedBox(width: 8),
-                Text('Trailer'),
-              ],
+          Container(
+            height: 54,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppColors.divider.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+            child: TextButton.icon(
+              onPressed: () => _playTrailer(item),
+              icon: const Icon(Icons.movie_outlined, size: 20),
+              label: const Text('Trailer'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+              ),
             ),
           ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
 
         // Favorite button
         Consumer(
           builder: (context, ref, _) {
             final isFavorite = item.isFavorite == true;
-            return GlassIconButton(
-              icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-              iconColor: isFavorite ? AppColors.accentRed : null,
+            return _buildIconButton(
+              icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+              color: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
               onPressed: () => _toggleFavorite(item),
+              tooltip: isFavorite ? 'Remove from favorites' : 'Add to favorites',
             );
           },
         ),
 
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
 
         // Mark watched button
-        GlassIconButton(
+        _buildIconButton(
           icon: (item.isPlayed == true)
-              ? Icons.check_circle
-              : Icons.check_circle_outline,
-          iconColor: (item.isPlayed == true) ? AppColors.primary : null,
+              ? Icons.check_circle_rounded
+              : Icons.check_circle_outline_rounded,
+          color: (item.isPlayed == true) ? AppColors.primary : AppColors.textSecondary,
           onPressed: () => _toggleWatched(item),
+          tooltip: (item.isPlayed == true) ? 'Mark as unwatched' : 'Mark as watched',
         ),
 
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
 
         // Download button
         _buildDownloadButton(item),
 
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
 
         // More options
-        GlassIconButton(
-          icon: Icons.more_horiz,
+        _buildIconButton(
+          icon: Icons.more_horiz_rounded,
           onPressed: () => _showMoreOptions(item),
+          tooltip: 'More options',
         ),
       ],
     );
   }
 
+  Widget _buildIconButton({
+    required IconData icon,
+    Color? color,
+    required VoidCallback onPressed,
+    String? tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip ?? '',
+      child: Container(
+        width: 54,
+        height: 54,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.divider.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 22),
+          color: color ?? AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfoSection(MediaItem item, String serverUrl) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
+      padding: const EdgeInsets.fromLTRB(64, 0, 64, 48),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -395,23 +445,39 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Overview', style: AppTextStyles.titleLarge),
-                const SizedBox(height: 12),
+                Text(
+                  'Overview',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 14),
                 Text(
                   item.overview ?? 'No overview available.',
                   style: AppTextStyles.bodyLarge.copyWith(
-                    height: 1.6,
+                    height: 1.7,
                     color: AppColors.textSecondary,
                     decoration: TextDecoration.none,
                   ),
                 ),
                 if (item.taglines?.isNotEmpty == true) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    '"${item.taglines!.first}"',
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.primary,
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      '"${item.taglines!.first}"',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -429,53 +495,83 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   }
 
   Widget _buildAdditionalInfo(MediaItem item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (item.studios?.isNotEmpty == true)
-          _buildInfoRow('Studio', item.studios!.first),
-        if (item.productionYear != null)
-          _buildInfoRow('Year', item.productionYear.toString()),
-        if (item.container != null)
-          _buildInfoRow('Format', item.container!.toUpperCase()),
-        if (item.mediaStreams?.isNotEmpty == true) ...[
-          _buildInfoRow(
-            'Video',
-            item.mediaStreams!
-                    .where((s) => s.type == 'Video')
-                    .map(
-                      (s) => '${s.codec?.toUpperCase()} ${s.videoResolution}',
-                    )
-                    .firstOrNull ??
-                'Unknown',
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.divider.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Details',
+            style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          _buildInfoRow(
-            'Audio',
-            item.mediaStreams!
-                    .where((s) => s.type == 'Audio')
-                    .map(
-                      (s) =>
-                          '${s.codec?.toUpperCase()} ${s.channelLayout ?? ''}',
-                    )
-                    .firstOrNull ??
-                'Unknown',
-          ),
+          const SizedBox(height: 16),
+          if (item.studios?.isNotEmpty == true)
+            _buildInfoRow('Studio', item.studios!.first),
+          if (item.productionYear != null)
+            _buildInfoRow('Year', item.productionYear.toString()),
+          if (item.container != null)
+            _buildInfoRow('Format', item.container!.toUpperCase()),
+          if (item.mediaStreams?.isNotEmpty == true) ...[
+            _buildInfoRow(
+              'Video',
+              item.mediaStreams!
+                      .where((s) => s.type == 'Video')
+                      .map(
+                        (s) => '${s.codec?.toUpperCase()} ${s.videoResolution}',
+                      )
+                      .firstOrNull ??
+                  'Unknown',
+            ),
+            _buildInfoRow(
+              'Audio',
+              item.mediaStreams!
+                      .where((s) => s.type == 'Audio')
+                      .map(
+                        (s) =>
+                            '${s.codec?.toUpperCase()} ${s.channelLayout ?? ''}',
+                      )
+                      .firstOrNull ??
+                  'Unknown',
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 80,
-            child: Text(label, style: AppTextStyles.labelMedium),
+            child: Text(
+              label,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
           ),
-          Expanded(child: Text(value, style: AppTextStyles.bodyMedium)),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -1,43 +1,44 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
-/// Text styles inspired by iOS 26 / San Francisco typography
+/// Text styles - Modern streaming app typography
+/// Optimized for readability across all screen sizes
 class AppTextStyles {
   // Private constructor
   AppTextStyles._();
 
-  // Font family - Uses system fonts for best native feel
-  static const String fontFamily = '.SF Pro Display';
-  static const String textFontFamily = '.SF Pro Text';
+  // Font family - System fonts for native feel, fallback to Inter
+  static const String fontFamily = 'Inter';
+  static const String textFontFamily = 'Inter';
 
-  // Display styles - Large headlines
+  // Display styles - Large headlines for hero sections
   static const TextStyle displayLarge = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 57,
-    fontWeight: FontWeight.bold,
-    letterSpacing: -0.25,
+    fontSize: 56,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -1.5,
     color: AppColors.textPrimary,
-    height: 1.12,
+    height: 1.1,
     decoration: TextDecoration.none,
   );
 
   static const TextStyle displayMedium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 45,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 0,
+    fontSize: 44,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.5,
     color: AppColors.textPrimary,
-    height: 1.16,
+    height: 1.14,
     decoration: TextDecoration.none,
   );
 
   static const TextStyle displaySmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 36,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 0,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.25,
     color: AppColors.textPrimary,
-    height: 1.22,
+    height: 1.2,
     decoration: TextDecoration.none,
   );
 

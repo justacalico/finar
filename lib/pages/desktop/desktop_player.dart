@@ -537,110 +537,125 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
   }
 
   Widget _buildSettingsPanel(PlayerState state) {
-    return Positioned(
-      right: 24,
-      bottom: 120,
-      child: GlassContainer(
-        blur: AppTheme.blurHeavy,
-        opacity: 0.15,
-        borderRadius: AppTheme.radiusLg,
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
+    return Stack(
+      children: [
+        // Dismiss barrier - closes panel when tapping outside
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () => setState(() => _showSettings = false),
+            behavior: HitTestBehavior.opaque,
+            child: Container(color: Colors.transparent),
+          ),
+        ),
+        // Settings panel
+        Positioned(
+          right: 24,
+          bottom: 120,
+          child: GlassContainer(
+            blur: AppTheme.blurHeavy,
+            opacity: 0.15,
+            borderRadius: AppTheme.radiusLg,
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Settings', style: AppTextStyles.titleMedium),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => setState(() => _showSettings = false),
+                  // Header
+                  Row(
+                    children: [
+                      Text('Settings', style: AppTextStyles.titleMedium),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => setState(() => _showSettings = false),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+
+                  // Quality section
+                  _buildSettingsSection(
+                    'Quality',
+                    state.availableQualities
+                        .map(
+                          (q) => _buildSettingsOption(
+                            q,
+                            isSelected: state.currentQuality == q,
+                            onTap: () =>
+                                ref.read(playerProvider.notifier).setQuality(q),
+                          ),
+                        )
+                        .toList(),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Audio section
+                  _buildSettingsSection(
+                    'Audio',
+                    state.audioTracks
+                            ?.map(
+                              (track) => _buildSettingsOption(
+                                track.displayTitle ?? 'Track ${track.index}',
+                                isSelected:
+                                    state.currentAudioTrack == track.index,
+                                onTap: () => ref
+                                    .read(playerProvider.notifier)
+                                    .setAudioTrack(track.index),
+                              ),
+                            )
+                            .toList() ??
+                        [],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Subtitles section
+                  _buildSettingsSection('Subtitles', [
+                    _buildSettingsOption(
+                      'Off',
+                      isSelected: state.currentSubtitleTrack == null,
+                      onTap: () => ref
+                          .read(playerProvider.notifier)
+                          .setSubtitleTrack(null),
+                    ),
+                    if (state.subtitleTracks != null)
+                      ...state.subtitleTracks!.map(
+                        (track) => _buildSettingsOption(
+                          track.displayTitle ?? 'Track ${track.index}',
+                          isSelected: state.currentSubtitleTrack == track.index,
+                          onTap: () => ref
+                              .read(playerProvider.notifier)
+                              .setSubtitleTrack(track.index),
+                        ),
+                      ),
+                  ]),
+
+                  const SizedBox(height: 16),
+
+                  // Playback speed
+                  _buildSettingsSection(
+                    'Speed',
+                    [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+                        .map(
+                          (speed) => _buildSettingsOption(
+                            '${speed}x',
+                            isSelected: state.playbackSpeed == speed,
+                            onTap: () => ref
+                                .read(playerProvider.notifier)
+                                .setPlaybackSpeed(speed),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ],
               ),
-              const Divider(height: 24),
-
-              // Quality section
-              _buildSettingsSection(
-                'Quality',
-                state.availableQualities
-                    .map(
-                      (q) => _buildSettingsOption(
-                        q,
-                        isSelected: state.currentQuality == q,
-                        onTap: () =>
-                            ref.read(playerProvider.notifier).setQuality(q),
-                      ),
-                    )
-                    .toList(),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Audio section
-              _buildSettingsSection(
-                'Audio',
-                state.audioTracks
-                        ?.map(
-                          (track) => _buildSettingsOption(
-                            track.displayTitle ?? 'Track ${track.index}',
-                            isSelected: state.currentAudioTrack == track.index,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .setAudioTrack(track.index),
-                          ),
-                        )
-                        .toList() ??
-                    [],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Subtitles section
-              _buildSettingsSection('Subtitles', [
-                _buildSettingsOption(
-                  'Off',
-                  isSelected: state.currentSubtitleTrack == null,
-                  onTap: () =>
-                      ref.read(playerProvider.notifier).setSubtitleTrack(null),
-                ),
-                if (state.subtitleTracks != null)
-                  ...state.subtitleTracks!.map(
-                    (track) => _buildSettingsOption(
-                      track.displayTitle ?? 'Track ${track.index}',
-                      isSelected: state.currentSubtitleTrack == track.index,
-                      onTap: () => ref
-                          .read(playerProvider.notifier)
-                          .setSubtitleTrack(track.index),
-                    ),
-                  ),
-              ]),
-
-              const SizedBox(height: 16),
-
-              // Playback speed
-              _buildSettingsSection(
-                'Speed',
-                [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
-                    .map(
-                      (speed) => _buildSettingsOption(
-                        '${speed}x',
-                        isSelected: state.playbackSpeed == speed,
-                        onTap: () => ref
-                            .read(playerProvider.notifier)
-                            .setPlaybackSpeed(speed),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
-          ),
+            ),
+          ).animate().fadeIn().slideX(begin: 0.1),
         ),
-      ).animate().fadeIn().slideX(begin: 0.1),
+      ],
     );
   }
 
@@ -778,14 +793,14 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
     // they can continue browsing while the video plays in the background.
     // A mini-player bar at the bottom allows control over playback.
     //
-    // Note: True floating PiP windows require native platform support 
+    // Note: True floating PiP windows require native platform support
     // which isn't available cross-platform in Flutter desktop yet.
-    
+
     // Reset fullscreen mode if active
     if (_isFullscreen) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
-    
+
     // Navigate back - playback continues via the player provider
     // The home screen will show the mini player bar for video content
     Navigator.of(context).pop();
