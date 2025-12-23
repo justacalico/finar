@@ -28,7 +28,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   int _selectedIndex = 0;
   String? _selectedLibraryId;
   String? _selectedLibraryType;
-  
+
   // Focus management for controller navigation
   final FocusNode _mainFocusNode = FocusNode();
   bool _sidebarFocused = false;
@@ -56,7 +56,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     }
 
     final action = ControllerService.getAction(event);
-    
+
     // Handle back button to navigate back or toggle sidebar
     if (action == ControllerAction.back) {
       if (_selectedLibraryId != null) {
@@ -72,18 +72,18 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         return KeyEventResult.handled;
       }
     }
-    
+
     // Handle menu button to toggle sidebar focus
     if (action == ControllerAction.menu) {
       setState(() => _sidebarFocused = !_sidebarFocused);
       return KeyEventResult.handled;
     }
-    
+
     // Handle sidebar navigation when sidebar is focused
     if (_sidebarFocused) {
       return _handleSidebarNavigation(action);
     }
-    
+
     return KeyEventResult.ignored;
   }
 
@@ -91,7 +91,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final libraries = ref.read(librariesProvider).valueOrNull ?? [];
     final maxLibraryIndex = 4 + libraries.length - 1; // Last library item index
     const settingsIndex = 100;
-    
+
     switch (action) {
       case ControllerAction.up:
         setState(() {
@@ -105,10 +105,12 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         return KeyEventResult.handled;
       case ControllerAction.down:
         setState(() {
-          if (_focusedNavIndex == maxLibraryIndex || (libraries.isEmpty && _focusedNavIndex == 3)) {
+          if (_focusedNavIndex == maxLibraryIndex ||
+              (libraries.isEmpty && _focusedNavIndex == 3)) {
             // From last item, go to settings
             _focusedNavIndex = settingsIndex;
-          } else if (_focusedNavIndex < maxLibraryIndex && _focusedNavIndex != settingsIndex) {
+          } else if (_focusedNavIndex < maxLibraryIndex &&
+              _focusedNavIndex != settingsIndex) {
             _focusedNavIndex++;
           }
         });
@@ -180,8 +182,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
     final isOnline = ref.watch(isOnlineProvider);
-    final isMusic = playerState.currentItem?.type.name == 'audio' || 
-                    playerState.currentItem?.type.name == 'album';
+    final isMusic =
+        playerState.currentItem?.type.name == 'audio' ||
+        playerState.currentItem?.type.name == 'album';
 
     // If offline, redirect to downloads page
     if (!isOnline) {
@@ -201,7 +204,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 children: [
                   // Sidebar with focus support
                   _buildSidebar(libraries),
-                  
+
                   // Main content with FocusTraversalGroup
                   Expanded(
                     child: FocusTraversalGroup(
@@ -209,7 +212,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       child: homeData.when(
                         data: (data) => _buildContent(data),
                         loading: () => const Center(
-                          child: CircularProgressIndicator(color: AppColors.primary),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
                         ),
                         error: (error, stack) => _buildError(error.toString()),
                       ),
@@ -218,17 +223,20 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 ],
               ),
             ),
-            
+
             // Music player bar at bottom
-            if (showMiniPlayer && isMusic)
-              const DesktopMusicPlayerBar(),
+            if (showMiniPlayer && isMusic) const DesktopMusicPlayerBar(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOfflineView(AsyncValue<List<Library>> libraries, bool showMiniPlayer, bool isMusic) {
+  Widget _buildOfflineView(
+    AsyncValue<List<Library>> libraries,
+    bool showMiniPlayer,
+    bool isMusic,
+  ) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -289,15 +297,12 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               ],
             ),
           ),
-          
+
           // Show downloads page directly
-          const Expanded(
-            child: DesktopDownloads(),
-          ),
-          
+          const Expanded(child: DesktopDownloads()),
+
           // Music player bar at bottom
-          if (showMiniPlayer && isMusic)
-            const DesktopMusicPlayerBar(),
+          if (showMiniPlayer && isMusic) const DesktopMusicPlayerBar(),
         ],
       ),
     );
@@ -305,134 +310,139 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   Widget _buildSidebar(AsyncValue<List<Library>> librariesAsync) {
     return GlassContainer(
-      width: 240,
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: 0,
-      showBorder: false,
-      child: Column(
-        children: [
-          // App logo
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.play_circle_fill,
-                    color: AppColors.black,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Finar',
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const Divider(color: AppColors.glassBorder),
-          
-          // Navigation items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildNavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Home',
-                  index: 0,
-                  focusIndex: 0,
-                ),
-                _buildNavItem(
-                  icon: Icons.search_outlined,
-                  activeIcon: Icons.search,
-                  label: 'Search',
-                  index: 1,
-                  focusIndex: 1,
-                ),
-                _buildNavItem(
-                  icon: Icons.favorite_outline,
-                  activeIcon: Icons.favorite,
-                  label: 'Favorites',
-                  index: 2,
-                  focusIndex: 2,
-                ),
-                _buildNavItem(
-                  icon: Icons.download_outlined,
-                  activeIcon: Icons.download,
-                  label: 'Downloads',
-                  index: 3,
-                  focusIndex: 3,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DesktopDownloads(),
+          width: 240,
+          blur: AppTheme.blurLight,
+          opacity: 0.05,
+          borderRadius: 0,
+          showBorder: false,
+          child: Column(
+            children: [
+              // App logo
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    );
-                  },
-                ),
-                
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Text(
-                    'LIBRARIES',
-                    style: AppTextStyles.labelSmall,
-                  ),
-                ),
-                
-                librariesAsync.when(
-                  data: (libraries) => Column(
-                    children: libraries.asMap().entries.map((entry) => 
-                      _buildLibraryItem(entry.value, entry.key + 4)
-                    ).toList(),
-                  ),
-                  loading: () => const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ShimmerLoading(height: 40),
-                  ),
-                  error: (_, _) => const SizedBox(),
-                ),
-                
-                const SizedBox(height: 16),
-                const Divider(color: AppColors.glassBorder),
-                
-                _buildNavItem(
-                  icon: Icons.settings_outlined,
-                  activeIcon: Icons.settings,
-                  label: 'Settings',
-                  index: 100,
-                  focusIndex: 100, // Settings always at high index
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DesktopSettings(),
+                      child: const Icon(
+                        Icons.play_circle_fill,
+                        color: AppColors.black,
+                        size: 24,
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Finar',
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              const Divider(color: AppColors.glassBorder),
+
+              // Navigation items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: [
+                    _buildNavItem(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home,
+                      label: 'Home',
+                      index: 0,
+                      focusIndex: 0,
+                    ),
+                    _buildNavItem(
+                      icon: Icons.search_outlined,
+                      activeIcon: Icons.search,
+                      label: 'Search',
+                      index: 1,
+                      focusIndex: 1,
+                    ),
+                    _buildNavItem(
+                      icon: Icons.favorite_outline,
+                      activeIcon: Icons.favorite,
+                      label: 'Favorites',
+                      index: 2,
+                      focusIndex: 2,
+                    ),
+                    _buildNavItem(
+                      icon: Icons.download_outlined,
+                      activeIcon: Icons.download,
+                      label: 'Downloads',
+                      index: 3,
+                      focusIndex: 3,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const DesktopDownloads(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      child: Text('LIBRARIES', style: AppTextStyles.labelSmall),
+                    ),
+
+                    librariesAsync.when(
+                      data: (libraries) => Column(
+                        children: libraries
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) =>
+                                  _buildLibraryItem(entry.value, entry.key + 4),
+                            )
+                            .toList(),
+                      ),
+                      loading: () => const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: ShimmerLoading(height: 40),
+                      ),
+                      error: (_, _) => const SizedBox(),
+                    ),
+
+                    const SizedBox(height: 16),
+                    const Divider(color: AppColors.glassBorder),
+
+                    _buildNavItem(
+                      icon: Icons.settings_outlined,
+                      activeIcon: Icons.settings,
+                      label: 'Settings',
+                      index: 100,
+                      focusIndex: 100, // Settings always at high index
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const DesktopSettings(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // User profile
+              _buildUserProfile(),
+            ],
           ),
-          
-          // User profile
-          _buildUserProfile(),
-        ],
-      ),
-    )
+        )
         .animate()
         .fadeIn(duration: AppTheme.durationNormal)
         .slideX(begin: -0.1, end: 0, duration: AppTheme.durationNormal);
@@ -447,7 +457,8 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     VoidCallback? onTap,
   }) {
     final isSelected = _selectedIndex == index && _selectedLibraryId == null;
-    final isFocused = _sidebarFocused && _focusedNavIndex == (focusIndex ?? index);
+    final isFocused =
+        _sidebarFocused && _focusedNavIndex == (focusIndex ?? index);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -456,11 +467,15 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          onTap: onTap ?? () {
-            setState(() {
-              _selectedIndex = index;
-              _selectedLibraryId = null;              _selectedLibraryType = null;            });
-          },
+          onTap:
+              onTap ??
+              () {
+                setState(() {
+                  _selectedIndex = index;
+                  _selectedLibraryId = null;
+                  _selectedLibraryType = null;
+                });
+              },
           child: AnimatedContainer(
             duration: AppTheme.durationFast,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -468,27 +483,32 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.15)
                   : isFocused
-                      ? AppColors.primary.withValues(alpha: 0.1)
-                      : Colors.transparent,
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: isFocused ? Border.all(
-                color: AppColors.primary,
-                width: 2,
-              ) : null,
+              border: isFocused
+                  ? Border.all(color: AppColors.primary, width: 2)
+                  : null,
             ),
             child: Row(
               children: [
                 Icon(
                   isSelected ? activeIcon : icon,
                   size: 22,
-                  color: isSelected || isFocused ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected || isFocused
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   label,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: isSelected || isFocused ? AppColors.primary : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected || isFocused
+                        ? AppColors.primary
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
               ],
@@ -513,7 +533,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           onTap: () {
             setState(() {
-              _selectedLibraryId = library.id;              _selectedLibraryType = library.collectionType;              _selectedIndex = -1;
+              _selectedLibraryId = library.id;
+              _selectedLibraryType = library.collectionType;
+              _selectedIndex = -1;
             });
           },
           child: AnimatedContainer(
@@ -523,11 +545,14 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.15)
                   : isFocused
-                      ? AppColors.glassBackground
-                      : Colors.transparent,
+                  ? AppColors.glassBackground
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: isFocused
-                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.5), width: 2)
+                  ? Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                      width: 2,
+                    )
                   : null,
             ),
             child: Row(
@@ -535,15 +560,21 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 Icon(
                   icon,
                   size: 22,
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     library.name,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -604,9 +635,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             backgroundColor: AppColors.primary,
             child: Text(
               user?.name.substring(0, 1).toUpperCase() ?? '?',
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.black,
-              ),
+              style: AppTextStyles.titleMedium.copyWith(color: AppColors.black),
             ),
           ),
           const SizedBox(width: 12),
@@ -666,13 +695,16 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         SliverToBoxAdapter(
           child: data.recentlyAdded.isNotEmpty
               ? HeroCard(
-                  imageUrl: data.recentlyAdded.first
-                      .getBackdropUrl(ref.read(jellyfinApiProvider).serverUrl ?? '', width: 1920),
+                  imageUrl: data.recentlyAdded.first.getBackdropUrl(
+                    ref.read(jellyfinApiProvider).serverUrl ?? '',
+                    width: 1920,
+                  ),
                   title: data.recentlyAdded.first.name,
                   subtitle: data.recentlyAdded.first.typeString,
                   description: data.recentlyAdded.first.overview,
                   year: data.recentlyAdded.first.productionYear?.toString(),
-                  rating: data.recentlyAdded.first.communityRating?.toStringAsFixed(1),
+                  rating: data.recentlyAdded.first.communityRating
+                      ?.toStringAsFixed(1),
                   runtime: data.recentlyAdded.first.formattedRuntime,
                   genres: data.recentlyAdded.first.genres?.take(3).toList(),
                   onTap: () => _navigateToDetail(data.recentlyAdded.first),
@@ -681,9 +713,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 )
               : const SizedBox(height: 300),
         ),
-        
+
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
-        
+
         // Continue Watching
         if (data.continueWatching.isNotEmpty)
           SliverToBoxAdapter(
@@ -693,16 +725,13 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               showProgress: true,
             ),
           ),
-        
+
         // Next Up
         if (data.nextUp.isNotEmpty)
           SliverToBoxAdapter(
-            child: _buildMediaRow(
-              title: 'Next Up',
-              items: data.nextUp,
-            ),
+            child: _buildMediaRow(title: 'Next Up', items: data.nextUp),
           ),
-        
+
         // Recently Added
         if (data.recentlyAdded.isNotEmpty)
           SliverToBoxAdapter(
@@ -711,7 +740,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               items: data.recentlyAdded.skip(1).toList(),
             ),
           ),
-        
+
         // Recently Released Movies
         if (data.recentlyReleased.isNotEmpty)
           SliverToBoxAdapter(
@@ -720,7 +749,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               items: data.recentlyReleased,
             ),
           ),
-        
+
         // Recently Added Movies
         if (data.recentlyAddedMovies.isNotEmpty)
           SliverToBoxAdapter(
@@ -729,7 +758,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               items: data.recentlyAddedMovies,
             ),
           ),
-        
+
         // Recently Added Shows
         if (data.recentlyAddedShows.isNotEmpty)
           SliverToBoxAdapter(
@@ -738,7 +767,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               items: data.recentlyAddedShows,
             ),
           ),
-        
+
         // Recommended
         if (data.recommended.isNotEmpty)
           SliverToBoxAdapter(
@@ -747,25 +776,19 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               items: data.recommended,
             ),
           ),
-        
+
         // Top Rated
         if (data.topRated.isNotEmpty)
           SliverToBoxAdapter(
-            child: _buildMediaRow(
-              title: 'Top Rated',
-              items: data.topRated,
-            ),
+            child: _buildMediaRow(title: 'Top Rated', items: data.topRated),
           ),
-        
+
         // Favorites
         if (data.favorites.isNotEmpty)
           SliverToBoxAdapter(
-            child: _buildMediaRow(
-              title: 'My Favorites',
-              items: data.favorites,
-            ),
+            child: _buildMediaRow(title: 'My Favorites', items: data.favorites),
           ),
-        
+
         const SliverToBoxAdapter(child: SizedBox(height: 48)),
       ],
     );
@@ -789,10 +812,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(title, style: AppTextStyles.headlineSmall),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See All'),
-                ),
+                TextButton(onPressed: () {}, child: const Text('See All')),
               ],
             ),
           ),
@@ -830,30 +850,226 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   }
 
   Widget _buildSearchView() {
+    final searchResults = ref.watch(searchResultsProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    final isLoading = ref.watch(libraryProvider).isLoading;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Text('Search', style: AppTextStyles.headlineLarge),
+          const SizedBox(height: 24),
+
+          // Search bar
+          SizedBox(
+            width: 500,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search movies, shows, music...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: AppColors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
+              ),
+              onChanged: (value) {
+                if (value.length >= 2) {
+                  ref.read(libraryProvider.notifier).search(value);
+                } else if (value.isEmpty) {
+                  ref.read(libraryProvider.notifier).clearSearch();
+                }
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Results
+          Expanded(
+            child: isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  )
+                : searchResults.isEmpty
+                ? _buildEmptySearch()
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          childAspectRatio: 2 / 3.2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    itemCount: searchResults.length,
+                    itemBuilder: (context, index) {
+                      final item = searchResults[index];
+                      return AnimatedCard(
+                        imageUrl: item.getPrimaryImageUrl(
+                          serverUrl,
+                          width: 300,
+                        ),
+                        title: item.name,
+                        subtitle: item.productionYear?.toString(),
+                        animationIndex: index,
+                        onTap: () => _navigateToDetail(item),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptySearch() {
     return Center(
-      child: Text(
-        'Search',
-        style: AppTextStyles.headlineLarge,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search,
+            size: 80,
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Search your media',
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Find movies, TV shows, music, and more',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildFavoritesView() {
+    final favorites = ref.watch(favoritesProvider(null));
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              const Icon(Icons.favorite, color: AppColors.primary, size: 28),
+              const SizedBox(width: 12),
+              Text('Favorites', style: AppTextStyles.headlineLarge),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Content
+          Expanded(
+            child: favorites.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return _buildEmptyFavorites();
+                }
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 6,
+                    childAspectRatio: 2 / 3.2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return AnimatedCard(
+                      imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                      title: item.name,
+                      subtitle: item.productionYear?.toString(),
+                      animationIndex: index,
+                      onTap: () => _navigateToDetail(item),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load favorites',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(e.toString(), style: AppTextStyles.bodySmall),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => ref.refresh(favoritesProvider(null)),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyFavorites() {
     return Center(
-      child: Text(
-        'Favorites',
-        style: AppTextStyles.headlineLarge,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite_border,
+            size: 80,
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No favorites yet',
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Mark items as favorites to see them here',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSettingsView() {
-    return Center(
-      child: Text(
-        'Settings',
-        style: AppTextStyles.headlineLarge,
-      ),
-    );
+    return Center(child: Text('Settings', style: AppTextStyles.headlineLarge));
   }
 
   Widget _buildError(String error) {
@@ -861,16 +1077,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: AppColors.error,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: AppColors.error),
           const SizedBox(height: 16),
-          Text(
-            'Failed to load content',
-            style: AppTextStyles.headlineSmall,
-          ),
+          Text('Failed to load content', style: AppTextStyles.headlineSmall),
           const SizedBox(height: 8),
           Text(
             error,
@@ -891,34 +1100,35 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   void _navigateToDetail(dynamic item) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DesktopDetail(itemId: item.id),
-      ),
+      MaterialPageRoute(builder: (context) => DesktopDetail(itemId: item.id)),
     );
   }
 
   void _playItem(dynamic item) {
     // Get the MediaType from the item
-    final itemType = item.type is MediaType 
-        ? item.type as MediaType 
+    final itemType = item.type is MediaType
+        ? item.type as MediaType
         : MediaType.values.firstWhere(
-            (e) => e.toString().split('.').last.toLowerCase() == item.type?.toString().toLowerCase(),
+            (e) =>
+                e.toString().split('.').last.toLowerCase() ==
+                item.type?.toString().toLowerCase(),
             orElse: () => MediaType.unknown,
           );
-    
+
     if (itemType == MediaType.series) {
       // For series, play the next up episode (continue watching)
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
       // Navigate to player for video content
-      final isMusic = itemType == MediaType.audio || 
-                      itemType == MediaType.album ||
-                      itemType == MediaType.musicVideo;
+      final isMusic =
+          itemType == MediaType.audio ||
+          itemType == MediaType.album ||
+          itemType == MediaType.musicVideo;
       if (!isMusic) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const DesktopPlayer()),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
       }
     }
   }
@@ -927,7 +1137,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
@@ -960,9 +1170,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }
