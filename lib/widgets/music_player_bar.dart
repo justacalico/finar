@@ -14,11 +14,7 @@ class MobileMiniPlayer extends ConsumerWidget {
   final VoidCallback? onTap;
   final VoidCallback? onExpand;
 
-  const MobileMiniPlayer({
-    super.key,
-    this.onTap,
-    this.onExpand,
-  });
+  const MobileMiniPlayer({super.key, this.onTap, this.onExpand});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +36,8 @@ class MobileMiniPlayer extends ConsumerWidget {
     return GestureDetector(
       onTap: onExpand,
       onVerticalDragEnd: (details) {
-        if (details.primaryVelocity != null && details.primaryVelocity! < -500) {
+        if (details.primaryVelocity != null &&
+            details.primaryVelocity! < -500) {
           onExpand?.call();
         }
       },
@@ -61,7 +58,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                 valueColor: AlwaysStoppedAnimation(AppColors.primary),
                 minHeight: 2,
               ),
-              
+
               // Player content
               Padding(
                 padding: const EdgeInsets.all(8),
@@ -87,7 +84,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Track info
                     Expanded(
                       child: Column(
@@ -113,17 +110,14 @@ class MobileMiniPlayer extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Controls
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Favorite
-                        _FavoriteButton(
-                          item: item,
-                          size: 20,
-                        ),
-                        
+                        _FavoriteButton(item: item, size: 20),
+
                         // Previous
                         if (playerState.hasPrevious)
                           IconButton(
@@ -138,7 +132,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                               minHeight: 36,
                             ),
                           ),
-                        
+
                         // Play/Pause
                         IconButton(
                           icon: Icon(
@@ -157,7 +151,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                             minHeight: 44,
                           ),
                         ),
-                        
+
                         // Next
                         if (playerState.hasNext)
                           IconButton(
@@ -172,7 +166,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                               minHeight: 36,
                             ),
                           ),
-                        
+
                         // Queue button
                         IconButton(
                           icon: const Icon(Icons.queue_music, size: 20),
@@ -186,7 +180,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                             minHeight: 32,
                           ),
                         ),
-                        
+
                         // Close
                         IconButton(
                           icon: const Icon(Icons.close, size: 20),
@@ -209,7 +203,12 @@ class MobileMiniPlayer extends ConsumerWidget {
           ),
         ),
       ),
-    ).animate().slideY(begin: 1, end: 0, duration: 300.ms, curve: Curves.easeOut);
+    ).animate().slideY(
+      begin: 1,
+      end: 0,
+      duration: 300.ms,
+      curve: Curves.easeOut,
+    );
   }
 }
 
@@ -270,10 +269,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
 
           // Player content
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: Row(
               children: [
                 // Album art
@@ -334,10 +330,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       // Favorite button
-                      _FavoriteButton(
-                        item: item,
-                        size: 20,
-                      ),
+                      _FavoriteButton(item: item, size: 20),
                     ],
                   ),
                 ),
@@ -368,7 +361,9 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                             : AppColors.textTertiary,
                         onPressed: playerState.hasPrevious
                             ? () {
-                                ref.read(playerProvider.notifier).playPrevious();
+                                ref
+                                    .read(playerProvider.notifier)
+                                    .playPrevious();
                               }
                             : null,
                         tooltip: 'Previous',
@@ -455,8 +450,8 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         playerState.volume > 0.5
                             ? Icons.volume_up
                             : playerState.volume > 0
-                                ? Icons.volume_down
-                                : Icons.volume_mute,
+                            ? Icons.volume_down
+                            : Icons.volume_mute,
                         size: 20,
                         color: AppColors.textSecondary,
                       ),
@@ -478,7 +473,9 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                           child: Slider(
                             value: playerState.volume,
                             onChanged: (value) {
-                              ref.read(playerProvider.notifier).setVolume(value);
+                              ref
+                                  .read(playerProvider.notifier)
+                                  .setVolume(value);
                             },
                           ),
                         ),
@@ -517,7 +514,12 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
           ),
         ],
       ),
-    ).animate().slideY(begin: 1, end: 0, duration: 300.ms, curve: Curves.easeOut);
+    ).animate().slideY(
+      begin: 1,
+      end: 0,
+      duration: 300.ms,
+      curve: Curves.easeOut,
+    );
   }
 
   String _formatDuration(Duration duration) {
@@ -531,10 +533,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
 class ExpandedMusicPlayer extends ConsumerWidget {
   final VoidCallback onCollapse;
 
-  const ExpandedMusicPlayer({
-    super.key,
-    required this.onCollapse,
-  });
+  const ExpandedMusicPlayer({super.key, required this.onCollapse});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -563,7 +562,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
               final spacing = isCompact ? 16.0 : 32.0;
               final controlPadding = isCompact ? 16.0 : 32.0;
               final bottomPadding = isCompact ? 16.0 : 48.0;
-              
+
               return Column(
                 children: [
                   // Header with collapse button
@@ -610,43 +609,56 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                     flex: 4,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: artPadding),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.3),
-                                blurRadius: 40,
-                                offset: const Offset(0, 20),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                            child: Image.network(
-                              item.getPrimaryImageUrl(serverUrl, width: 600),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                color: AppColors.surface,
-                                child: const Icon(
-                                  Icons.music_note,
-                                  size: 100,
-                                  color: AppColors.textSecondary,
+                      child:
+                          AspectRatio(
+                                aspectRatio: 1,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusLg,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        blurRadius: 40,
+                                        offset: const Offset(0, 20),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusLg,
+                                    ),
+                                    child: Image.network(
+                                      item.getPrimaryImageUrl(
+                                        serverUrl,
+                                        width: 600,
+                                      ),
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                color: AppColors.surface,
+                                                child: const Icon(
+                                                  Icons.music_note,
+                                                  size: 100,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                              ),
+                                    ),
+                                  ),
                                 ),
+                              )
+                              .animate(onPlay: (c) => c.repeat(reverse: true))
+                              .scale(
+                                begin: const Offset(1, 1),
+                                end: const Offset(1.02, 1.02),
+                                duration: 3.seconds,
+                                curve: Curves.easeInOut,
                               ),
-                            ),
-                          ),
-                        ),
-                      )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .scale(
-                            begin: const Offset(1, 1),
-                            end: const Offset(1.02, 1.02),
-                            duration: 3.seconds,
-                            curve: Curves.easeInOut,
-                          ),
                     ),
                   ),
 
@@ -664,8 +676,8 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                             Flexible(
                               child: Text(
                                 item.name,
-                                style: isCompact 
-                                    ? AppTextStyles.titleLarge 
+                                style: isCompact
+                                    ? AppTextStyles.titleLarge
                                     : AppTextStyles.headlineSmall,
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
@@ -718,16 +730,20 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                             activeTrackColor: AppColors.primary,
                             inactiveTrackColor: AppColors.surface,
                             thumbColor: AppColors.primary,
-                            overlayColor: AppColors.primary.withValues(alpha: 0.2),
+                            overlayColor: AppColors.primary.withValues(
+                              alpha: 0.2,
+                            ),
                           ),
                           child: Slider(
                             value: playerState.progress.clamp(0.0, 1.0),
                             onChanged: (value) {
                               final newPosition = Duration(
-                                milliseconds:
-                                    (duration.inMilliseconds * value).round(),
+                                milliseconds: (duration.inMilliseconds * value)
+                                    .round(),
                               );
-                              ref.read(playerProvider.notifier).seek(newPosition);
+                              ref
+                                  .read(playerProvider.notifier)
+                                  .seek(newPosition);
                             },
                           ),
                         ),
@@ -780,7 +796,9 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                               : AppColors.textTertiary,
                           onPressed: playerState.hasPrevious
                               ? () {
-                                  ref.read(playerProvider.notifier).playPrevious();
+                                  ref
+                                      .read(playerProvider.notifier)
+                                      .playPrevious();
                                 }
                               : null,
                         ),
@@ -855,10 +873,7 @@ class _FavoriteButton extends ConsumerStatefulWidget {
   final MediaItem item;
   final double size;
 
-  const _FavoriteButton({
-    required this.item,
-    this.size = 24,
-  });
+  const _FavoriteButton({required this.item, this.size = 24});
 
   @override
   ConsumerState<_FavoriteButton> createState() => _FavoriteButtonState();
@@ -914,10 +929,8 @@ class _FavoriteButtonState extends ConsumerState<_FavoriteButton> {
     return IconButton(
       icon: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) => ScaleTransition(
-          scale: animation,
-          child: child,
-        ),
+        transitionBuilder: (child, animation) =>
+            ScaleTransition(scale: animation, child: child),
         child: Icon(
           _isFavorite ? Icons.favorite : Icons.favorite_border,
           key: ValueKey(_isFavorite),
