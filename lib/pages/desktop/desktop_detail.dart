@@ -1194,59 +1194,81 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     if (existingDownload != null) {
       switch (existingDownload.status) {
         case DownloadStatus.downloading:
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              GlassIconButton(
-                icon: Icons.downloading,
-                onPressed: () => _pauseDownload(existingDownload.id),
-              ),
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: CircularProgressIndicator(
-                    value: existingDownload.progress,
-                    strokeWidth: 2,
-                    color: AppColors.primary,
-                  ),
+          return Tooltip(
+            message: 'Pause download',
+            child: Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppColors.divider.withValues(alpha: 0.5),
+                  width: 1,
                 ),
               ),
-            ],
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: CircularProgressIndicator(
+                      value: existingDownload.progress,
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                      backgroundColor: AppColors.divider,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _pauseDownload(existingDownload.id),
+                    icon: const Icon(Icons.pause_rounded, size: 18),
+                    color: AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
           );
         case DownloadStatus.paused:
-          return GlassIconButton(
-            icon: Icons.pause_circle_outline,
-            iconColor: AppColors.warning,
+          return _buildIconButton(
+            icon: Icons.play_arrow_rounded,
+            color: AppColors.warning,
             onPressed: () => _resumeDownload(existingDownload.id),
+            tooltip: 'Resume download',
           );
         case DownloadStatus.completed:
-          return GlassIconButton(
-            icon: Icons.download_done,
-            iconColor: AppColors.success,
+          return _buildIconButton(
+            icon: Icons.download_done_rounded,
+            color: AppColors.success,
             onPressed: () => _showDownloadOptions(existingDownload.id),
+            tooltip: 'Downloaded',
           );
         case DownloadStatus.failed:
-          return GlassIconButton(
-            icon: Icons.error_outline,
-            iconColor: AppColors.error,
+          return _buildIconButton(
+            icon: Icons.error_outline_rounded,
+            color: AppColors.error,
             onPressed: () => _downloadItem(item),
+            tooltip: 'Download failed - tap to retry',
           );
         case DownloadStatus.pending:
-          return GlassIconButton(
-            icon: Icons.hourglass_empty,
+          return _buildIconButton(
+            icon: Icons.hourglass_empty_rounded,
             onPressed: () => _cancelDownload(existingDownload.id),
+            tooltip: 'Pending - tap to cancel',
           );
         case DownloadStatus.cancelled:
-          return GlassIconButton(
+          return _buildIconButton(
             icon: Icons.download_outlined,
             onPressed: () => _downloadItem(item),
+            tooltip: 'Download',
           );
       }
     }
 
-    return GlassIconButton(
+    return _buildIconButton(
       icon: Icons.download_outlined,
       onPressed: () => _downloadItem(item),
+      tooltip: 'Download',
     );
   }
 
