@@ -1245,6 +1245,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     if (item.type == MediaType.album) {
       // For albums, fetch tracks and play as playlist
       _playAlbum(item);
+    } else if (item.type == MediaType.series) {
+      // For series, play the next up episode (continue watching)
+      _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
       
@@ -1256,6 +1259,62 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _playSeries(MediaItem series) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final nextUp = await mediaService.getNextUpForSeries(series.id);
+      
+      if (nextUp != null) {
+        // Play the next up episode
+        ref.read(playerProvider.notifier).play(nextUp);
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const DesktopPlayer(),
+            ),
+          );
+        }
+      } else {
+        // No next up episode, get the first episode of the first season
+        final seasons = await mediaService.getSeasons(series.id);
+        if (seasons.isNotEmpty) {
+          final episodes = await mediaService.getSeasonEpisodes(
+            series.id,
+            seasons.first.id,
+          );
+          if (episodes.isNotEmpty) {
+            ref.read(playerProvider.notifier).play(episodes.first);
+            if (mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const DesktopPlayer(),
+                ),
+              );
+            }
+          } else {
+            _showNoEpisodesError();
+          }
+        } else {
+          _showNoEpisodesError();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play series: $e')),
+        );
+      }
+    }
+  }
+
+  void _showNoEpisodesError() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No episodes available to play')),
+      );
     }
   }
 
