@@ -34,17 +34,26 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted &&
           DateTime.now().difference(_lastInteraction).inSeconds >= 3) {
-        setState(() => _controlsVisible = false);
+        final isPlaying = ref.read(playerProvider).isPlaying;
+        if (isPlaying) {
+          setState(() => _controlsVisible = false);
+        }
       }
     });
   }
 
   void _onInteraction() {
     _lastInteraction = DateTime.now();
-    if (!_controlsVisible) {
-      setState(() => _controlsVisible = true);
-    }
+    setState(() => _controlsVisible = true);
     _startHideTimer();
+  }
+
+  void _toggleControls() {
+    _lastInteraction = DateTime.now();
+    setState(() => _controlsVisible = !_controlsVisible);
+    if (_controlsVisible) {
+      _startHideTimer();
+    }
   }
 
   @override
@@ -79,7 +88,8 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               ? SystemMouseCursors.basic
               : SystemMouseCursors.none,
           child: GestureDetector(
-            onTap: _onInteraction,
+            behavior: HitTestBehavior.opaque,
+            onTap: _toggleControls,
             onDoubleTap: _toggleFullscreen,
             child: Stack(
               fit: StackFit.expand,
@@ -93,43 +103,52 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                   ),
                 ),
 
-                // Top gradient
-                AnimatedOpacity(
-                  opacity: _controlsVisible ? 1.0 : 0.0,
-                  duration: AppTheme.durationFast,
-                  child: Container(
-                    height: 150,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          AppColors.black.withValues(alpha: 0.8),
-                          Colors.transparent,
-                        ],
+                // Top gradient (visual only, no interaction)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: _controlsVisible ? 1.0 : 0.0,
+                      duration: AppTheme.durationFast,
+                      child: Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.black.withValues(alpha: 0.8),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                // Bottom gradient
+                // Bottom gradient (visual only, no interaction)
                 Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: AnimatedOpacity(
-                    opacity: _controlsVisible ? 1.0 : 0.0,
-                    duration: AppTheme.durationFast,
-                    child: Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            AppColors.black.withValues(alpha: 0.9),
-                            Colors.transparent,
-                          ],
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: _controlsVisible ? 1.0 : 0.0,
+                      duration: AppTheme.durationFast,
+                      child: Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              AppColors.black.withValues(alpha: 0.9),
+                              Colors.transparent,
+                            ],
+                          ),
                         ),
                       ),
                     ),
