@@ -369,89 +369,92 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
       bottom: 0,
       left: 0,
       right: 0,
-      child: AnimatedOpacity(
-        opacity: _controlsVisible ? 1.0 : 0.0,
-        duration: AppTheme.durationFast,
-        child: AnimatedSlide(
-          offset: _controlsVisible ? Offset.zero : const Offset(0, 1),
-          duration: AppTheme.durationNormal,
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 8,
-              left: 16,
-              right: 16,
-              top: 16,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  AppColors.black.withValues(alpha: 0.9),
-                  Colors.transparent,
-                ],
+      child: IgnorePointer(
+        ignoring: !_controlsVisible,
+        child: AnimatedOpacity(
+          opacity: _controlsVisible ? 1.0 : 0.0,
+          duration: AppTheme.durationFast,
+          child: AnimatedSlide(
+            offset: _controlsVisible ? Offset.zero : const Offset(0, 1),
+            duration: AppTheme.durationNormal,
+            child: Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 8,
+                left: 16,
+                right: 16,
+                top: 16,
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Progress bar
-                _buildProgressBar(state),
-
-                const SizedBox(height: 8),
-
-                // Bottom buttons row
-                Row(
-                  children: [
-                    // Time
-                    Text(
-                      '${_formatDuration(state.position)} / ${_formatDuration(state.duration)}',
-                      style: AppTextStyles.labelSmall,
-                    ),
-
-                    const Spacer(),
-
-                    // Playback speed
-                    GestureDetector(
-                      onTap: _cyclePlaybackSpeed,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.divider),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${state.playbackSpeed}x',
-                          style: AppTextStyles.labelSmall,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 16),
-
-                    // Subtitles
-                    IconButton(
-                      icon: Icon(
-                        Icons.subtitles,
-                        color: state.currentSubtitleTrack != null
-                            ? AppColors.primary
-                            : null,
-                      ),
-                      onPressed: () =>
-                          setState(() => _showSettings = !_showSettings),
-                    ),
-
-                    // Rotate
-                    IconButton(
-                      icon: const Icon(Icons.screen_rotation),
-                      onPressed: _rotateScreen,
-                    ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    AppColors.black.withValues(alpha: 0.9),
+                    Colors.transparent,
                   ],
                 ),
-              ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Progress bar
+                  _buildProgressBar(state),
+
+                  const SizedBox(height: 8),
+
+                  // Bottom buttons row
+                  Row(
+                    children: [
+                      // Time
+                      Text(
+                        '${_formatDuration(state.position)} / ${_formatDuration(state.duration)}',
+                        style: AppTextStyles.labelSmall,
+                      ),
+
+                      const Spacer(),
+
+                      // Playback speed
+                      GestureDetector(
+                        onTap: _cyclePlaybackSpeed,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.divider),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${state.playbackSpeed}x',
+                            style: AppTextStyles.labelSmall,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 16),
+
+                      // Subtitles
+                      IconButton(
+                        icon: Icon(
+                          Icons.subtitles,
+                          color: state.currentSubtitleTrack != null
+                              ? AppColors.primary
+                              : null,
+                        ),
+                        onPressed: () =>
+                            setState(() => _showSettings = !_showSettings),
+                      ),
+
+                      // Rotate
+                      IconButton(
+                        icon: const Icon(Icons.screen_rotation),
+                        onPressed: _rotateScreen,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
