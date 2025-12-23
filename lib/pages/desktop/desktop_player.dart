@@ -199,10 +199,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                 child: Row(
                   children: [
                     // Back button
-                    GlassIconButton(
-                      icon: Icons.arrow_back,
-                      onPressed: _onBack,
-                    ),
+                    GlassIconButton(icon: Icons.arrow_back, onPressed: _onBack),
 
                     const SizedBox(width: 16),
 
@@ -238,8 +235,9 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
 
                     // Fullscreen button
                     GlassIconButton(
-                      icon:
-                          _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                      icon: _isFullscreen
+                          ? Icons.fullscreen_exit
+                          : Icons.fullscreen,
                       onPressed: _toggleFullscreen,
                     ),
                   ],
@@ -301,34 +299,25 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
     bool isPrimary = false,
   }) {
     return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(size),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isPrimary
-                ? AppColors.glassBackground
-                : AppColors.glassBackground.withValues(alpha: 0.3),
-            border: Border.all(
-              color: AppColors.glassBorder,
-              width: 1,
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(size),
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isPrimary
+                    ? AppColors.glassBackground
+                    : AppColors.glassBackground.withValues(alpha: 0.3),
+                border: Border.all(color: AppColors.glassBorder, width: 1),
+              ),
+              child: Icon(icon, size: size * 0.5, color: AppColors.white),
             ),
           ),
-          child: Icon(
-            icon,
-            size: size * 0.5,
-            color: AppColors.white,
-          ),
-        ),
-      ),
-    )
-        .animate(
-          onPlay: (controller) => controller.repeat(reverse: true),
         )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .shimmer(
           delay: 2.seconds,
           duration: 1.seconds,
@@ -432,10 +421,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
       children: [
         Row(
           children: [
-            Text(
-              _formatDuration(position),
-              style: AppTextStyles.labelMedium,
-            ),
+            Text(_formatDuration(position), style: AppTextStyles.labelMedium),
             const Spacer(),
             Text(
               '-${_formatDuration(duration - position)}',
@@ -457,8 +443,9 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               inactiveTrackColor: AppColors.divider,
               thumbColor: AppColors.primary,
               overlayColor: AppColors.primary.withValues(alpha: 0.2),
-              secondaryActiveTrackColor:
-                  AppColors.primary.withValues(alpha: 0.3),
+              secondaryActiveTrackColor: AppColors.primary.withValues(
+                alpha: 0.3,
+              ),
             ),
             child: Slider(
               value: position.inMilliseconds.toDouble(),
@@ -513,8 +500,8 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
             state.volume == 0
                 ? Icons.volume_off
                 : state.volume < 0.5
-                    ? Icons.volume_down
-                    : Icons.volume_up,
+                ? Icons.volume_down
+                : Icons.volume_up,
           ),
           onPressed: _toggleMute,
         ),
@@ -575,12 +562,14 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               _buildSettingsSection(
                 'Quality',
                 state.availableQualities
-                    .map((q) => _buildSettingsOption(
-                          q,
-                          isSelected: state.currentQuality == q,
-                          onTap: () =>
-                              ref.read(playerProvider.notifier).setQuality(q),
-                        ))
+                    .map(
+                      (q) => _buildSettingsOption(
+                        q,
+                        isSelected: state.currentQuality == q,
+                        onTap: () =>
+                            ref.read(playerProvider.notifier).setQuality(q),
+                      ),
+                    )
                     .toList(),
               ),
 
@@ -590,13 +579,15 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               _buildSettingsSection(
                 'Audio',
                 state.audioTracks
-                        ?.map((track) => _buildSettingsOption(
-                              track.displayTitle ?? 'Track ${track.index}',
-                              isSelected: state.currentAudioTrack == track.index,
-                              onTap: () => ref
-                                  .read(playerProvider.notifier)
-                                  .setAudioTrack(track.index),
-                            ))
+                        ?.map(
+                          (track) => _buildSettingsOption(
+                            track.displayTitle ?? 'Track ${track.index}',
+                            isSelected: state.currentAudioTrack == track.index,
+                            onTap: () => ref
+                                .read(playerProvider.notifier)
+                                .setAudioTrack(track.index),
+                          ),
+                        )
                         .toList() ??
                     [],
               ),
@@ -604,27 +595,24 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               const SizedBox(height: 16),
 
               // Subtitles section
-              _buildSettingsSection(
-                'Subtitles',
-                [
-                  _buildSettingsOption(
-                    'Off',
-                    isSelected: state.currentSubtitleTrack == null,
-                    onTap: () =>
-                        ref.read(playerProvider.notifier).setSubtitleTrack(null),
+              _buildSettingsSection('Subtitles', [
+                _buildSettingsOption(
+                  'Off',
+                  isSelected: state.currentSubtitleTrack == null,
+                  onTap: () =>
+                      ref.read(playerProvider.notifier).setSubtitleTrack(null),
+                ),
+                if (state.subtitleTracks != null)
+                  ...state.subtitleTracks!.map(
+                    (track) => _buildSettingsOption(
+                      track.displayTitle ?? 'Track ${track.index}',
+                      isSelected: state.currentSubtitleTrack == track.index,
+                      onTap: () => ref
+                          .read(playerProvider.notifier)
+                          .setSubtitleTrack(track.index),
+                    ),
                   ),
-                  if (state.subtitleTracks != null)
-                    ...state.subtitleTracks!
-                        .map((track) => _buildSettingsOption(
-                              track.displayTitle ?? 'Track ${track.index}',
-                              isSelected: state.currentSubtitleTrack == track.index,
-                              onTap: () => ref
-                                  .read(playerProvider.notifier)
-                                  .setSubtitleTrack(track.index),
-                            ))
-                        ,
-                ],
-              ),
+              ]),
 
               const SizedBox(height: 16),
 
@@ -632,13 +620,15 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               _buildSettingsSection(
                 'Speed',
                 [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
-                    .map((speed) => _buildSettingsOption(
-                          '${speed}x',
-                          isSelected: state.playbackSpeed == speed,
-                          onTap: () => ref
-                              .read(playerProvider.notifier)
-                              .setPlaybackSpeed(speed),
-                        ))
+                    .map(
+                      (speed) => _buildSettingsOption(
+                        '${speed}x',
+                        isSelected: state.playbackSpeed == speed,
+                        onTap: () => ref
+                            .read(playerProvider.notifier)
+                            .setPlaybackSpeed(speed),
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -659,11 +649,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: options,
-        ),
+        Wrap(spacing: 8, runSpacing: 8, children: options),
       ],
     );
   }
