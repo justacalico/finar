@@ -57,7 +57,10 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     Future.delayed(const Duration(seconds: 4), () {
       if (mounted &&
           DateTime.now().difference(_lastInteraction).inSeconds >= 4) {
-        setState(() => _controlsVisible = false);
+        final isPlaying = ref.read(playerProvider).isPlaying;
+        if (isPlaying) {
+          setState(() => _controlsVisible = false);
+        }
       }
     });
   }
@@ -65,10 +68,17 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
   void _onInteraction() {
     if (_isLocked) return;
     _lastInteraction = DateTime.now();
-    if (!_controlsVisible) {
-      setState(() => _controlsVisible = true);
-    }
+    setState(() => _controlsVisible = true);
     _startHideTimer();
+  }
+
+  void _toggleControls() {
+    if (_isLocked) return;
+    _lastInteraction = DateTime.now();
+    setState(() => _controlsVisible = !_controlsVisible);
+    if (_controlsVisible) {
+      _startHideTimer();
+    }
   }
 
   @override
