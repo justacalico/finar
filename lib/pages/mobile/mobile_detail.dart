@@ -969,7 +969,12 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       // For series, play the next up episode (continue watching)
       _playSeries(item);
     } else {
-      ref.read(playerProvider.notifier).play(item);
+      // Get the resume position if item has progress
+      final startPosition = item.hasProgress 
+          ? (item.userData?.playbackPositionTicks ?? item.playbackPositionTicks)
+          : null;
+      
+      ref.read(playerProvider.notifier).play(item, startPositionTicks: startPosition);
 
       // Only navigate to video player for non-music content
       if (!isMusic) {
