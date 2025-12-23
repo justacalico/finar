@@ -571,6 +571,40 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(playlist: newPlaylist);
   }
 
+  /// Queue the next episode of the currently playing show
+  /// Returns true if next episode was found and queued, false otherwise
+  Future<bool> queueNextEpisode() async {
+    final currentItem = state.currentItem;
+    if (currentItem == null) return false;
+
+    // Only works for episodes
+    if (currentItem.type != MediaType.episode) return false;
+
+    try {
+      final nextEpisode = await _mediaService.getNextEpisode(currentItem);
+      if (nextEpisode == null) return false;
+
+      // Check if it's already in the queue
+      final currentPlaylist = state.playlist ?? [];
+      final alreadyQueued = currentPlaylist.any((item) => item.id == nextEpisode.id);
+      if (alreadyQueued) return false;
+
+      // Insert next episode to play after current
+      insertNext(nextEpisode);
+      
+      if (kDebugMode) {
+        print('Queued next episode: ${nextEpisode.name}');
+      }
+      
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to queue next episode: $e');
+      }
+      return false;
+    }
+  }
+
   /// Remove item from queue by index
   void removeFromQueue(int index) {
     if (state.playlist == null || index < 0 || index >= state.playlist!.length) {
