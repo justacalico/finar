@@ -131,6 +131,15 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
                 name: h.name,
                 type: mediaTypeFromString(h.type),
                 typeString: h.type,
+                productionYear: h.productionYear,
+                imageTags: h.primaryImageTag != null
+                    ? ImageTags(primary: h.primaryImageTag)
+                    : null,
+                seriesName: h.series,
+                album: h.album,
+                albumArtist: h.albumArtist,
+                indexNumber: h.indexNumber,
+                parentIndexNumber: h.parentIndexNumber,
               ),
             )
             .toList(),
