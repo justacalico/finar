@@ -34,6 +34,38 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     super.initState();
     _enterFullscreen();
     _startHideTimer();
+    _initBrightness();
+  }
+
+  Future<void> _initBrightness() async {
+    try {
+      final brightness = await ScreenBrightness.instance.application;
+      if (mounted) {
+        setState(() => _brightness = brightness);
+      }
+    } catch (e) {
+      // Fallback to system brightness or default
+      debugPrint('Failed to get brightness: $e');
+    }
+  }
+
+  Future<void> _setBrightness(double value) async {
+    try {
+      await ScreenBrightness.instance.setApplicationScreenBrightness(value);
+      if (mounted) {
+        setState(() => _brightness = value);
+      }
+    } catch (e) {
+      debugPrint('Failed to set brightness: $e');
+    }
+  }
+
+  Future<void> _resetBrightness() async {
+    try {
+      await ScreenBrightness.instance.resetApplicationScreenBrightness();
+    } catch (e) {
+      debugPrint('Failed to reset brightness: $e');
+    }
   }
 
   void _enterFullscreen() {
