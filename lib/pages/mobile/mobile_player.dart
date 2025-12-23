@@ -258,7 +258,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                   // Settings button
                   IconButton(
                     icon: const Icon(Icons.settings),
-                    onPressed: () => setState(() => _showSettings = !_showSettings),
+                    onPressed: () =>
+                        setState(() => _showSettings = !_showSettings),
                   ),
                 ],
               ),
@@ -347,11 +348,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                 ? AppColors.white.withValues(alpha: 0.15)
                 : Colors.transparent,
           ),
-          child: Icon(
-            icon,
-            size: size * 0.6,
-            color: AppColors.white,
-          ),
+          child: Icon(icon, size: size * 0.6, color: AppColors.white),
         ),
       ),
     );
@@ -514,12 +511,14 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                 spacing: 8,
                 runSpacing: 8,
                 children: state.availableQualities
-                    .map((q) => _buildSettingOption(
-                          q,
-                          isSelected: state.currentQuality == q,
-                          onTap: () =>
-                              ref.read(playerProvider.notifier).setQuality(q),
-                        ))
+                    .map(
+                      (q) => _buildSettingOption(
+                        q,
+                        isSelected: state.currentQuality == q,
+                        onTap: () =>
+                            ref.read(playerProvider.notifier).setQuality(q),
+                      ),
+                    )
                     .toList(),
               ),
 
@@ -536,14 +535,17 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: state.audioTracks
-                        ?.map((track) => _buildSettingOption(
-                              track.displayTitle ?? 'Track ${track.index}',
-                              isSelected: state.currentAudioTrack == track.index,
-                              onTap: () => ref
-                                  .read(playerProvider.notifier)
-                                  .setAudioTrack(track.index),
-                            ))
+                children:
+                    state.audioTracks
+                        ?.map(
+                          (track) => _buildSettingOption(
+                            track.displayTitle ?? 'Track ${track.index}',
+                            isSelected: state.currentAudioTrack == track.index,
+                            onTap: () => ref
+                                .read(playerProvider.notifier)
+                                .setAudioTrack(track.index),
+                          ),
+                        )
                         .toList() ??
                     [],
               ),
@@ -565,19 +567,20 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                   _buildSettingOption(
                     'Off',
                     isSelected: state.currentSubtitleTrack == null,
-                    onTap: () =>
-                        ref.read(playerProvider.notifier).setSubtitleTrack(null),
+                    onTap: () => ref
+                        .read(playerProvider.notifier)
+                        .setSubtitleTrack(null),
                   ),
                   if (state.subtitleTracks != null)
-                    ...state.subtitleTracks!
-                        .map((track) => _buildSettingOption(
-                              track.displayTitle ?? 'Track ${track.index}',
-                              isSelected: state.currentSubtitleTrack == track.index,
-                              onTap: () => ref
-                                  .read(playerProvider.notifier)
-                                  .setSubtitleTrack(track.index),
-                            ))
-                        ,
+                    ...state.subtitleTracks!.map(
+                      (track) => _buildSettingOption(
+                        track.displayTitle ?? 'Track ${track.index}',
+                        isSelected: state.currentSubtitleTrack == track.index,
+                        onTap: () => ref
+                            .read(playerProvider.notifier)
+                            .setSubtitleTrack(track.index),
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -636,8 +639,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                   child: LinearProgressIndicator(
                     value: _brightness,
                     backgroundColor: AppColors.divider,
-                    valueColor:
-                        const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
               ),
@@ -671,8 +673,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                 state.volume == 0
                     ? Icons.volume_off
                     : state.volume < 0.5
-                        ? Icons.volume_down
-                        : Icons.volume_up,
+                    ? Icons.volume_down
+                    : Icons.volume_up,
                 size: 24,
               ),
               const SizedBox(height: 8),
@@ -683,8 +685,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
                   child: LinearProgressIndicator(
                     value: state.volume,
                     backgroundColor: AppColors.divider,
-                    valueColor:
-                        const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
               ),
@@ -838,7 +839,10 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     final screenWidth = MediaQuery.of(context).size.width;
     final delta = (details.globalPosition.dx - _dragStartX) / screenWidth;
     final duration = ref.read(playerProvider).duration.inSeconds;
-    final seekDelta = (delta * duration * 0.3).clamp(-duration.toDouble(), duration.toDouble());
+    final seekDelta = (delta * duration * 0.3).clamp(
+      -duration.toDouble(),
+      duration.toDouble(),
+    );
 
     ref
         .read(playerProvider.notifier)
