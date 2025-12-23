@@ -773,7 +773,22 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
   }
 
   void _togglePip() {
-    // TODO: Implement Picture-in-Picture
+    // On desktop, "Picture-in-Picture" mode exits the fullscreen player
+    // while keeping playback active. The user returns to the main UI where
+    // they can continue browsing while the video plays in the background.
+    // A mini-player bar at the bottom allows control over playback.
+    //
+    // Note: True floating PiP windows require native platform support 
+    // which isn't available cross-platform in Flutter desktop yet.
+    
+    // Reset fullscreen mode if active
+    if (_isFullscreen) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+    
+    // Navigate back - playback continues via the player provider
+    // The home screen will show the mini player bar for video content
+    Navigator.of(context).pop();
   }
 
   void _playPrevious() {
