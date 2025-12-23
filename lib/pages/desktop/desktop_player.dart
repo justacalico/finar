@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/api/models/media_item.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -406,6 +407,16 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
                           onPressed: () =>
                               setState(() => _showSettings = !_showSettings),
                         ),
+
+                        // Queue next episode (only for TV episodes)
+                        if (state.currentItem?.type == MediaType.episode) ...[
+                          const SizedBox(width: 8),
+                          GlassIconButton(
+                            icon: Icons.playlist_add,
+                            tooltip: 'Queue next episode',
+                            onPressed: () => _queueNextEpisode(state),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -812,6 +823,23 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
 
   void _playNext() {
     ref.read(playerProvider.notifier).playNext();
+  }
+
+  Future<void> _queueNextEpisode(PlayerState state) async {
+    final success = await ref.read(playerProvider.notifier).queueNextEpisode();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success 
+                ? 'Next episode queued'
+                : 'No next episode available',
+          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _onBack() {
