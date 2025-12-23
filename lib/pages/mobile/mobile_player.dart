@@ -277,55 +277,58 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
   }
 
   Widget _buildCenterControls(PlayerState state) {
-    return AnimatedOpacity(
-      opacity: _controlsVisible ? 1.0 : 0.0,
-      duration: AppTheme.durationFast,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Previous
-            if (state.hasPrevious)
-              IconButton(
-                icon: const Icon(Icons.skip_previous, size: 36),
-                onPressed: _playPrevious,
+    return IgnorePointer(
+      ignoring: !_controlsVisible,
+      child: AnimatedOpacity(
+        opacity: _controlsVisible ? 1.0 : 0.0,
+        duration: AppTheme.durationFast,
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Previous
+              if (state.hasPrevious)
+                IconButton(
+                  icon: const Icon(Icons.skip_previous, size: 36),
+                  onPressed: _playPrevious,
+                ),
+
+              const SizedBox(width: 24),
+
+              // Rewind
+              _buildCenterButton(
+                icon: Icons.replay_10,
+                onPressed: () => _seek(-10),
               ),
 
-            const SizedBox(width: 24),
+              const SizedBox(width: 16),
 
-            // Rewind
-            _buildCenterButton(
-              icon: Icons.replay_10,
-              onPressed: () => _seek(-10),
-            ),
-
-            const SizedBox(width: 16),
-
-            // Play/Pause
-            _buildCenterButton(
-              icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
-              onPressed: _togglePlayPause,
-              size: 64,
-              isPrimary: true,
-            ),
-
-            const SizedBox(width: 16),
-
-            // Forward
-            _buildCenterButton(
-              icon: Icons.forward_10,
-              onPressed: () => _seek(10),
-            ),
-
-            const SizedBox(width: 24),
-
-            // Next
-            if (state.hasNext)
-              IconButton(
-                icon: const Icon(Icons.skip_next, size: 36),
-                onPressed: _playNext,
+              // Play/Pause
+              _buildCenterButton(
+                icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
+                onPressed: _togglePlayPause,
+                size: 64,
+                isPrimary: true,
               ),
-          ],
+
+              const SizedBox(width: 16),
+
+              // Forward
+              _buildCenterButton(
+                icon: Icons.forward_10,
+                onPressed: () => _seek(10),
+              ),
+
+              const SizedBox(width: 24),
+
+              // Next
+              if (state.hasNext)
+                IconButton(
+                  icon: const Icon(Icons.skip_next, size: 36),
+                  onPressed: _playNext,
+                ),
+            ],
+          ),
         ),
       ),
     );
