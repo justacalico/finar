@@ -11,9 +11,6 @@ import '../core/services/download_service.dart';
 import 'library_provider.dart';
 import 'download_provider.dart';
 
-// Access NativePlayer for setProperty
-import 'package:media_kit/src/player/native/player/player.dart';
-
 /// Player state
 class PlayerState {
   final MediaItem? currentItem;
