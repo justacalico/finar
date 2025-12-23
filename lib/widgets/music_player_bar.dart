@@ -434,13 +434,17 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                   flex: 2,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // Time
-                      Text(
-                        '${_formatDuration(position)} / ${_formatDuration(duration)}',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
+                      Flexible(
+                        child: Text(
+                          '${_formatDuration(position)} / ${_formatDuration(duration)}',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
 
