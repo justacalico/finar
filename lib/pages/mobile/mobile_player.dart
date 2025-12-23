@@ -195,77 +195,80 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
       top: 0,
       left: 0,
       right: 0,
-      child: AnimatedOpacity(
-        opacity: _controlsVisible ? 1.0 : 0.0,
-        duration: AppTheme.durationFast,
-        child: AnimatedSlide(
-          offset: _controlsVisible ? Offset.zero : const Offset(0, -1),
-          duration: AppTheme.durationNormal,
-          child: Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
-              right: 16,
-              bottom: 16,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.black.withValues(alpha: 0.8),
-                  Colors.transparent,
+      child: IgnorePointer(
+        ignoring: !_controlsVisible,
+        child: AnimatedOpacity(
+          opacity: _controlsVisible ? 1.0 : 0.0,
+          duration: AppTheme.durationFast,
+          child: AnimatedSlide(
+            offset: _controlsVisible ? Offset.zero : const Offset(0, -1),
+            duration: AppTheme.durationNormal,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 8,
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.black.withValues(alpha: 0.8),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: Row(
+                children: [
+                  // Back button
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: _onBack,
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // Title
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.currentItem?.name ?? 'Now Playing',
+                          style: AppTextStyles.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (state.currentItem?.seriesName != null)
+                          Text(
+                            '${state.currentItem!.seriesName} • S${state.currentItem!.parentIndexNumber}E${state.currentItem!.indexNumber}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Lock button
+                  IconButton(
+                    icon: const Icon(Icons.lock_outline),
+                    onPressed: () => setState(() {
+                      _isLocked = true;
+                      _controlsVisible = false;
+                    }),
+                  ),
+
+                  // Settings button
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () => setState(() => _showSettings = !_showSettings),
+                  ),
                 ],
               ),
-            ),
-            child: Row(
-              children: [
-                // Back button
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: _onBack,
-                ),
-
-                const SizedBox(width: 8),
-
-                // Title
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        state.currentItem?.name ?? 'Now Playing',
-                        style: AppTextStyles.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (state.currentItem?.seriesName != null)
-                        Text(
-                          '${state.currentItem!.seriesName} • S${state.currentItem!.parentIndexNumber}E${state.currentItem!.indexNumber}',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                // Lock button
-                IconButton(
-                  icon: const Icon(Icons.lock_outline),
-                  onPressed: () => setState(() {
-                    _isLocked = true;
-                    _controlsVisible = false;
-                  }),
-                ),
-
-                // Settings button
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: () => setState(() => _showSettings = !_showSettings),
-                ),
-              ],
             ),
           ),
         ),
