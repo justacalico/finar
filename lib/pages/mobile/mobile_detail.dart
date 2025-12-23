@@ -1492,7 +1492,7 @@ class _DownloadTile extends ConsumerWidget {
     try {
       // Fetch the MediaItem details
       final mediaService = ref.read(mediaServiceProvider);
-      final item = await mediaService.getItem(task.itemId);
+      final item = await mediaService.getItemDetails(task.itemId);
 
       // Play from local file
       ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
