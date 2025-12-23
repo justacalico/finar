@@ -368,10 +368,14 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           builder: (context, ref, _) {
             final isFavorite = item.isFavorite == true;
             return _buildIconButton(
-              icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+              icon: isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_outline_rounded,
               color: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
               onPressed: () => _toggleFavorite(item),
-              tooltip: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+              tooltip: isFavorite
+                  ? 'Remove from favorites'
+                  : 'Add to favorites',
             );
           },
         ),
@@ -383,9 +387,13 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           icon: (item.isPlayed == true)
               ? Icons.check_circle_rounded
               : Icons.check_circle_outline_rounded,
-          color: (item.isPlayed == true) ? AppColors.primary : AppColors.textSecondary,
+          color: (item.isPlayed == true)
+              ? AppColors.primary
+              : AppColors.textSecondary,
           onPressed: () => _toggleWatched(item),
-          tooltip: (item.isPlayed == true) ? 'Mark as unwatched' : 'Mark as watched',
+          tooltip: (item.isPlayed == true)
+              ? 'Mark as unwatched'
+              : 'Mark as watched',
         ),
 
         const SizedBox(width: 10),
@@ -1328,11 +1336,13 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       _playSeries(item);
     } else {
       // Get the resume position if item has progress
-      final startPosition = item.hasProgress 
+      final startPosition = item.hasProgress
           ? (item.userData?.playbackPositionTicks ?? item.playbackPositionTicks)
           : null;
-      
-      ref.read(playerProvider.notifier).play(item, startPositionTicks: startPosition);
+
+      ref
+          .read(playerProvider.notifier)
+          .play(item, startPositionTicks: startPosition);
 
       // Only navigate to video player for non-music content
       if (!isMusic) {
@@ -1350,10 +1360,13 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
       if (nextUp != null) {
         // Play the next up episode with resume position
-        final startPosition = nextUp.hasProgress 
-            ? (nextUp.userData?.playbackPositionTicks ?? nextUp.playbackPositionTicks)
+        final startPosition = nextUp.hasProgress
+            ? (nextUp.userData?.playbackPositionTicks ??
+                  nextUp.playbackPositionTicks)
             : null;
-        ref.read(playerProvider.notifier).play(nextUp, startPositionTicks: startPosition);
+        ref
+            .read(playerProvider.notifier)
+            .play(nextUp, startPositionTicks: startPosition);
         if (mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const DesktopPlayer()),
