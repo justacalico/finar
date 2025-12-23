@@ -11,6 +11,9 @@ import '../core/services/download_service.dart';
 import 'library_provider.dart';
 import 'download_provider.dart';
 
+// Access NativePlayer for setProperty
+import 'package:media_kit/src/player/native/player/player.dart';
+
 /// Player state
 class PlayerState {
   final MediaItem? currentItem;
@@ -142,44 +145,129 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   Timer? _progressTimer;
   final List<StreamSubscription> _subscriptions = [];
   bool _isPlayingLocal = false;
+  DateTime _lastPositionUpdate = DateTime.now();
+  static const _positionUpdateThreshold = Duration(milliseconds: 200);
 
-  PlayerNotifier(this._mediaService, this._downloadService) : super(const PlayerState()) {
+  PlayerNotifier(this._mediaService, this._downloadService)
+    : super(const PlayerState()) {
     _initPlayer();
   }
 
   void _initPlayer() {
-    _player = Player();
-    _videoController = VideoController(_player);
+    // Initialize player with optimized configuration for performance
+    _player = Player(
+      configuration: const PlayerConfiguration(
+        // Use larger buffer for smoother playback
+        bufferSize: 64 * 1024 * 1024, // 64MB buffer
+        // Reduce log verbosity for performance
+        logLevel: MPVLogLevel.warn,
+        // Enable pitch correction for speed changes
+        pitch: true,
+      ),
+    );
 
-    _subscriptions.add(_player.stream.playing.listen((playing) {
-      state = state.copyWith(isPlaying: playing);
-    }));
+    // Configure video controller with hardware acceleration
+    _videoController = VideoController(
+      _player,
+      configuration: const VideoControllerConfiguration(
+        // Enable hardware acceleration (critical for performance)
+        enableHardwareAcceleration: true,
+        // Use auto-safe for safer hardware decoding fallback
+        hwdec: 'auto-safe',
+      ),
+    );
 
-    _subscriptions.add(_player.stream.buffering.listen((buffering) {
-      state = state.copyWith(isBuffering: buffering);
-    }));
+    _subscriptions.add(
+      _player.stream.playing.listen((playing) {
+        state = state.copyWith(isPlaying: playing);
+      }),
+    );
 
-    _subscriptions.add(_player.stream.position.listen((position) {
-      state = state.copyWith(position: position);
-    }));
+    _subscriptions.add(
+      _player.stream.buffering.listen((buffering) {
+        state = state.copyWith(isBuffering: buffering);
+      }),
+    );
 
-    _subscriptions.add(_player.stream.duration.listen((duration) {
-      state = state.copyWith(duration: duration);
-    }));
+    // Throttle position updates to reduce UI rebuilds (update at most every 200ms)
+    _subscriptions.add(
+      _player.stream.position.listen((position) {
+        final now = DateTime.now();
+        if (now.difference(_lastPositionUpdate) >= _positionUpdateThreshold) {
+          _lastPositionUpdate = now;
+          state = state.copyWith(position: position);
+        }
+      }),
+    );
 
-    _subscriptions.add(_player.stream.buffer.listen((buffer) {
-      state = state.copyWith(bufferedPosition: buffer);
-    }));
+    _subscriptions.add(
+      _player.stream.duration.listen((duration) {
+        state = state.copyWith(duration: duration);
+      }),
+    );
 
-    _subscriptions.add(_player.stream.volume.listen((volume) {
-      state = state.copyWith(volume: volume / 100);
-    }));
+    _subscriptions.add(
+      _player.stream.buffer.listen((buffer) {
+        state = state.copyWith(bufferedPosition: buffer);
+      }),
+    );
 
-    _subscriptions.add(_player.stream.completed.listen((completed) {
-      if (completed && state.hasNext) {
-        playNext();
+    _subscriptions.add(
+      _player.stream.volume.listen((volume) {
+        state = state.copyWith(volume: volume / 100);
+      }),
+    );
+
+    _subscriptions.add(
+      _player.stream.completed.listen((completed) {
+        if (completed && state.hasNext) {
+          playNext();
+        }
+      }),
+    );
+
+    // Apply additional performance optimizations after player is ready
+    _applyPerformanceOptimizations();
+  }
+
+  /// Apply additional MPV properties for better performance
+  Future<void> _applyPerformanceOptimizations() async {
+    final nativePlayer = _player.platform;
+    if (nativePlayer is NativePlayer) {
+      try {
+        // Wait for player initialization
+        await nativePlayer.waitForPlayerInitialization;
+
+        // GPU/rendering optimizations
+        await nativePlayer.setProperty('gpu-sw', 'no');
+        await nativePlayer.setProperty('opengl-pbo', 'yes');
+
+        // Frame dropping settings for smoother playback
+        await nativePlayer.setProperty('framedrop', 'vo');
+        await nativePlayer.setProperty('video-latency-hacks', 'yes');
+
+        // Disable expensive visual processing
+        await nativePlayer.setProperty('deband', 'no');
+        await nativePlayer.setProperty('interpolation', 'no');
+        await nativePlayer.setProperty('blend-subtitles', 'no');
+
+        // Threading optimizations
+        await nativePlayer.setProperty('vd-lavc-threads', '0'); // Auto-detect
+        await nativePlayer.setProperty('ad-lavc-threads', '0'); // Auto-detect
+
+        // Demuxer performance
+        await nativePlayer.setProperty('demuxer-readahead-secs', '20');
+        await nativePlayer.setProperty('demuxer-thread', 'yes');
+
+        if (kDebugMode) {
+          print('PlayerNotifier: Performance optimizations applied');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('PlayerNotifier: Failed to apply some optimizations: $e');
+        }
       }
-    }));
+    }
   }
 
   Player get player => _player;
@@ -203,18 +291,22 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
     try {
       // Check if item is downloaded locally
-      final localPath = !forceStream ? _downloadService.getLocalPath(item.id) : null;
+      final localPath = !forceStream
+          ? _downloadService.getLocalPath(item.id)
+          : null;
       final localFile = localPath != null ? File(localPath) : null;
       final hasLocalFile = localFile != null && await localFile.exists();
-      
+
       if (kDebugMode) {
-        print('PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile');
+        print(
+          'PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile',
+        );
       }
 
       if (hasLocalFile && localPath != null) {
         // Play from local file
         _isPlayingLocal = true;
-        
+
         if (kDebugMode) {
           print('Playing from local file: $localPath');
         }
@@ -222,7 +314,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
         // Seek to start position if provided
         if (startPositionTicks != null) {
-          final startPosition = Duration(microseconds: startPositionTicks ~/ 10);
+          final startPosition = Duration(
+            microseconds: startPositionTicks ~/ 10,
+          );
           // Wait briefly for player to initialize, then seek
           await Future.delayed(const Duration(milliseconds: 100));
           await _player.seek(startPosition);
@@ -275,7 +369,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         _loadNextItem();
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, isPlayingLocal: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        isPlayingLocal: false,
+        error: e.toString(),
+      );
     }
   }
 
@@ -341,7 +439,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
       state = state.copyWith(isLoading: false, isPlayingLocal: true);
     } catch (e) {
-      state = state.copyWith(isLoading: false, isPlayingLocal: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        isPlayingLocal: false,
+        error: e.toString(),
+      );
       rethrow;
     }
   }
@@ -386,8 +488,10 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   Future<void> seekRelative(Duration offset) async {
     final newPosition = state.position + offset;
     final clamped = Duration(
-      milliseconds:
-          newPosition.inMilliseconds.clamp(0, state.duration.inMilliseconds),
+      milliseconds: newPosition.inMilliseconds.clamp(
+        0,
+        state.duration.inMilliseconds,
+      ),
     );
     await _player.seek(clamped);
   }
@@ -406,7 +510,10 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Set subtitle track
   Future<void> setSubtitleTrack(int? index) async {
-    state = state.copyWith(subtitleTrackIndex: index, currentSubtitleTrack: index);
+    state = state.copyWith(
+      subtitleTrackIndex: index,
+      currentSubtitleTrack: index,
+    );
     // In a real implementation, you'd need to handle subtitle loading
   }
 
@@ -469,11 +576,12 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Remove item from queue by index
   void removeFromQueue(int index) {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length) return;
-    
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length)
+      return;
+
     final newPlaylist = List<MediaItem>.from(state.playlist!);
     newPlaylist.removeAt(index);
-    
+
     // Adjust current index if needed
     int? newIndex = state.playlistIndex;
     if (newIndex != null) {
@@ -483,7 +591,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         newIndex = null;
       }
     }
-    
+
     state = state.copyWith(
       playlist: newPlaylist.isEmpty ? null : newPlaylist,
       playlistIndex: newIndex,
@@ -495,21 +603,18 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     if (state.currentItem == null) {
       state = state.copyWith(playlist: null, playlistIndex: null);
     } else {
-      state = state.copyWith(
-        playlist: [state.currentItem!],
-        playlistIndex: 0,
-      );
+      state = state.copyWith(playlist: [state.currentItem!], playlistIndex: 0);
     }
   }
 
   /// Move item in queue
   void reorderQueue(int oldIndex, int newIndex) {
     if (state.playlist == null) return;
-    
+
     final newPlaylist = List<MediaItem>.from(state.playlist!);
     final item = newPlaylist.removeAt(oldIndex);
     newPlaylist.insert(newIndex > oldIndex ? newIndex - 1 : newIndex, item);
-    
+
     // Adjust current index
     int? currentIndex = state.playlistIndex;
     if (currentIndex != null) {
@@ -521,13 +626,14 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         currentIndex++;
       }
     }
-    
+
     state = state.copyWith(playlist: newPlaylist, playlistIndex: currentIndex);
   }
 
   /// Play item at specific index in queue
   Future<void> playAtIndex(int index) async {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length) return;
+    if (state.playlist == null || index < 0 || index >= state.playlist!.length)
+      return;
     await play(
       state.playlist![index],
       playlist: state.playlist,
@@ -593,7 +699,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         volumeLevel: (state.volume * 100).round(),
         audioStreamIndex: state.audioTrackIndex,
         subtitleStreamIndex: state.subtitleTrackIndex,
-        playMethod: streamInfo?.isTranscoding == true ? 'Transcode' : 'DirectPlay',
+        playMethod: streamInfo?.isTranscoding == true
+            ? 'Transcode'
+            : 'DirectPlay',
       );
     } catch (_) {
       // Silently ignore progress reporting errors
@@ -620,7 +728,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 }
 
 /// Player provider
-final playerProvider = StateNotifierProvider<PlayerNotifier, PlayerState>((ref) {
+final playerProvider = StateNotifierProvider<PlayerNotifier, PlayerState>((
+  ref,
+) {
   final mediaService = ref.watch(mediaServiceProvider);
   final downloadService = ref.watch(downloadServiceProvider);
   return PlayerNotifier(mediaService, downloadService);
