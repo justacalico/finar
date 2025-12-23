@@ -121,8 +121,16 @@ class _AnimatedCardState extends State<AnimatedCard> {
     Widget cardContent = Stack(
       fit: StackFit.expand,
       children: [
-        // Image
-        _buildImage(),
+        // Image (with darkening filter if watched)
+        widget.isWatched
+            ? ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  AppColors.black.withValues(alpha: 0.35),
+                  BlendMode.darken,
+                ),
+                child: _buildImage(),
+              )
+            : _buildImage(),
 
         // Gradient overlay
         _buildGradientOverlay(),
@@ -132,6 +140,21 @@ class _AnimatedCardState extends State<AnimatedCard> {
 
         // Progress bar
         if (widget.showProgress && widget.progress != null) _buildProgressBar(),
+
+        // Watched indicator badge
+        if (widget.isWatched)
+          Positioned(
+            top: 8,
+            left: 8,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.check, size: 14, color: AppColors.white),
+            ),
+          ),
 
         // Badge
         if (widget.badge != null)
