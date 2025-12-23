@@ -890,10 +890,11 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   void _playItem(MediaItem item) {
     // Check if this is music content
-    final isMusic = item.type == MediaType.audio || 
-                    item.type == MediaType.album ||
-                    item.type == MediaType.musicVideo;
-    
+    final isMusic =
+        item.type == MediaType.audio ||
+        item.type == MediaType.album ||
+        item.type == MediaType.musicVideo;
+
     if (item.type == MediaType.album) {
       // For albums, fetch tracks and play as playlist
       _playAlbum(item);
@@ -902,7 +903,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
-      
+
       // Only navigate to video player for non-music content
       if (!isMusic) {
         Navigator.of(
@@ -916,14 +917,14 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const MobilePlayer()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -936,9 +937,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           if (episodes.isNotEmpty) {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MobilePlayer()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
             }
           } else {
             _showNoEpisodesError();
@@ -949,9 +950,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }
@@ -973,15 +974,64 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play album: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play album: $e')));
       }
     }
   }
 
-  void _playTrailer(MediaItem item) {
-    // TODO: Implement trailer playback
+  void _playTrailer(MediaItem item) async {
+    try {
+      // First try to get local trailers
+      if (item.localTrailerCount != null && item.localTrailerCount! > 0) {
+        final mediaService = ref.read(mediaServiceProvider);
+        final trailers = await mediaService.getLocalTrailers(item.id);
+        if (trailers.isNotEmpty) {
+          ref.read(playerProvider.notifier).play(trailers.first);
+          if (mounted) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+          }
+          return;
+        }
+      }
+
+      // Fall back to remote trailers (YouTube, etc.)
+      if (item.remoteTrailers != null && item.remoteTrailers!.isNotEmpty) {
+        final trailer = item.remoteTrailers!.first;
+        if (trailer.url != null) {
+          // For remote trailers (usually YouTube), open in browser or show message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Opening trailer: ${trailer.name ?? "Trailer"}'),
+                action: SnackBarAction(
+                  label: 'Open',
+                  onPressed: () {
+                    // Launch URL - you may want to use url_launcher package
+                  },
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No trailer available')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play trailer: $e')));
+      }
+    }
   }
 
   void _toggleFavorite(MediaItem item) {
@@ -1003,9 +1053,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isNowInWatchlist 
-              ? 'Added "${item.name}" to Watchlist'
-              : 'Removed "${item.name}" from Watchlist',
+            isNowInWatchlist
+                ? 'Added "${item.name}" to Watchlist'
+                : 'Removed "${item.name}" from Watchlist',
           ),
           duration: const Duration(seconds: 2),
         ),
