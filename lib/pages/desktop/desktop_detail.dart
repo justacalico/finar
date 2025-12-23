@@ -14,10 +14,7 @@ import 'desktop_player.dart';
 class DesktopDetail extends ConsumerStatefulWidget {
   final String itemId;
 
-  const DesktopDetail({
-    super.key,
-    required this.itemId,
-  });
+  const DesktopDetail({super.key, required this.itemId});
 
   @override
   ConsumerState<DesktopDetail> createState() => _DesktopDetailState();
@@ -42,7 +39,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     }
 
     final action = ControllerService.getAction(event);
-    
+
     // Handle back button
     if (action == ControllerAction.back) {
       Navigator.of(context).pop();
@@ -96,58 +93,50 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               controller: _scrollController,
               slivers: [
                 // Hero section with backdrop
-            SliverToBoxAdapter(
-              child: _buildHeroSection(item, serverUrl),
+                SliverToBoxAdapter(child: _buildHeroSection(item, serverUrl)),
+
+                // Info section
+                SliverToBoxAdapter(child: _buildInfoSection(item, serverUrl)),
+
+                // Episodes (for TV Shows)
+                if (item.type == MediaType.series)
+                  SliverToBoxAdapter(
+                    child: _buildEpisodesSection(item, serverUrl),
+                  ),
+
+                // Album Tracks (for Music Albums)
+                if (item.type == MediaType.album)
+                  SliverToBoxAdapter(
+                    child: _buildAlbumTracksSection(item, serverUrl),
+                  ),
+
+                // Cast & Crew
+                if (item.people?.isNotEmpty == true)
+                  SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
+
+                // Similar Items
+                SliverToBoxAdapter(
+                  child: _buildSimilarSection(item.id, serverUrl),
+                ),
+
+                // Bottom padding
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
             ),
 
-            // Info section
-            SliverToBoxAdapter(
-              child: _buildInfoSection(item, serverUrl),
-            ),
-
-            // Episodes (for TV Shows)
-            if (item.type == MediaType.series)
-              SliverToBoxAdapter(
-                child: _buildEpisodesSection(item, serverUrl),
+            // Back button
+            Positioned(
+              top: 20,
+              left: 20,
+              child: SafeArea(
+                child: GlassIconButton(
+                  icon: Icons.arrow_back,
+                  autofocus: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-
-            // Album Tracks (for Music Albums)
-            if (item.type == MediaType.album)
-              SliverToBoxAdapter(
-                child: _buildAlbumTracksSection(item, serverUrl),
-              ),
-
-            // Cast & Crew
-            if (item.people?.isNotEmpty == true)
-              SliverToBoxAdapter(
-                child: _buildCastSection(item, serverUrl),
-              ),
-
-            // Similar Items
-            SliverToBoxAdapter(
-              child: _buildSimilarSection(item.id, serverUrl),
-            ),
-
-            // Bottom padding
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 100),
             ),
           ],
-        ),
-
-        // Back button
-        Positioned(
-          top: 20,
-          left: 20,
-          child: SafeArea(
-            child: GlassIconButton(
-              icon: Icons.arrow_back,
-              autofocus: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
-      ],
         ),
       ),
     );
@@ -221,9 +210,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 ),
               ),
             ).animate().fadeIn().scale(
-                  begin: const Offset(0.9, 0.9),
-                  duration: AppTheme.durationNormal,
-                ),
+              begin: const Offset(0.9, 0.9),
+              duration: AppTheme.durationNormal,
+            ),
 
             const SizedBox(width: 40),
 
@@ -240,16 +229,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                       height: 80,
                       fit: BoxFit.contain,
                       alignment: Alignment.centerLeft,
-                      errorBuilder: (_, _, _) => Text(
-                        item.name,
-                        style: AppTextStyles.displayMedium,
-                      ),
+                      errorBuilder: (_, _, _) =>
+                          Text(item.name, style: AppTextStyles.displayMedium),
                     )
                   else
-                    Text(
-                      item.name,
-                      style: AppTextStyles.displayMedium,
-                    ),
+                    Text(item.name, style: AppTextStyles.displayMedium),
 
                   const SizedBox(height: 16),
 
@@ -288,10 +272,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (item.productionYear != null)
-          Text(
-            item.productionYear.toString(),
-            style: AppTextStyles.bodyLarge,
-          ),
+          Text(item.productionYear.toString(), style: AppTextStyles.bodyLarge),
         if (item.officialRating != null)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -299,16 +280,10 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               border: Border.all(color: AppColors.divider),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(
-              item.officialRating!,
-              style: AppTextStyles.labelSmall,
-            ),
+            child: Text(item.officialRating!, style: AppTextStyles.labelSmall),
           ),
         if (item.formattedRuntime.isNotEmpty)
-          Text(
-            item.formattedRuntime,
-            style: AppTextStyles.bodyLarge,
-          ),
+          Text(item.formattedRuntime, style: AppTextStyles.bodyLarge),
         if (item.communityRating != null)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -327,10 +302,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             children: [
               const Icon(Icons.reviews, size: 16, color: AppColors.accentRed),
               const SizedBox(width: 4),
-              Text(
-                '${item.criticRating}%',
-                style: AppTextStyles.bodyMedium,
-              ),
+              Text('${item.criticRating}%', style: AppTextStyles.bodyMedium),
             ],
           ),
       ],
@@ -388,7 +360,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
         // Mark watched button
         GlassIconButton(
-          icon: (item.isPlayed == true) ? Icons.check_circle : Icons.check_circle_outline,
+          icon: (item.isPlayed == true)
+              ? Icons.check_circle
+              : Icons.check_circle_outline,
           iconColor: (item.isPlayed == true) ? AppColors.primary : null,
           onPressed: () => _toggleWatched(item),
         ),
@@ -421,10 +395,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Overview',
-                  style: AppTextStyles.titleLarge,
-                ),
+                Text('Overview', style: AppTextStyles.titleLarge),
                 const SizedBox(height: 12),
                 Text(
                   item.overview ?? 'No overview available.',
@@ -451,9 +422,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           const SizedBox(width: 64),
 
           // Additional info
-          Expanded(
-            child: _buildAdditionalInfo(item),
-          ),
+          Expanded(child: _buildAdditionalInfo(item)),
         ],
       ),
     ).animate().fadeIn(delay: 300.ms);
@@ -473,16 +442,23 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           _buildInfoRow(
             'Video',
             item.mediaStreams!
-                .where((s) => s.type == 'Video')
-                .map((s) => '${s.codec?.toUpperCase()} ${s.videoResolution}')
-                .firstOrNull ?? 'Unknown',
+                    .where((s) => s.type == 'Video')
+                    .map(
+                      (s) => '${s.codec?.toUpperCase()} ${s.videoResolution}',
+                    )
+                    .firstOrNull ??
+                'Unknown',
           ),
           _buildInfoRow(
             'Audio',
             item.mediaStreams!
-                .where((s) => s.type == 'Audio')
-                .map((s) => '${s.codec?.toUpperCase()} ${s.channelLayout ?? ''}')
-                .firstOrNull ?? 'Unknown',
+                    .where((s) => s.type == 'Audio')
+                    .map(
+                      (s) =>
+                          '${s.codec?.toUpperCase()} ${s.channelLayout ?? ''}',
+                    )
+                    .firstOrNull ??
+                'Unknown',
           ),
         ],
       ],
@@ -497,17 +473,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         children: [
           SizedBox(
             width: 80,
-            child: Text(
-              label,
-              style: AppTextStyles.labelMedium,
-            ),
+            child: Text(label, style: AppTextStyles.labelMedium),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyles.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(value, style: AppTextStyles.bodyMedium)),
         ],
       ),
     );
@@ -523,7 +491,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         children: [
           // Seasons section
           seasonsAsync.when(
-            data: (seasons) => seasons.length > 1 
+            data: (seasons) => seasons.length > 1
                 ? _buildSeasonsRow(seasons, serverUrl)
                 : const SizedBox.shrink(),
             loading: () => const SizedBox.shrink(),
@@ -533,10 +501,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           // Section header with season selector dropdown
           Row(
             children: [
-              Text(
-                'Episodes',
-                style: AppTextStyles.titleLarge,
-              ),
+              Text('Episodes', style: AppTextStyles.titleLarge),
               const Spacer(),
               seasonsAsync.when(
                 data: (seasons) => _buildSeasonSelector(seasons),
@@ -566,10 +531,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Seasons',
-          style: AppTextStyles.titleLarge,
-        ),
+        Text('Seasons', style: AppTextStyles.titleLarge),
         const SizedBox(height: 16),
         SizedBox(
           height: 180,
@@ -589,7 +551,12 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     );
   }
 
-  Widget _buildSeasonCard(MediaItem season, String serverUrl, bool isSelected, int index) {
+  Widget _buildSeasonCard(
+    MediaItem season,
+    String serverUrl,
+    bool isSelected,
+    int index,
+  ) {
     return GestureDetector(
       onTap: () => setState(() => _selectedSeasonIndex = index),
       child: AnimatedContainer(
@@ -711,9 +678,13 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     );
   }
 
-  Widget _buildEpisodeCard(MediaItem episode, String serverUrl, String seasonId) {
+  Widget _buildEpisodeCard(
+    MediaItem episode,
+    String serverUrl,
+    String seasonId,
+  ) {
     final isWatched = episode.isPlayed == true;
-    
+
     return GlassCard(
       width: 320,
       onTap: () => _playItem(episode),
@@ -774,8 +745,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   child: LinearProgressIndicator(
                     value: episode.progressPercent,
                     backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                    valueColor:
-                        const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                     minHeight: 3,
                   ),
                 ),
@@ -814,7 +784,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                       child: Text(
                         'E${episode.indexNumber} - ${episode.name}',
                         style: AppTextStyles.titleSmall.copyWith(
-                          color: isWatched ? AppColors.textSecondary : AppColors.textPrimary,
+                          color: isWatched
+                              ? AppColors.textSecondary
+                              : AppColors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -844,13 +816,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       ),
     );
   }
-  
+
   void _toggleEpisodeWatched(MediaItem episode, String seasonId) {
-    ref.read(mediaActionsProvider).markEpisodeWatched(
-      episode.id,
-      seasonId,
-      !(episode.isPlayed == true),
-    );
+    ref
+        .read(mediaActionsProvider)
+        .markEpisodeWatched(episode.id, seasonId, !(episode.isPlayed == true));
   }
 
   Widget _buildAlbumTracksSection(MediaItem album, String serverUrl) {
@@ -864,17 +834,19 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           // Section header
           Row(
             children: [
-              Text(
-                'Tracks',
-                style: AppTextStyles.titleLarge,
-              ),
+              Text('Tracks', style: AppTextStyles.titleLarge),
               const Spacer(),
-              tracksAsync.whenData((tracks) => Text(
-                '${tracks.length} songs',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              )).value ?? const SizedBox.shrink(),
+              tracksAsync
+                      .whenData(
+                        (tracks) => Text(
+                          '${tracks.length} songs',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      )
+                      .value ??
+                  const SizedBox.shrink(),
             ],
           ),
           const SizedBox(height: 16),
@@ -890,7 +862,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     ).animate().fadeIn(delay: 400.ms);
   }
 
-  Widget _buildTracksList(List<MediaItem> tracks, MediaItem album, String serverUrl) {
+  Widget _buildTracksList(
+    List<MediaItem> tracks,
+    MediaItem album,
+    String serverUrl,
+  ) {
     return GlassContainer(
       blur: AppTheme.blurLight,
       opacity: 0.05,
@@ -908,9 +884,14 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     );
   }
 
-  Widget _buildTrackTile(MediaItem track, int trackNumber, MediaItem album, String serverUrl) {
+  Widget _buildTrackTile(
+    MediaItem track,
+    int trackNumber,
+    MediaItem album,
+    String serverUrl,
+  ) {
     final duration = track.formattedRuntime;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -931,9 +912,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Track info
               Expanded(
                 child: Column(
@@ -945,7 +926,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (track.albumArtist != null || track.artists?.isNotEmpty == true)
+                    if (track.albumArtist != null ||
+                        track.artists?.isNotEmpty == true)
                       Text(
                         track.albumArtist ?? track.artists?.join(', ') ?? '',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -957,9 +939,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Duration
               Text(
                 duration,
@@ -967,9 +949,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   color: AppColors.textSecondary,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Play button
               GlassIconButton(
                 icon: Icons.play_arrow,
@@ -994,10 +976,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         children: [
           Row(
             children: [
-              Text(
-                'Cast & Crew',
-                style: AppTextStyles.titleLarge,
-              ),
+              Text('Cast & Crew', style: AppTextStyles.titleLarge),
               const Spacer(),
               if (people.length > 10)
                 TextButton(
@@ -1068,10 +1047,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'More Like This',
-            style: AppTextStyles.titleLarge,
-          ),
+          Text('More Like This', style: AppTextStyles.titleLarge),
           const SizedBox(height: 16),
           SizedBox(
             height: 280,
@@ -1212,7 +1188,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text('Download Options'),
-        content: const Text('This item has been downloaded. What would you like to do?'),
+        content: const Text(
+          'This item has been downloaded. What would you like to do?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1229,7 +1207,10 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 ),
               );
             },
-            child: const Text('Remove Download', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Remove Download',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -1238,10 +1219,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
   void _playItem(MediaItem item) {
     // Check if this is music content
-    final isMusic = item.type == MediaType.audio || 
-                    item.type == MediaType.album ||
-                    item.type == MediaType.musicVideo;
-    
+    final isMusic =
+        item.type == MediaType.audio ||
+        item.type == MediaType.album ||
+        item.type == MediaType.musicVideo;
+
     if (item.type == MediaType.album) {
       // For albums, fetch tracks and play as playlist
       _playAlbum(item);
@@ -1250,14 +1232,12 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
-      
+
       // Only navigate to video player for non-music content
       if (!isMusic) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const DesktopPlayer(),
-          ),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
       }
     }
   }
@@ -1266,15 +1246,13 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const DesktopPlayer(),
-            ),
+            MaterialPageRoute(builder: (context) => const DesktopPlayer()),
           );
         }
       } else {
@@ -1289,9 +1267,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const DesktopPlayer(),
-                ),
+                MaterialPageRoute(builder: (context) => const DesktopPlayer()),
               );
             }
           } else {
@@ -1303,9 +1279,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }
@@ -1327,23 +1303,76 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play album: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play album: $e')));
       }
     }
   }
 
-  void _playTrailer(MediaItem item) {
-    // TODO: Implement trailer playback
+  void _playTrailer(MediaItem item) async {
+    try {
+      // First try to get local trailers
+      if (item.localTrailerCount != null && item.localTrailerCount! > 0) {
+        final mediaService = ref.read(mediaServiceProvider);
+        final trailers = await mediaService.getLocalTrailers(item.id);
+        if (trailers.isNotEmpty) {
+          ref.read(playerProvider.notifier).play(trailers.first);
+          if (mounted) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+            );
+          }
+          return;
+        }
+      }
+
+      // Fall back to remote trailers (YouTube, etc.)
+      if (item.remoteTrailers != null && item.remoteTrailers!.isNotEmpty) {
+        final trailer = item.remoteTrailers!.first;
+        if (trailer.url != null) {
+          // For remote trailers (usually YouTube), open in browser or show message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Opening trailer: ${trailer.name ?? "Trailer"}'),
+                action: SnackBarAction(
+                  label: 'Open',
+                  onPressed: () {
+                    // Launch URL - you may want to use url_launcher package
+                  },
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No trailer available')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play trailer: $e')));
+      }
+    }
   }
 
   void _toggleFavorite(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleFavorite(item.id, !(item.isFavorite == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleFavorite(item.id, !(item.isFavorite == true));
   }
 
   void _toggleWatched(MediaItem item) {
-    ref.read(mediaActionsProvider).toggleWatched(item.id, !(item.isPlayed == true));
+    ref
+        .read(mediaActionsProvider)
+        .toggleWatched(item.id, !(item.isPlayed == true));
   }
 
   void _showMoreOptions(MediaItem item) {
@@ -1370,10 +1399,7 @@ class _DetailErrorView extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;
 
-  const _DetailErrorView({
-    required this.error,
-    required this.onRetry,
-  });
+  const _DetailErrorView({required this.error, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -1401,10 +1427,7 @@ class _LoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShimmerLoading(
-      height: height,
-      borderRadius: AppTheme.radiusMd,
-    );
+    return ShimmerLoading(height: height, borderRadius: AppTheme.radiusMd);
   }
 }
 
@@ -1444,10 +1467,6 @@ class _MoreOptionsSheet extends StatelessWidget {
   }
 
   Widget _buildOption(IconData icon, String label) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      onTap: () {},
-    );
+    return ListTile(leading: Icon(icon), title: Text(label), onTap: () {});
   }
 }
