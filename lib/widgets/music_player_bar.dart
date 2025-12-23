@@ -303,7 +303,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                   flex: 2,
                   child: Row(
                     children: [
-                      Expanded(
+                      Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
