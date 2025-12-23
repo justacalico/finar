@@ -1302,8 +1302,6 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   }
 
   void _shareItem(MediaItem item) {
-    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
-    
     // Build share text
     final StringBuffer shareText = StringBuffer();
     shareText.write(item.name);
