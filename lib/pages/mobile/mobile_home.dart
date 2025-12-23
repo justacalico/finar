@@ -1127,8 +1127,78 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   void _playItem(dynamic item) {
-    ref.read(playerProvider.notifier).play(item);
-    // Navigate to player
+    // Get the MediaType from the item
+    final itemType = item.type is MediaType 
+        ? item.type as MediaType 
+        : _getMediaTypeFromString(item.type?.toString());
+    
+    if (itemType == MediaType.series) {
+      // For series, play the next up episode (continue watching)
+      _playSeries(item);
+    } else {
+      ref.read(playerProvider.notifier).play(item);
+      // Navigate to player for video content
+      final isMusic = itemType == MediaType.audio || 
+                      itemType == MediaType.album ||
+                      itemType == MediaType.musicVideo;
+      if (!isMusic) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const MobilePlayer()),
+        );
+      }
+    }
+  }
+
+  Future<void> _playSeries(dynamic series) async {
+    try {
+      final mediaService = ref.read(mediaServiceProvider);
+      final nextUp = await mediaService.getNextUpForSeries(series.id);
+      
+      if (nextUp != null) {
+        // Play the next up episode
+        ref.read(playerProvider.notifier).play(nextUp);
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MobilePlayer()),
+          );
+        }
+      } else {
+        // No next up episode, get the first episode of the first season
+        final seasons = await mediaService.getSeasons(series.id);
+        if (seasons.isNotEmpty) {
+          final episodes = await mediaService.getSeasonEpisodes(
+            series.id,
+            seasons.first.id,
+          );
+          if (episodes.isNotEmpty) {
+            ref.read(playerProvider.notifier).play(episodes.first);
+            if (mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MobilePlayer()),
+              );
+            }
+          } else {
+            _showNoEpisodesError();
+          }
+        } else {
+          _showNoEpisodesError();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to play series: $e')),
+        );
+      }
+    }
+  }
+
+  void _showNoEpisodesError() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No episodes available to play')),
+      );
+    }
   }
 }
 
