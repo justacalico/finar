@@ -65,13 +65,6 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer> {
     });
   }
 
-  void _onInteraction() {
-    if (_isLocked) return;
-    _lastInteraction = DateTime.now();
-    setState(() => _controlsVisible = true);
-    _startHideTimer();
-  }
-
   void _toggleControls() {
     if (_isLocked) return;
     _lastInteraction = DateTime.now();
