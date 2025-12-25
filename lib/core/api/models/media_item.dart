@@ -395,7 +395,7 @@ class MediaItem {
     };
   }
 
-  /// Get primary image URL
+  /// Get primary image URL (the episode's own thumbnail for episodes)
   String getPrimaryImageUrl(String baseUrl, {int? width, int? height, int? quality}) {
     final tag = imageTags?.primary;
     if (tag == null) return '';
@@ -407,6 +407,22 @@ class MediaItem {
     params.add('tag=$tag');
     
     return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
+  }
+
+  /// Get display image URL - for episodes, returns the series poster instead of episode thumbnail
+  String getDisplayImageUrl(String baseUrl, {int? width, int? height, int? quality}) {
+    // For episodes, use the series poster
+    if (type == MediaType.episode && seriesId != null) {
+      final params = <String>[];
+      if (width != null) params.add('maxWidth=$width');
+      if (height != null) params.add('maxHeight=$height');
+      if (quality != null) params.add('quality=$quality');
+      
+      return '$baseUrl/Items/$seriesId/Images/Primary?${params.join('&')}';
+    }
+    
+    // For other types, use the regular primary image
+    return getPrimaryImageUrl(baseUrl, width: width, height: height, quality: quality);
   }
 
   /// Get backdrop image URL
