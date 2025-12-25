@@ -45,6 +45,8 @@ dependencies:
   connectivity_plus: ^7.0.0
   screen_brightness: ^2.1.7
   share_plus: ^10.1.4
+  gamepads: ^0.1.8+2
+  dpad: ^2.0.2
 
 dev_dependencies:
   flutter_test:
