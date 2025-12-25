@@ -170,7 +170,9 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
       );
       
       if (kDebugMode && gamepads.isNotEmpty) {
-        print('GamepadNotifier: ${gamepads.length} gamepad(s) connected');
+        if (kDebugMode) {
+          print('GamepadNotifier: ${gamepads.length} gamepad(s) connected');
+        }
         for (final gp in gamepads) {
           print('  - ${gp.name} (ID: ${gp.id})');
         }
