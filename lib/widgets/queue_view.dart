@@ -245,7 +245,7 @@ class _QueueItem extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: Image.network(
-                  item.getPrimaryImageUrl(serverUrl, width: 100),
+                  item.getDisplayImageUrl(serverUrl, width: 100),
                   width: 48,
                   height: 48,
                   fit: BoxFit.cover,
