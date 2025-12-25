@@ -174,7 +174,9 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
           print('GamepadNotifier: ${gamepads.length} gamepad(s) connected');
         }
         for (final gp in gamepads) {
-          print('  - ${gp.name} (ID: ${gp.id})');
+          if (kDebugMode) {
+            print('  - ${gp.name} (ID: ${gp.id})');
+          }
         }
       }
     } catch (e) {
