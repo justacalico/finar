@@ -933,7 +933,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 return SizedBox(
                   width: 170,
                   child: AnimatedCard(
-                    imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
                     title: item.name,
                     subtitle: item.productionYear?.toString(),
                     progress: showProgress ? item.playbackProgress : null,
@@ -1212,7 +1212,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                     return SizedBox(
                       width: 140,
                       child: AnimatedCard(
-                        imageUrl: item.getPrimaryImageUrl(
+                        imageUrl: item.getDisplayImageUrl(
                           serverUrl,
                           width: 300,
                         ),
@@ -1295,7 +1295,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               itemBuilder: (context, index) {
                 final item = items[index];
                 return AnimatedCard(
-                  imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                  imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
                   title: item.name,
                   subtitle: _getItemSubtitle(item),
                   animationIndex: index,
@@ -1660,7 +1660,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       width: 80,
                       height: 45,
                       child: Image.network(
-                        item.getPrimaryImageUrl(serverUrl, width: 200),
+                        item.getDisplayImageUrl(serverUrl, width: 200),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) => Container(
                           color: AppColors.surface,
