@@ -76,7 +76,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     _lastColorExtractedItemId = item.id;
     
     try {
-      final imageUrl = item.getPrimaryImageUrl(serverUrl, width: 100);
+      final imageUrl = item.getDisplayImageUrl(serverUrl, width: 100);
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
         NetworkImage(imageUrl),
         size: const Size(100, 100),
@@ -914,7 +914,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
             children: [
               // Background image
               CachedNetworkImage(
-                imageUrl: item.getPrimaryImageUrl(serverUrl, width: 400),
+                imageUrl: item.getDisplayImageUrl(serverUrl, width: 400),
                 fit: BoxFit.cover,
               ),
               
@@ -1016,7 +1016,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
           final item = items[index];
           return AnimatedCard(
             width: 120,
-            imageUrl: item.getPrimaryImageUrl(serverUrl, width: 200),
+            imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
             title: item.name,
             subtitle: item.productionYear?.toString(),
             animationIndex: index,
@@ -1268,7 +1268,7 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                     itemBuilder: (context, index) {
                       final item = searchResults[index];
                       return AnimatedCard(
-                        imageUrl: item.getPrimaryImageUrl(serverUrl, width: 200),
+                        imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
                         title: item.name,
                         subtitle: item.productionYear?.toString(),
                         animationIndex: index,
