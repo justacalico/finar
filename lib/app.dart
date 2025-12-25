@@ -117,10 +117,10 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Watch gamepad state to keep the provider active
     ref.watch(gamepadStateProvider);
 
-    return DpadContainer(
-      onClick: () {
-        // Handle D-pad center click (select action)
-        _activateFocusedWidget(context);
+    return DpadNavigator(
+      enabled: true,
+      onBackPressed: () {
+        _handleBack(context);
       },
       child: MaterialApp(
         title: 'Finar',
