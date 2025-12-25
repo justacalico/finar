@@ -203,7 +203,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: CachedNetworkImage(
-                imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
                 width: 115,
                 height: 172,
                 fit: BoxFit.cover,
