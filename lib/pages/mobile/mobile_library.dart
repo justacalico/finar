@@ -116,7 +116,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
 
           final item = state.items[index];
           return AnimatedCard(
-            imageUrl: item.getPrimaryImageUrl(serverUrl, width: 200),
+            imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
             title: item.name,
             subtitle: item.productionYear?.toString(),
             animationIndex: index % 15,
@@ -168,7 +168,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               child: Image.network(
-                item.getPrimaryImageUrl(serverUrl, width: 100),
+                item.getDisplayImageUrl(serverUrl, width: 100),
                 width: 60,
                 height: 90,
                 fit: BoxFit.cover,
