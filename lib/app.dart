@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,26 +117,19 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Watch gamepad state to keep the provider active
     ref.watch(gamepadStateProvider);
 
-    final materialApp = MaterialApp(
-      title: 'Finar',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      home: const _AppRouter(),
-    );
-
-    // Disable DpadNavigator on web to avoid focus issues during route transitions
-    if (kIsWeb) {
-      return materialApp;
-    }
-
     return DpadNavigator(
       enabled: true,
       onBackPressed: () {
         _handleBack(context);
       },
-      child: materialApp,
+      child: MaterialApp(
+        title: 'Finar',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
+        home: const _AppRouter(),
+      ),
     );
   }
 }
