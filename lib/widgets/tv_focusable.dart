@@ -14,7 +14,6 @@ class TvFocusable extends StatelessWidget {
   final VoidCallback? onFocus;
   final VoidCallback? onUnfocus;
   final bool autofocus;
-  final FocusNode? focusNode;
   final bool enabled;
   final TvFocusEffect effect;
   final String? region;
@@ -29,7 +28,6 @@ class TvFocusable extends StatelessWidget {
     this.onFocus,
     this.onUnfocus,
     this.autofocus = false,
-    this.focusNode,
     this.enabled = true,
     this.effect = TvFocusEffect.glowAndScale,
     this.region,
@@ -46,7 +44,6 @@ class TvFocusable extends StatelessWidget {
 
     return DpadFocusable(
       autofocus: autofocus,
-      focusNode: focusNode,
       onSelect: onSelect,
       onFocus: onFocus,
       onUnfocus: onUnfocus,
@@ -59,15 +56,15 @@ class TvFocusable extends StatelessWidget {
     );
   }
 
-  DpadFocusableWidgetBuilder _getEffectBuilder(TvFocusEffect effect) {
+  FocusEffectBuilder _getEffectBuilder(TvFocusEffect effect) {
     switch (effect) {
       case TvFocusEffect.none:
         return (context, isFocused, child) => child ?? const SizedBox.shrink();
       
       case TvFocusEffect.border:
         return FocusEffects.border(
-          color: AppColors.primary,
-          width: 3.0,
+          borderColor: AppColors.primary,
+          borderWidth: 3.0,
           borderRadius: BorderRadius.circular(12),
         );
       
@@ -98,8 +95,8 @@ class TvFocusable extends StatelessWidget {
         return FocusEffects.combine([
           FocusEffects.scale(scale: 1.03),
           FocusEffects.border(
-            color: AppColors.primary,
-            width: 2.0,
+            borderColor: AppColors.primary,
+            borderWidth: 2.0,
             borderRadius: BorderRadius.circular(12),
           ),
         ]);
