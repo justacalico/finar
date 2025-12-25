@@ -62,7 +62,7 @@ class TvFocusable extends StatelessWidget {
       
       case TvFocusEffect.border:
         return FocusEffects.border(
-          color: AppColors.primary,
+          focusColor: AppColors.primary,
           width: 3.0,
           borderRadius: BorderRadius.circular(12),
         );
@@ -91,14 +91,12 @@ class TvFocusable extends StatelessWidget {
         ]);
       
       case TvFocusEffect.borderAndScale:
-        return FocusEffects.combine([
-          FocusEffects.scale(scale: 1.03),
-          FocusEffects.border(
-            color: AppColors.primary,
-            width: 2.0,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ]);
+        return FocusEffects.scaleWithBorder(
+          scale: 1.03,
+          borderColor: AppColors.primary,
+          borderWidth: 2.0,
+          borderRadius: BorderRadius.circular(12),
+        );
       
       case TvFocusEffect.custom:
         return _customGlassFocusEffect;
@@ -107,35 +105,38 @@ class TvFocusable extends StatelessWidget {
 
   /// Custom glass-morphism focus effect matching the app's theme
   Widget _customGlassFocusEffect(BuildContext context, bool isFocused, Widget? child) {
-    return AnimatedContainer(
+    return AnimatedScale(
+      scale: isFocused ? 1.02 : 1.0,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
-      transform: Matrix4.identity()..scaleByDouble(isFocused ? 1.02 : 1.0),
-      transformAlignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: isFocused
-            ? Border.all(
-                color: AppColors.primary.withValues(alpha: 0.8),
-                width: 2,
-              )
-            : null,
-        boxShadow: isFocused
-            ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.4),
-                  blurRadius: 24,
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                  blurRadius: 40,
-                  spreadRadius: 4,
-                ),
-              ]
-            : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: isFocused
+              ? Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.8),
+                  width: 2,
+                )
+              : null,
+          boxShadow: isFocused
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 24,
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    blurRadius: 40,
+                    spreadRadius: 4,
+                  ),
+                ]
+              : null,
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }
@@ -192,7 +193,7 @@ class TvFocusableRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: padding,
         itemCount: children.length,
-        separatorBuilder: (_, _) => SizedBox(width: itemSpacing),
+        separatorBuilder: (_, index) => SizedBox(width: itemSpacing),
         itemBuilder: (context, index) => children[index],
       ),
     );
