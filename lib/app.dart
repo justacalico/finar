@@ -128,13 +128,6 @@ class _FinarAppState extends ConsumerState<FinarApp> {
         theme: AppTheme.darkTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.dark,
-        // Add shortcuts for TV remote/keyboard navigation
-        shortcuts: <LogicalKeySet, Intent>{
-          ...WidgetsApp.defaultShortcuts,
-          // Add media key shortcuts
-          LogicalKeySet(LogicalKeyboardKey.mediaPlayPause): const ActivateIntent(),
-          LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
-        },
         home: const _AppRouter(),
       ),
     );
