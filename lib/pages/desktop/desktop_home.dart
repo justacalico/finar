@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -402,21 +403,22 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       index: 2,
                       focusIndex: 2,
                     ),
-                    _buildNavItem(
-                      icon: Icons.download_outlined,
-                      activeIcon: Icons.download_rounded,
-                      label: 'Downloads',
-                      index: 3,
-                      focusIndex: 3,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const DesktopDownloads(),
-                          ),
-                        );
-                      },
-                    ),
+                    if (!kIsWeb)
+                      _buildNavItem(
+                        icon: Icons.download_outlined,
+                        activeIcon: Icons.download_rounded,
+                        label: 'Downloads',
+                        index: 3,
+                        focusIndex: 3,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DesktopDownloads(),
+                            ),
+                          );
+                        },
+                      ),
 
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
