@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -1743,17 +1744,19 @@ class _LiquidGlassMenu extends StatelessWidget {
                       },
                     ),
                     _buildDivider(),
-                    // Download
-                    _LiquidGlassMenuItem(
-                      icon: _getDownloadIcon(),
-                      iconColor: _getDownloadIconColor(),
-                      label: _getDownloadText(),
-                      onTap: () {
-                        Navigator.pop(context);
-                        onDownload();
-                      },
-                    ),
-                    _buildDivider(),
+                    // Download (hide on web)
+                    if (!kIsWeb) ...[
+                      _LiquidGlassMenuItem(
+                        icon: _getDownloadIcon(),
+                        iconColor: _getDownloadIconColor(),
+                        label: _getDownloadText(),
+                        onTap: () {
+                          Navigator.pop(context);
+                          onDownload();
+                        },
+                      ),
+                      _buildDivider(),
+                    ],
                     // Share
                     _LiquidGlassMenuItem(
                       icon: Icons.share_outlined,
