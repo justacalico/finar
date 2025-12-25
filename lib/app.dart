@@ -117,19 +117,26 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Watch gamepad state to keep the provider active
     ref.watch(gamepadStateProvider);
 
+    final materialApp = MaterialApp(
+      title: 'Finar',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const _AppRouter(),
+    );
+
+    // Disable DpadNavigator on web to avoid focus issues during route transitions
+    if (kIsWeb) {
+      return materialApp;
+    }
+
     return DpadNavigator(
       enabled: true,
       onBackPressed: () {
         _handleBack(context);
       },
-      child: MaterialApp(
-        title: 'Finar',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.dark,
-        home: const _AppRouter(),
-      ),
+      child: materialApp,
     );
   }
 }
