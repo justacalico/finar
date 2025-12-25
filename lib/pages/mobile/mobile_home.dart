@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -302,7 +303,8 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                     _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home', isOnline: isOnline),
                     _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search', isOnline: isOnline),
                     _buildNavItem(2, Icons.video_library_outlined, Icons.video_library_rounded, 'Library', isOnline: isOnline),
-                    _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads', isOnline: isOnline),
+                    if (!kIsWeb)
+                      _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads', isOnline: isOnline),
                   ],
                 ),
               ],
