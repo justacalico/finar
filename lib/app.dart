@@ -20,6 +20,8 @@ class FinarApp extends ConsumerStatefulWidget {
 }
 
 class _FinarAppState extends ConsumerState<FinarApp> {
+  StreamSubscription<ControllerAction>? _gamepadSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -36,21 +38,105 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Enable edge-to-edge on Android
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-    // Defer auth restoration to after the first frame
+    // Defer auth restoration and gamepad setup to after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider.notifier).restoreSession();
+      _setupGamepadListener();
     });
+  }
+
+  void _setupGamepadListener() {
+    // Listen for gamepad actions and convert them to focus navigation
+    final gamepadNotifier = ref.read(gamepadStateProvider.notifier);
+    _gamepadSubscription = gamepadNotifier.actionStream.listen(_handleGamepadAction);
+  }
+
+  void _handleGamepadAction(ControllerAction action) {
+    final context = this.context;
+    if (!mounted) return;
+
+    switch (action) {
+      case ControllerAction.up:
+        _moveFocus(context, TraversalDirection.up);
+        break;
+      case ControllerAction.down:
+        _moveFocus(context, TraversalDirection.down);
+        break;
+      case ControllerAction.left:
+        _moveFocus(context, TraversalDirection.left);
+        break;
+      case ControllerAction.right:
+        _moveFocus(context, TraversalDirection.right);
+        break;
+      case ControllerAction.select:
+        _activateFocusedWidget(context);
+        break;
+      case ControllerAction.back:
+        _handleBack(context);
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _moveFocus(BuildContext context, TraversalDirection direction) {
+    final primaryFocus = FocusManager.instance.primaryFocus;
+    if (primaryFocus != null) {
+      primaryFocus.focusInDirection(direction);
+    }
+  }
+
+  void _activateFocusedWidget(BuildContext context) {
+    final primaryFocus = FocusManager.instance.primaryFocus;
+    if (primaryFocus != null) {
+      // Simulate Enter key press to activate focused widget
+      final keyEvent = KeyDownEvent(
+        physicalKey: PhysicalKeyboardKey.enter,
+        logicalKey: LogicalKeyboardKey.enter,
+        timeStamp: Duration.zero,
+      );
+      primaryFocus.onKeyEvent?.call(primaryFocus, keyEvent);
+    }
+  }
+
+  void _handleBack(BuildContext context) {
+    // Try to pop the current route
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _gamepadSubscription?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Finar',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      home: const _AppRouter(),
+    // Watch gamepad state to keep the provider active
+    ref.watch(gamepadStateProvider);
+
+    return DpadContainer(
+      onClick: () {
+        // Handle D-pad center click (select action)
+        _activateFocusedWidget(context);
+      },
+      child: MaterialApp(
+        title: 'Finar',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
+        // Add shortcuts for TV remote/keyboard navigation
+        shortcuts: <LogicalKeySet, Intent>{
+          ...WidgetsApp.defaultShortcuts,
+          // Add media key shortcuts
+          LogicalKeySet(LogicalKeyboardKey.mediaPlayPause): const ActivateIntent(),
+          LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
+        },
+        home: const _AppRouter(),
+      ),
     );
   }
 }
