@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -398,10 +399,10 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
         const SizedBox(width: 10),
 
-        // Download button
-        _buildDownloadButton(item),
+        // Download button (hide on web)
+        if (!kIsWeb) _buildDownloadButton(item),
 
-        const SizedBox(width: 10),
+        if (!kIsWeb) const SizedBox(width: 10),
 
         // More options
         _buildIconButton(
