@@ -1,8 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gamepads/gamepads.dart';
 
 /// Controller/Gamepad input actions
 enum ControllerAction {
@@ -20,160 +18,9 @@ enum ControllerAction {
   trigger,   // Trigger buttons (L2/R2)
 }
 
-/// Gamepad button mappings (standard gamepad layout)
-class GamepadButtons {
-  // Face buttons (Xbox layout)
-  static const String a = 'a';
-  static const String b = 'b';
-  static const String x = 'x';
-  static const String y = 'y';
-  
-  // D-pad
-  static const String dpadUp = 'dpup';
-  static const String dpadDown = 'dpdown';
-  static const String dpadLeft = 'dpleft';
-  static const String dpadRight = 'dpright';
-  
-  // Shoulder/bumper buttons
-  static const String leftBumper = 'leftshoulder';
-  static const String rightBumper = 'rightshoulder';
-  
-  // Triggers
-  static const String leftTrigger = 'lefttrigger';
-  static const String rightTrigger = 'righttrigger';
-  
-  // Menu buttons
-  static const String start = 'start';
-  static const String back = 'back';
-  static const String guide = 'guide';
-  
-  // Stick buttons
-  static const String leftStick = 'leftstick';
-  static const String rightStick = 'rightstick';
-}
-
-/// Gamepad axis mappings
-class GamepadAxes {
-  static const String leftX = 'leftx';
-  static const String leftY = 'lefty';
-  static const String rightX = 'rightx';
-  static const String rightY = 'righty';
-}
-
 /// Service for handling gamepad/controller and TV remote input
 class ControllerService {
   ControllerService._();
-  
-  static StreamSubscription<GamepadEvent>? _gamepadSubscription;
-  static final _actionController = StreamController<ControllerAction>.broadcast();
-  static Stream<ControllerAction> get actionStream => _actionController.stream;
-  
-  // Analog stick deadzone
-  static const double _deadzone = 0.3;
-  
-  // Debounce for analog stick navigation
-  static DateTime _lastAnalogNav = DateTime.now();
-  static const Duration _analogDebounce = Duration(milliseconds: 200);
-  
-  /// Initialize gamepad listening
-  static void initialize() {
-    _gamepadSubscription?.cancel();
-    _gamepadSubscription = Gamepads.events.listen(_handleGamepadEvent);
-  }
-  
-  /// Dispose gamepad listening
-  static void dispose() {
-    _gamepadSubscription?.cancel();
-    _gamepadSubscription = null;
-    _actionController.close();
-  }
-  
-  /// Handle raw gamepad events
-  static void _handleGamepadEvent(GamepadEvent event) {
-    ControllerAction? action;
-    
-    if (event is GamepadButtonEvent) {
-      if (!event.pressed) return; // Only handle button presses
-      
-      action = _mapButtonToAction(event.button);
-    } else if (event is GamepadAnalogEvent) {
-      action = _mapAnalogToAction(event.key, event.value);
-    }
-    
-    if (action != null) {
-      _actionController.add(action);
-    }
-  }
-  
-  /// Map gamepad button to action
-  static ControllerAction? _mapButtonToAction(String button) {
-    switch (button.toLowerCase()) {
-      // Face buttons
-      case GamepadButtons.a:
-        return ControllerAction.select;
-      case GamepadButtons.b:
-        return ControllerAction.back;
-      case GamepadButtons.x:
-        return ControllerAction.fastForward;
-      case GamepadButtons.y:
-        return ControllerAction.rewind;
-        
-      // D-pad
-      case GamepadButtons.dpadUp:
-        return ControllerAction.up;
-      case GamepadButtons.dpadDown:
-        return ControllerAction.down;
-      case GamepadButtons.dpadLeft:
-        return ControllerAction.left;
-      case GamepadButtons.dpadRight:
-        return ControllerAction.right;
-        
-      // Menu buttons
-      case GamepadButtons.start:
-        return ControllerAction.menu;
-      case GamepadButtons.back:
-        return ControllerAction.back;
-        
-      // Shoulder buttons
-      case GamepadButtons.leftBumper:
-      case GamepadButtons.rightBumper:
-        return ControllerAction.shoulder;
-        
-      // Triggers
-      case GamepadButtons.leftTrigger:
-      case GamepadButtons.rightTrigger:
-        return ControllerAction.trigger;
-        
-      default:
-        return null;
-    }
-  }
-  
-  /// Map analog stick to navigation action (with deadzone and debounce)
-  static ControllerAction? _mapAnalogToAction(String axis, double value) {
-    // Check debounce
-    final now = DateTime.now();
-    if (now.difference(_lastAnalogNav) < _analogDebounce) {
-      return null;
-    }
-    
-    // Apply deadzone
-    if (value.abs() < _deadzone) return null;
-    
-    _lastAnalogNav = now;
-    
-    switch (axis.toLowerCase()) {
-      case GamepadAxes.leftX:
-      case GamepadAxes.rightX:
-        return value > 0 ? ControllerAction.right : ControllerAction.left;
-      case GamepadAxes.leftY:
-      case GamepadAxes.rightY:
-        // Y axis is typically inverted (up is negative)
-        return value > 0 ? ControllerAction.down : ControllerAction.up;
-      default:
-        return null;
-    }
-  }
   
   /// Map of logical keys to controller actions
   static final Map<LogicalKeyboardKey, ControllerAction> _keyMap = {
