@@ -46,7 +46,6 @@ class TvFocusable extends StatelessWidget {
       autofocus: autofocus,
       onSelect: onSelect,
       onFocus: onFocus,
-      onUnfocus: onUnfocus,
       region: region,
       isEntryPoint: isEntryPoint,
       autoScroll: autoScroll,
@@ -63,8 +62,8 @@ class TvFocusable extends StatelessWidget {
       
       case TvFocusEffect.border:
         return FocusEffects.border(
-          borderColor: AppColors.primary,
-          borderWidth: 3.0,
+          color: AppColors.primary,
+          width: 3.0,
           borderRadius: BorderRadius.circular(12),
         );
       
@@ -95,8 +94,8 @@ class TvFocusable extends StatelessWidget {
         return FocusEffects.combine([
           FocusEffects.scale(scale: 1.03),
           FocusEffects.border(
-            borderColor: AppColors.primary,
-            borderWidth: 2.0,
+            color: AppColors.primary,
+            width: 2.0,
             borderRadius: BorderRadius.circular(12),
           ),
         ]);
@@ -111,7 +110,7 @@ class TvFocusable extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
-      transform: Matrix4.identity()..scale(isFocused ? 1.02 : 1.0),
+      transform: Matrix4.identity()..scaleByDouble(isFocused ? 1.02 : 1.0),
       transformAlignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -193,7 +192,7 @@ class TvFocusableRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: padding,
         itemCount: children.length,
-        separatorBuilder: (_, __) => SizedBox(width: itemSpacing),
+        separatorBuilder: (_, _) => SizedBox(width: itemSpacing),
         itemBuilder: (context, index) => children[index],
       ),
     );
