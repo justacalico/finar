@@ -203,7 +203,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 child: Image.network(
-                  item.getPrimaryImageUrl(serverUrl, width: 400),
+                  item.getDisplayImageUrl(serverUrl, width: 400),
                   width: 250,
                   height: 375,
                   fit: BoxFit.cover,
