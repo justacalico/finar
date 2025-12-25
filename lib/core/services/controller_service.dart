@@ -189,25 +189,26 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     _axisStates.putIfAbsent(gamepadId, () => {});
     _axisTriggered.putIfAbsent(gamepadId, () => {});
     
-    if (event is KeyEvent) {
+    // GamepadEvent has type (KeyType.button or KeyType.analog), key, and value
+    if (event.type == KeyType.button) {
       _handleButtonEvent(event);
-    } else if (event is AnalogEvent) {
+    } else if (event.type == KeyType.analog) {
       _handleAnalogEvent(gamepadId, event);
     }
     
-    state = state.copyWith(lastInput: '${event.runtimeType}: $event');
+    state = state.copyWith(lastInput: '${event.key}: ${event.value}');
   }
 
-  void _handleButtonEvent(KeyEvent event) {
+  void _handleButtonEvent(GamepadEvent event) {
     // Button events from gamepads package
     final key = event.key.toLowerCase();
     
     if (kDebugMode) {
-      print('GamepadNotifier: Button event - key: $key, type: ${event.type}');
+      print('GamepadNotifier: Button event - key: $key, value: ${event.value}');
     }
     
-    // Only handle key down events
-    if (event.type != KeyType.down) return;
+    // Only handle button press (value == 1.0), not release (value == 0.0)
+    if (event.value != 1.0) return;
     
     ControllerAction? action;
     
@@ -280,7 +281,7 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     }
   }
 
-  void _handleAnalogEvent(String gamepadId, AnalogEvent event) {
+  void _handleAnalogEvent(String gamepadId, GamepadEvent event) {
     final axisIndex = event.key.hashCode;
     final value = event.value;
     
