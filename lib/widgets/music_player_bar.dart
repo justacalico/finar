@@ -71,7 +71,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         child: Image.network(
-                          item.getPrimaryImageUrl(serverUrl, width: 100),
+                          item.getDisplayImageUrl(serverUrl, width: 100),
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => Container(
                             color: AppColors.surface,
@@ -279,7 +279,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                     width: 56,
                     height: 56,
                     child: Image.network(
-                      item.getPrimaryImageUrl(serverUrl, width: 150),
+                      item.getDisplayImageUrl(serverUrl, width: 150),
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => Container(
                         color: AppColors.surface,
@@ -632,7 +632,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                                       AppTheme.radiusLg,
                                     ),
                                     child: Image.network(
-                                      item.getPrimaryImageUrl(
+                                      item.getDisplayImageUrl(
                                         serverUrl,
                                         width: 600,
                                       ),
