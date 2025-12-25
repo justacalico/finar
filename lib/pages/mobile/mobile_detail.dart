@@ -938,7 +938,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                   final item = items[index];
                   return AnimatedCard(
                     width: 120,
-                    imageUrl: item.getPrimaryImageUrl(serverUrl, width: 200),
+                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
                     title: item.name,
                     subtitle: item.productionYear?.toString(),
                     animationIndex: index,
