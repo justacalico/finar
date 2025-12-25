@@ -258,7 +258,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
 
         final item = state.items[index];
         return AnimatedCard(
-          imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+          imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
           title: item.name,
           subtitle: item.productionYear?.toString(),
           animationIndex: index % 20,
@@ -301,7 +301,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               child: Image.network(
-                item.getPrimaryImageUrl(serverUrl, width: 150),
+                item.getDisplayImageUrl(serverUrl, width: 150),
                 width: 80,
                 height: 120,
                 fit: BoxFit.cover,
