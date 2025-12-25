@@ -1164,7 +1164,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   final item = items[index];
                   return AnimatedCard(
                     width: 160,
-                    imageUrl: item.getPrimaryImageUrl(serverUrl, width: 300),
+                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
                     title: item.name,
                     subtitle: item.productionYear?.toString(),
                     animationIndex: index,
