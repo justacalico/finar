@@ -141,7 +141,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               _buildHomePage(),
               _buildSearchPage(),
               _buildLibraryPage(),
-              _buildDownloadsPage(),
+              if (!kIsWeb) _buildDownloadsPage(),
             ],
           ),
           
@@ -317,7 +317,8 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   double _getIndicatorPosition(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width - 32; // Account for margin
-    final itemWidth = screenWidth / 4;
+    final navItemCount = kIsWeb ? 3 : 4;
+    final itemWidth = screenWidth / navItemCount;
     return (itemWidth * _currentIndex) + (itemWidth / 2) - 26;
   }
 
