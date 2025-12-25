@@ -229,6 +229,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Apply additional MPV properties for better performance
   Future<void> _applyPerformanceOptimizations() async {
+    // Skip on web platform - NativePlayer doesn't support setProperty on web
+    if (kIsWeb) return;
+
     final nativePlayer = _player.platform;
     if (nativePlayer is NativePlayer) {
       try {
@@ -236,25 +239,25 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         await nativePlayer.waitForPlayerInitialization;
 
         // GPU/rendering optimizations
-        await nativePlayer.setProperty('gpu-sw', 'no');
-        await nativePlayer.setProperty('opengl-pbo', 'yes');
+        await (nativePlayer as dynamic).setProperty('gpu-sw', 'no');
+        await (nativePlayer as dynamic).setProperty('opengl-pbo', 'yes');
 
         // Frame dropping settings for smoother playback
-        await nativePlayer.setProperty('framedrop', 'vo');
-        await nativePlayer.setProperty('video-latency-hacks', 'yes');
+        await (nativePlayer as dynamic).setProperty('framedrop', 'vo');
+        await (nativePlayer as dynamic).setProperty('video-latency-hacks', 'yes');
 
         // Disable expensive visual processing
-        await nativePlayer.setProperty('deband', 'no');
-        await nativePlayer.setProperty('interpolation', 'no');
-        await nativePlayer.setProperty('blend-subtitles', 'no');
+        await (nativePlayer as dynamic).setProperty('deband', 'no');
+        await (nativePlayer as dynamic).setProperty('interpolation', 'no');
+        await (nativePlayer as dynamic).setProperty('blend-subtitles', 'no');
 
         // Threading optimizations
-        await nativePlayer.setProperty('vd-lavc-threads', '0'); // Auto-detect
-        await nativePlayer.setProperty('ad-lavc-threads', '0'); // Auto-detect
+        await (nativePlayer as dynamic).setProperty('vd-lavc-threads', '0'); // Auto-detect
+        await (nativePlayer as dynamic).setProperty('ad-lavc-threads', '0'); // Auto-detect
 
         // Demuxer performance
-        await nativePlayer.setProperty('demuxer-readahead-secs', '20');
-        await nativePlayer.setProperty('demuxer-thread', 'yes');
+        await (nativePlayer as dynamic).setProperty('demuxer-readahead-secs', '20');
+        await (nativePlayer as dynamic).setProperty('demuxer-thread', 'yes');
 
         if (kDebugMode) {
           print('PlayerNotifier: Performance optimizations applied');
