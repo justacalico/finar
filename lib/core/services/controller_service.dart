@@ -110,6 +110,247 @@ class ControllerService {
   }
 }
 
+/// Gamepad state for connected controllers
+class GamepadState {
+  final List<GamepadController> connectedGamepads;
+  final bool isGamepadConnected;
+  final String? lastInput;
+
+  const GamepadState({
+    this.connectedGamepads = const [],
+    this.isGamepadConnected = false,
+    this.lastInput,
+  });
+
+  GamepadState copyWith({
+    List<GamepadController>? connectedGamepads,
+    bool? isGamepadConnected,
+    String? lastInput,
+  }) {
+    return GamepadState(
+      connectedGamepads: connectedGamepads ?? this.connectedGamepads,
+      isGamepadConnected: isGamepadConnected ?? this.isGamepadConnected,
+      lastInput: lastInput ?? this.lastInput,
+    );
+  }
+}
+
+/// Provider for gamepad state
+final gamepadStateProvider = StateNotifierProvider<GamepadNotifier, GamepadState>((ref) {
+  return GamepadNotifier();
+});
+
+/// Notifier for managing gamepad connections and input
+class GamepadNotifier extends StateNotifier<GamepadState> {
+  StreamSubscription<GamepadEvent>? _eventSubscription;
+  final _actionController = StreamController<ControllerAction>.broadcast();
+  
+  /// Stream of controller actions from gamepad
+  Stream<ControllerAction> get actionStream => _actionController.stream;
+  
+  // Axis state tracking for analog-to-digital conversion
+  final Map<String, Map<int, double>> _axisStates = {};
+  static const double _axisThreshold = 0.5;
+  final Map<String, Map<int, bool>> _axisTriggered = {};
+
+  GamepadNotifier() : super(const GamepadState()) {
+    _initGamepads();
+  }
+
+  Future<void> _initGamepads() async {
+    try {
+      // Listen for gamepad events
+      _eventSubscription = Gamepads.events.listen(_handleGamepadEvent);
+      
+      // Get initially connected gamepads
+      final gamepads = await Gamepads.list();
+      state = state.copyWith(
+        connectedGamepads: gamepads,
+        isGamepadConnected: gamepads.isNotEmpty,
+      );
+      
+      if (kDebugMode && gamepads.isNotEmpty) {
+        print('GamepadNotifier: ${gamepads.length} gamepad(s) connected');
+        for (final gp in gamepads) {
+          print('  - ${gp.name} (ID: ${gp.id})');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('GamepadNotifier: Failed to initialize gamepads: $e');
+      }
+    }
+  }
+
+  void _handleGamepadEvent(GamepadEvent event) {
+    final gamepadId = event.gamepadId;
+    
+    // Initialize tracking maps for this gamepad if needed
+    _axisStates.putIfAbsent(gamepadId, () => {});
+    _axisTriggered.putIfAbsent(gamepadId, () => {});
+    
+    if (event is KeyEvent) {
+      _handleButtonEvent(event);
+    } else if (event is AnalogEvent) {
+      _handleAnalogEvent(gamepadId, event);
+    }
+    
+    state = state.copyWith(lastInput: '${event.runtimeType}: $event');
+  }
+
+  void _handleButtonEvent(KeyEvent event) {
+    // Button events from gamepads package
+    final key = event.key.toLowerCase();
+    
+    if (kDebugMode) {
+      print('GamepadNotifier: Button event - key: $key, type: ${event.type}');
+    }
+    
+    // Only handle key down events
+    if (event.type != KeyType.down) return;
+    
+    ControllerAction? action;
+    
+    // Map common button names to actions
+    // Xbox: a, b, x, y, lb, rb, lt, rt, start, back, dpup, dpdown, dpleft, dpright
+    // PlayStation: cross, circle, square, triangle, l1, r1, l2, r2, options, share
+    switch (key) {
+      // D-pad
+      case 'dpup':
+      case 'dpad_up':
+        action = ControllerAction.up;
+        break;
+      case 'dpdown':
+      case 'dpad_down':
+        action = ControllerAction.down;
+        break;
+      case 'dpleft':
+      case 'dpad_left':
+        action = ControllerAction.left;
+        break;
+      case 'dpright':
+      case 'dpad_right':
+        action = ControllerAction.right;
+        break;
+        
+      // Face buttons - Select/Confirm
+      case 'a':
+      case 'cross':
+      case 'button_a':
+        action = ControllerAction.select;
+        break;
+        
+      // Face buttons - Back/Cancel
+      case 'b':
+      case 'circle':
+      case 'button_b':
+        action = ControllerAction.back;
+        break;
+        
+      // Menu buttons
+      case 'start':
+      case 'options':
+      case 'menu':
+        action = ControllerAction.menu;
+        break;
+        
+      // Shoulder buttons
+      case 'lb':
+      case 'rb':
+      case 'l1':
+      case 'r1':
+      case 'left_shoulder':
+      case 'right_shoulder':
+        action = ControllerAction.shoulder;
+        break;
+        
+      // Triggers
+      case 'lt':
+      case 'rt':
+      case 'l2':
+      case 'r2':
+      case 'left_trigger':
+      case 'right_trigger':
+        action = ControllerAction.trigger;
+        break;
+    }
+    
+    if (action != null) {
+      _actionController.add(action);
+    }
+  }
+
+  void _handleAnalogEvent(String gamepadId, AnalogEvent event) {
+    final axisIndex = event.key.hashCode;
+    final value = event.value;
+    
+    // Store the current axis value
+    _axisStates[gamepadId]![axisIndex] = value;
+    
+    // Convert analog input to digital actions (with threshold)
+    // This handles left stick navigation
+    final wasTriggered = _axisTriggered[gamepadId]![axisIndex] ?? false;
+    
+    ControllerAction? action;
+    bool shouldTrigger = false;
+    
+    // Left stick X axis (left/right)
+    if (event.key.contains('leftx') || event.key.contains('left_x') || event.key == 'axis_0') {
+      if (value < -_axisThreshold && !wasTriggered) {
+        action = ControllerAction.left;
+        shouldTrigger = true;
+      } else if (value > _axisThreshold && !wasTriggered) {
+        action = ControllerAction.right;
+        shouldTrigger = true;
+      } else if (value.abs() < _axisThreshold * 0.5) {
+        // Reset when back to center
+        _axisTriggered[gamepadId]![axisIndex] = false;
+      }
+    }
+    // Left stick Y axis (up/down)
+    else if (event.key.contains('lefty') || event.key.contains('left_y') || event.key == 'axis_1') {
+      if (value < -_axisThreshold && !wasTriggered) {
+        action = ControllerAction.up;
+        shouldTrigger = true;
+      } else if (value > _axisThreshold && !wasTriggered) {
+        action = ControllerAction.down;
+        shouldTrigger = true;
+      } else if (value.abs() < _axisThreshold * 0.5) {
+        _axisTriggered[gamepadId]![axisIndex] = false;
+      }
+    }
+    
+    if (shouldTrigger) {
+      _axisTriggered[gamepadId]![axisIndex] = true;
+      if (action != null) {
+        _actionController.add(action);
+      }
+    }
+  }
+
+  /// Refresh the list of connected gamepads
+  Future<void> refreshGamepads() async {
+    try {
+      final gamepads = await Gamepads.list();
+      state = state.copyWith(
+        connectedGamepads: gamepads,
+        isGamepadConnected: gamepads.isNotEmpty,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('GamepadNotifier: Failed to refresh gamepads: $e');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    _actionController.close();
+    super.dispose();
+  }
+}
+
 /// Provider for controller input state
 final controllerEnabledProvider = StateProvider<bool>((ref) => true);
 
