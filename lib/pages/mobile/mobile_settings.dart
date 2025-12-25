@@ -511,13 +511,13 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
             ),
             title: const Text('Website'),
             subtitle: Text(
-              'openlyst.onrender.com',
+              'https://openlyst.ink/',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textTertiary,
               ),
             ),
             trailing: const Icon(Icons.open_in_new_rounded, size: 20),
-            onTap: () => _launchUrl('https://openlyst.onrender.com'),
+            onTap: () => _launchUrl('https://openlyst.ink/'),
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(

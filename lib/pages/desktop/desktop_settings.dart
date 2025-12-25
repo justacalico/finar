@@ -736,11 +736,11 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
               leading: const Icon(Icons.language, color: AppColors.primary),
               title: Text('Website', style: AppTextStyles.bodyLarge),
               subtitle: Text(
-                'openlyst.onrender.com',
+                'https://openlyst.ink/',
                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
               ),
               trailing: const Icon(Icons.open_in_new, size: 20),
-              onTap: () => _launchUrl('https://openlyst.onrender.com'),
+              onTap: () => _launchUrl('https://openlyst.ink/'),
             ),
             const Divider(color: AppColors.glassBorder),
             ListTile(
