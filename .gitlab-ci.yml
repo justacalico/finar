@@ -454,9 +454,11 @@ build_web:
 # Build Docker image for web deployment
 build_docker:
   stage: build-docker
-  image: docker:latest
+  image: docker:24.0.7
   services:
-    - docker:dind
+    - name: docker:24.0.7-dind
+      alias: docker
+      command: ["--tls=false"]
   tags:
     - linux
   allow_failure: true
@@ -464,10 +466,20 @@ build_docker:
     - job: build_web
       artifacts: true
   variables:
-    DOCKER_TLS_CERTDIR: "/certs"
+    # Disable TLS for simpler dind setup on shared runners
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
     # GitLab Container Registry
     CI_REGISTRY_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
   before_script:
+    # Wait for Docker daemon to be ready
+    - |
+      for i in $(seq 1 30); do
+        docker info >/dev/null 2>&1 && break
+        echo "Waiting for Docker daemon... ($i/30)"
+        sleep 1
+      done
     - docker info
     # Login to GitLab Container Registry
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
