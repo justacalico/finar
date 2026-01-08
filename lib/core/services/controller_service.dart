@@ -155,6 +155,16 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
 
   GamepadNotifier() : super(const GamepadState()) {
     _initGamepads();
+    // Periodically refresh gamepad list for hot-plugged controllers
+    _startPeriodicRefresh();
+  }
+  
+  Timer? _refreshTimer;
+  
+  void _startPeriodicRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      refreshGamepads();
+    });
   }
 
   Future<void> _initGamepads() async {
@@ -169,14 +179,10 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
         isGamepadConnected: gamepads.isNotEmpty,
       );
       
-      if (kDebugMode && gamepads.isNotEmpty) {
-        if (kDebugMode) {
-          print('GamepadNotifier: ${gamepads.length} gamepad(s) connected');
-        }
+      if (kDebugMode) {
+        print('GamepadNotifier: Initialized with ${gamepads.length} gamepad(s)');
         for (final gp in gamepads) {
-          if (kDebugMode) {
-            print('  - ${gp.name} (ID: ${gp.id})');
-          }
+          print('  - ${gp.name} (ID: ${gp.id})');
         }
       }
     } catch (e) {
@@ -219,36 +225,60 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     // Map common button names to actions
     // Xbox: a, b, x, y, lb, rb, lt, rt, start, back, dpup, dpdown, dpleft, dpright
     // PlayStation: cross, circle, square, triangle, l1, r1, l2, r2, options, share
+    // Steam Deck: button_south, button_east, button_north, button_west, etc.
+    // SDL names: a, b, x, y, leftshoulder, rightshoulder, etc.
     switch (key) {
-      // D-pad
+      // D-pad - standard names
       case 'dpup':
       case 'dpad_up':
+      case 'dpadup':
+      case 'hat0_up':
+      case 'hat_up':
         action = ControllerAction.up;
         break;
       case 'dpdown':
       case 'dpad_down':
+      case 'dpaddown':
+      case 'hat0_down':
+      case 'hat_down':
         action = ControllerAction.down;
         break;
       case 'dpleft':
       case 'dpad_left':
+      case 'dpadleft':
+      case 'hat0_left':
+      case 'hat_left':
         action = ControllerAction.left;
         break;
       case 'dpright':
       case 'dpad_right':
+      case 'dpadright':
+      case 'hat0_right':
+      case 'hat_right':
         action = ControllerAction.right;
         break;
         
-      // Face buttons - Select/Confirm
+      // Face buttons - Select/Confirm (A on Xbox / Cross on PS / South button)
       case 'a':
       case 'cross':
       case 'button_a':
+      case 'button_south':
+      case 'btn_south':
+      case 'south':
+      case 'button_0':
+      case 'btn_a':
         action = ControllerAction.select;
         break;
         
-      // Face buttons - Back/Cancel
+      // Face buttons - Back/Cancel (B on Xbox / Circle on PS / East button)
       case 'b':
       case 'circle':
       case 'button_b':
+      case 'button_east':
+      case 'btn_east':
+      case 'east':
+      case 'button_1':
+      case 'btn_b':
         action = ControllerAction.back;
         break;
         
@@ -256,27 +286,80 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
       case 'start':
       case 'options':
       case 'menu':
+      case 'button_start':
+      case 'btn_start':
+      case 'button_9':
+      case 'plus':
         action = ControllerAction.menu;
         break;
+      
+      // Back/Select button (can also be used for back navigation)
+      case 'back':
+      case 'select':
+      case 'share':
+      case 'button_select':
+      case 'btn_select':
+      case 'button_8':
+      case 'minus':
+        action = ControllerAction.back;
+        break;
         
-      // Shoulder buttons
+      // Shoulder buttons (L1/R1, LB/RB)
       case 'lb':
       case 'rb':
       case 'l1':
       case 'r1':
       case 'left_shoulder':
       case 'right_shoulder':
+      case 'leftshoulder':
+      case 'rightshoulder':
+      case 'button_l1':
+      case 'button_r1':
+      case 'btn_tl':
+      case 'btn_tr':
+      case 'button_4':
+      case 'button_5':
         action = ControllerAction.shoulder;
         break;
         
-      // Triggers
+      // Triggers (L2/R2, LT/RT)
       case 'lt':
       case 'rt':
       case 'l2':
       case 'r2':
       case 'left_trigger':
       case 'right_trigger':
+      case 'lefttrigger':
+      case 'righttrigger':
+      case 'button_l2':
+      case 'button_r2':
+      case 'btn_tl2':
+      case 'btn_tr2':
+      case 'button_6':
+      case 'button_7':
         action = ControllerAction.trigger;
+        break;
+      
+      // X/Y buttons (for potential future use)
+      case 'x':
+      case 'square':
+      case 'button_x':
+      case 'button_west':
+      case 'btn_west':
+      case 'west':
+      case 'button_2':
+      case 'btn_x':
+        // Could map to a specific action if needed
+        break;
+      case 'y':
+      case 'triangle':
+      case 'button_y':
+      case 'button_north':
+      case 'btn_north':
+      case 'north':
+      case 'button_3':
+      case 'btn_y':
+        // Could map to a specific action if needed
         break;
     }
     
@@ -286,8 +369,13 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
   }
 
   void _handleAnalogEvent(String gamepadId, GamepadEvent event) {
-    final axisIndex = event.key.hashCode;
+    final axisKey = event.key.toLowerCase();
+    final axisIndex = axisKey.hashCode;
     final value = event.value;
+    
+    if (kDebugMode) {
+      print('GamepadNotifier: Analog event - key: $axisKey, value: $value');
+    }
     
     // Store the current axis value
     _axisStates[gamepadId]![axisIndex] = value;
@@ -300,7 +388,37 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     bool shouldTrigger = false;
     
     // Left stick X axis (left/right)
-    if (event.key.contains('leftx') || event.key.contains('left_x') || event.key == 'axis_0') {
+    // SDL: leftx, Linux evdev: abs_x, axis_0, axis_lx
+    // Steam Deck: may use abs_x, leftx, or numbered axis
+    final isLeftXAxis = axisKey.contains('leftx') || 
+                        axisKey.contains('left_x') || 
+                        axisKey == 'axis_0' ||
+                        axisKey == 'abs_x' ||
+                        axisKey == 'axis_lx' ||
+                        axisKey == 'x';
+    
+    // Left stick Y axis (up/down)
+    // SDL: lefty, Linux evdev: abs_y, axis_1, axis_ly
+    final isLeftYAxis = axisKey.contains('lefty') || 
+                        axisKey.contains('left_y') || 
+                        axisKey == 'axis_1' ||
+                        axisKey == 'abs_y' ||
+                        axisKey == 'axis_ly' ||
+                        axisKey == 'y';
+    
+    // D-pad as axis (some controllers send D-pad as hat/axis)
+    // Steam Deck may send D-pad as abs_hat0x/abs_hat0y
+    final isDpadXAxis = axisKey.contains('hat0x') || 
+                        axisKey.contains('hat_x') ||
+                        axisKey == 'abs_hat0x' ||
+                        axisKey == 'dpad_x';
+    
+    final isDpadYAxis = axisKey.contains('hat0y') || 
+                        axisKey.contains('hat_y') ||
+                        axisKey == 'abs_hat0y' ||
+                        axisKey == 'dpad_y';
+    
+    if (isLeftXAxis || isDpadXAxis) {
       if (value < -_axisThreshold && !wasTriggered) {
         action = ControllerAction.left;
         shouldTrigger = true;
@@ -311,9 +429,9 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
         // Reset when back to center
         _axisTriggered[gamepadId]![axisIndex] = false;
       }
-    }
-    // Left stick Y axis (up/down)
-    else if (event.key.contains('lefty') || event.key.contains('left_y') || event.key == 'axis_1') {
+    } else if (isLeftYAxis || isDpadYAxis) {
+      // Note: Y axis is typically inverted (negative = up, positive = down)
+      // But some controllers may have it non-inverted
       if (value < -_axisThreshold && !wasTriggered) {
         action = ControllerAction.up;
         shouldTrigger = true;
@@ -350,6 +468,7 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _eventSubscription?.cancel();
     _actionController.close();
     super.dispose();

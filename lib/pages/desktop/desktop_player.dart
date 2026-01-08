@@ -731,37 +731,88 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
 
     _onInteraction();
 
-    switch (event.logicalKey) {
+    final key = event.logicalKey;
+    
+    switch (key) {
+      // Play/Pause - keyboard and gamepad
       case LogicalKeyboardKey.space:
       case LogicalKeyboardKey.keyK:
+      case LogicalKeyboardKey.mediaPlayPause:
+      case LogicalKeyboardKey.mediaPlay:
+      case LogicalKeyboardKey.mediaPause:
+      case LogicalKeyboardKey.gameButtonA:  // A button / South button
         _togglePlayPause();
         break;
+        
+      // Seek backward
       case LogicalKeyboardKey.arrowLeft:
       case LogicalKeyboardKey.keyJ:
+      case LogicalKeyboardKey.mediaRewind:
         _seek(-10);
         break;
+        
+      // Seek forward
       case LogicalKeyboardKey.arrowRight:
       case LogicalKeyboardKey.keyL:
+      case LogicalKeyboardKey.mediaFastForward:
         _seek(10);
         break;
+        
+      // Volume up
       case LogicalKeyboardKey.arrowUp:
         _adjustVolume(0.1);
         break;
+        
+      // Volume down
       case LogicalKeyboardKey.arrowDown:
         _adjustVolume(-0.1);
         break;
+        
+      // Toggle fullscreen
       case LogicalKeyboardKey.keyF:
+      case LogicalKeyboardKey.gameButtonY:  // Y button / North button for fullscreen
         _toggleFullscreen();
         break;
+        
+      // Toggle mute
       case LogicalKeyboardKey.keyM:
         _toggleMute();
         break;
+        
+      // Back/Exit
       case LogicalKeyboardKey.escape:
+      case LogicalKeyboardKey.gameButtonB:  // B button / East button
+      case LogicalKeyboardKey.goBack:
+      case LogicalKeyboardKey.browserBack:
         if (_isFullscreen) {
           _toggleFullscreen();
         } else {
           _onBack();
         }
+        break;
+      
+      // Shoulder buttons for seeking (larger jumps)
+      case LogicalKeyboardKey.gameButtonLeft1:  // L1/LB - seek back 30s
+      case LogicalKeyboardKey.pageUp:
+        _seek(-30);
+        break;
+      case LogicalKeyboardKey.gameButtonRight1:  // R1/RB - seek forward 30s
+      case LogicalKeyboardKey.pageDown:
+        _seek(30);
+        break;
+      
+      // Triggers for fine seeking
+      case LogicalKeyboardKey.gameButtonLeft2:  // L2/LT - seek back 5s
+        _seek(-5);
+        break;
+      case LogicalKeyboardKey.gameButtonRight2:  // R2/RT - seek forward 5s
+        _seek(5);
+        break;
+        
+      // Start/Menu button - show controls/settings
+      case LogicalKeyboardKey.gameButtonStart:
+      case LogicalKeyboardKey.contextMenu:
+        setState(() => _showSettings = !_showSettings);
         break;
     }
   }

@@ -49,6 +49,43 @@ class _FinarAppState extends ConsumerState<FinarApp> {
     // Listen for gamepad actions and convert them to focus navigation
     final gamepadNotifier = ref.read(gamepadStateProvider.notifier);
     _gamepadSubscription = gamepadNotifier.actionStream.listen(_handleGamepadAction);
+    
+    // Also listen for keyboard events that might be gamepad buttons
+    // This is important for Steam Deck where Steam Input can send
+    // controller buttons as keyboard events
+    HardwareKeyboard.instance.addHandler(_handleKeyboardGamepadInput);
+  }
+
+  /// Handle gamepad buttons sent as keyboard events (Steam Input support)
+  bool _handleKeyboardGamepadInput(KeyEvent event) {
+    if (event is! KeyDownEvent) return false;
+    
+    // Get controller action from keyboard event
+    final action = ControllerService.getAction(event);
+    if (action != null) {
+      // Don't process if this is a regular keyboard key that's already handled
+      // Only process gamepad-specific keys
+      final key = event.logicalKey;
+      final isGamepadKey = key == LogicalKeyboardKey.gameButtonA ||
+                           key == LogicalKeyboardKey.gameButtonB ||
+                           key == LogicalKeyboardKey.gameButtonX ||
+                           key == LogicalKeyboardKey.gameButtonY ||
+                           key == LogicalKeyboardKey.gameButtonStart ||
+                           key == LogicalKeyboardKey.gameButtonSelect ||
+                           key == LogicalKeyboardKey.gameButtonLeft1 ||
+                           key == LogicalKeyboardKey.gameButtonRight1 ||
+                           key == LogicalKeyboardKey.gameButtonLeft2 ||
+                           key == LogicalKeyboardKey.gameButtonRight2 ||
+                           key == LogicalKeyboardKey.goBack ||
+                           key == LogicalKeyboardKey.browserBack ||
+                           key == LogicalKeyboardKey.select;
+      
+      if (isGamepadKey) {
+        _handleGamepadAction(action);
+        return true; // Event handled
+      }
+    }
+    return false; // Let the event propagate
   }
 
   void _handleGamepadAction(ControllerAction action) {
@@ -109,6 +146,7 @@ class _FinarAppState extends ConsumerState<FinarApp> {
   @override
   void dispose() {
     _gamepadSubscription?.cancel();
+    HardwareKeyboard.instance.removeHandler(_handleKeyboardGamepadInput);
     super.dispose();
   }
 
