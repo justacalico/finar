@@ -28,6 +28,15 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   bool _showAllCast = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Request focus when the page is first built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mainFocusNode.requestFocus();
+    });
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _mainFocusNode.dispose();
@@ -45,6 +54,26 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     if (action == ControllerAction.back) {
       Navigator.of(context).pop();
       return KeyEventResult.handled;
+    }
+    
+    // Handle scrolling with up/down when no focusable element has focus
+    // This allows scrolling the page content with the controller
+    if (action == ControllerAction.up) {
+      _scrollController.animateTo(
+        (_scrollController.offset - 100).clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+      );
+      // Don't return handled - let focus system also try to move focus
+    }
+    
+    if (action == ControllerAction.down) {
+      _scrollController.animateTo(
+        (_scrollController.offset + 100).clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+      );
+      // Don't return handled - let focus system also try to move focus
     }
 
     return KeyEventResult.ignored;
@@ -313,27 +342,26 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   Widget _buildActionButtons(MediaItem item) {
     return Row(
       children: [
-        // Play button with refined styling
-        SizedBox(
+        // Play button with controller focus support
+        _FocusableActionButton(
           width: 200,
           height: 54,
-          child: ElevatedButton.icon(
-            onPressed: () => _playItem(item),
-            icon: const Icon(Icons.play_arrow_rounded, size: 26),
-            label: Text(
-              item.hasProgress ? 'Resume' : 'Play',
-              style: AppTextStyles.buttonLarge.copyWith(
-                fontWeight: FontWeight.w600,
+          autofocus: true,
+          onPressed: () => _playItem(item),
+          backgroundColor: AppColors.primary,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.play_arrow_rounded, size: 26, color: AppColors.textOnPrimary),
+              const SizedBox(width: 8),
+              Text(
+                item.hasProgress ? 'Resume' : 'Play',
+                style: AppTextStyles.buttonLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textOnPrimary,
+                ),
               ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.textOnPrimary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
+            ],
           ),
         ),
 
@@ -341,42 +369,32 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
         // Trailer button
         if (item.hasTrailer)
-          Container(
+          _FocusableActionButton(
             height: 54,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.divider.withValues(alpha: 0.5),
-                width: 1,
-              ),
-            ),
-            child: TextButton.icon(
-              onPressed: () => _playTrailer(item),
-              icon: const Icon(Icons.movie_outlined, size: 20),
-              label: const Text('Trailer'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-              ),
+            onPressed: () => _playTrailer(item),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.movie_outlined, size: 20, color: AppColors.textPrimary),
+                const SizedBox(width: 8),
+                Text('Trailer', style: AppTextStyles.labelMedium),
+              ],
             ),
           ),
 
-        const SizedBox(width: 14),
+        if (item.hasTrailer) const SizedBox(width: 14),
 
         // Favorite button
         Consumer(
           builder: (context, ref, _) {
             final isFavorite = item.isFavorite == true;
-            return _buildIconButton(
+            return GlassIconButton(
               icon: isFavorite
                   ? Icons.favorite_rounded
                   : Icons.favorite_outline_rounded,
-              color: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
+              iconColor: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
+              size: 54,
               onPressed: () => _toggleFavorite(item),
-              tooltip: isFavorite
-                  ? 'Remove from favorites'
-                  : 'Add to favorites',
             );
           },
         ),
@@ -384,17 +402,15 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         const SizedBox(width: 10),
 
         // Mark watched button
-        _buildIconButton(
+        GlassIconButton(
           icon: (item.isPlayed == true)
               ? Icons.check_circle_rounded
               : Icons.check_circle_outline_rounded,
-          color: (item.isPlayed == true)
+          iconColor: (item.isPlayed == true)
               ? AppColors.primary
               : AppColors.textSecondary,
+          size: 54,
           onPressed: () => _toggleWatched(item),
-          tooltip: (item.isPlayed == true)
-              ? 'Mark as unwatched'
-              : 'Mark as watched',
         ),
 
         const SizedBox(width: 10),
@@ -405,10 +421,10 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         if (!kIsWeb) const SizedBox(width: 10),
 
         // More options
-        _buildIconButton(
+        GlassIconButton(
           icon: Icons.more_horiz_rounded,
+          size: 54,
           onPressed: () => _showMoreOptions(item),
-          tooltip: 'More options',
         ),
       ],
     );
@@ -740,22 +756,10 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         mainAxisSize: MainAxisSize.min,
         children: List.generate(seasons.length, (index) {
           final isSelected = _selectedSeasonIndex == index;
-          return GestureDetector(
+          return _FocusableSeasonTab(
+            label: seasons[index].name,
+            isSelected: isSelected,
             onTap: () => setState(() => _selectedSeasonIndex = index),
-            child: AnimatedContainer(
-              duration: AppTheme.durationFast,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              ),
-              child: Text(
-                seasons[index].name,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: isSelected ? AppColors.black : AppColors.textPrimary,
-                ),
-              ),
-            ),
           );
         }),
       ),
@@ -1608,5 +1612,203 @@ class _MoreOptionsSheet extends StatelessWidget {
 
   Widget _buildOption(IconData icon, String label) {
     return ListTile(leading: Icon(icon), title: Text(label), onTap: () {});
+  }
+}
+
+/// A focusable action button with controller/remote support
+class _FocusableActionButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onPressed;
+  final double? width;
+  final double height;
+  final Color? backgroundColor;
+  final bool autofocus;
+
+  const _FocusableActionButton({
+    required this.child,
+    this.onPressed,
+    this.width,
+    this.height = 54,
+    this.backgroundColor,
+    this.autofocus = false,
+  });
+
+  @override
+  State<_FocusableActionButton> createState() => _FocusableActionButtonState();
+}
+
+class _FocusableActionButtonState extends State<_FocusableActionButton> {
+  bool _isFocused = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+      if (_isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    if (action == ControllerAction.select) {
+      widget.onPressed?.call();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasBgColor = widget.backgroundColor != null;
+    
+    return Focus(
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: AppTheme.durationFast,
+          width: widget.width,
+          height: widget.height,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: hasBgColor 
+                ? widget.backgroundColor 
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isFocused 
+                  ? AppColors.primary 
+                  : (hasBgColor ? Colors.transparent : AppColors.divider.withValues(alpha: 0.5)),
+              width: _isFocused ? 2 : 1,
+            ),
+            boxShadow: _isFocused
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(child: widget.child),
+        ),
+      ),
+    );
+  }
+}
+
+/// A focusable season tab with controller/remote support
+class _FocusableSeasonTab extends StatefulWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FocusableSeasonTab({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  State<_FocusableSeasonTab> createState() => _FocusableSeasonTabState();
+}
+
+class _FocusableSeasonTabState extends State<_FocusableSeasonTab> {
+  bool _isFocused = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    if (action == ControllerAction.select) {
+      widget.onTap();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: AppTheme.durationFast,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: widget.isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: _isFocused && !widget.isSelected
+                ? Border.all(color: AppColors.primary, width: 2)
+                : null,
+          ),
+          child: Text(
+            widget.label,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: widget.isSelected 
+                  ? AppColors.black 
+                  : (_isFocused ? AppColors.primary : AppColors.textPrimary),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
