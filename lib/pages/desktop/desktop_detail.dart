@@ -340,120 +340,114 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   }
 
   Widget _buildActionButtons(MediaItem item) {
-    return Row(
-      children: [
-        // Play button with controller focus support
-        _FocusableActionButton(
-          width: 200,
-          height: 54,
-          autofocus: true,
-          onPressed: () => _playItem(item),
-          backgroundColor: AppColors.primary,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.play_arrow_rounded, size: 26, color: AppColors.textOnPrimary),
-              const SizedBox(width: 8),
-              Text(
-                item.hasProgress ? 'Resume' : 'Play',
-                style: AppTextStyles.buttonLarge.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textOnPrimary,
-                ),
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Row(
+        children: [
+          // Play button with controller focus support
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(0),
+            child: _FocusableActionButton(
+              width: 200,
+              height: 54,
+              autofocus: true,
+              onPressed: () => _playItem(item),
+              backgroundColor: AppColors.primary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_arrow_rounded, size: 26, color: AppColors.textOnPrimary),
+                  const SizedBox(width: 8),
+                  Text(
+                    item.hasProgress ? 'Resume' : 'Play',
+                    style: AppTextStyles.buttonLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textOnPrimary,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        // Trailer button
-        if (item.hasTrailer)
-          _FocusableActionButton(
-            height: 54,
-            onPressed: () => _playTrailer(item),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.movie_outlined, size: 20, color: AppColors.textPrimary),
-                const SizedBox(width: 8),
-                Text('Trailer', style: AppTextStyles.labelMedium),
-              ],
             ),
           ),
 
-        if (item.hasTrailer) const SizedBox(width: 14),
+          const SizedBox(width: 14),
 
-        // Favorite button
-        Consumer(
-          builder: (context, ref, _) {
-            final isFavorite = item.isFavorite == true;
-            return GlassIconButton(
-              icon: isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_outline_rounded,
-              iconColor: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
-              size: 54,
-              onPressed: () => _toggleFavorite(item),
-            );
-          },
-        ),
+          // Trailer button
+          if (item.hasTrailer)
+            FocusTraversalOrder(
+              order: const NumericFocusOrder(1),
+              child: _FocusableActionButton(
+                height: 54,
+                onPressed: () => _playTrailer(item),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.movie_outlined, size: 20, color: AppColors.textPrimary),
+                    const SizedBox(width: 8),
+                    Text('Trailer', style: AppTextStyles.labelMedium),
+                  ],
+                ),
+              ),
+            ),
 
-        const SizedBox(width: 10),
+          if (item.hasTrailer) const SizedBox(width: 14),
 
-        // Mark watched button
-        GlassIconButton(
-          icon: (item.isPlayed == true)
-              ? Icons.check_circle_rounded
-              : Icons.check_circle_outline_rounded,
-          iconColor: (item.isPlayed == true)
-              ? AppColors.primary
-              : AppColors.textSecondary,
-          size: 54,
-          onPressed: () => _toggleWatched(item),
-        ),
-
-        const SizedBox(width: 10),
-
-        // Download button (hide on web)
-        if (!kIsWeb) _buildDownloadButton(item),
-
-        if (!kIsWeb) const SizedBox(width: 10),
-
-        // More options
-        GlassIconButton(
-          icon: Icons.more_horiz_rounded,
-          size: 54,
-          onPressed: () => _showMoreOptions(item),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIconButton({
-    required IconData icon,
-    Color? color,
-    required VoidCallback onPressed,
-    String? tooltip,
-  }) {
-    return Tooltip(
-      message: tooltip ?? '',
-      child: Container(
-        width: 54,
-        height: 54,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.divider.withValues(alpha: 0.5),
-            width: 1,
+          // Favorite button
+          FocusTraversalOrder(
+            order: NumericFocusOrder(item.hasTrailer ? 2 : 1),
+            child: Consumer(
+              builder: (context, ref, _) {
+                final isFavorite = item.isFavorite == true;
+                return GlassIconButton(
+                  icon: isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_outline_rounded,
+                  iconColor: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
+                  size: 54,
+                  onPressed: () => _toggleFavorite(item),
+                );
+              },
+            ),
           ),
-        ),
-        child: IconButton(
-          onPressed: onPressed,
-          icon: Icon(icon, size: 22),
-          color: color ?? AppColors.textSecondary,
-        ),
+
+          const SizedBox(width: 10),
+
+          // Mark watched button
+          FocusTraversalOrder(
+            order: NumericFocusOrder(item.hasTrailer ? 3 : 2),
+            child: GlassIconButton(
+              icon: (item.isPlayed == true)
+                  ? Icons.check_circle_rounded
+                  : Icons.check_circle_outline_rounded,
+              iconColor: (item.isPlayed == true)
+                  ? AppColors.primary
+                  : AppColors.textSecondary,
+              size: 54,
+              onPressed: () => _toggleWatched(item),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          // Download button (hide on web)
+          if (!kIsWeb) 
+            FocusTraversalOrder(
+              order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
+              child: _buildDownloadButton(item),
+            ),
+
+          if (!kIsWeb) const SizedBox(width: 10),
+
+          // More options
+          FocusTraversalOrder(
+            order: NumericFocusOrder(item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4)),
+            child: GlassIconButton(
+              icon: Icons.more_horiz_rounded,
+              size: 54,
+              onPressed: () => _showMoreOptions(item),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1199,81 +1193,50 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
     if (existingDownload != null) {
       switch (existingDownload.status) {
         case DownloadStatus.downloading:
-          return Tooltip(
-            message: 'Pause download',
-            child: Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: AppColors.divider.withValues(alpha: 0.5),
-                  width: 1,
-                ),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 36,
-                    height: 36,
-                    child: CircularProgressIndicator(
-                      value: existingDownload.progress,
-                      strokeWidth: 2,
-                      color: AppColors.primary,
-                      backgroundColor: AppColors.divider,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => _pauseDownload(existingDownload.id),
-                    icon: const Icon(Icons.pause_rounded, size: 18),
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
-            ),
+          return _FocusableDownloadProgress(
+            progress: existingDownload.progress,
+            onPressed: () => _pauseDownload(existingDownload.id),
           );
         case DownloadStatus.paused:
-          return _buildIconButton(
+          return GlassIconButton(
             icon: Icons.play_arrow_rounded,
-            color: AppColors.warning,
+            iconColor: AppColors.warning,
+            size: 54,
             onPressed: () => _resumeDownload(existingDownload.id),
-            tooltip: 'Resume download',
           );
         case DownloadStatus.completed:
-          return _buildIconButton(
+          return GlassIconButton(
             icon: Icons.download_done_rounded,
-            color: AppColors.success,
+            iconColor: AppColors.success,
+            size: 54,
             onPressed: () => _showDownloadOptions(existingDownload.id),
-            tooltip: 'Downloaded',
           );
         case DownloadStatus.failed:
-          return _buildIconButton(
+          return GlassIconButton(
             icon: Icons.error_outline_rounded,
-            color: AppColors.error,
+            iconColor: AppColors.error,
+            size: 54,
             onPressed: () => _downloadItem(item),
-            tooltip: 'Download failed - tap to retry',
           );
         case DownloadStatus.pending:
-          return _buildIconButton(
+          return GlassIconButton(
             icon: Icons.hourglass_empty_rounded,
+            size: 54,
             onPressed: () => _cancelDownload(existingDownload.id),
-            tooltip: 'Pending - tap to cancel',
           );
         case DownloadStatus.cancelled:
-          return _buildIconButton(
+          return GlassIconButton(
             icon: Icons.download_outlined,
+            size: 54,
             onPressed: () => _downloadItem(item),
-            tooltip: 'Download',
           );
       }
     }
 
-    return _buildIconButton(
+    return GlassIconButton(
       icon: Icons.download_outlined,
+      size: 54,
       onPressed: () => _downloadItem(item),
-      tooltip: 'Download',
     );
   }
 
@@ -1806,6 +1769,113 @@ class _FocusableSeasonTabState extends State<_FocusableSeasonTab> {
                   ? AppColors.black 
                   : (_isFocused ? AppColors.primary : AppColors.textPrimary),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A focusable download progress button with controller/remote support
+class _FocusableDownloadProgress extends StatefulWidget {
+  final double progress;
+  final VoidCallback onPressed;
+
+  const _FocusableDownloadProgress({
+    required this.progress,
+    required this.onPressed,
+  });
+
+  @override
+  State<_FocusableDownloadProgress> createState() => _FocusableDownloadProgressState();
+}
+
+class _FocusableDownloadProgressState extends State<_FocusableDownloadProgress> {
+  bool _isFocused = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    }
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!ControllerService.isKeyDown(event)) {
+      return KeyEventResult.ignored;
+    }
+
+    final action = ControllerService.getAction(event);
+    if (action == ControllerAction.select) {
+      widget.onPressed();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: AppTheme.durationFast,
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isFocused ? AppColors.primary : AppColors.divider.withValues(alpha: 0.5),
+              width: _isFocused ? 2 : 1,
+            ),
+            boxShadow: _isFocused
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: CircularProgressIndicator(
+                  value: widget.progress,
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.divider,
+                ),
+              ),
+              Icon(
+                Icons.pause_rounded, 
+                size: 18,
+                color: _isFocused ? AppColors.primary : AppColors.textSecondary,
+              ),
+            ],
           ),
         ),
       ),
