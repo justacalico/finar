@@ -1759,6 +1759,7 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
   @override
   Widget build(BuildContext context) {
     final hasBgColor = widget.backgroundColor != null;
+    final borderRadius = BorderRadius.circular(14);
 
     return Focus(
       focusNode: _focusNode,
@@ -1768,20 +1769,8 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
         onTap: widget.onPressed,
         child: AnimatedContainer(
           duration: AppTheme.durationFast,
-          width: widget.width,
-          height: widget.height,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: hasBgColor ? widget.backgroundColor : AppColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: _isFocused
-                  ? AppColors.primary
-                  : (hasBgColor
-                        ? Colors.transparent
-                        : AppColors.divider.withValues(alpha: 0.5)),
-              width: _isFocused ? 2 : 1,
-            ),
+            borderRadius: borderRadius,
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
@@ -1792,7 +1781,37 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
                   ]
                 : null,
           ),
-          child: Center(child: widget.child),
+          child: hasBgColor
+              ? Container(
+                  width: widget.width,
+                  height: widget.height,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: widget.backgroundColor,
+                    borderRadius: borderRadius,
+                    border: Border.all(
+                      color: _isFocused
+                          ? AppColors.primary
+                          : Colors.transparent,
+                      width: _isFocused ? 2 : 1,
+                    ),
+                  ),
+                  child: Center(child: widget.child),
+                )
+              : GlassContainer(
+                  blur: AppTheme.blurLight,
+                  opacity: _isFocused ? 0.16 : 0.1,
+                  borderRadius: 14,
+                  borderColor: _isFocused
+                      ? AppColors.primary.withValues(alpha: 0.9)
+                      : AppColors.glassBorder.withValues(alpha: 0.9),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: widget.width,
+                    height: widget.height,
+                    child: Center(child: widget.child),
+                  ),
+                ),
         ),
       ),
     );
@@ -1878,8 +1897,8 @@ class _FocusableDownloadProgressState
                 ? [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
+                      blurRadius: 12,
+                      spreadRadius: 2,
                     ),
                   ]
                 : null,
