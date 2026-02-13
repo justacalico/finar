@@ -884,7 +884,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   Widget _buildMediaRow({
     required String title,
-    required List items,
+    required List<MediaItem> items,
     bool showProgress = false,
   }) {
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
@@ -906,7 +906,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => _showExpandedCategory(title, items),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(

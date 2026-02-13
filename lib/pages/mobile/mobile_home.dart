@@ -565,6 +565,10 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'Continue Watching',
                   icon: Icons.play_circle_outline,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Continue Watching',
+                    items: libraryState.continueWatching,
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _buildContinueWatchingRow(
@@ -576,7 +580,14 @@ class _MobileHomeState extends ConsumerState<MobileHome>
 
               // Next Up
               if (libraryState.nextUp.isNotEmpty) ...[
-                _buildSectionHeader('Next Up', icon: Icons.skip_next_outlined),
+                _buildSectionHeader(
+                  'Next Up',
+                  icon: Icons.skip_next_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Next Up',
+                    items: libraryState.nextUp,
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.nextUp, serverUrl),
                 ),
@@ -587,6 +598,10 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'Recently Added',
                   icon: Icons.new_releases_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Recently Added',
+                    items: libraryState.recentlyAdded,
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.recentlyAdded, serverUrl),
@@ -598,6 +613,10 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'New Releases',
                   icon: Icons.fiber_new_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'New Releases',
+                    items: libraryState.recentlyReleased,
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(
@@ -609,7 +628,14 @@ class _MobileHomeState extends ConsumerState<MobileHome>
 
               // New Movies
               if (libraryState.recentlyAddedMovies.isNotEmpty) ...[
-                _buildSectionHeader('New Movies', icon: Icons.movie_outlined),
+                _buildSectionHeader(
+                  'New Movies',
+                  icon: Icons.movie_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'New Movies',
+                    items: libraryState.recentlyAddedMovies,
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(
                     libraryState.recentlyAddedMovies,
@@ -620,7 +646,14 @@ class _MobileHomeState extends ConsumerState<MobileHome>
 
               // New TV Shows
               if (libraryState.recentlyAddedShows.isNotEmpty) ...[
-                _buildSectionHeader('New TV Shows', icon: Icons.tv_outlined),
+                _buildSectionHeader(
+                  'New TV Shows',
+                  icon: Icons.tv_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'New TV Shows',
+                    items: libraryState.recentlyAddedShows,
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(
                     libraryState.recentlyAddedShows,
@@ -634,6 +667,10 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'Recommended For You',
                   icon: Icons.thumb_up_outlined,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Recommended For You',
+                    items: libraryState.recommended,
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.recommended, serverUrl),
@@ -642,7 +679,14 @@ class _MobileHomeState extends ConsumerState<MobileHome>
 
               // Top Rated
               if (libraryState.topRated.isNotEmpty) ...[
-                _buildSectionHeader('Top Rated', icon: Icons.star_outline),
+                _buildSectionHeader(
+                  'Top Rated',
+                  icon: Icons.star_outline,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Top Rated',
+                    items: libraryState.topRated,
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.topRated, serverUrl),
                 ),
@@ -653,6 +697,10 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'My Favorites',
                   icon: Icons.favorite_outline,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'My Favorites',
+                    items: libraryState.favorites,
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.favorites, serverUrl),
@@ -664,6 +712,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 _buildSectionHeader(
                   'My Libraries',
                   icon: Icons.folder_outlined,
+                  onSeeAll: _goToLibraryTab,
                 ),
                 SliverToBoxAdapter(
                   child: _buildLibrariesRow(libraryState.libraries, serverUrl),
@@ -896,7 +945,11 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     ).animate().fadeIn(duration: 300.ms);
   }
 
-  SliverToBoxAdapter _buildSectionHeader(String title, {IconData? icon}) {
+  SliverToBoxAdapter _buildSectionHeader(
+    String title, {
+    IconData? icon,
+    VoidCallback? onSeeAll,
+  }) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
@@ -932,7 +985,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                 ),
               ),
               child: TextButton(
-                onPressed: () {},
+                onPressed: onSeeAll,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -967,7 +1020,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     );
   }
 
-  Widget _buildContinueWatchingRow(List<dynamic> items, String serverUrl) {
+  Widget _buildContinueWatchingRow(List<MediaItem> items, String serverUrl) {
     return SizedBox(
       height: 160,
       child: ListView.separated(
@@ -986,10 +1039,14 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     );
   }
 
-  Widget _buildContinueWatchingCard(dynamic item, String serverUrl, int index) {
-    final progress = item.progressPercent ?? 0.0;
+  Widget _buildContinueWatchingCard(
+    MediaItem item,
+    String serverUrl,
+    int index,
+  ) {
+    final progress = item.progressPercent;
     // Calculate remaining runtime from runtimeTicks and playbackPositionTicks
-    final runtimeTicks = item.runtimeTicks ?? item.userData?.runtimeTicks;
+    final runtimeTicks = item.runtimeTicks;
     final positionTicks =
         item.userData?.playbackPositionTicks ?? item.playbackPositionTicks ?? 0;
     final remainingTicks =
@@ -1081,7 +1138,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                       children: [
                         Expanded(
                           child: Text(
-                            item.name ?? '',
+                            item.name,
                             style: AppTextStyles.labelMedium.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -1109,7 +1166,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
         .slideX(begin: 0.1);
   }
 
-  Widget _buildMediaRow(List<dynamic> items, String serverUrl) {
+  Widget _buildMediaRow(List<MediaItem> items, String serverUrl) {
     return SizedBox(
       height: 200,
       child: ListView.separated(
@@ -1224,6 +1281,25 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     return const _MobileDownloadsPage();
   }
 
+  void _openSeeAllMedia({
+    required String title,
+    required List<MediaItem> items,
+  }) {
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            _MobileSeeAllPage(title: title, items: items, serverUrl: serverUrl),
+      ),
+    );
+  }
+
+  void _goToLibraryTab() {
+    setState(() => _currentIndex = 2);
+    _pageController.jumpToPage(2);
+  }
+
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
@@ -1305,6 +1381,57 @@ class _MobileHomeState extends ConsumerState<MobileHome>
         const SnackBar(content: Text('No episodes available to play')),
       );
     }
+  }
+}
+
+class _MobileSeeAllPage extends StatelessWidget {
+  final String title;
+  final List<MediaItem> items;
+  final String serverUrl;
+
+  const _MobileSeeAllPage({
+    required this.title,
+    required this.items,
+    required this.serverUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: AppColors.background,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 0.62,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return AnimatedCard(
+            imageUrl: item.getDisplayImageUrl(serverUrl, width: 240),
+            title: item.name,
+            subtitle: item.productionYear?.toString(),
+            animationIndex: index,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MobileDetail(itemId: item.id),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }
 
