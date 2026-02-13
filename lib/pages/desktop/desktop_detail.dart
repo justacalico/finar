@@ -378,8 +378,12 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   Widget _buildActionButtons(MediaItem item) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
-      child: Row(
-        children: [
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // Play button with controller focus support
           FocusTraversalOrder(
             order: const NumericFocusOrder(0),
@@ -409,7 +413,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               ),
             ),
           ),
-
           const SizedBox(width: 14),
 
           // Trailer button
@@ -433,7 +436,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 ),
               ),
             ),
-
           if (item.hasTrailer) const SizedBox(width: 14),
 
           // Favorite button
@@ -455,7 +457,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               },
             ),
           ),
-
           const SizedBox(width: 10),
 
           // Mark watched button
@@ -472,7 +473,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               onPressed: () => _toggleWatched(item),
             ),
           ),
-
           const SizedBox(width: 10),
 
           // Download button (hide on web)
@@ -481,7 +481,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
               child: _buildDownloadButton(item),
             ),
-
           if (!kIsWeb) const SizedBox(width: 10),
 
           // More options
@@ -495,7 +494,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               onPressed: () => _showMoreOptions(item),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
