@@ -55,21 +55,27 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
       Navigator.of(context).pop();
       return KeyEventResult.handled;
     }
-    
+
     // Handle scrolling with up/down when no focusable element has focus
     // This allows scrolling the page content with the controller
     if (action == ControllerAction.up) {
       _scrollController.animateTo(
-        (_scrollController.offset - 100).clamp(0.0, _scrollController.position.maxScrollExtent),
+        (_scrollController.offset - 100).clamp(
+          0.0,
+          _scrollController.position.maxScrollExtent,
+        ),
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
       );
       // Don't return handled - let focus system also try to move focus
     }
-    
+
     if (action == ControllerAction.down) {
       _scrollController.animateTo(
-        (_scrollController.offset + 100).clamp(0.0, _scrollController.position.maxScrollExtent),
+        (_scrollController.offset + 100).clamp(
+          0.0,
+          _scrollController.position.maxScrollExtent,
+        ),
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
       );
@@ -356,7 +362,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.play_arrow_rounded, size: 26, color: AppColors.textOnPrimary),
+                  const Icon(
+                    Icons.play_arrow_rounded,
+                    size: 26,
+                    color: AppColors.textOnPrimary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     item.hasProgress ? 'Resume' : 'Play',
@@ -382,7 +392,11 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.movie_outlined, size: 20, color: AppColors.textPrimary),
+                    Icon(
+                      Icons.movie_outlined,
+                      size: 20,
+                      color: AppColors.textPrimary,
+                    ),
                     const SizedBox(width: 8),
                     Text('Trailer', style: AppTextStyles.labelMedium),
                   ],
@@ -402,7 +416,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                   icon: isFavorite
                       ? Icons.favorite_rounded
                       : Icons.favorite_outline_rounded,
-                  iconColor: isFavorite ? AppColors.accentRed : AppColors.textSecondary,
+                  iconColor: isFavorite
+                      ? AppColors.accentRed
+                      : AppColors.textSecondary,
                   size: 54,
                   onPressed: () => _toggleFavorite(item),
                 );
@@ -430,7 +446,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           const SizedBox(width: 10),
 
           // Download button (hide on web)
-          if (!kIsWeb) 
+          if (!kIsWeb)
             FocusTraversalOrder(
               order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
               child: _buildDownloadButton(item),
@@ -440,7 +456,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
           // More options
           FocusTraversalOrder(
-            order: NumericFocusOrder(item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4)),
+            order: NumericFocusOrder(
+              item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4),
+            ),
             child: GlassIconButton(
               icon: Icons.more_horiz_rounded,
               size: 54,
@@ -613,18 +631,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             error: (_, _) => const SizedBox.shrink(),
           ),
 
-          // Section header with season selector dropdown
-          Row(
-            children: [
-              Text('Episodes', style: AppTextStyles.titleLarge),
-              const Spacer(),
-              seasonsAsync.when(
-                data: (seasons) => _buildSeasonSelector(seasons),
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
+          // Section header
+          Text('Episodes', style: AppTextStyles.titleLarge),
           const SizedBox(height: 16),
 
           // Episodes list
@@ -736,26 +744,6 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSeasonSelector(List<MediaItem> seasons) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.1,
-      borderRadius: AppTheme.radiusMd,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(seasons.length, (index) {
-          final isSelected = _selectedSeasonIndex == index;
-          return _FocusableSeasonTab(
-            label: seasons[index].name,
-            isSelected: isSelected,
-            onTap: () => setState(() => _selectedSeasonIndex = index),
-          );
-        }),
       ),
     );
   }
@@ -1650,7 +1638,7 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
   @override
   Widget build(BuildContext context) {
     final hasBgColor = widget.backgroundColor != null;
-    
+
     return Focus(
       focusNode: _focusNode,
       autofocus: widget.autofocus,
@@ -1663,14 +1651,14 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
           height: widget.height,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: hasBgColor 
-                ? widget.backgroundColor 
-                : AppColors.surface,
+            color: hasBgColor ? widget.backgroundColor : AppColors.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: _isFocused 
-                  ? AppColors.primary 
-                  : (hasBgColor ? Colors.transparent : AppColors.divider.withValues(alpha: 0.5)),
+              color: _isFocused
+                  ? AppColors.primary
+                  : (hasBgColor
+                        ? Colors.transparent
+                        : AppColors.divider.withValues(alpha: 0.5)),
               width: _isFocused ? 2 : 1,
             ),
             boxShadow: _isFocused
@@ -1690,92 +1678,6 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
   }
 }
 
-/// A focusable season tab with controller/remote support
-class _FocusableSeasonTab extends StatefulWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _FocusableSeasonTab({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  State<_FocusableSeasonTab> createState() => _FocusableSeasonTabState();
-}
-
-class _FocusableSeasonTabState extends State<_FocusableSeasonTab> {
-  bool _isFocused = false;
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  @override
-  void dispose() {
-    _focusNode.removeListener(_onFocusChange);
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  void _onFocusChange() {
-    if (mounted) {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-      });
-    }
-  }
-
-  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (!ControllerService.isKeyDown(event)) {
-      return KeyEventResult.ignored;
-    }
-
-    final action = ControllerService.getAction(event);
-    if (action == ControllerAction.select) {
-      widget.onTap();
-      return KeyEventResult.handled;
-    }
-
-    return KeyEventResult.ignored;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: AppTheme.durationFast,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: widget.isSelected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-            border: _isFocused && !widget.isSelected
-                ? Border.all(color: AppColors.primary, width: 2)
-                : null,
-          ),
-          child: Text(
-            widget.label,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: widget.isSelected 
-                  ? AppColors.black 
-                  : (_isFocused ? AppColors.primary : AppColors.textPrimary),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// A focusable download progress button with controller/remote support
 class _FocusableDownloadProgress extends StatefulWidget {
   final double progress;
@@ -1787,10 +1689,12 @@ class _FocusableDownloadProgress extends StatefulWidget {
   });
 
   @override
-  State<_FocusableDownloadProgress> createState() => _FocusableDownloadProgressState();
+  State<_FocusableDownloadProgress> createState() =>
+      _FocusableDownloadProgressState();
 }
 
-class _FocusableDownloadProgressState extends State<_FocusableDownloadProgress> {
+class _FocusableDownloadProgressState
+    extends State<_FocusableDownloadProgress> {
   bool _isFocused = false;
   final FocusNode _focusNode = FocusNode();
 
@@ -1844,7 +1748,9 @@ class _FocusableDownloadProgressState extends State<_FocusableDownloadProgress> 
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: _isFocused ? AppColors.primary : AppColors.divider.withValues(alpha: 0.5),
+              color: _isFocused
+                  ? AppColors.primary
+                  : AppColors.divider.withValues(alpha: 0.5),
               width: _isFocused ? 2 : 1,
             ),
             boxShadow: _isFocused
@@ -1871,7 +1777,7 @@ class _FocusableDownloadProgressState extends State<_FocusableDownloadProgress> 
                 ),
               ),
               Icon(
-                Icons.pause_rounded, 
+                Icons.pause_rounded,
                 size: 18,
                 color: _isFocused ? AppColors.primary : AppColors.textSecondary,
               ),
