@@ -562,16 +562,27 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
   }
 
   Widget _buildAdditionalInfo(MediaItem item) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.divider.withValues(alpha: 0.5),
-          width: 1,
+    return GlassContainer(
+      blur: AppTheme.blurHeavy,
+      opacity: 0.09,
+      borderRadius: AppTheme.radiusLg,
+      borderColor: AppColors.white.withValues(alpha: 0.22),
+      shadows: [
+        BoxShadow(
+          color: AppColors.black.withValues(alpha: 0.2),
+          blurRadius: 24,
+          offset: const Offset(0, 12),
         ),
+      ],
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          AppColors.white.withValues(alpha: 0.16),
+          AppColors.white.withValues(alpha: 0.05),
+        ],
       ),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
