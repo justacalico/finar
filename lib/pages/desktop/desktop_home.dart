@@ -1009,7 +1009,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
           // Search bar
           SizedBox(
-            width: 500,
+            width: double.infinity,
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search movies, shows, music...',
