@@ -1,3 +1,6 @@
+// Adaptive pages
+export 'adaptive_pages.dart';
+
 // Desktop pages
 export 'desktop/desktop_home.dart';
 export 'desktop/desktop_library.dart';

@@ -11,12 +11,10 @@ import '../../core/api/media_service.dart';
 import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
+import '../adaptive_pages.dart';
 import 'desktop_library.dart';
 import 'desktop_music_library.dart';
-import 'desktop_detail.dart';
 import 'desktop_downloads.dart';
-import 'desktop_settings.dart';
-import 'desktop_player.dart';
 
 class DesktopHome extends ConsumerStatefulWidget {
   const DesktopHome({super.key});
@@ -160,13 +158,13 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
       // Downloads
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const DesktopDownloads()),
+        MaterialPageRoute(builder: (_) => const AdaptiveDownloadsPage()),
       );
     } else if (index == 100) {
       // Settings
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const DesktopSettings()),
+        MaterialPageRoute(builder: (_) => const AdaptiveSettingsPage()),
       );
     } else if (index >= 4 && index < 4 + libraries.length) {
       // Library
@@ -417,7 +415,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const DesktopDownloads(),
+                              builder: (_) => const AdaptiveDownloadsPage(),
                             ),
                           );
                         },
@@ -470,7 +468,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const DesktopSettings(),
+                            builder: (_) => const AdaptiveSettingsPage(),
                           ),
                         );
                       },
@@ -1514,7 +1512,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   void _navigateToDetail(dynamic item) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => DesktopDetail(itemId: item.id)),
+      MaterialPageRoute(
+        builder: (context) => AdaptiveDetailPage(itemId: item.id),
+      ),
     );
   }
 
@@ -1540,9 +1540,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           itemType == MediaType.album ||
           itemType == MediaType.musicVideo;
       if (!isMusic) {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
+        );
       }
     }
   }
@@ -1557,7 +1557,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+            MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
           );
         }
       } else {
@@ -1572,7 +1572,9 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+                MaterialPageRoute(
+                  builder: (context) => const AdaptivePlayerPage(),
+                ),
               );
             }
           } else {
@@ -1862,6 +1864,6 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   void _openFullPlayer() {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
+    ).push(MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()));
   }
 }

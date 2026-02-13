@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'desktop_detail.dart';
+import '../adaptive_pages.dart';
 
 class DesktopMusicLibrary extends ConsumerStatefulWidget {
   final String libraryId;
@@ -750,7 +750,7 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => DesktopDetail(itemId: itemId)),
+      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
     );
   }
 
@@ -767,9 +767,9 @@ class _DesktopMusicLibraryState extends ConsumerState<DesktopMusicLibrary>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play album: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play album: $e')));
       }
     }
   }

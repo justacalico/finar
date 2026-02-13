@@ -7,16 +7,12 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'desktop_detail.dart';
-import 'desktop_player.dart';
+import '../adaptive_pages.dart';
 
 class DesktopLibrary extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const DesktopLibrary({
-    super.key,
-    required this.libraryId,
-  });
+  const DesktopLibrary({super.key, required this.libraryId});
 
   @override
   ConsumerState<DesktopLibrary> createState() => _DesktopLibraryState();
@@ -56,16 +52,16 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
       children: [
         // Header
         _buildHeader(libraryContent),
-        
+
         // Content
         Expanded(
           child: libraryContent.items.isEmpty && libraryContent.isLoading
               ? _buildLoadingGrid()
               : libraryContent.error != null
-                  ? _buildError(libraryContent.error!)
-                  : _viewMode == ViewMode.grid
-                      ? _buildGrid(libraryContent, serverUrl)
-                      : _buildList(libraryContent, serverUrl),
+              ? _buildError(libraryContent.error!)
+              : _viewMode == ViewMode.grid
+              ? _buildGrid(libraryContent, serverUrl)
+              : _buildList(libraryContent, serverUrl),
         ),
       ],
     );
@@ -85,10 +81,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Library',
-                  style: AppTextStyles.headlineMedium,
-                ),
+                Text('Library', style: AppTextStyles.headlineMedium),
                 const SizedBox(height: 4),
                 Text(
                   '${state.totalCount} items',
@@ -99,7 +92,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
               ],
             ),
           ),
-          
+
           // Search field
           SizedBox(
             width: 300,
@@ -115,14 +108,14 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
               },
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Sort dropdown
           _buildSortDropdown(),
-          
+
           const SizedBox(width: 16),
-          
+
           // View mode toggle
           _buildViewModeToggle(),
         ],
@@ -165,8 +158,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
               ),
               onPressed: () {
                 setState(() {
-                  _sortOrder =
-                      _sortOrder == 'Ascending' ? 'Descending' : 'Ascending';
+                  _sortOrder = _sortOrder == 'Ascending'
+                      ? 'Descending'
+                      : 'Ascending';
                 });
                 ref
                     .read(libraryContentProvider(widget.libraryId).notifier)
@@ -313,9 +307,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Info
             Expanded(
               child: Column(
@@ -367,7 +361,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
                 ],
               ),
             ),
-            
+
             // Play button
             GlassIconButton(
               icon: Icons.play_arrow,
@@ -379,12 +373,10 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(
-          delay: Duration(milliseconds: (index % 10) * 30),
-          duration: AppTheme.durationNormal,
-        );
+    ).animate().fadeIn(
+      delay: Duration(milliseconds: (index % 10) * 30),
+      duration: AppTheme.durationNormal,
+    );
   }
 
   Widget _buildLoadingGrid() {
@@ -398,9 +390,7 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
       ),
       itemCount: 12,
       itemBuilder: (context, index) {
-        return const ShimmerLoading(
-          borderRadius: AppTheme.radiusMd,
-        );
+        return const ShimmerLoading(borderRadius: AppTheme.radiusMd);
       },
     );
   }
@@ -410,16 +400,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: AppColors.error,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: AppColors.error),
           const SizedBox(height: 16),
-          Text(
-            'Failed to load library',
-            style: AppTextStyles.headlineSmall,
-          ),
+          Text('Failed to load library', style: AppTextStyles.headlineSmall),
           const SizedBox(height: 8),
           Text(
             error,
@@ -444,32 +427,35 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
   void _navigateToDetail(String itemId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => DesktopDetail(itemId: itemId),
+        builder: (context) => AdaptiveDetailPage(itemId: itemId),
       ),
     );
   }
 
   void _playItem(dynamic item) {
     // Get the MediaType from the item
-    final itemType = item.type is MediaType 
-        ? item.type as MediaType 
+    final itemType = item.type is MediaType
+        ? item.type as MediaType
         : MediaType.values.firstWhere(
-            (e) => e.toString().split('.').last.toLowerCase() == item.type?.toString().toLowerCase(),
+            (e) =>
+                e.toString().split('.').last.toLowerCase() ==
+                item.type?.toString().toLowerCase(),
             orElse: () => MediaType.unknown,
           );
-    
+
     if (itemType == MediaType.series) {
       // For series, play the next up episode (continue watching)
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
       // Navigate to player for video content
-      final isMusic = itemType == MediaType.audio || 
-                      itemType == MediaType.album ||
-                      itemType == MediaType.musicVideo;
+      final isMusic =
+          itemType == MediaType.audio ||
+          itemType == MediaType.album ||
+          itemType == MediaType.musicVideo;
       if (!isMusic) {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+          MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
         );
       }
     }
@@ -479,13 +465,13 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+            MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
           );
         }
       } else {
@@ -500,7 +486,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+                MaterialPageRoute(
+                  builder: (context) => const AdaptivePlayerPage(),
+                ),
               );
             }
           } else {
@@ -512,9 +500,9 @@ class _DesktopLibraryState extends ConsumerState<DesktopLibrary> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }

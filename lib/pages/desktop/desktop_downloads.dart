@@ -10,8 +10,7 @@ import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'desktop_detail.dart';
-import 'desktop_player.dart';
+import '../adaptive_pages.dart';
 
 class DesktopDownloads extends ConsumerStatefulWidget {
   const DesktopDownloads({super.key});
@@ -36,15 +35,13 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
         children: [
           // Sidebar with filters
           _buildSidebar(downloadState),
-          
+
           // Main content
           Expanded(
             child: Column(
               children: [
                 _buildHeader(downloadState),
-                Expanded(
-                  child: _buildContent(downloadState, serverUrl),
-                ),
+                Expanded(child: _buildContent(downloadState, serverUrl)),
               ],
             ),
           ),
@@ -65,9 +62,7 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.5),
         border: Border(
-          right: BorderSide(
-            color: AppColors.divider.withValues(alpha: 0.3),
-          ),
+          right: BorderSide(color: AppColors.divider.withValues(alpha: 0.3)),
         ),
       ),
       child: Column(
@@ -83,16 +78,13 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  'Downloads',
-                  style: AppTextStyles.headlineSmall,
-                ),
+                Text('Downloads', style: AppTextStyles.headlineSmall),
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Filter options
           Padding(
             padding: const EdgeInsets.all(16),
@@ -104,15 +96,40 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
               ),
             ),
           ),
-          
-          _buildFilterItem('all', 'All Downloads', Icons.folder_outlined, allCount),
-          _buildFilterItem('completed', 'Ready to Watch', Icons.check_circle_outline, completedCount),
-          _buildFilterItem('active', 'Downloading', Icons.downloading, activeCount),
-          _buildFilterItem('paused', 'Paused', Icons.pause_circle_outline, pausedCount),
-          _buildFilterItem('failed', 'Failed', Icons.error_outline, failedCount),
-          
+
+          _buildFilterItem(
+            'all',
+            'All Downloads',
+            Icons.folder_outlined,
+            allCount,
+          ),
+          _buildFilterItem(
+            'completed',
+            'Ready to Watch',
+            Icons.check_circle_outline,
+            completedCount,
+          ),
+          _buildFilterItem(
+            'active',
+            'Downloading',
+            Icons.downloading,
+            activeCount,
+          ),
+          _buildFilterItem(
+            'paused',
+            'Paused',
+            Icons.pause_circle_outline,
+            pausedCount,
+          ),
+          _buildFilterItem(
+            'failed',
+            'Failed',
+            Icons.error_outline,
+            failedCount,
+          ),
+
           const Spacer(),
-          
+
           // Storage info
           _buildStorageInfo(downloadState),
         ],
@@ -120,9 +137,14 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     );
   }
 
-  Widget _buildFilterItem(String filter, String label, IconData icon, int count) {
+  Widget _buildFilterItem(
+    String filter,
+    String label,
+    IconData icon,
+    int count,
+  ) {
     final isSelected = _selectedFilter == filter;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -150,16 +172,23 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
                 child: Text(
                   label,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
               ),
               if (count > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected 
+                    color: isSelected
                         ? AppColors.primary.withValues(alpha: 0.2)
                         : AppColors.surfaceElevated,
                     borderRadius: BorderRadius.circular(10),
@@ -167,7 +196,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
                   child: Text(
                     count.toString(),
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -184,9 +215,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     for (final download in downloadState.completedDownloads) {
       totalBytes += download.totalBytes;
     }
-    
+
     final sizeStr = _formatBytes(totalBytes);
-    
+
     return GlassContainer(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -240,20 +271,15 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: AppColors.divider.withValues(alpha: 0.3),
-          ),
+          bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.3)),
         ),
       ),
       child: Row(
         children: [
           // Title based on filter
-          Text(
-            _getFilterTitle(),
-            style: AppTextStyles.headlineMedium,
-          ),
+          Text(_getFilterTitle(), style: AppTextStyles.headlineMedium),
           const Spacer(),
-          
+
           // Sort dropdown
           PopupMenuButton<String>(
             initialValue: _sortBy,
@@ -280,9 +306,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // View toggle
           GlassContainer(
             padding: const EdgeInsets.all(4),
@@ -304,7 +330,7 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
 
   Widget _buildViewToggle(IconData icon, bool isGrid) {
     final isSelected = _gridView == isGrid;
-    
+
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppTheme.radiusSm),
@@ -354,14 +380,16 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
           ),
           const SizedBox(height: 24),
           Text(
-            _selectedFilter == 'all' ? 'No Downloads Yet' : 'No ${_getFilterTitle()}',
+            _selectedFilter == 'all'
+                ? 'No Downloads Yet'
+                : 'No ${_getFilterTitle()}',
             style: AppTextStyles.headlineSmall.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            _selectedFilter == 'all' 
+            _selectedFilter == 'all'
                 ? 'Download movies and shows to watch offline'
                 : 'Downloads matching this filter will appear here',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -399,8 +427,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
           onTap: () => _onDownloadTap(download),
           onPlay: () => _playDownload(download),
           onDelete: () => _deleteDownload(download),
-          onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
-          onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
+          onPause: () =>
+              ref.read(downloadProvider.notifier).pauseDownload(download.id),
+          onResume: () =>
+              ref.read(downloadProvider.notifier).resumeDownload(download.id),
           onRetry: () => _retryDownload(download),
         );
       },
@@ -419,8 +449,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
           onTap: () => _onDownloadTap(download),
           onPlay: () => _playDownload(download),
           onDelete: () => _deleteDownload(download),
-          onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
-          onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
+          onPause: () =>
+              ref.read(downloadProvider.notifier).pauseDownload(download.id),
+          onResume: () =>
+              ref.read(downloadProvider.notifier).resumeDownload(download.id),
           onRetry: () => _retryDownload(download),
         );
       },
@@ -488,7 +520,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
@@ -496,7 +530,7 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DesktopDetail(itemId: download.itemId),
+        builder: (_) => AdaptiveDetailPage(itemId: download.itemId),
       ),
     );
   }
@@ -514,24 +548,24 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       }
       return;
     }
-    
+
     // Create a minimal MediaItem for the player
     final item = MediaItem(
       id: download.itemId,
       name: download.itemName,
       type: _getMediaTypeFromString(download.itemType),
     );
-    
+
     try {
       // Use playLocalFile to play directly from the file path
       // This avoids any server lookups which would fail for items from other servers
-      await ref.read(playerProvider.notifier).playLocalFile(item, download.localPath!);
+      await ref
+          .read(playerProvider.notifier)
+          .playLocalFile(item, download.localPath!);
       if (mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const DesktopPlayer(),
-          ),
+          MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
         );
       }
     } catch (e) {
@@ -572,7 +606,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text('Delete Download?'),
-        content: Text('Are you sure you want to delete "${download.itemName}"? This will remove the downloaded file.'),
+        content: Text(
+          'Are you sure you want to delete "${download.itemName}"? This will remove the downloaded file.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -583,7 +619,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
               ref.read(downloadProvider.notifier).deleteDownload(download.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -617,7 +656,9 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text('Clear All Downloads?'),
-        content: const Text('This will delete all downloaded files. This action cannot be undone.'),
+        content: const Text(
+          'This will delete all downloaded files. This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -628,7 +669,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
               ref.read(downloadProvider.notifier).deleteAllDownloads();
               Navigator.pop(context);
             },
-            child: const Text('Clear All', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Clear All',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -683,7 +727,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(
-              color: _isHovered ? AppColors.primary.withValues(alpha: 0.5) : Colors.transparent,
+              color: _isHovered
+                  ? AppColors.primary.withValues(alpha: 0.5)
+                  : Colors.transparent,
               width: 2,
             ),
           ),
@@ -706,7 +752,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             color: Colors.black54,
                           ),
                           child: Column(
@@ -723,24 +771,34 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                                         value: download.progress,
                                         strokeWidth: 4,
                                         backgroundColor: Colors.white24,
-                                        valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                                        valueColor:
+                                            const AlwaysStoppedAnimation(
+                                              AppColors.primary,
+                                            ),
                                       ),
                                       Text(
                                         '${(download.progress * 100).toInt()}%',
-                                        style: AppTextStyles.labelSmall.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                     ],
                                   ),
                                 )
                               else
-                                const Icon(Icons.pause_circle_filled, size: 48, color: AppColors.warning),
+                                const Icon(
+                                  Icons.pause_circle_filled,
+                                  size: 48,
+                                  color: AppColors.warning,
+                                ),
                               const SizedBox(height: 8),
                               Text(
                                 isActive ? 'Downloading...' : 'Paused',
-                                style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
@@ -752,17 +810,25 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             color: Colors.black54,
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                              const Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: AppColors.error,
+                              ),
                               const SizedBox(height: 8),
                               Text(
                                 'Failed',
-                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.error,
+                                ),
                               ),
                             ],
                           ),
@@ -774,7 +840,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -795,7 +863,11 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                                     color: AppColors.primary,
                                     borderRadius: BorderRadius.circular(30),
                                   ),
-                                  child: const Icon(Icons.play_arrow, size: 32, color: Colors.white),
+                                  child: const Icon(
+                                    Icons.play_arrow,
+                                    size: 32,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -822,7 +894,11 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                             color: AppColors.success,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(Icons.download_done, size: 16, color: Colors.white),
+                          child: const Icon(
+                            Icons.download_done,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
 
@@ -836,12 +912,29 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             if (isActive)
-                              _buildActionButton(Icons.pause, 'Pause', widget.onPause),
+                              _buildActionButton(
+                                Icons.pause,
+                                'Pause',
+                                widget.onPause,
+                              ),
                             if (isPaused)
-                              _buildActionButton(Icons.play_arrow, 'Resume', widget.onResume),
+                              _buildActionButton(
+                                Icons.play_arrow,
+                                'Resume',
+                                widget.onResume,
+                              ),
                             if (isFailed)
-                              _buildActionButton(Icons.refresh, 'Retry', widget.onRetry),
-                            _buildActionButton(Icons.delete_outline, 'Delete', widget.onDelete, isDestructive: true),
+                              _buildActionButton(
+                                Icons.refresh,
+                                'Retry',
+                                widget.onRetry,
+                              ),
+                            _buildActionButton(
+                              Icons.delete_outline,
+                              'Delete',
+                              widget.onDelete,
+                              isDestructive: true,
+                            ),
                           ],
                         ),
                       ),
@@ -911,7 +1004,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
             return Image.file(
               file,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _buildNetworkPoster(download, serverUrl),
+              errorBuilder: (_, _, _) =>
+                  _buildNetworkPoster(download, serverUrl),
             );
           }
           return _buildNetworkPoster(download, serverUrl);
@@ -924,7 +1018,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
   Widget _buildNetworkPoster(DownloadTask download, String serverUrl) {
     if (download.primaryImageTag != null) {
       return CachedNetworkImage(
-        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
+        imageUrl:
+            '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
         fit: BoxFit.cover,
         placeholder: (_, _) => _buildPlaceholder(),
         errorWidget: (_, _, _) => _buildPlaceholder(),
@@ -937,12 +1032,21 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
     return Container(
       color: AppColors.surfaceElevated,
       child: const Center(
-        child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary),
+        child: Icon(
+          Icons.movie_outlined,
+          size: 40,
+          color: AppColors.textTertiary,
+        ),
       ),
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed, {bool isDestructive = false}) {
+  Widget _buildActionButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed, {
+    bool isDestructive = false,
+  }) {
     return Tooltip(
       message: label,
       child: Material(
@@ -953,14 +1057,12 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isDestructive ? AppColors.error.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.2),
+              color: isDestructive
+                  ? AppColors.error.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: Colors.white,
-            ),
+            child: Icon(icon, size: 18, color: Colors.white),
           ),
         ),
       ),
@@ -986,7 +1088,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }
@@ -1062,15 +1166,19 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                             color: AppColors.success,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.download_done, size: 12, color: Colors.white),
+                          child: const Icon(
+                            Icons.download_done,
+                            size: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Info
               Expanded(
                 child: Column(
@@ -1113,9 +1221,9 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Actions
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1126,7 +1234,10 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                       icon: const Icon(Icons.play_arrow, size: 18),
                       label: const Text('Play'),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1166,7 +1277,7 @@ class _DownloadListItemState extends State<_DownloadListItem> {
 
   Widget _buildStatusWidget(DownloadTask download) {
     final status = download.status;
-    
+
     switch (status) {
       case DownloadStatus.downloading:
         return Column(
@@ -1174,11 +1285,17 @@ class _DownloadListItemState extends State<_DownloadListItem> {
           children: [
             Row(
               children: [
-                const Icon(Icons.downloading, size: 14, color: AppColors.primary),
+                const Icon(
+                  Icons.downloading,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Downloading ${(download.progress * 100).toInt()}%',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),
@@ -1196,11 +1313,17 @@ class _DownloadListItemState extends State<_DownloadListItem> {
           children: [
             Row(
               children: [
-                const Icon(Icons.pause_circle_outline, size: 14, color: AppColors.warning),
+                const Icon(
+                  Icons.pause_circle_outline,
+                  size: 14,
+                  color: AppColors.warning,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Paused - ${(download.progress * 100).toInt()}%',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.warning),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.warning,
+                  ),
                 ),
               ],
             ),
@@ -1215,7 +1338,11 @@ class _DownloadListItemState extends State<_DownloadListItem> {
       case DownloadStatus.completed:
         return Row(
           children: [
-            const Icon(Icons.check_circle_outline, size: 14, color: AppColors.success),
+            const Icon(
+              Icons.check_circle_outline,
+              size: 14,
+              color: AppColors.success,
+            ),
             const SizedBox(width: 4),
             Text(
               'Ready to watch',
@@ -1241,22 +1368,34 @@ class _DownloadListItemState extends State<_DownloadListItem> {
       case DownloadStatus.pending:
         return Row(
           children: [
-            const Icon(Icons.hourglass_empty, size: 14, color: AppColors.textSecondary),
+            const Icon(
+              Icons.hourglass_empty,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
             const SizedBox(width: 4),
             Text(
               'Pending...',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         );
       case DownloadStatus.cancelled:
         return Row(
           children: [
-            const Icon(Icons.cancel_outlined, size: 14, color: AppColors.textSecondary),
+            const Icon(
+              Icons.cancel_outlined,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
             const SizedBox(width: 4),
             Text(
               'Cancelled',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         );
@@ -1272,7 +1411,8 @@ class _DownloadListItemState extends State<_DownloadListItem> {
         return Image.file(
           localFile,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildNetworkImage(download, serverUrl),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildNetworkImage(download, serverUrl),
         );
       }
     }
@@ -1280,7 +1420,8 @@ class _DownloadListItemState extends State<_DownloadListItem> {
   }
 
   Widget _buildNetworkImage(DownloadTask download, String serverUrl) {
-    final imageUrl = '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90';
+    final imageUrl =
+        '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90';
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
@@ -1318,7 +1459,9 @@ class _DownloadListItemState extends State<_DownloadListItem> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }

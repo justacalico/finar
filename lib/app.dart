@@ -8,8 +8,7 @@ import 'core/theme/colors.dart';
 import 'core/theme/text_styles.dart';
 import 'core/services/controller_service.dart';
 import 'providers/providers.dart';
-import 'pages/desktop/desktop_home.dart';
-import 'pages/mobile/mobile_home.dart';
+import 'pages/adaptive_pages.dart';
 import 'pages/login_page.dart';
 
 class FinarApp extends ConsumerStatefulWidget {
@@ -48,8 +47,10 @@ class _FinarAppState extends ConsumerState<FinarApp> {
   void _setupGamepadListener() {
     // Listen for gamepad actions and convert them to focus navigation
     final gamepadNotifier = ref.read(gamepadStateProvider.notifier);
-    _gamepadSubscription = gamepadNotifier.actionStream.listen(_handleGamepadAction);
-    
+    _gamepadSubscription = gamepadNotifier.actionStream.listen(
+      _handleGamepadAction,
+    );
+
     // Also listen for keyboard events that might be gamepad buttons
     // This is important for Steam Deck where Steam Input can send
     // controller buttons as keyboard events
@@ -59,27 +60,28 @@ class _FinarAppState extends ConsumerState<FinarApp> {
   /// Handle gamepad buttons sent as keyboard events (Steam Input support)
   bool _handleKeyboardGamepadInput(KeyEvent event) {
     if (event is! KeyDownEvent) return false;
-    
+
     // Get controller action from keyboard event
     final action = ControllerService.getAction(event);
     if (action != null) {
       // Don't process if this is a regular keyboard key that's already handled
       // Only process gamepad-specific keys
       final key = event.logicalKey;
-      final isGamepadKey = key == LogicalKeyboardKey.gameButtonA ||
-                           key == LogicalKeyboardKey.gameButtonB ||
-                           key == LogicalKeyboardKey.gameButtonX ||
-                           key == LogicalKeyboardKey.gameButtonY ||
-                           key == LogicalKeyboardKey.gameButtonStart ||
-                           key == LogicalKeyboardKey.gameButtonSelect ||
-                           key == LogicalKeyboardKey.gameButtonLeft1 ||
-                           key == LogicalKeyboardKey.gameButtonRight1 ||
-                           key == LogicalKeyboardKey.gameButtonLeft2 ||
-                           key == LogicalKeyboardKey.gameButtonRight2 ||
-                           key == LogicalKeyboardKey.goBack ||
-                           key == LogicalKeyboardKey.browserBack ||
-                           key == LogicalKeyboardKey.select;
-      
+      final isGamepadKey =
+          key == LogicalKeyboardKey.gameButtonA ||
+          key == LogicalKeyboardKey.gameButtonB ||
+          key == LogicalKeyboardKey.gameButtonX ||
+          key == LogicalKeyboardKey.gameButtonY ||
+          key == LogicalKeyboardKey.gameButtonStart ||
+          key == LogicalKeyboardKey.gameButtonSelect ||
+          key == LogicalKeyboardKey.gameButtonLeft1 ||
+          key == LogicalKeyboardKey.gameButtonRight1 ||
+          key == LogicalKeyboardKey.gameButtonLeft2 ||
+          key == LogicalKeyboardKey.gameButtonRight2 ||
+          key == LogicalKeyboardKey.goBack ||
+          key == LogicalKeyboardKey.browserBack ||
+          key == LogicalKeyboardKey.select;
+
       if (isGamepadKey) {
         _handleGamepadAction(action);
         return true; // Event handled
@@ -175,13 +177,9 @@ class _FinarAppState extends ConsumerState<FinarApp> {
 class _AppRouter extends ConsumerWidget {
   const _AppRouter();
 
-  // Responsive breakpoint
-  static const double mobileMaxWidth = 600;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final forcedUiMode = ref.watch(forcedUiModeProvider);
 
     // Show loading while checking auth
     if (authState.isLoading) {
@@ -193,35 +191,7 @@ class _AppRouter extends ConsumerWidget {
       return const LoginPage();
     }
 
-    // Use LayoutBuilder for responsive UI based on window size
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return _buildHomeForUiMode(forcedUiMode, constraints.maxWidth);
-      },
-    );
-  }
-
-  Widget _buildHomeForUiMode(UiMode mode, double screenWidth) {
-    // If a specific mode is forced, use it
-    if (mode != UiMode.auto) {
-      switch (mode) {
-        case UiMode.desktop:
-          return const DesktopHome();
-        case UiMode.mobile:
-          return const MobileHome();
-        case UiMode.auto:
-          break; // Will fall through to responsive logic
-      }
-    }
-
-    // Responsive UI based on window width
-    if (screenWidth <= mobileMaxWidth) {
-      // Small screens get mobile UI
-      return const MobileHome();
-    } else {
-      // Large screens and tablets get desktop UI
-      return const DesktopHome();
-    }
+    return const AdaptiveHomePage();
   }
 }
 

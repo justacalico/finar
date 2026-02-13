@@ -12,7 +12,7 @@ import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'mobile_player.dart';
+import '../adaptive_pages.dart';
 
 class MobileDetail extends ConsumerStatefulWidget {
   final String itemId;
@@ -67,7 +67,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => MobileDetail(itemId: item.albumId!),
+                  builder: (_) => AdaptiveDetailPage(itemId: item.albumId!),
                 ),
               );
             });
@@ -81,7 +81,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => MobileDetail(
+                  builder: (_) => AdaptiveDetailPage(
                     itemId: item.seriesId!,
                     initialSeasonId: item.seasonId,
                     initialEpisodeId: item.id,
@@ -1055,7 +1055,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     onTap: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (_) => MobileDetail(itemId: item.id),
+                          builder: (_) => AdaptiveDetailPage(itemId: item.id),
                         ),
                       );
                     },
@@ -1098,7 +1098,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       if (!isMusic) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
       }
     }
   }
@@ -1120,7 +1120,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         if (mounted) {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -1133,9 +1133,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           if (episodes.isNotEmpty) {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+              );
             }
           } else {
             _showNoEpisodesError();
@@ -1186,9 +1186,9 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         if (trailers.isNotEmpty) {
           ref.read(playerProvider.notifier).play(trailers.first);
           if (mounted) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+            );
           }
           return;
         }
@@ -1309,7 +1309,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       if (!isMusic && mounted) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
       }
     } catch (e) {
       if (mounted) {
@@ -1428,7 +1428,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     // Navigate to downloads page
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const _DownloadsPage()));
+    ).push(MaterialPageRoute(builder: (_) => const AdaptiveDownloadsPage()));
   }
 
   void _shareItem(MediaItem item) {
@@ -1460,285 +1460,6 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     shareText.write('\n\nShared via Finar');
 
     Share.share(shareText.toString(), subject: item.name);
-  }
-}
-
-/// Downloads page
-class _DownloadsPage extends ConsumerWidget {
-  const _DownloadsPage();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final downloadState = ref.watch(downloadProvider);
-    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Downloads'),
-        actions: [
-          if (downloadState.downloads.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              onPressed: () => _showDeleteAllDialog(context, ref),
-            ),
-        ],
-      ),
-      body: downloadState.downloads.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.download_outlined,
-                    size: 64,
-                    color: AppColors.textTertiary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text('No Downloads', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Downloaded content will appear here',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: downloadState.downloads.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final task = downloadState.downloads[index];
-                return _DownloadTile(task: task, serverUrl: serverUrl);
-              },
-            ),
-    );
-  }
-
-  void _showDeleteAllDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete All Downloads'),
-        content: const Text(
-          'Are you sure you want to delete all downloads? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(downloadProvider.notifier).deleteAllDownloads();
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete All'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DownloadTile extends ConsumerWidget {
-  final DownloadTask task;
-  final String serverUrl;
-
-  const _DownloadTile({required this.task, required this.serverUrl});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GlassCard(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              task.getImageUrl(serverUrl),
-              width: 60,
-              height: 90,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                width: 60,
-                height: 90,
-                color: AppColors.surface,
-                child: const Icon(Icons.movie),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.itemName,
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _getStatusText(task.status),
-                  style: AppTextStyles.caption.copyWith(
-                    color: _getStatusColor(task.status),
-                  ),
-                ),
-                if (task.status == DownloadStatus.downloading) ...[
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: task.progress,
-                    backgroundColor: AppColors.divider,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${task.formattedDownloadedSize} / ${task.formattedSize}',
-                    style: AppTextStyles.caption,
-                  ),
-                ],
-                if (task.status == DownloadStatus.completed)
-                  Text(task.formattedSize, style: AppTextStyles.caption),
-              ],
-            ),
-          ),
-          // Action button
-          _buildActionButton(context, ref),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(BuildContext context, WidgetRef ref) {
-    switch (task.status) {
-      case DownloadStatus.downloading:
-        return IconButton(
-          icon: const Icon(Icons.pause),
-          onPressed: () =>
-              ref.read(downloadProvider.notifier).pauseDownload(task.id),
-        );
-      case DownloadStatus.paused:
-      case DownloadStatus.failed:
-        return IconButton(
-          icon: const Icon(Icons.play_arrow),
-          onPressed: () =>
-              ref.read(downloadProvider.notifier).resumeDownload(task.id),
-        );
-      case DownloadStatus.completed:
-        return PopupMenuButton(
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'play',
-              child: ListTile(
-                leading: Icon(Icons.play_circle_outline),
-                title: Text('Play'),
-                dense: true,
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: ListTile(
-                leading: Icon(Icons.delete_outline, color: AppColors.error),
-                title: Text('Delete', style: TextStyle(color: AppColors.error)),
-                dense: true,
-              ),
-            ),
-          ],
-          onSelected: (value) {
-            if (value == 'delete') {
-              ref.read(downloadProvider.notifier).deleteDownload(task.id);
-            } else if (value == 'play') {
-              _playDownloadedTask(context, ref, task);
-            }
-          },
-        );
-      default:
-        return IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () =>
-              ref.read(downloadProvider.notifier).deleteDownload(task.id),
-        );
-    }
-  }
-
-  String _getStatusText(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.pending:
-        return 'Waiting...';
-      case DownloadStatus.downloading:
-        return 'Downloading';
-      case DownloadStatus.paused:
-        return 'Paused';
-      case DownloadStatus.completed:
-        return 'Downloaded';
-      case DownloadStatus.failed:
-        return 'Failed';
-      case DownloadStatus.cancelled:
-        return 'Cancelled';
-    }
-  }
-
-  Color _getStatusColor(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.downloading:
-        return AppColors.primary;
-      case DownloadStatus.completed:
-        return AppColors.success;
-      case DownloadStatus.failed:
-        return AppColors.error;
-      case DownloadStatus.paused:
-        return AppColors.accentYellow;
-      default:
-        return AppColors.textSecondary;
-    }
-  }
-
-  /// Play a downloaded item from local file
-  Future<void> _playDownloadedTask(
-    BuildContext context,
-    WidgetRef ref,
-    DownloadTask task,
-  ) async {
-    if (task.localPath == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Download file not found')));
-      return;
-    }
-
-    // Capture references before async gap
-    final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    try {
-      // Fetch the MediaItem details
-      final mediaService = ref.read(mediaServiceProvider);
-      final item = await mediaService.getItemDetails(task.itemId);
-
-      // Play from local file
-      ref.read(playerProvider.notifier).playLocalFile(item, task.localPath!);
-
-      // Navigate to player for video content
-      final isMusic =
-          item.type == MediaType.audio ||
-          item.type == MediaType.album ||
-          item.type == MediaType.musicVideo;
-
-      if (!isMusic) {
-        navigator.push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
-      }
-    } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Failed to play: $e')),
-      );
-    }
   }
 }
 

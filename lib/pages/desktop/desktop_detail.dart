@@ -10,7 +10,7 @@ import '../../core/services/download_service.dart';
 import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'desktop_player.dart';
+import '../adaptive_pages.dart';
 
 class DesktopDetail extends ConsumerStatefulWidget {
   final String itemId;
@@ -110,7 +110,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => DesktopDetail(itemId: item.albumId!),
+                builder: (_) => AdaptiveDetailPage(itemId: item.albumId!),
               ),
             );
           });
@@ -122,7 +122,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => DesktopDetail(
+                builder: (_) => AdaptiveDetailPage(
                   itemId: item.seriesId!,
                   initialSeasonId: item.seasonId,
                   initialEpisodeId: item.id,
@@ -1263,7 +1263,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
                     onTap: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => DesktopDetail(itemId: item.id),
+                          builder: (context) =>
+                              AdaptiveDetailPage(itemId: item.id),
                         ),
                       );
                     },
@@ -1429,9 +1430,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
 
       // Only navigate to video player for non-music content
       if (!isMusic) {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => const DesktopPlayer()));
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
+        );
       }
     }
   }
@@ -1452,7 +1453,7 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             .play(nextUp, startPositionTicks: startPosition);
         if (mounted) {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+            MaterialPageRoute(builder: (context) => const AdaptivePlayerPage()),
           );
         }
       } else {
@@ -1467,7 +1468,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+                MaterialPageRoute(
+                  builder: (context) => const AdaptivePlayerPage(),
+                ),
               );
             }
           } else {
@@ -1520,7 +1523,9 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
           ref.read(playerProvider.notifier).play(trailers.first);
           if (mounted) {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const DesktopPlayer()),
+              MaterialPageRoute(
+                builder: (context) => const AdaptivePlayerPage(),
+              ),
             );
           }
           return;

@@ -13,11 +13,7 @@ import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'mobile_library.dart';
-import 'mobile_music_library.dart';
-import 'mobile_detail.dart';
-import 'mobile_settings.dart';
-import 'mobile_player.dart';
+import '../adaptive_pages.dart';
 
 /// Helper to get MediaType from string
 MediaType _getMediaTypeFromString(String? typeString) {
@@ -40,7 +36,9 @@ MediaType _getMediaTypeFromString(String? typeString) {
 }
 
 class MobileHome extends ConsumerStatefulWidget {
-  const MobileHome({super.key});
+  final int initialIndex;
+
+  const MobileHome({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<MobileHome> createState() => _MobileHomeState();
@@ -48,8 +46,8 @@ class MobileHome extends ConsumerStatefulWidget {
 
 class _MobileHomeState extends ConsumerState<MobileHome>
     with SingleTickerProviderStateMixin {
-  int _currentIndex = 0;
-  final PageController _pageController = PageController();
+  late int _currentIndex;
+  late final PageController _pageController;
   final PageController _heroPageController = PageController(
     viewportFraction: 0.92,
   );
@@ -64,6 +62,9 @@ class _MobileHomeState extends ConsumerState<MobileHome>
   @override
   void initState() {
     super.initState();
+    final maxIndex = kIsWeb ? 2 : 3;
+    _currentIndex = widget.initialIndex.clamp(0, maxIndex);
+    _pageController = PageController(initialPage: _currentIndex);
     // Delay provider modification until after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
@@ -543,7 +544,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const MobileSettings(),
+                              builder: (_) => const AdaptiveSettingsPage(),
                             ),
                           );
                         },
@@ -1218,8 +1219,8 @@ class _MobileHomeState extends ConsumerState<MobileHome>
             context,
             MaterialPageRoute(
               builder: (_) => library.collectionType?.toLowerCase() == 'music'
-                  ? MobileMusicLibrary(libraryId: library.id)
-                  : MobileLibrary(libraryId: library.id),
+                  ? AdaptiveMusicLibraryPage(libraryId: library.id)
+                  : AdaptiveLibraryPage(libraryId: library.id),
             ),
           ),
           child: SizedBox(
@@ -1304,7 +1305,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => MobileDetail(itemId: itemId)),
+      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
     );
   }
 
@@ -1327,7 +1328,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
       if (!isMusic) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
       }
     }
   }
@@ -1343,7 +1344,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
         if (mounted) {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -1356,9 +1357,9 @@ class _MobileHomeState extends ConsumerState<MobileHome>
           if (episodes.isNotEmpty) {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+              );
             }
           } else {
             _showNoEpisodesError();
@@ -1425,7 +1426,7 @@ class _MobileSeeAllPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => MobileDetail(itemId: item.id),
+                  builder: (_) => AdaptiveDetailPage(itemId: item.id),
                 ),
               );
             },
@@ -1513,7 +1514,7 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => MobileDetail(itemId: item.id),
+                            builder: (_) => AdaptiveDetailPage(itemId: item.id),
                           ),
                         ),
                       );
@@ -1595,8 +1596,8 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                         MaterialPageRoute(
                           builder: (_) =>
                               library.collectionType?.toLowerCase() == 'music'
-                              ? MobileMusicLibrary(libraryId: library.id)
-                              : MobileLibrary(libraryId: library.id),
+                              ? AdaptiveMusicLibraryPage(libraryId: library.id)
+                              : AdaptiveLibraryPage(libraryId: library.id),
                         ),
                       ),
                       child: Container(
@@ -1861,7 +1862,7 @@ class _MobileDownloadsPage extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const MobilePlayer(),
+                              builder: (_) => const AdaptivePlayerPage(),
                             ),
                           );
                         }

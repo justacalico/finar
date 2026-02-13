@@ -7,16 +7,12 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import 'mobile_detail.dart';
-import 'mobile_player.dart';
+import '../adaptive_pages.dart';
 
 class MobileLibrary extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const MobileLibrary({
-    super.key,
-    required this.libraryId,
-  });
+  const MobileLibrary({super.key, required this.libraryId});
 
   @override
   ConsumerState<MobileLibrary> createState() => _MobileLibraryState();
@@ -81,10 +77,10 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
         body: libraryContent.items.isEmpty && libraryContent.isLoading
             ? _buildLoadingGrid()
             : libraryContent.error != null
-                ? _buildError(libraryContent.error!)
-                : _isGridView
-                    ? _buildGrid(libraryContent, serverUrl)
-                    : _buildList(libraryContent, serverUrl),
+            ? _buildError(libraryContent.error!)
+            : _isGridView
+            ? _buildGrid(libraryContent, serverUrl)
+            : _buildList(libraryContent, serverUrl),
       ),
     );
   }
@@ -158,83 +154,84 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
 
   Widget _buildListItem(dynamic item, String serverUrl, int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: GlassCard(
-        onTap: () => _navigateToDetail(item.id),
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              child: Image.network(
-                item.getDisplayImageUrl(serverUrl, width: 100),
-                width: 60,
-                height: 90,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
-                  width: 60,
-                  height: 90,
-                  color: AppColors.surface,
-                  child: const Icon(Icons.movie_outlined, size: 24),
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: AppTextStyles.titleSmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    [
-                      if (item.productionYear != null)
-                        item.productionYear.toString(),
-                      if (item.formattedRuntime != null) item.formattedRuntime,
-                    ].join(' • '),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+          padding: const EdgeInsets.only(bottom: 12),
+          child: GlassCard(
+            onTap: () => _navigateToDetail(item.id),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Thumbnail
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  child: Image.network(
+                    item.getDisplayImageUrl(serverUrl, width: 100),
+                    width: 60,
+                    height: 90,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      width: 60,
+                      height: 90,
+                      color: AppColors.surface,
+                      child: const Icon(Icons.movie_outlined, size: 24),
                     ),
                   ),
-                  if (item.communityRating != null) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: AppColors.accentYellow,
+                ),
+
+                const SizedBox(width: 12),
+
+                // Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        style: AppTextStyles.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        [
+                          if (item.productionYear != null)
+                            item.productionYear.toString(),
+                          if (item.formattedRuntime != null)
+                            item.formattedRuntime,
+                        ].join(' • '),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          item.communityRating.toStringAsFixed(1),
-                          style: AppTextStyles.labelSmall,
+                      ),
+                      if (item.communityRating != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              size: 14,
+                              color: AppColors.accentYellow,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              item.communityRating.toStringAsFixed(1),
+                              style: AppTextStyles.labelSmall,
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
+                    ],
+                  ),
+                ),
 
-            // Play button
-            IconButton(
-              icon: const Icon(Icons.play_circle_outline),
-              onPressed: () => _playItem(item),
+                // Play button
+                IconButton(
+                  icon: const Icon(Icons.play_circle_outline),
+                  onPressed: () => _playItem(item),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate()
         .fadeIn(delay: Duration(milliseconds: (index % 10) * 30))
         .slideX(begin: 0.05);
@@ -251,9 +248,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
       ),
       itemCount: 9,
       itemBuilder: (context, index) {
-        return const ShimmerLoading(
-          borderRadius: AppTheme.radiusMd,
-        );
+        return const ShimmerLoading(borderRadius: AppTheme.radiusMd);
       },
     );
   }
@@ -265,16 +260,9 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 48,
-              color: AppColors.error,
-            ),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
-            Text(
-              'Failed to load',
-              style: AppTextStyles.titleMedium,
-            ),
+            Text('Failed to load', style: AppTextStyles.titleMedium),
             const SizedBox(height: 8),
             Text(
               error,
@@ -445,34 +433,35 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MobileDetail(itemId: itemId),
-      ),
+      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
     );
   }
 
   void _playItem(dynamic item) {
     // Get the MediaType from the item
-    final itemType = item.type is MediaType 
-        ? item.type as MediaType 
+    final itemType = item.type is MediaType
+        ? item.type as MediaType
         : MediaType.values.firstWhere(
-            (e) => e.toString().split('.').last.toLowerCase() == item.type?.toString().toLowerCase(),
+            (e) =>
+                e.toString().split('.').last.toLowerCase() ==
+                item.type?.toString().toLowerCase(),
             orElse: () => MediaType.unknown,
           );
-    
+
     if (itemType == MediaType.series) {
       // For series, play the next up episode (continue watching)
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
       // Navigate to player for video content
-      final isMusic = itemType == MediaType.audio || 
-                      itemType == MediaType.album ||
-                      itemType == MediaType.musicVideo;
+      final isMusic =
+          itemType == MediaType.audio ||
+          itemType == MediaType.album ||
+          itemType == MediaType.musicVideo;
       if (!isMusic) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const MobilePlayer()),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
       }
     }
   }
@@ -481,14 +470,14 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const MobilePlayer()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -502,7 +491,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MobilePlayer()),
+                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
               );
             }
           } else {
@@ -514,9 +503,9 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }
