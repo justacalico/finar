@@ -7,6 +7,7 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/library.dart';
 import '../../core/api/models/media_item.dart';
+import '../../core/api/models/user.dart';
 import '../../core/api/media_service.dart';
 import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
@@ -683,7 +684,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
 
   Widget _buildUserProfile() {
     final user = ref.watch(currentUserProvider);
-    final authNotifier = ref.watch(authProvider.notifier);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+    final userName = user?.name.trim();
+    final hasUserName = userName != null && userName.isNotEmpty;
+    final avatarLetter = hasUserName ? userName[0].toUpperCase() : '?';
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -698,30 +702,14 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              gradient: AppColors.primarySoftGradient,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                user?.name.substring(0, 1).toUpperCase() ?? '?',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.textOnPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
+          _buildUserAvatar(user, serverUrl, avatarLetter),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user?.name ?? 'Guest',
+                  hasUserName ? userName : 'Guest',
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -730,7 +718,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  authNotifier.serverUrl ?? '',
+                  'Signed in',
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textTertiary,
                   ),
@@ -750,6 +738,47 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUserAvatar(User? user, String serverUrl, String fallbackLetter) {
+    final avatarUrl = (user != null && serverUrl.isNotEmpty)
+        ? user.getAvatarUrl(serverUrl)
+        : '';
+
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        gradient: AppColors.primarySoftGradient,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: avatarUrl.isEmpty
+            ? Center(
+                child: Text(
+                  fallbackLetter,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.textOnPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              )
+            : Image.network(
+                avatarUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Center(
+                  child: Text(
+                    fallbackLetter,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: AppColors.textOnPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
