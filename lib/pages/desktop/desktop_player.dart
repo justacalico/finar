@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,49 +19,58 @@ class DesktopPlayer extends ConsumerStatefulWidget {
 }
 
 class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
+  static const Duration _controlsHideDelay = Duration(seconds: 3);
+
   bool _controlsVisible = true;
   bool _isFullscreen = false;
   bool _showSettings = false;
-  DateTime _lastInteraction = DateTime.now();
+  Timer? _hideTimer;
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _startHideTimer();
+    _scheduleControlsHide();
     _focusNode.requestFocus();
   }
 
-  void _startHideTimer() {
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted &&
-          DateTime.now().difference(_lastInteraction).inSeconds >= 3) {
-        final isPlaying = ref.read(playerProvider).isPlaying;
-        if (isPlaying) {
-          setState(() => _controlsVisible = false);
-        }
-      }
+  void _scheduleControlsHide() {
+    _hideTimer?.cancel();
+    _hideTimer = Timer(_controlsHideDelay, () {
+      if (!mounted || !_controlsVisible) return;
+      setState(() {
+        _controlsVisible = false;
+        _showSettings = false;
+      });
     });
   }
 
   void _onInteraction({bool forceShow = false}) {
-    _lastInteraction = DateTime.now();
     if (forceShow || !_controlsVisible) {
       setState(() => _controlsVisible = true);
     }
-    _startHideTimer();
+    _scheduleControlsHide();
   }
 
   void _toggleControls() {
-    _lastInteraction = DateTime.now();
-    setState(() => _controlsVisible = !_controlsVisible);
-    if (_controlsVisible) {
-      _startHideTimer();
+    final willShow = !_controlsVisible;
+    setState(() {
+      _controlsVisible = willShow;
+      if (!willShow) {
+        _showSettings = false;
+      }
+    });
+
+    if (willShow) {
+      _scheduleControlsHide();
+    } else {
+      _hideTimer?.cancel();
     }
   }
 
   @override
   void dispose() {
+    _hideTimer?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -87,102 +97,112 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
         onKeyEvent: _handleKeyEvent,
         child: MouseRegion(
           onEnter: (_) => _onInteraction(forceShow: true),
-          onHover: (_) => _onInteraction(forceShow: true),
+          onHover: (_) {
+            if (!_controlsVisible) {
+              _onInteraction(forceShow: true);
+            }
+          },
           cursor: _controlsVisible
               ? SystemMouseCursors.basic
               : SystemMouseCursors.none,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _toggleControls,
-            onDoubleTap: _toggleFullscreen,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Video
-                Center(
-                  child: RepaintBoundary(
-                    child: Video(
-                      controller: videoController,
-                      controls: noVideoControls,
-                      fit: BoxFit.contain,
-                      // Optimize texture filtering for performance
-                      filterQuality: FilterQuality.medium,
-                      // Keep screen awake during playback
-                      wakelock: true,
+          child: Listener(
+            onPointerDown: (_) => _onInteraction(forceShow: true),
+            onPointerSignal: (_) => _onInteraction(forceShow: true),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _toggleControls,
+              onDoubleTap: _toggleFullscreen,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Video
+                  Center(
+                    child: RepaintBoundary(
+                      child: Video(
+                        controller: videoController,
+                        controls: noVideoControls,
+                        fit: BoxFit.contain,
+                        // Optimize texture filtering for performance
+                        filterQuality: FilterQuality.medium,
+                        // Keep screen awake during playback
+                        wakelock: true,
+                      ),
                     ),
                   ),
-                ),
 
-                // Top gradient (visual only, no interaction)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: IgnorePointer(
-                    child: AnimatedOpacity(
-                      opacity: _controlsVisible ? 1.0 : 0.0,
-                      duration: AppTheme.durationFast,
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.black.withValues(alpha: 0.8),
-                              Colors.transparent,
-                            ],
+                  // Top gradient (visual only, no interaction)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: IgnorePointer(
+                      child: AnimatedOpacity(
+                        opacity: _controlsVisible ? 1.0 : 0.0,
+                        duration: AppTheme.durationFast,
+                        child: Container(
+                          height: 150,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                AppColors.black.withValues(alpha: 0.8),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                // Bottom gradient (visual only, no interaction)
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: IgnorePointer(
-                    child: AnimatedOpacity(
-                      opacity: _controlsVisible ? 1.0 : 0.0,
-                      duration: AppTheme.durationFast,
-                      child: Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              AppColors.black.withValues(alpha: 0.9),
-                              Colors.transparent,
-                            ],
+                  // Bottom gradient (visual only, no interaction)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: IgnorePointer(
+                      child: AnimatedOpacity(
+                        opacity: _controlsVisible ? 1.0 : 0.0,
+                        duration: AppTheme.durationFast,
+                        child: Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                AppColors.black.withValues(alpha: 0.9),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                // Top bar
-                _buildTopBar(playerState),
+                  // Top bar
+                  _buildTopBar(playerState),
 
-                // Center play/pause
-                _buildCenterControls(playerState),
+                  // Center play/pause
+                  _buildCenterControls(playerState),
 
-                // Bottom controls
-                _buildBottomControls(playerState),
+                  // Bottom controls
+                  _buildBottomControls(playerState),
 
-                // Settings panel
-                if (_showSettings) _buildSettingsPanel(playerState),
+                  // Settings panel
+                  if (_showSettings) _buildSettingsPanel(playerState),
 
-                // Loading indicator
-                if (playerState.isBuffering)
-                  const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-              ],
+                  // Loading indicator
+                  if (playerState.isBuffering)
+                    const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
