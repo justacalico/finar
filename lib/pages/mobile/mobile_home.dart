@@ -1168,10 +1168,11 @@ class _MobileHomeState extends ConsumerState<MobileHome>
 
   Widget _buildMediaRow(List<MediaItem> items, String serverUrl) {
     return SizedBox(
-      height: 200,
+      height: 214,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
         itemCount: items.length,
         addRepaintBoundaries: true,
         addAutomaticKeepAlives: false,

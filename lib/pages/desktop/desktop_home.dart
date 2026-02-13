@@ -934,10 +934,11 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 260,
+            height: 280,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              clipBehavior: Clip.none,
+              padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
               itemCount: items.length,
               addRepaintBoundaries: true,
               addAutomaticKeepAlives: false,
@@ -1217,9 +1218,11 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               const SizedBox(height: 16),
               // Items grid (horizontal scrolling row)
               SizedBox(
-                height: 220,
+                height: 236,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: items.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 16),
                   itemBuilder: (context, index) {

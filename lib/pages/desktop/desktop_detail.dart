@@ -793,10 +793,12 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         _maybeScrollToInitialEpisode(episodes);
 
         return SizedBox(
-          height: 220,
+          height: 236,
           child: ListView.separated(
             controller: _episodesScrollController,
             scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             itemCount: episodes.length,
             separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
@@ -1246,6 +1248,8 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
             child: similarAsync.when(
               data: (items) => ListView.separated(
                 scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                 itemCount: items.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 16),
                 itemBuilder: (context, index) {
