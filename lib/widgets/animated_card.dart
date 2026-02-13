@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:palette_generator/palette_generator.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
@@ -53,16 +54,29 @@ class AnimatedCard extends StatefulWidget {
 }
 
 class _AnimatedCardState extends State<AnimatedCard> {
+  static const int _maxCachedOutlineColors = 300;
+  static final Map<String, Color> _outlineColorCache = <String, Color>{};
+
   bool _isHovered = false;
   bool _isPressed = false;
   bool _isFocused = false;
   late FocusNode _focusNode;
+  Color _outlineColor = AppColors.primary;
 
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
+    _resolveOutlineColor();
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _resolveOutlineColor();
+    }
   }
 
   @override
@@ -109,6 +123,60 @@ class _AnimatedCardState extends State<AnimatedCard> {
     }
 
     return KeyEventResult.ignored;
+  }
+
+  Future<void> _resolveOutlineColor() async {
+    final imageUrl = widget.imageUrl;
+    if (imageUrl == null || imageUrl.isEmpty) {
+      if (mounted) {
+        setState(() => _outlineColor = AppColors.primary);
+      }
+      return;
+    }
+
+    final cached = _outlineColorCache[imageUrl];
+    if (cached != null) {
+      if (mounted) {
+        setState(() => _outlineColor = cached);
+      }
+      return;
+    }
+
+    try {
+      final palette = await PaletteGenerator.fromImageProvider(
+        NetworkImage(imageUrl),
+        size: const Size(72, 72),
+        maximumColorCount: 12,
+      );
+
+      final candidate =
+          palette.vibrantColor?.color ??
+          palette.lightVibrantColor?.color ??
+          palette.dominantColor?.color ??
+          palette.mutedColor?.color ??
+          AppColors.primary;
+      final tuned = _tuneOutlineColor(candidate);
+      _outlineColorCache[imageUrl] = tuned;
+      if (_outlineColorCache.length > _maxCachedOutlineColors) {
+        _outlineColorCache.remove(_outlineColorCache.keys.first);
+      }
+
+      if (mounted) {
+        setState(() => _outlineColor = tuned);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _outlineColor = AppColors.primary);
+      }
+    }
+  }
+
+  Color _tuneOutlineColor(Color color) {
+    final hsl = HSLColor.fromColor(color);
+    final tuned = hsl
+        .withSaturation(hsl.saturation.clamp(0.45, 0.95))
+        .withLightness(hsl.lightness.clamp(0.42, 0.68));
+    return tuned.toColor();
   }
 
   @override
@@ -171,15 +239,15 @@ class _AnimatedCardState extends State<AnimatedCard> {
             decoration: BoxDecoration(
               border: Border.all(
                 color: _isFocused
-                    ? AppColors.primary
-                    : AppColors.primary.withValues(alpha: 0.5),
+                    ? _outlineColor
+                    : _outlineColor.withValues(alpha: 0.65),
                 width: _isFocused ? 3 : 2,
               ),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               boxShadow: _isFocused
                   ? [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: _outlineColor.withValues(alpha: 0.35),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
@@ -329,7 +397,9 @@ class _AnimatedCardState extends State<AnimatedCard> {
       child: Container(
         height: 4,
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(12),
+          ),
         ),
         clipBehavior: Clip.hardEdge,
         child: LinearProgressIndicator(
