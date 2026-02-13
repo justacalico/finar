@@ -309,13 +309,16 @@ class MediaItem {
           ?.map((e) => e as String)
           .toList(),
       parentBackdropItemId: json['ParentBackdropItemId'] as String?,
-      parentBackdropImageTags: (json['ParentBackdropImageTags'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      parentBackdropImageTags:
+          (json['ParentBackdropImageTags'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(),
       people: (json['People'] as List<dynamic>?)
           ?.map((e) => PersonInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
-      genres: (json['Genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      genres: (json['Genres'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       mediaStreams: (json['MediaStreams'] as List<dynamic>?)
           ?.map((e) => MediaStream.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -336,7 +339,9 @@ class MediaItem {
           .toList(),
       // Music-specific fields
       albumArtist: json['AlbumArtist'] as String?,
-      artists: (json['Artists'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      artists: (json['Artists'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       album: json['Album'] as String?,
       albumId: json['AlbumId'] as String?,
       playlistItemId: json['PlaylistItemId'] as String?,
@@ -396,68 +401,95 @@ class MediaItem {
   }
 
   /// Get primary image URL (the episode's own thumbnail for episodes)
-  String getPrimaryImageUrl(String baseUrl, {int? width, int? height, int? quality}) {
+  String getPrimaryImageUrl(
+    String baseUrl, {
+    int? width,
+    int? height,
+    int? quality,
+  }) {
     final tag = imageTags?.primary;
     if (tag == null) return '';
-    
+
     final params = <String>[];
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     if (quality != null) params.add('quality=$quality');
     params.add('tag=$tag');
-    
+
     return '$baseUrl/Items/$id/Images/Primary?${params.join('&')}';
   }
 
   /// Get display image URL - for episodes, returns the series poster instead of episode thumbnail
-  String getDisplayImageUrl(String baseUrl, {int? width, int? height, int? quality}) {
+  String getDisplayImageUrl(
+    String baseUrl, {
+    int? width,
+    int? height,
+    int? quality,
+  }) {
     // For episodes, use the series poster
     if (type == MediaType.episode && seriesId != null) {
       final params = <String>[];
       if (width != null) params.add('maxWidth=$width');
       if (height != null) params.add('maxHeight=$height');
       if (quality != null) params.add('quality=$quality');
-      
+
       return '$baseUrl/Items/$seriesId/Images/Primary?${params.join('&')}';
     }
-    
+
     // For other types, use the regular primary image
-    return getPrimaryImageUrl(baseUrl, width: width, height: height, quality: quality);
+    return getPrimaryImageUrl(
+      baseUrl,
+      width: width,
+      height: height,
+      quality: quality,
+    );
   }
 
   /// Get backdrop image URL
-  String getBackdropUrl(String baseUrl, {int index = 0, int? width, int? quality}) {
+  String getBackdropUrl(
+    String baseUrl, {
+    int index = 0,
+    int? width,
+    int? quality,
+  }) {
     String? tag;
     String itemId = id;
-    
+
     if (backdropImageTags != null && backdropImageTags!.isNotEmpty) {
       tag = backdropImageTags![index.clamp(0, backdropImageTags!.length - 1)];
-    } else if (parentBackdropImageTags != null && parentBackdropImageTags!.isNotEmpty) {
-      tag = parentBackdropImageTags![index.clamp(0, parentBackdropImageTags!.length - 1)];
+    } else if (parentBackdropImageTags != null &&
+        parentBackdropImageTags!.isNotEmpty) {
+      tag =
+          parentBackdropImageTags![index.clamp(
+            0,
+            parentBackdropImageTags!.length - 1,
+          )];
       itemId = parentBackdropItemId ?? id;
     }
-    
+
     if (tag == null) return '';
-    
+
     final params = <String>[];
     if (width != null) params.add('maxWidth=$width');
     if (quality != null) params.add('quality=$quality');
     params.add('tag=$tag');
-    
+
     return '$baseUrl/Items/$itemId/Images/Backdrop/$index?${params.join('&')}';
   }
 
   /// Get thumb image URL
   String getThumbUrl(String baseUrl, {int? width, int? height, int? quality}) {
     final tag = imageTags?.thumb;
-    if (tag == null) return getBackdropUrl(baseUrl, width: width, quality: quality);
-    
+    if (tag == null) {
+      return getBackdropUrl(baseUrl, width: width, quality: quality);
+    }
+
     final params = <String>[];
     if (width != null) params.add('maxWidth=$width');
     if (height != null) params.add('maxHeight=$height');
     if (quality != null) params.add('quality=$quality');
     params.add('tag=$tag');
-    
+
     return '$baseUrl/Items/$id/Images/Thumb?${params.join('&')}';
   }
 
@@ -474,7 +506,8 @@ class MediaItem {
   /// Get playback progress percentage
   double get playbackProgress {
     if (runtimeTicks == null || runtimeTicks == 0) return 0;
-    final position = userData?.playbackPositionTicks ?? playbackPositionTicks ?? 0;
+    final position =
+        userData?.playbackPositionTicks ?? playbackPositionTicks ?? 0;
     return (position / runtimeTicks!).clamp(0.0, 1.0);
   }
 
@@ -484,6 +517,19 @@ class MediaItem {
     final season = parentIndexNumber != null ? 'S$parentIndexNumber' : '';
     final episode = indexNumber != null ? 'E$indexNumber' : '';
     return '$season $episode'.trim();
+  }
+
+  /// Display title for hero surfaces.
+  /// Episodes are shown as: "Series Name - Episode Name".
+  String get heroTitle {
+    if (type == MediaType.episode) {
+      final series = seriesName?.trim();
+      final episodeName = name.trim();
+      if (series != null && series.isNotEmpty && episodeName.isNotEmpty) {
+        return '$series - $episodeName';
+      }
+    }
+    return name;
   }
 
   /// Check if item has playable media
@@ -507,7 +553,8 @@ class MediaItem {
 
   /// Check if item has progress (partially watched)
   bool get hasProgress {
-    final position = userData?.playbackPositionTicks ?? playbackPositionTicks ?? 0;
+    final position =
+        userData?.playbackPositionTicks ?? playbackPositionTicks ?? 0;
     return position > 0 && (isPlayed != true);
   }
 
@@ -527,7 +574,7 @@ class MediaItem {
   /// Check if item has a trailer
   bool get hasTrailer {
     return (localTrailerCount != null && localTrailerCount! > 0) ||
-           (remoteTrailers != null && remoteTrailers!.isNotEmpty);
+        (remoteTrailers != null && remoteTrailers!.isNotEmpty);
   }
 
   /// Get taglines (from overview or empty)
@@ -903,7 +950,7 @@ class ChapterInfo {
     final remainingSeconds = seconds % 60;
     final hours = minutes ~/ 60;
     final remainingMinutes = minutes % 60;
-    
+
     if (hours > 0) {
       return '$hours:${remainingMinutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
     }
@@ -1030,10 +1077,7 @@ class TrailerInfo {
   final String? url;
   final String? name;
 
-  const TrailerInfo({
-    this.url,
-    this.name,
-  });
+  const TrailerInfo({this.url, this.name});
 
   factory TrailerInfo.fromJson(Map<String, dynamic> json) {
     return TrailerInfo(
@@ -1043,9 +1087,6 @@ class TrailerInfo {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'Url': url,
-      'Name': name,
-    };
+    return {'Url': url, 'Name': name};
   }
 }

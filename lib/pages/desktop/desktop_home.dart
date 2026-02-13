@@ -337,7 +337,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             children: [
               // App logo with refined styling
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 28,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -530,7 +533,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
               border: isFocused
                   ? Border.all(color: AppColors.primary, width: 2)
                   : isSelected
-                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1)
+                  ? Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      width: 1,
+                    )
                   : null,
             ),
             child: Row(
@@ -549,9 +555,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                     color: isSelected || isFocused
                         ? AppColors.textPrimary
                         : AppColors.textSecondary,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
               ],
@@ -597,7 +601,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                       width: 2,
                     )
                   : isSelected
-                  ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1)
+                  ? Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      width: 1,
+                    )
                   : null,
             ),
             child: Row(
@@ -627,7 +634,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                 ),
                 if (library.childCount != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(10),
@@ -777,7 +787,7 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                     ref.read(jellyfinApiProvider).serverUrl ?? '',
                     width: 1920,
                   ),
-                  title: data.recentlyAdded.first.name,
+                  title: data.recentlyAdded.first.heroTitle,
                   subtitle: data.recentlyAdded.first.typeString,
                   description: data.recentlyAdded.first.overview,
                   year: data.recentlyAdded.first.productionYear?.toString(),
@@ -899,7 +909,10 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
                   onPressed: () {},
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

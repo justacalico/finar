@@ -46,13 +46,16 @@ class MobileHome extends ConsumerStatefulWidget {
   ConsumerState<MobileHome> createState() => _MobileHomeState();
 }
 
-class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProviderStateMixin {
+class _MobileHomeState extends ConsumerState<MobileHome>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
-  final PageController _heroPageController = PageController(viewportFraction: 0.92);
+  final PageController _heroPageController = PageController(
+    viewportFraction: 0.92,
+  );
   int _currentHeroIndex = 0;
   bool _isPlayerExpanded = false;
-  
+
   // Dynamic colors from hero artwork
   Color _dominantColor = AppColors.background;
   Color _accentColor = AppColors.primary;
@@ -71,11 +74,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     ref.read(libraryProvider.notifier).loadLibraries();
     ref.read(libraryProvider.notifier).loadHomeData();
   }
-  
+
   Future<void> _extractColorsFromItem(dynamic item, String serverUrl) async {
     if (item == null || item.id == _lastColorExtractedItemId) return;
     _lastColorExtractedItemId = item.id;
-    
+
     try {
       final imageUrl = item.getDisplayImageUrl(serverUrl, width: 100);
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
@@ -83,13 +86,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         size: const Size(100, 100),
         maximumColorCount: 16,
       );
-      
+
       if (mounted) {
         setState(() {
-          _dominantColor = paletteGenerator.dominantColor?.color ?? AppColors.background;
-          _accentColor = paletteGenerator.vibrantColor?.color ?? 
-                         paletteGenerator.mutedColor?.color ?? 
-                         AppColors.primary;
+          _dominantColor =
+              paletteGenerator.dominantColor?.color ?? AppColors.background;
+          _accentColor =
+              paletteGenerator.vibrantColor?.color ??
+              paletteGenerator.mutedColor?.color ??
+              AppColors.primary;
         });
       }
     } catch (e) {
@@ -109,9 +114,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
     final isOnline = ref.watch(isOnlineProvider);
-    final isMusic = playerState.currentItem?.type.name == 'audio' || 
-                    playerState.currentItem?.type.name == 'album';
-    
+    final isMusic =
+        playerState.currentItem?.type.name == 'audio' ||
+        playerState.currentItem?.type.name == 'album';
+
     // If offline and not on downloads page, force navigation to downloads
     if (!isOnline && _currentIndex != 3) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,7 +127,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         }
       });
     }
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -144,7 +150,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               if (!kIsWeb) _buildDownloadsPage(),
             ],
           ),
-          
+
           // Offline banner
           if (!isOnline)
             Positioned(
@@ -153,7 +159,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               right: 0,
               child: _buildOfflineBanner(),
             ),
-          
+
           // Expanded music player overlay
           if (_isPlayerExpanded && showMiniPlayer && isMusic)
             ExpandedMusicPlayer(
@@ -177,69 +183,73 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   Widget _buildOfflineBanner() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.warning.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.warning.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.warning.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.wifi_off_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'You\'re offline',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+          child: Row(
+            children: [
+              const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'You\'re offline',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'Only downloaded content is available',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Only downloaded content is available',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
+              ),
+              IconButton(
+                onPressed: () {
+                  ref.read(connectivityProvider.notifier).refresh();
+                },
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  color: Colors.white,
+                  size: 20,
                 ),
-              ],
-            ),
+                tooltip: 'Retry connection',
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: () {
-              ref.read(connectivityProvider.notifier).refresh();
-            },
-            icon: const Icon(
-              Icons.refresh_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-            tooltip: 'Retry connection',
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: -1, end: 0, duration: 300.ms);
+        )
+        .animate()
+        .fadeIn(duration: 300.ms)
+        .slideY(begin: -1, end: 0, duration: 300.ms);
   }
 
   Widget _buildBottomNav({bool isOnline = true}) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    
+
     return Container(
-      margin: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding : 12),
+      margin: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        bottomPadding > 0 ? bottomPadding : 12,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
@@ -300,11 +310,35 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                 // Navigation items
                 Row(
                   children: [
-                    _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home', isOnline: isOnline),
-                    _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Search', isOnline: isOnline),
-                    _buildNavItem(2, Icons.video_library_outlined, Icons.video_library_rounded, 'Library', isOnline: isOnline),
+                    _buildNavItem(
+                      0,
+                      Icons.home_outlined,
+                      Icons.home_rounded,
+                      'Home',
+                      isOnline: isOnline,
+                    ),
+                    _buildNavItem(
+                      1,
+                      Icons.search_outlined,
+                      Icons.search_rounded,
+                      'Search',
+                      isOnline: isOnline,
+                    ),
+                    _buildNavItem(
+                      2,
+                      Icons.video_library_outlined,
+                      Icons.video_library_rounded,
+                      'Library',
+                      isOnline: isOnline,
+                    ),
                     if (!kIsWeb)
-                      _buildNavItem(3, Icons.download_outlined, Icons.download_rounded, 'Downloads', isOnline: isOnline),
+                      _buildNavItem(
+                        3,
+                        Icons.download_outlined,
+                        Icons.download_rounded,
+                        'Downloads',
+                        isOnline: isOnline,
+                      ),
                   ],
                 ),
               ],
@@ -316,23 +350,32 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   }
 
   double _getIndicatorPosition(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for margin
+    final screenWidth =
+        MediaQuery.of(context).size.width - 32; // Account for margin
     final navItemCount = kIsWeb ? 3 : 4;
     final itemWidth = screenWidth / navItemCount;
     return (itemWidth * _currentIndex) + (itemWidth / 2) - 26;
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label, {bool isOnline = true}) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    IconData selectedIcon,
+    String label, {
+    bool isOnline = true,
+  }) {
     final isSelected = _currentIndex == index;
     // Disable non-downloads items when offline
     final isDisabled = !isOnline && index != 3;
-    
+
     return Expanded(
       child: GestureDetector(
-        onTap: isDisabled ? null : () {
-          setState(() => _currentIndex = index);
-          _pageController.jumpToPage(index);
-        },
+        onTap: isDisabled
+            ? null
+            : () {
+                setState(() => _currentIndex = index);
+                _pageController.jumpToPage(index);
+              },
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
@@ -343,16 +386,20 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                transform: Matrix4.diagonal3Values(isSelected ? 1.05 : 1.0, isSelected ? 1.05 : 1.0, 1.0),
+                transform: Matrix4.diagonal3Values(
+                  isSelected ? 1.05 : 1.0,
+                  isSelected ? 1.05 : 1.0,
+                  1.0,
+                ),
                 transformAlignment: Alignment.center,
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 24,
                   color: isDisabled
                       ? AppColors.textDisabled
-                      : isSelected 
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                      : isSelected
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -363,9 +410,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isDisabled
                       ? AppColors.textDisabled
-                      : isSelected 
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                      : isSelected
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                 ),
                 child: Text(label),
               ),
@@ -379,20 +426,20 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   Widget _buildHomePage() {
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
-    
+
     // Show loading state
     if (libraryState.isLoading && libraryState.homeData == null) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       );
     }
-    
+
     // Get featured items for hero carousel
     final heroItems = <dynamic>[
       if (libraryState.featuredItem != null) libraryState.featuredItem,
       ...libraryState.recentlyAdded.take(4),
     ].take(5).toList();
-    
+
     // Extract colors from current hero item
     if (heroItems.isNotEmpty && _currentHeroIndex < heroItems.length) {
       _extractColorsFromItem(heroItems[_currentHeroIndex], serverUrl);
@@ -417,7 +464,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
             ),
           ),
         ),
-        
+
         RefreshIndicator(
           onRefresh: () async {
             await ref.read(libraryProvider.notifier).loadHomeData();
@@ -436,9 +483,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                   children: [
                     // Logo with refined styling
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundSecondary.withValues(alpha: 0.7),
+                        color: AppColors.backgroundSecondary.withValues(
+                          alpha: 0.7,
+                        ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: AppColors.divider.withValues(alpha: 0.3),
@@ -476,7 +528,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                     // Settings button with refined styling
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundSecondary.withValues(alpha: 0.7),
+                        color: AppColors.backgroundSecondary.withValues(
+                          alpha: 0.7,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: AppColors.divider.withValues(alpha: 0.3),
@@ -488,7 +542,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const MobileSettings()),
+                            MaterialPageRoute(
+                              builder: (_) => const MobileSettings(),
+                            ),
                           );
                         },
                         color: AppColors.textSecondary,
@@ -506,10 +562,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
               // Continue watching
               if (libraryState.continueWatching.isNotEmpty) ...[
-                _buildSectionHeader('Continue Watching', icon: Icons.play_circle_outline),
+                _buildSectionHeader(
+                  'Continue Watching',
+                  icon: Icons.play_circle_outline,
+                ),
                 SliverToBoxAdapter(
                   child: _buildContinueWatchingRow(
-                      libraryState.continueWatching, serverUrl),
+                    libraryState.continueWatching,
+                    serverUrl,
+                  ),
                 ),
               ],
 
@@ -523,7 +584,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
               // Recently Added
               if (libraryState.recentlyAdded.isNotEmpty) ...[
-                _buildSectionHeader('Recently Added', icon: Icons.new_releases_outlined),
+                _buildSectionHeader(
+                  'Recently Added',
+                  icon: Icons.new_releases_outlined,
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.recentlyAdded, serverUrl),
                 ),
@@ -531,9 +595,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
               // New Releases
               if (libraryState.recentlyReleased.isNotEmpty) ...[
-                _buildSectionHeader('New Releases', icon: Icons.fiber_new_outlined),
+                _buildSectionHeader(
+                  'New Releases',
+                  icon: Icons.fiber_new_outlined,
+                ),
                 SliverToBoxAdapter(
-                  child: _buildMediaRow(libraryState.recentlyReleased, serverUrl),
+                  child: _buildMediaRow(
+                    libraryState.recentlyReleased,
+                    serverUrl,
+                  ),
                 ),
               ],
 
@@ -541,7 +611,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               if (libraryState.recentlyAddedMovies.isNotEmpty) ...[
                 _buildSectionHeader('New Movies', icon: Icons.movie_outlined),
                 SliverToBoxAdapter(
-                  child: _buildMediaRow(libraryState.recentlyAddedMovies, serverUrl),
+                  child: _buildMediaRow(
+                    libraryState.recentlyAddedMovies,
+                    serverUrl,
+                  ),
                 ),
               ],
 
@@ -549,13 +622,19 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               if (libraryState.recentlyAddedShows.isNotEmpty) ...[
                 _buildSectionHeader('New TV Shows', icon: Icons.tv_outlined),
                 SliverToBoxAdapter(
-                  child: _buildMediaRow(libraryState.recentlyAddedShows, serverUrl),
+                  child: _buildMediaRow(
+                    libraryState.recentlyAddedShows,
+                    serverUrl,
+                  ),
                 ),
               ],
 
               // Recommended
               if (libraryState.recommended.isNotEmpty) ...[
-                _buildSectionHeader('Recommended For You', icon: Icons.thumb_up_outlined),
+                _buildSectionHeader(
+                  'Recommended For You',
+                  icon: Icons.thumb_up_outlined,
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.recommended, serverUrl),
                 ),
@@ -571,7 +650,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
               // Favorites
               if (libraryState.favorites.isNotEmpty) ...[
-                _buildSectionHeader('My Favorites', icon: Icons.favorite_outline),
+                _buildSectionHeader(
+                  'My Favorites',
+                  icon: Icons.favorite_outline,
+                ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.favorites, serverUrl),
                 ),
@@ -579,16 +661,17 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
               // Libraries
               if (libraryState.libraries.isNotEmpty) ...[
-                _buildSectionHeader('My Libraries', icon: Icons.folder_outlined),
+                _buildSectionHeader(
+                  'My Libraries',
+                  icon: Icons.folder_outlined,
+                ),
                 SliverToBoxAdapter(
                   child: _buildLibrariesRow(libraryState.libraries, serverUrl),
                 ),
               ],
 
               // Bottom padding
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 100),
-              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ),
         ),
@@ -620,7 +703,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                   }
                   return Transform.scale(
                     scale: value,
-                    child: _buildHeroCard(item, serverUrl, index == _currentHeroIndex),
+                    child: _buildHeroCard(
+                      item,
+                      serverUrl,
+                      index == _currentHeroIndex,
+                    ),
                   );
                 },
               );
@@ -639,8 +726,8 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               width: index == _currentHeroIndex ? 24 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: index == _currentHeroIndex 
-                    ? _accentColor 
+                color: index == _currentHeroIndex
+                    ? _accentColor
                     : AppColors.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -659,13 +746,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          boxShadow: isActive ? [
-            BoxShadow(
-              color: _accentColor.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ] : null,
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: _accentColor.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -714,13 +803,17 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                   children: [
                     // Type badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _accentColor.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        item.type?.toString().split('.').last.toUpperCase() ?? 'MOVIE',
+                        item.type?.toString().split('.').last.toUpperCase() ??
+                            'MOVIE',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -729,7 +822,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      item.name ?? '',
+                      item is MediaItem
+                          ? item.heroTitle
+                          : (item.name?.toString() ?? ''),
                       style: AppTextStyles.headlineSmall.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -820,7 +915,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
             ],
             Expanded(
               child: Text(
-                title, 
+                title,
                 style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: -0.3,
@@ -839,7 +934,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
               child: TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -854,7 +952,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.primary),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 12,
+                      color: AppColors.primary,
+                    ),
                   ],
                 ),
               ),
@@ -888,117 +990,120 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     final progress = item.progressPercent ?? 0.0;
     // Calculate remaining runtime from runtimeTicks and playbackPositionTicks
     final runtimeTicks = item.runtimeTicks ?? item.userData?.runtimeTicks;
-    final positionTicks = item.userData?.playbackPositionTicks ?? item.playbackPositionTicks ?? 0;
-    final remainingTicks = (runtimeTicks != null && runtimeTicks > positionTicks) 
-        ? runtimeTicks - positionTicks 
+    final positionTicks =
+        item.userData?.playbackPositionTicks ?? item.playbackPositionTicks ?? 0;
+    final remainingTicks =
+        (runtimeTicks != null && runtimeTicks > positionTicks)
+        ? runtimeTicks - positionTicks
         : null;
-    final remainingMinutes = remainingTicks != null 
-        ? (remainingTicks / 600000000).round()  // Ticks to minutes (10,000 ticks per ms, 60,000 ms per min)
+    final remainingMinutes = remainingTicks != null
+        ? (remainingTicks / 600000000)
+              .round() // Ticks to minutes (10,000 ticks per ms, 60,000 ms per min)
         : null;
-    
-    return GestureDetector(
-      onTap: () => _playItem(item),
-      child: Container(
-        width: 220,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          boxShadow: [
-            BoxShadow(
-              color: _dominantColor.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Background image
-              CachedNetworkImage(
-                imageUrl: item.getDisplayImageUrl(serverUrl, width: 400),
-                fit: BoxFit.cover,
-              ),
-              
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      AppColors.black.withValues(alpha: 0.8),
-                    ],
-                  ),
-                ),
-              ),
-              
-              // Play button
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _accentColor.withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    size: 28,
-                    color: AppColors.white,
-                  ),
-                ),
-              ),
-              
-              // Progress bar
-              Positioned(
-                bottom: 44,
-                left: 8,
-                right: 8,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: AppColors.white.withValues(alpha: 0.3),
-                    valueColor: AlwaysStoppedAnimation(_accentColor),
-                    minHeight: 4,
-                  ),
-                ),
-              ),
 
-              // Info
-              Positioned(
-                bottom: 8,
-                left: 8,
-                right: 8,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.name ?? '',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+          onTap: () => _playItem(item),
+          child: Container(
+            width: 220,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              boxShadow: [
+                BoxShadow(
+                  color: _dominantColor.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Background image
+                  CachedNetworkImage(
+                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 400),
+                    fit: BoxFit.cover,
+                  ),
+
+                  // Gradient overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          AppColors.black.withValues(alpha: 0.8),
+                        ],
                       ),
                     ),
-                    if (remainingMinutes != null)
-                      Text(
-                        '${remainingMinutes}m left',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                  ),
+
+                  // Play button
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _accentColor.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
                       ),
-                  ],
-                ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        size: 28,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+
+                  // Progress bar
+                  Positioned(
+                    bottom: 44,
+                    left: 8,
+                    right: 8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: AppColors.white.withValues(alpha: 0.3),
+                        valueColor: AlwaysStoppedAnimation(_accentColor),
+                        minHeight: 4,
+                      ),
+                    ),
+                  ),
+
+                  // Info
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    right: 8,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.name ?? '',
+                            style: AppTextStyles.labelMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (remainingMinutes != null)
+                          Text(
+                            '${remainingMinutes}m left',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(delay: Duration(milliseconds: index * 50))
         .slideX(begin: 0.1);
@@ -1051,42 +1156,42 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
 
   Widget _buildLibraryCard(dynamic library, String serverUrl, int index) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => library.collectionType?.toLowerCase() == 'music'
-              ? MobileMusicLibrary(libraryId: library.id)
-              : MobileLibrary(libraryId: library.id),
-        ),
-      ),
-      child: SizedBox(
-        width: 160,
-        child: GlassContainer(
-          blur: AppTheme.blurLight,
-          opacity: 0.1,
-          borderRadius: AppTheme.radiusMd,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _getLibraryIcon(library.collectionType),
-                size: 32,
-                color: AppColors.primary,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                library.name,
-                style: AppTextStyles.titleSmall,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => library.collectionType?.toLowerCase() == 'music'
+                  ? MobileMusicLibrary(libraryId: library.id)
+                  : MobileLibrary(libraryId: library.id),
+            ),
           ),
-        ),
-      ),
-    )
+          child: SizedBox(
+            width: 160,
+            child: GlassContainer(
+              blur: AppTheme.blurLight,
+              opacity: 0.1,
+              borderRadius: AppTheme.radiusMd,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _getLibraryIcon(library.collectionType),
+                    size: 32,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    library.name,
+                    style: AppTextStyles.titleSmall,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
         .animate()
         .fadeIn(delay: Duration(milliseconds: index * 50))
         .scale(begin: const Offset(0.9, 0.9));
@@ -1122,31 +1227,30 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MobileDetail(itemId: itemId),
-      ),
+      MaterialPageRoute(builder: (_) => MobileDetail(itemId: itemId)),
     );
   }
 
   void _playItem(dynamic item) {
     // Get the MediaType from the item
-    final itemType = item.type is MediaType 
-        ? item.type as MediaType 
+    final itemType = item.type is MediaType
+        ? item.type as MediaType
         : _getMediaTypeFromString(item.type?.toString());
-    
+
     if (itemType == MediaType.series) {
       // For series, play the next up episode (continue watching)
       _playSeries(item);
     } else {
       ref.read(playerProvider.notifier).play(item);
       // Navigate to player for video content
-      final isMusic = itemType == MediaType.audio || 
-                      itemType == MediaType.album ||
-                      itemType == MediaType.musicVideo;
+      final isMusic =
+          itemType == MediaType.audio ||
+          itemType == MediaType.album ||
+          itemType == MediaType.musicVideo;
       if (!isMusic) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const MobilePlayer()),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
       }
     }
   }
@@ -1155,14 +1259,14 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
     try {
       final mediaService = ref.read(mediaServiceProvider);
       final nextUp = await mediaService.getNextUpForSeries(series.id);
-      
+
       if (nextUp != null) {
         // Play the next up episode
         ref.read(playerProvider.notifier).play(nextUp);
         if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const MobilePlayer()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -1175,9 +1279,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
           if (episodes.isNotEmpty) {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MobilePlayer()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const MobilePlayer()));
             }
           } else {
             _showNoEpisodesError();
@@ -1188,9 +1292,9 @@ class _MobileHomeState extends ConsumerState<MobileHome> with SingleTickerProvid
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play series: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to play series: $e')));
       }
     }
   }
@@ -1262,16 +1366,19 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 2 / 3.3,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                          crossAxisCount: 3,
+                          childAspectRatio: 2 / 3.3,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: searchResults.length,
                     itemBuilder: (context, index) {
                       final item = searchResults[index];
                       return AnimatedCard(
-                        imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
+                        imageUrl: item.getDisplayImageUrl(
+                          serverUrl,
+                          width: 200,
+                        ),
                         title: item.name,
                         subtitle: item.productionYear?.toString(),
                         animationIndex: index,
@@ -1350,100 +1457,110 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final library = libraries[index];
-                  final gradient = _getLibraryGradient(library.collectionType);
-                  
-                  return GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => library.collectionType?.toLowerCase() == 'music'
-                            ? MobileMusicLibrary(libraryId: library.id)
-                            : MobileLibrary(libraryId: library.id),
-                      ),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: gradient,
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final library = libraries[index];
+                final gradient = _getLibraryGradient(library.collectionType);
+
+                return GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              library.collectionType?.toLowerCase() == 'music'
+                              ? MobileMusicLibrary(libraryId: library.id)
+                              : MobileLibrary(libraryId: library.id),
                         ),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                        boxShadow: [
-                          BoxShadow(
-                            color: gradient[0].withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: Stack(
-                        children: [
-                          // Pattern overlay
-                          Positioned(
-                            right: -20,
-                            bottom: -20,
-                            child: Icon(
-                              _getLibraryIcon(library.collectionType),
-                              size: 100,
-                              color: AppColors.white.withValues(alpha: 0.1),
-                            ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: gradient,
                           ),
-                          // Content
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    _getLibraryIcon(library.collectionType),
-                                    size: 24,
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      library.name,
-                                      style: AppTextStyles.titleMedium.copyWith(
-                                        color: AppColors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _getLibraryTypeLabel(library.collectionType),
-                                      style: AppTextStyles.bodySmall.copyWith(
-                                        color: AppColors.white.withValues(alpha: 0.8),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
                           ),
-                        ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: gradient[0].withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Pattern overlay
+                            Positioned(
+                              right: -20,
+                              bottom: -20,
+                              child: Icon(
+                                _getLibraryIcon(library.collectionType),
+                                size: 100,
+                                color: AppColors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            // Content
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      _getLibraryIcon(library.collectionType),
+                                      size: 24,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        library.name,
+                                        style: AppTextStyles.titleMedium
+                                            .copyWith(
+                                              color: AppColors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _getLibraryTypeLabel(
+                                          library.collectionType,
+                                        ),
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: AppColors.white.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ).animate()
-                      .fadeIn(delay: Duration(milliseconds: index * 100))
-                      .scale(begin: const Offset(0.9, 0.9));
-                },
-                childCount: libraries.length,
-              ),
+                    )
+                    .animate()
+                    .fadeIn(delay: Duration(milliseconds: index * 100))
+                    .scale(begin: const Offset(0.9, 0.9));
+              }, childCount: libraries.length),
             ),
           ),
         ],
@@ -1558,10 +1675,7 @@ class _MobileDownloadsPage extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Text(
-                  'Downloads',
-                  style: AppTextStyles.headlineMedium,
-                ),
+                Text('Downloads', style: AppTextStyles.headlineMedium),
                 const Spacer(),
                 if (downloadState.activeDownloads.isNotEmpty)
                   Text(
@@ -1582,26 +1696,38 @@ class _MobileDownloadsPage extends ConsumerWidget {
                 return _DownloadListTile(
                   download: download,
                   serverUrl: serverUrl,
-                  onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
-                  onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
-                  onCancel: () => ref.read(downloadProvider.notifier).cancelDownload(download.id),
-                  onRemove: () => ref.read(downloadProvider.notifier).deleteDownload(download.id),
+                  onPause: () => ref
+                      .read(downloadProvider.notifier)
+                      .pauseDownload(download.id),
+                  onResume: () => ref
+                      .read(downloadProvider.notifier)
+                      .resumeDownload(download.id),
+                  onCancel: () => ref
+                      .read(downloadProvider.notifier)
+                      .cancelDownload(download.id),
+                  onRemove: () => ref
+                      .read(downloadProvider.notifier)
+                      .deleteDownload(download.id),
                   onTap: () async {
-                    if (download.status == DownloadStatus.completed && download.localPath != null) {
+                    if (download.status == DownloadStatus.completed &&
+                        download.localPath != null) {
                       // Play directly from local file using playLocalFile
                       // This avoids server lookups which fail for items from other servers
                       final playerNotifier = ref.read(playerProvider.notifier);
-                      
+
                       // Create a minimal MediaItem for the player
                       final item = MediaItem(
                         id: download.itemId,
                         name: download.itemName,
                         type: _getMediaTypeFromString(download.itemType),
                       );
-                      
+
                       try {
-                        await playerNotifier.playLocalFile(item, download.localPath!);
-                        
+                        await playerNotifier.playLocalFile(
+                          item,
+                          download.localPath!,
+                        );
+
                         // Navigate to player
                         if (context.mounted) {
                           Navigator.push(
@@ -1788,7 +1914,8 @@ class _DownloadListTile extends StatelessWidget {
   Widget _buildNetworkImage() {
     if (download.primaryImageTag != null) {
       return CachedNetworkImage(
-        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
+        imageUrl:
+            '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
         width: 56,
         height: 80,
         fit: BoxFit.cover,
