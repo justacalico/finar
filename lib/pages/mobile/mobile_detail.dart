@@ -16,8 +16,15 @@ import 'mobile_player.dart';
 
 class MobileDetail extends ConsumerStatefulWidget {
   final String itemId;
+  final String? initialSeasonId;
+  final String? initialEpisodeId;
 
-  const MobileDetail({super.key, required this.itemId});
+  const MobileDetail({
+    super.key,
+    required this.itemId,
+    this.initialSeasonId,
+    this.initialEpisodeId,
+  });
 
   @override
   ConsumerState<MobileDetail> createState() => _MobileDetailState();
@@ -26,7 +33,13 @@ class MobileDetail extends ConsumerStatefulWidget {
 class _MobileDetailState extends ConsumerState<MobileDetail>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _episodesSectionKey = GlobalKey();
+  final GlobalKey _initialEpisodeKey = GlobalKey();
   int _selectedSeasonIndex = 0;
+  bool _hasAppliedInitialSeasonSelection = false;
+  bool _hasScrolledToEpisodesSection = false;
+  bool _hasScheduledInitialEpisodeScroll = false;
 
   @override
   void initState() {
@@ -37,6 +50,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -61,6 +75,25 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
+
+          // If this is an episode, redirect to the parent series detail.
+          if (item.type == MediaType.episode && item.seriesId != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => MobileDetail(
+                    itemId: item.seriesId!,
+                    initialSeasonId: item.seasonId,
+                    initialEpisodeId: item.id,
+                  ),
+                ),
+              );
+            });
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          }
+
           return _buildContent(item, serverUrl);
         },
         loading: () => const Center(
@@ -88,6 +121,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
   Widget _buildContent(MediaItem item, String serverUrl) {
     return CustomScrollView(
+      controller: _scrollController,
       slivers: [
         // Collapsing header with backdrop
         SliverAppBar(
@@ -459,6 +493,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     final seasonsAsync = ref.watch(seasonsProvider(item.id));
 
     return Column(
+      key: _episodesSectionKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -480,7 +515,13 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         seasonsAsync.when(
           data: (seasons) {
             if (seasons.isEmpty) return const SizedBox.shrink();
-            final seasonId = seasons[_selectedSeasonIndex].id;
+            _maybeApplyInitialEpisodeContext(seasons);
+
+            final selectedIndex = _selectedSeasonIndex.clamp(
+              0,
+              seasons.length - 1,
+            );
+            final seasonId = seasons[selectedIndex].id;
             return _buildEpisodesList(seasonId, serverUrl);
           },
           loading: () => const ShimmerLoading(height: 120),
@@ -532,17 +573,26 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     final episodesAsync = ref.watch(episodesProvider(seasonId));
 
     return episodesAsync.when(
-      data: (episodes) => ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: episodes.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final episode = episodes[index];
-          return _buildEpisodeCard(episode, serverUrl, seasonId);
-        },
-      ),
+      data: (episodes) {
+        _maybeScrollToInitialEpisode(episodes);
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: episodes.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final episode = episodes[index];
+            final card = _buildEpisodeCard(episode, serverUrl, seasonId);
+            if (widget.initialEpisodeId != null &&
+                episode.id == widget.initialEpisodeId) {
+              return KeyedSubtree(key: _initialEpisodeKey, child: card);
+            }
+            return card;
+          },
+        );
+      },
       loading: () => const Padding(
         padding: EdgeInsets.all(16),
         child: ShimmerLoading(height: 100),
@@ -552,6 +602,65 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         child: Text('Error: $error'),
       ),
     );
+  }
+
+  void _maybeApplyInitialEpisodeContext(List<MediaItem> seasons) {
+    if (!_hasScrolledToEpisodesSection &&
+        (widget.initialSeasonId != null || widget.initialEpisodeId != null)) {
+      _hasScrolledToEpisodesSection = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final context = _episodesSectionKey.currentContext;
+        if (context != null) {
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: 0.1,
+          );
+        }
+      });
+    }
+
+    if (_hasAppliedInitialSeasonSelection || widget.initialSeasonId == null) {
+      return;
+    }
+    _hasAppliedInitialSeasonSelection = true;
+
+    final targetIndex = seasons.indexWhere(
+      (s) => s.id == widget.initialSeasonId,
+    );
+    if (targetIndex >= 0 && targetIndex != _selectedSeasonIndex) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _selectedSeasonIndex = targetIndex);
+      });
+    }
+  }
+
+  void _maybeScrollToInitialEpisode(List<MediaItem> episodes) {
+    if (_hasScheduledInitialEpisodeScroll || widget.initialEpisodeId == null) {
+      return;
+    }
+
+    final hasTargetEpisode = episodes.any(
+      (e) => e.id == widget.initialEpisodeId,
+    );
+    if (!hasTargetEpisode) return;
+
+    _hasScheduledInitialEpisodeScroll = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final context = _initialEpisodeKey.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+          alignment: 0.2,
+        );
+      }
+    });
   }
 
   Widget _buildEpisodeCard(
