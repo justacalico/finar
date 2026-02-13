@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -1196,23 +1197,16 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
 
       // Fall back to remote trailers (YouTube, etc.)
       if (item.remoteTrailers != null && item.remoteTrailers!.isNotEmpty) {
-        final trailer = item.remoteTrailers!.first;
-        if (trailer.url != null) {
-          // For remote trailers (usually YouTube), open in browser or show message
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Opening trailer: ${trailer.name ?? "Trailer"}'),
-                action: SnackBarAction(
-                  label: 'Open',
-                  onPressed: () {
-                    // Launch URL - you may want to use url_launcher package
-                  },
-                ),
-              ),
-            );
+        for (final trailer in item.remoteTrailers!) {
+          final trailerUrl = trailer.url?.trim();
+          if (trailerUrl == null || trailerUrl.isEmpty) {
+            continue;
           }
-          return;
+
+          final opened = await _openRemoteTrailerUrl(trailerUrl);
+          if (opened) {
+            return;
+          }
         }
       }
 
@@ -1228,6 +1222,55 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         ).showSnackBar(SnackBar(content: Text('Failed to play trailer: $e')));
       }
     }
+  }
+
+  Future<bool> _openRemoteTrailerUrl(String rawUrl) async {
+    final uri = _normalizeTrailerUri(rawUrl);
+    if (uri == null) {
+      return false;
+    }
+
+    final launchMode = kIsWeb
+        ? LaunchMode.platformDefault
+        : LaunchMode.externalApplication;
+
+    if (await canLaunchUrl(uri)) {
+      return launchUrl(uri, mode: launchMode);
+    }
+
+    return launchUrl(uri, mode: launchMode);
+  }
+
+  Uri? _normalizeTrailerUri(String rawUrl) {
+    final value = rawUrl.trim();
+    if (value.isEmpty) {
+      return null;
+    }
+
+    final parsed = Uri.tryParse(value);
+    if (parsed != null && parsed.hasScheme) {
+      return parsed;
+    }
+
+    if (value.startsWith('//')) {
+      return Uri.tryParse('https:$value');
+    }
+
+    // Jellyfin providers sometimes return bare YouTube IDs.
+    final isYouTubeId = RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(value);
+    if (isYouTubeId) {
+      return Uri.parse('https://www.youtube.com/watch?v=$value');
+    }
+
+    if (parsed != null && parsed.host.isNotEmpty) {
+      return parsed.replace(scheme: 'https');
+    }
+
+    if (!value.contains(' ')) {
+      return Uri.tryParse('https://$value');
+    }
+
+    return null;
   }
 
   void _toggleFavorite(MediaItem item) {
