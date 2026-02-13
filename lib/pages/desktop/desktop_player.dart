@@ -43,9 +43,11 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
     });
   }
 
-  void _onInteraction() {
+  void _onInteraction({bool forceShow = false}) {
     _lastInteraction = DateTime.now();
-    setState(() => _controlsVisible = true);
+    if (forceShow || !_controlsVisible) {
+      setState(() => _controlsVisible = true);
+    }
     _startHideTimer();
   }
 
@@ -84,7 +86,8 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
         focusNode: _focusNode,
         onKeyEvent: _handleKeyEvent,
         child: MouseRegion(
-          onHover: (_) => _onInteraction(),
+          onEnter: (_) => _onInteraction(forceShow: true),
+          onHover: (_) => _onInteraction(forceShow: true),
           cursor: _controlsVisible
               ? SystemMouseCursors.basic
               : SystemMouseCursors.none,
@@ -467,10 +470,16 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
               ),
             ),
             child: Slider(
-              value: position.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
+              value: position.inMilliseconds.toDouble().clamp(
+                0,
+                duration.inMilliseconds.toDouble().clamp(1, double.infinity),
+              ),
               min: 0,
               max: duration.inMilliseconds.toDouble().clamp(1, double.infinity),
-              secondaryTrackValue: buffered.inMilliseconds.toDouble().clamp(0, duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
+              secondaryTrackValue: buffered.inMilliseconds.toDouble().clamp(
+                0,
+                duration.inMilliseconds.toDouble().clamp(1, double.infinity),
+              ),
               onChanged: (value) {
                 ref
                     .read(playerProvider.notifier)
@@ -732,7 +741,7 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
     _onInteraction();
 
     final key = event.logicalKey;
-    
+
     switch (key) {
       // Play/Pause - keyboard and gamepad
       case LogicalKeyboardKey.space:
@@ -740,48 +749,49 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
       case LogicalKeyboardKey.mediaPlayPause:
       case LogicalKeyboardKey.mediaPlay:
       case LogicalKeyboardKey.mediaPause:
-      case LogicalKeyboardKey.gameButtonA:  // A button / South button
+      case LogicalKeyboardKey.gameButtonA: // A button / South button
         _togglePlayPause();
         break;
-        
+
       // Seek backward
       case LogicalKeyboardKey.arrowLeft:
       case LogicalKeyboardKey.keyJ:
       case LogicalKeyboardKey.mediaRewind:
         _seek(-10);
         break;
-        
+
       // Seek forward
       case LogicalKeyboardKey.arrowRight:
       case LogicalKeyboardKey.keyL:
       case LogicalKeyboardKey.mediaFastForward:
         _seek(10);
         break;
-        
+
       // Volume up
       case LogicalKeyboardKey.arrowUp:
         _adjustVolume(0.1);
         break;
-        
+
       // Volume down
       case LogicalKeyboardKey.arrowDown:
         _adjustVolume(-0.1);
         break;
-        
+
       // Toggle fullscreen
       case LogicalKeyboardKey.keyF:
-      case LogicalKeyboardKey.gameButtonY:  // Y button / North button for fullscreen
+      case LogicalKeyboardKey
+          .gameButtonY: // Y button / North button for fullscreen
         _toggleFullscreen();
         break;
-        
+
       // Toggle mute
       case LogicalKeyboardKey.keyM:
         _toggleMute();
         break;
-        
+
       // Back/Exit
       case LogicalKeyboardKey.escape:
-      case LogicalKeyboardKey.gameButtonB:  // B button / East button
+      case LogicalKeyboardKey.gameButtonB: // B button / East button
       case LogicalKeyboardKey.goBack:
       case LogicalKeyboardKey.browserBack:
         if (_isFullscreen) {
@@ -790,25 +800,25 @@ class _DesktopPlayerState extends ConsumerState<DesktopPlayer> {
           _onBack();
         }
         break;
-      
+
       // Shoulder buttons for seeking (larger jumps)
-      case LogicalKeyboardKey.gameButtonLeft1:  // L1/LB - seek back 30s
+      case LogicalKeyboardKey.gameButtonLeft1: // L1/LB - seek back 30s
       case LogicalKeyboardKey.pageUp:
         _seek(-30);
         break;
-      case LogicalKeyboardKey.gameButtonRight1:  // R1/RB - seek forward 30s
+      case LogicalKeyboardKey.gameButtonRight1: // R1/RB - seek forward 30s
       case LogicalKeyboardKey.pageDown:
         _seek(30);
         break;
-      
+
       // Triggers for fine seeking
-      case LogicalKeyboardKey.gameButtonLeft2:  // L2/LT - seek back 5s
+      case LogicalKeyboardKey.gameButtonLeft2: // L2/LT - seek back 5s
         _seek(-5);
         break;
-      case LogicalKeyboardKey.gameButtonRight2:  // R2/RT - seek forward 5s
+      case LogicalKeyboardKey.gameButtonRight2: // R2/RT - seek forward 5s
         _seek(5);
         break;
-        
+
       // Start/Menu button - show controls/settings
       case LogicalKeyboardKey.gameButtonStart:
       case LogicalKeyboardKey.contextMenu:
