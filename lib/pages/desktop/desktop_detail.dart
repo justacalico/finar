@@ -384,116 +384,116 @@ class _DesktopDetailState extends ConsumerState<DesktopDetail> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-          // Play button with controller focus support
-          FocusTraversalOrder(
-            order: const NumericFocusOrder(0),
-            child: _FocusableActionButton(
-              width: 200,
-              height: 54,
-              autofocus: true,
-              onPressed: () => _playItem(item),
-              backgroundColor: AppColors.primary,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.play_arrow_rounded,
-                    size: 26,
-                    color: AppColors.textOnPrimary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    item.hasProgress ? 'Resume' : 'Play',
-                    style: AppTextStyles.buttonLarge.copyWith(
-                      fontWeight: FontWeight.w600,
+            // Play button with controller focus support
+            FocusTraversalOrder(
+              order: const NumericFocusOrder(0),
+              child: _FocusableActionButton(
+                width: 200,
+                height: 54,
+                autofocus: true,
+                onPressed: () => _playItem(item),
+                backgroundColor: AppColors.primary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.play_arrow_rounded,
+                      size: 26,
                       color: AppColors.textOnPrimary,
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-
-          // Trailer button
-          if (item.hasTrailer)
-            FocusTraversalOrder(
-              order: const NumericFocusOrder(1),
-              child: _FocusableActionButton(
-                height: 54,
-                onPressed: () => _playTrailer(item),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.movie_outlined,
-                      size: 20,
-                      color: AppColors.textPrimary,
-                    ),
                     const SizedBox(width: 8),
-                    Text('Trailer', style: AppTextStyles.labelMedium),
+                    Text(
+                      item.hasProgress ? 'Resume' : 'Play',
+                      style: AppTextStyles.buttonLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textOnPrimary,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-          if (item.hasTrailer) const SizedBox(width: 14),
+            const SizedBox(width: 14),
 
-          // Favorite button
-          FocusTraversalOrder(
-            order: NumericFocusOrder(item.hasTrailer ? 2 : 1),
-            child: Consumer(
-              builder: (context, ref, _) {
-                final isFavorite = item.isFavorite == true;
-                return GlassIconButton(
-                  icon: isFavorite
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_outline_rounded,
-                  iconColor: isFavorite
-                      ? AppColors.accentRed
-                      : AppColors.textSecondary,
-                  size: 54,
-                  onPressed: () => _toggleFavorite(item),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: 10),
+            // Trailer button
+            if (item.hasTrailer)
+              FocusTraversalOrder(
+                order: const NumericFocusOrder(1),
+                child: _FocusableActionButton(
+                  height: 54,
+                  onPressed: () => _playTrailer(item),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.movie_outlined,
+                        size: 20,
+                        color: AppColors.textPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text('Trailer', style: AppTextStyles.labelMedium),
+                    ],
+                  ),
+                ),
+              ),
+            if (item.hasTrailer) const SizedBox(width: 14),
 
-          // Mark watched button
-          FocusTraversalOrder(
-            order: NumericFocusOrder(item.hasTrailer ? 3 : 2),
-            child: GlassIconButton(
-              icon: (item.isPlayed == true)
-                  ? Icons.check_circle_rounded
-                  : Icons.check_circle_outline_rounded,
-              iconColor: (item.isPlayed == true)
-                  ? AppColors.primary
-                  : AppColors.textSecondary,
-              size: 54,
-              onPressed: () => _toggleWatched(item),
-            ),
-          ),
-          const SizedBox(width: 10),
-
-          // Download button (hide on web)
-          if (!kIsWeb)
+            // Favorite button
             FocusTraversalOrder(
-              order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
-              child: _buildDownloadButton(item),
+              order: NumericFocusOrder(item.hasTrailer ? 2 : 1),
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final isFavorite = item.isFavorite == true;
+                  return GlassIconButton(
+                    icon: isFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_outline_rounded,
+                    iconColor: isFavorite
+                        ? AppColors.accentRed
+                        : AppColors.textSecondary,
+                    size: 54,
+                    onPressed: () => _toggleFavorite(item),
+                  );
+                },
+              ),
             ),
-          if (!kIsWeb) const SizedBox(width: 10),
+            const SizedBox(width: 10),
 
-          // More options
-          FocusTraversalOrder(
-            order: NumericFocusOrder(
-              item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4),
+            // Mark watched button
+            FocusTraversalOrder(
+              order: NumericFocusOrder(item.hasTrailer ? 3 : 2),
+              child: GlassIconButton(
+                icon: (item.isPlayed == true)
+                    ? Icons.check_circle_rounded
+                    : Icons.check_circle_outline_rounded,
+                iconColor: (item.isPlayed == true)
+                    ? AppColors.primary
+                    : AppColors.textSecondary,
+                size: 54,
+                onPressed: () => _toggleWatched(item),
+              ),
             ),
-            child: GlassIconButton(
-              icon: Icons.more_horiz_rounded,
-              size: 54,
-              onPressed: () => _showMoreOptions(item),
+            const SizedBox(width: 10),
+
+            // Download button (hide on web)
+            if (!kIsWeb)
+              FocusTraversalOrder(
+                order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
+                child: _buildDownloadButton(item),
+              ),
+            if (!kIsWeb) const SizedBox(width: 10),
+
+            // More options
+            FocusTraversalOrder(
+              order: NumericFocusOrder(
+                item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4),
+              ),
+              child: GlassIconButton(
+                icon: Icons.more_horiz_rounded,
+                size: 54,
+                onPressed: () => _showMoreOptions(item),
+              ),
             ),
-          ),
           ],
         ),
       ),
