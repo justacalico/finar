@@ -11,6 +11,7 @@ import { Library } from "./pages/Library";
 import { ItemDetail } from "./pages/ItemDetail";
 import { Player } from "./pages/Player";
 import { Settings } from "./pages/Settings";
+import { Downloads } from "./pages/Downloads";
 import "./index.css";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -34,6 +35,7 @@ function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="search" element={<Search />} />
         <Route path="favorites" element={<Favorites />} />
+        <Route path="downloads" element={<Downloads />} />
         <Route path="library/:id" element={<Library />} />
         <Route path="item/:id" element={<ItemDetail />} />
         <Route path="settings" element={<Settings />} />

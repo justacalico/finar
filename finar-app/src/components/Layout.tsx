@@ -5,7 +5,13 @@ import {
   Home,
   Search,
   Heart,
+  Download,
   FolderOpen,
+  Film,
+  Music,
+  Video,
+  ListMusic,
+  Tv,
   Settings,
   LogOut,
   Menu,
@@ -21,7 +27,33 @@ const NAV = [
   { path: "/", label: "Home", icon: Home },
   { path: "/search", label: "Search", icon: Search },
   { path: "/favorites", label: "Favorites", icon: Heart },
+  { path: "/downloads", label: "Downloads", icon: Download },
 ];
+
+function getLibraryIcon(collectionType?: string) {
+  switch (collectionType?.toLowerCase()) {
+    case "movies":
+      return Film;
+    case "tvshows":
+      return Tv;
+    case "music":
+      return Music;
+    case "musicvideos":
+      return Video;
+    case "playlists":
+      return ListMusic;
+    case "photos":
+    case "homevideos":
+    case "books":
+    default:
+      return FolderOpen;
+  }
+}
+
+function truncateUrl(url: string, maxLen = 24): string {
+  if (url.length <= maxLen) return url;
+  return url.slice(0, 12) + "..." + url.slice(-8);
+}
 
 export function Layout() {
   const [sidebarOpen] = useState(true);
@@ -59,39 +91,53 @@ export function Layout() {
           )}
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {NAV.map(({ path, label, icon: Icon }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                location.pathname === path
-                  ? "bg-primary/20 text-primary"
-                  : "text-text-secondary hover:bg-white/10 hover:text-text-primary"
-              }`}
-            >
-              <Icon className="h-5 w-5 shrink-0" />
-              {sidebarOpen && <span>{label}</span>}
-            </Link>
-          ))}
+          {NAV.map(({ path, label, icon: Icon }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-primary to-primary/80 text-white"
+                    : "text-text-secondary hover:bg-white/10 hover:text-text-primary"
+                }`}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                {sidebarOpen && <span>{label}</span>}
+              </Link>
+            );
+          })}
           {sidebarOpen && libraries.length > 0 && (
             <>
               <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                Libraries
+                LIBRARIES
               </div>
-                {libraries.slice(0, 8).map((lib) => (
+              {libraries.slice(0, 8).map((lib) => {
+                const LibIcon = getLibraryIcon(lib.CollectionType);
+                const count = lib.ChildCount ?? 0;
+                return (
                   <Link
                     key={lib.Id}
                     to={`/library/${lib.Id}`}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                       location.pathname === `/library/${lib.Id}`
-                        ? "bg-primary/20 text-primary"
+                        ? "bg-surface text-primary"
                         : "text-text-secondary hover:bg-white/10 hover:text-text-primary"
                     }`}
                   >
-                    <FolderOpen className="h-5 w-5 shrink-0" />
-                    <span className="truncate">{lib.Name}</span>
+                    <LibIcon className="h-5 w-5 shrink-0" />
+                    {sidebarOpen && (
+                      <>
+                        <span className="min-w-0 flex-1 truncate">{lib.Name}</span>
+                        <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white/10 px-1.5 text-xs font-medium text-text-primary">
+                          {count}
+                        </span>
+                      </>
+                    )}
                   </Link>
-                ))}
+                );
+              })}
             </>
           )}
           <Link
@@ -127,10 +173,12 @@ export function Layout() {
             </div>
             {sidebarOpen && (
               <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-text-primary">
-                    {user?.Name ?? "Guest"}
-                  </p>
-                  <p className="text-xs text-text-tertiary">Signed in</p>
+                <p className="truncate text-sm font-semibold text-text-primary">
+                  {user?.Name ?? "Guest"}
+                </p>
+                <p className="truncate text-xs text-text-tertiary">
+                  {serverUrl ? truncateUrl(serverUrl) : "Signed in"}
+                </p>
               </div>
             )}
             {sidebarOpen && (
@@ -192,36 +240,61 @@ export function Layout() {
                 </button>
               </div>
               <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-                {NAV.map(({ path, label, icon: Icon }) => (
-                  <Link
-                    key={path}
-                    to={path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                      location.pathname === path
-                        ? "bg-primary/20 text-primary"
-                        : "text-text-secondary"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {label}
-                  </Link>
-                ))}
-                {libraries.map((lib) => (
-                  <Link
-                    key={lib.Id}
-                    to={`/library/${lib.Id}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-text-secondary"
-                  >
-                    <FolderOpen className="h-5 w-5" />
-                    {lib.Name}
-                  </Link>
-                ))}
+                {NAV.map(({ path, label, icon: Icon }) => {
+                  const isActive = location.pathname === path;
+                  return (
+                    <Link
+                      key={path}
+                      to={path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                        isActive
+                          ? "bg-gradient-to-r from-primary to-primary/80 text-white"
+                          : "text-text-secondary"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {label}
+                    </Link>
+                  );
+                })}
+                {libraries.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                      LIBRARIES
+                    </div>
+                    {libraries.slice(0, 8).map((lib) => {
+                      const LibIcon = getLibraryIcon(lib.CollectionType);
+                      const count = lib.ChildCount ?? 0;
+                      return (
+                        <Link
+                          key={lib.Id}
+                          to={`/library/${lib.Id}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${
+                            location.pathname === `/library/${lib.Id}`
+                              ? "bg-surface text-primary"
+                              : "text-text-secondary"
+                          }`}
+                        >
+                          <LibIcon className="h-5 w-5 shrink-0" />
+                          <span className="min-w-0 flex-1 truncate">{lib.Name}</span>
+                          <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white/10 px-1.5 text-xs font-medium text-text-primary">
+                            {count}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </>
+                )}
                 <Link
                   to="/settings"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-text-secondary"
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${
+                    location.pathname === "/settings"
+                      ? "bg-primary/20 text-primary"
+                      : "text-text-secondary"
+                  }`}
                 >
                   <Settings className="h-5 w-5" />
                   Settings
@@ -245,6 +318,9 @@ export function Layout() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-text-primary">
                       {user?.Name ?? "Guest"}
+                    </p>
+                    <p className="truncate text-xs text-text-tertiary">
+                      {serverUrl ? truncateUrl(serverUrl) : "Signed in"}
                     </p>
                   </div>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
