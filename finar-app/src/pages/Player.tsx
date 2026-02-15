@@ -30,6 +30,7 @@ export function Player() {
   } = usePlayerStore();
   const [showControls, setShowControls] = useState(true);
   const [muted, setMuted] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [streamConfig, setStreamConfig] = useState<{
     streamUrl: string;
     isHls: boolean;
@@ -46,6 +47,7 @@ export function Player() {
     }
     let cancelled = false;
     setStreamConfig(null);
+    setPlaybackError(null);
     api
       .getPlaybackInfo(currentItem.Id, {
         startTimeTicks: currentItem.UserData?.PlaybackPositionTicks,
@@ -90,7 +92,11 @@ export function Player() {
           }
         }, 5000);
       })
-      .catch(() => {});
+      .catch((err) => {
+        if (!cancelled) {
+          setPlaybackError(err instanceof Error ? err.message : "Could not load playback info.");
+        }
+      });
 
     return () => {
       cancelled = true;
@@ -115,12 +121,15 @@ export function Player() {
   // Attach stream to video element (runs when streamConfig and ref are ready)
   useEffect(() => {
     if (!streamConfig || !videoRef.current) return;
+    setPlaybackError(null);
     const { streamUrl, isHls, startTimeTicks } = streamConfig;
     const startSec = startTimeTicks / 10_000_000;
     setStreamUrlOnVideo(videoRef.current, streamUrl, isHls, () => {
       if (!videoRef.current) return;
       videoRef.current.currentTime = startSec;
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch((err) => {
+        setPlaybackError(err instanceof Error ? err.message : "Playback failed to start.");
+      });
     });
     return () => destroyHls();
   }, [streamConfig]);
@@ -167,8 +176,8 @@ export function Player() {
         hls.on(Hls.Events.ERROR, (_, data) => {
           if (data.fatal) {
             destroyHls();
-            video.src = streamUrl;
-            onReady();
+            const msg = data.details ?? data.type ?? "HLS error";
+            setPlaybackError(`Stream error: ${msg}`);
           }
         });
       } else {
@@ -201,12 +210,50 @@ export function Player() {
   };
 
   const formatTime = (s: number) => {
+    if (s !== s || s < 0 || !Number.isFinite(s)) return "0:00";
     const m = Math.floor(s / 60);
     const sec = Math.floor(s % 60);
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
+  function getVideoErrorMessage(e: MediaError | null): string {
+    if (!e) return "Playback failed.";
+    switch (e.code) {
+      case MediaError.MEDIA_ERR_ABORTED:
+        return "Playback was aborted.";
+      case MediaError.MEDIA_ERR_NETWORK:
+        return "A network error occurred. Check your connection.";
+      case MediaError.MEDIA_ERR_DECODE:
+        return "The video could not be decoded.";
+      case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        return "This format is not supported or the stream is unavailable.";
+      default:
+        return e.message || "Playback failed.";
+    }
+  }
+
   if (!currentItem) return null;
+
+  if (playbackError) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-black p-6">
+        <p className="text-center text-lg font-medium text-white">
+          Sorry, we had an issue playing this.
+        </p>
+        <p className="max-w-md text-center text-sm text-text-tertiary">{playbackError}</p>
+        <button
+          type="button"
+          onClick={() => {
+            stop();
+            navigate(-1);
+          }}
+          className="rounded-xl bg-primary px-6 py-3 font-semibold text-background hover:opacity-90"
+        >
+          Go back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -222,6 +269,10 @@ export function Player() {
         muted={muted}
         disablePictureInPicture
         disableRemotePlayback
+        onError={() => {
+          const v = videoRef.current;
+          setPlaybackError(getVideoErrorMessage(v?.error ?? null));
+        }}
         onTimeUpdate={() => {
           if (videoRef.current) {
             setPosition(videoRef.current.currentTime);
