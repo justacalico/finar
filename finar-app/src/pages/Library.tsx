@@ -1,15 +1,30 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { MediaCard } from "../components/MediaCard";
+import { usePlayerStore } from "../stores/player";
 import type { MediaItem, Library as LibraryType } from "../types/jellyfin";
+
+const isMusicLibrary = (lib: LibraryType | null) =>
+  lib?.CollectionType?.toLowerCase() === "music";
+
+function formatTrackDuration(ticks?: number): string {
+  if (ticks == null || !Number.isFinite(ticks)) return "";
+  const sec = Math.floor(ticks / 10_000_000);
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
 
 export function Library() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [library, setLibrary] = useState<LibraryType | null>(null);
   const [items, setItems] = useState<MediaItem[]>([]);
+  const [albums, setAlbums] = useState<MediaItem[]>([]);
+  const [artists, setArtists] = useState<MediaItem[]>([]);
+  const [tracks, setTracks] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +32,9 @@ export function Library() {
     if (!id) return;
     let cancelled = false;
     setLoading(true);
+    setAlbums([]);
+    setArtists([]);
+    setTracks([]);
     Promise.all([
       api.getLibraries().then((libs) => libs.find((l) => l.Id === id)),
       api.getItems({
@@ -40,8 +58,43 @@ export function Library() {
         if (cancelled) return;
         setLibrary(lib ?? null);
         let list = result?.Items ?? [];
-        // For Playlists library: fetch all playlists (incl. music) so the tab shows everything
-        if (lib?.CollectionType?.toLowerCase() === "playlists") {
+        if (isMusicLibrary(lib ?? null)) {
+          const [albumsRes, artistsRes, tracksRes] = await Promise.all([
+            api.getItems({
+              parentId: id!,
+              includeItemTypes: ["MusicAlbum"],
+              recursive: true,
+              limit: 200,
+              sortBy: "SortName",
+              sortOrder: "Ascending",
+              fields: ["Overview"],
+            }),
+            api.getItems({
+              parentId: id!,
+              includeItemTypes: ["MusicArtist"],
+              recursive: true,
+              limit: 200,
+              sortBy: "SortName",
+              sortOrder: "Ascending",
+              fields: ["Overview"],
+            }),
+            api.getItems({
+              parentId: id!,
+              includeItemTypes: ["Audio"],
+              recursive: true,
+              limit: 500,
+              sortBy: "SortName",
+              sortOrder: "Ascending",
+              fields: ["Overview", "MediaSources"],
+            }),
+          ]);
+          if (!cancelled) {
+            setAlbums(albumsRes?.Items ?? []);
+            setArtists(artistsRes?.Items ?? []);
+            setTracks(tracksRes?.Items ?? []);
+          }
+          list = [];
+        } else if (lib?.CollectionType?.toLowerCase() === "playlists") {
           const allPlaylists = await api.getItems({
             includeItemTypes: ["Playlist"],
             recursive: true,
@@ -74,6 +127,9 @@ export function Library() {
     };
   }, [id]);
 
+  const play = usePlayerStore((s) => s.play);
+  const musicLibrary = isMusicLibrary(library);
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
@@ -100,7 +156,99 @@ export function Library() {
         Library
       </Link>
       <h1 className="mb-6 text-2xl font-bold text-text-primary">{library.Name}</h1>
-      {items.length === 0 ? (
+
+      {musicLibrary ? (
+        <div className="flex flex-col gap-10">
+          {albums.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-semibold text-text-primary">Albums</h2>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {albums.map((album, i) => (
+                  <MediaCard
+                    key={album.Id}
+                    item={album}
+                    index={i}
+                    onClick={() => navigate(`/item/${album.Id}`)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {artists.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-semibold text-text-primary">Artists</h2>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {artists.map((artist, i) => (
+                  <MediaCard
+                    key={artist.Id}
+                    item={artist}
+                    index={i}
+                    onClick={() => navigate(`/item/${artist.Id}`)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {tracks.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-semibold text-text-primary">Tracks</h2>
+              <div className="rounded-xl bg-surface">
+                <div className="divide-y divide-white/10">
+                  {tracks.map((track) => {
+                    const albumId = track.AlbumId ?? track.ParentId;
+                    return (
+                      <div
+                        key={track.Id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          if (albumId) {
+                            navigate(`/item/${albumId}?highlight=${track.Id}`);
+                          } else {
+                            play(track);
+                            navigate("/player");
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            if (albumId) {
+                              navigate(`/item/${albumId}?highlight=${track.Id}`);
+                            } else {
+                              play(track);
+                              navigate("/player");
+                            }
+                          }
+                        }}
+                        className="flex cursor-pointer items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/10"
+                      >
+                        <span className="w-6 shrink-0 text-sm text-text-tertiary">
+                          {track.IndexNumber ?? "—"}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-text-primary">{track.Name}</p>
+                          <p className="truncate text-sm text-text-tertiary">
+                            {[track.Album, track.AlbumArtist, ...(track.Artists ?? [])]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                        </div>
+                        <span className="shrink-0 text-sm text-text-tertiary">
+                          {formatTrackDuration(track.RunTimeTicks)}
+                        </span>
+                        <Play className="h-5 w-5 shrink-0 text-primary" fill="currentColor" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )}
+          {albums.length === 0 && artists.length === 0 && tracks.length === 0 && (
+            <p className="text-text-tertiary">No music in this library.</p>
+          )}
+        </div>
+      ) : items.length === 0 ? (
         <p className="text-text-tertiary">No items in this library.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

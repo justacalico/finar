@@ -26,13 +26,16 @@ export function ItemDetail() {
   const [item, setItem] = useState<MediaItem | null>(null);
   const [seasons, setSeasons] = useState<MediaItem[]>([]);
   const [episodes, setEpisodes] = useState<MediaItem[]>([]);
+  const [tracks, setTracks] = useState<MediaItem[]>([]);
   const [similar, setSimilar] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
   const [highlightEpisodeId, setHighlightEpisodeId] = useState<string | null>(null);
+  const [highlightTrackId, setHighlightTrackId] = useState<string | null>(null);
   const [downloadingAll, setDownloadingAll] = useState(false);
-  const highlightedEpisodeRef = useRef<HTMLButtonElement | null>(null);
+  const highlightedEpisodeRef = useRef<HTMLDivElement | null>(null);
+  const highlightedTrackRef = useRef<HTMLDivElement | null>(null);
   const { play, playLocalFile } = usePlayerStore();
   const { isTauriEnv, getTaskForItem, startDownload, cancelDownload, isItemDownloaded } =
     useDownloadsStore();
@@ -42,6 +45,8 @@ export function ItemDetail() {
     let cancelled = false;
     setLoading(true);
     setHighlightEpisodeId(null);
+    setHighlightTrackId(searchParams.get("highlight"));
+    setTracks([]);
     api
       .getItem(id)
       .then((data) => {
@@ -51,6 +56,11 @@ export function ItemDetail() {
           navigate(`/item/${data.SeriesId}?season=${seasonId}&highlight=${data.Id}`, {
             replace: true,
           });
+          return;
+        }
+        if (data.Type === "Audio" && (data.AlbumId || data.ParentId)) {
+          const albumId = data.AlbumId ?? data.ParentId!;
+          navigate(`/item/${albumId}?highlight=${data.Id}`, { replace: true });
           return;
         }
         setItem(data);
@@ -74,6 +84,24 @@ export function ItemDetail() {
               }
             }
           });
+        }
+        if (data.Type === "MusicAlbum") {
+          return api
+            .getItems({
+              parentId: data.Id,
+              includeItemTypes: ["Audio"],
+              sortBy: "IndexNumber",
+              sortOrder: "Ascending",
+              limit: 500,
+              fields: ["Overview", "MediaSources"],
+            })
+            .then((res) => {
+              if (!cancelled) setTracks(res.Items ?? []);
+              return api.getSimilarItems(data.Id, 12);
+            })
+            .then((s) => {
+              if (!cancelled) setSimilar(s);
+            });
         }
         return api.getSimilarItems(data.Id, 12).then((s) => {
           if (!cancelled) setSimilar(s);
@@ -117,6 +145,21 @@ export function ItemDetail() {
     return () => clearTimeout(t);
   }, [highlightEpisodeId]);
 
+  // Scroll highlighted track into view when tracks load
+  useEffect(() => {
+    if (!highlightTrackId || tracks.length === 0) return;
+    highlightedTrackRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [highlightTrackId, tracks]);
+
+  useEffect(() => {
+    if (!highlightTrackId) return;
+    const t = setTimeout(() => setHighlightTrackId(null), 2000);
+    return () => clearTimeout(t);
+  }, [highlightTrackId]);
+
   if (loading || !item) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -135,7 +178,16 @@ export function ItemDetail() {
 
   const backdrop = getBackdropUrl(item, 0, { maxWidth: 1280 });
   const isSeries = item.Type === "Series";
+  const isAlbum = item.Type === "MusicAlbum";
   const isPlayable = ["Movie", "Episode", "Audio", "MusicVideo"].includes(item.Type);
+
+  const formatTicks = (ticks?: number) => {
+    if (ticks == null || !Number.isFinite(ticks)) return "";
+    const sec = Math.floor(ticks / 10_000_000);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
 
   const handlePlay = () => {
     if (isSeries) {
@@ -143,6 +195,11 @@ export function ItemDetail() {
         play(episodes[0]);
         navigate("/player");
       }
+      return;
+    }
+    if (isAlbum && tracks.length > 0) {
+      play(tracks[0]);
+      navigate("/player");
       return;
     }
     play(item);
@@ -226,7 +283,7 @@ export function ItemDetail() {
                 {item.OfficialRating && <span>{item.OfficialRating}</span>}
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
-                {isPlayable && (
+                {(isPlayable || (isAlbum && tracks.length > 0)) && (
                   <Button
                     leftIcon={<Play className="h-5 w-5" fill="currentColor" />}
                     onClick={handlePlay}
@@ -453,6 +510,56 @@ export function ItemDetail() {
                       </button>
                     );
                   })()}
+                  <Play className="h-5 w-5 shrink-0 text-primary" fill="currentColor" />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {isAlbum && tracks.length > 0 && (
+          <section className="mb-8">
+            <h2 className="mb-4 text-lg font-semibold text-text-primary">
+              Tracks
+            </h2>
+            <div className="space-y-1">
+              {tracks.map((track) => (
+                <div
+                  key={track.Id}
+                  ref={track.Id === highlightTrackId ? highlightedTrackRef : undefined}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    play(track);
+                    navigate("/player");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      play(track);
+                      navigate("/player");
+                    }
+                  }}
+                  className={`flex cursor-pointer items-center gap-4 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10 ${
+                    track.Id === highlightTrackId
+                      ? "bg-primary/20 ring-2 ring-primary"
+                      : "bg-surface"
+                  }`}
+                >
+                  <span className="w-8 shrink-0 text-sm text-text-tertiary">
+                    {track.IndexNumber ?? "—"}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-text-primary">{track.Name}</p>
+                    {track.Artists?.length ? (
+                      <p className="truncate text-sm text-text-tertiary">
+                        {track.Artists.join(", ")}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="shrink-0 text-sm text-text-tertiary">
+                    {formatTicks(track.RunTimeTicks)}
+                  </span>
                   <Play className="h-5 w-5 shrink-0 text-primary" fill="currentColor" />
                 </div>
               ))}
