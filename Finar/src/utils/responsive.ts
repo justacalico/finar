@@ -38,12 +38,16 @@ export function getResponsiveValue<T>(
   values: { mobile: T; tablet?: T; desktop?: T; largeDesktop?: T }
 ): T {
   const device = getDeviceType(width);
-  return (
-    (device === 'largeDesktop' && (values.largeDesktop ?? values.desktop ?? values.tablet ?? values.mobile)) ??
-    (device === 'desktop' && (values.desktop ?? values.tablet ?? values.mobile)) ??
-    (device === 'tablet' && (values.tablet ?? values.mobile)) ??
-    values.mobile
-  );
+  switch (device) {
+    case 'largeDesktop':
+      return (values.largeDesktop ?? values.desktop ?? values.tablet ?? values.mobile) as T;
+    case 'desktop':
+      return (values.desktop ?? values.tablet ?? values.mobile) as T;
+    case 'tablet':
+      return (values.tablet ?? values.mobile) as T;
+    default:
+      return values.mobile;
+  }
 }
 
 export function gridColumns(width: number): number {

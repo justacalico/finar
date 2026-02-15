@@ -283,7 +283,7 @@ export function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.bottomNavItem}
-          onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Library', { libraryId: '', isMusic: false })}
+          onPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '', isMusic: false })}
         >
           <Text style={styles.bottomNavIcon}>📚</Text>
           <Text style={styles.bottomNavLabel}>Library</Text>
