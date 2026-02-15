@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Play, Plus, Star } from "lucide-react";
+import { Play, Plus, Star, ArrowLeft } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
 import { getBackdropUrl, getDisplayImageUrl } from "../utils/image";
@@ -104,6 +104,15 @@ export function ItemDetail() {
   return (
     <div className="pb-20">
       <div className="relative h-[45vw] max-h-[500px] min-h-[240px] w-full overflow-hidden">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="absolute left-4 top-4 z-10 hidden items-center gap-2 rounded-lg bg-black/50 px-3 py-2 text-sm text-white hover:bg-black/70 md:inline-flex"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
         <img
           src={backdrop}
           alt=""

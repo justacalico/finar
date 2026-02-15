@@ -15,6 +15,7 @@ import {
   LogOut,
   Play,
   LayoutGrid,
+  ArrowLeft,
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import { useLibraryStore } from "../stores/library";
@@ -73,6 +74,22 @@ export function Layout() {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  const isLibraryDetail = /^\/library\/[^/]+$/.test(location.pathname);
+  const isItemDetail = /^\/item\/[^/]+$/.test(location.pathname);
+  const showBackOnMobile = isLibraryDetail || isItemDetail;
+
+  const handleBack = () => {
+    if (isLibraryDetail) {
+      navigate("/library");
+    } else if (isItemDetail) {
+      if (window.history.state?.idx > 0) {
+        navigate(-1);
+      } else {
+        navigate("/");
+      }
+    }
   };
 
   return (
@@ -198,11 +215,24 @@ export function Layout() {
         </div>
       </aside>
 
-      {/* Mobile header: logo + Settings (no sidebar/drawer) */}
+      {/* Mobile header: back (when nested) or logo + Settings */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-background-secondary px-4 md:hidden">
-        <div className="flex items-center gap-2">
-          <Play className="h-6 w-6 text-primary" fill="currentColor" />
-          <span className="font-bold text-text-primary">Finar</span>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {showBackOnMobile ? (
+            <button
+              type="button"
+              onClick={handleBack}
+              className="flex items-center gap-1 rounded-lg py-2 pr-2 text-text-primary hover:bg-white/10"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-6 w-6 shrink-0" />
+            </button>
+          ) : (
+            <>
+              <Play className="h-6 w-6 shrink-0 text-primary" fill="currentColor" />
+              <span className="font-bold tracking-tight text-text-primary">Finar</span>
+            </>
+          )}
         </div>
         <Link
           to="/settings"

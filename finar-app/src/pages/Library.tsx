@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { MediaCard } from "../components/MediaCard";
 import type { MediaItem, Library as LibraryType } from "../types/jellyfin";
@@ -91,6 +92,13 @@ export function Library() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:px-8">
+      <Link
+        to="/library"
+        className="mb-4 hidden items-center gap-2 text-sm text-text-secondary hover:text-text-primary md:inline-flex"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Library
+      </Link>
       <h1 className="mb-6 text-2xl font-bold text-text-primary">{library.Name}</h1>
       {items.length === 0 ? (
         <p className="text-text-tertiary">No items in this library.</p>
