@@ -75,7 +75,7 @@ export function HomeScreen() {
         }
       >
         {featuredItem && (
-          <Animated.View entering={FadeIn.duration(450)} className="mx-4 mt-3 mb-7">
+          <Animated.View entering={FadeIn.duration(450)} className="mx-4 mt-3 mb-0">
             <TouchableOpacity
               className="rounded-[22px] overflow-hidden border border-white/10 shadow-finar-card"
               style={{ height: featuredHeight }}
@@ -101,10 +101,16 @@ export function HomeScreen() {
                 style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
               />
               <View className="absolute inset-0 bg-black/10" />
+              {/* Content anchored to bottom of hero */}
               <Animated.View
                 entering={FadeInDown.delay(140)}
-                className="absolute left-0 right-0 bottom-0 px-5 pb-8 pt-20"
-                style={{ maxWidth: isWide ? 980 : undefined }}
+                className="absolute left-0 right-0 bottom-0 px-5 pb-6 pt-4"
+                style={{
+                  top: 0,
+                  maxWidth: isWide ? 980 : undefined,
+                  flex: 1,
+                  justifyContent: 'flex-end',
+                }}
               >
                 <View className="flex-row items-center gap-2 mb-4">
                   {featuredItem.communityRating ? (
