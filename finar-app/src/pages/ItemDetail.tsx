@@ -96,6 +96,13 @@ export function ItemDetail() {
     });
   }, [highlightEpisodeId, episodes]);
 
+  // Clear highlight after 2 seconds
+  useEffect(() => {
+    if (!highlightEpisodeId) return;
+    const t = setTimeout(() => setHighlightEpisodeId(null), 2000);
+    return () => clearTimeout(t);
+  }, [highlightEpisodeId]);
+
   if (loading || !item) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
