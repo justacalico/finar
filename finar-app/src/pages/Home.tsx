@@ -60,7 +60,7 @@ function MediaRow({
 }
 
 export function Home() {
-  const { homeData, loadHomeData, isLoading, error } = useLibraryStore();
+  const { homeData, loadHomeData, error } = useLibraryStore();
   const navigate = useNavigate();
 
   useEffect(() => {
