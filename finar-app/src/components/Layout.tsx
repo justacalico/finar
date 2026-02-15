@@ -12,7 +12,6 @@ import {
   ListMusic,
   Tv,
   Settings,
-  LogOut,
   Play,
   LayoutGrid,
   ArrowLeft,
@@ -64,17 +63,12 @@ export function Layout() {
   const [sidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, serverUrl, logout } = useAuthStore();
+  const { user, serverUrl } = useAuthStore();
   const { libraries, loadLibraries } = useLibraryStore();
 
   useEffect(() => {
     loadLibraries();
   }, [loadLibraries]);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
 
   const isLibraryDetail = /^\/library\/[^/]+$/.test(location.pathname);
   const isItemDetail = /^\/item\/[^/]+$/.test(location.pathname);
@@ -160,22 +154,16 @@ export function Layout() {
               })}
             </>
           )}
-          <Link
-            to="/settings"
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-              location.pathname === "/settings"
-                ? "bg-primary/20 text-primary"
-                : "text-text-secondary hover:bg-white/10 hover:text-text-primary"
-            }`}
-          >
-            <Settings className="h-5 w-5 shrink-0" />
-            {sidebarOpen && <span>Settings</span>}
-          </Link>
         </nav>
         <div className="border-t border-white/10 p-3">
-          <div
-            className={`flex items-center gap-3 rounded-xl bg-surface p-3 ${
-              !sidebarOpen && "justify-center"
+          <Link
+            to="/settings"
+            className={`flex items-center gap-3 rounded-xl bg-surface p-3 transition-colors ${
+              !sidebarOpen ? "justify-center" : ""
+            } ${
+              location.pathname === "/settings"
+                ? "ring-1 ring-primary/50"
+                : "hover:bg-surface-elevated"
             }`}
           >
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-primary to-accent">
@@ -201,17 +189,17 @@ export function Layout() {
                 </p>
               </div>
             )}
-            {sidebarOpen && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-lg p-1.5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
-                title="Sign out"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+            <span
+              className={`rounded-lg p-1.5 text-text-secondary ${
+                location.pathname === "/settings"
+                  ? "text-primary"
+                  : "hover:bg-white/10 hover:text-text-primary"
+              }`}
+              title="Settings"
+            >
+              <Settings className="h-4 w-4" />
+            </span>
+          </Link>
         </div>
       </aside>
 
