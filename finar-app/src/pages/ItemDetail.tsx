@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Play, Plus, Star, ArrowLeft } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
@@ -11,6 +11,7 @@ import type { MediaItem } from "../types/jellyfin";
 export function ItemDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [item, setItem] = useState<MediaItem | null>(null);
   const [seasons, setSeasons] = useState<MediaItem[]>([]);
   const [episodes, setEpisodes] = useState<MediaItem[]>([]);
@@ -18,25 +19,42 @@ export function ItemDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
+  const [highlightEpisodeId, setHighlightEpisodeId] = useState<string | null>(null);
+  const highlightedEpisodeRef = useRef<HTMLButtonElement | null>(null);
   const { play } = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
     setLoading(true);
+    setHighlightEpisodeId(null);
     api
       .getItem(id)
       .then((data) => {
         if (cancelled) return;
+        if (data.Type === "Episode" && data.SeriesId) {
+          const seasonId = data.ParentId ?? data.SeasonId ?? "";
+          navigate(`/item/${data.SeriesId}?season=${seasonId}&highlight=${data.Id}`, {
+            replace: true,
+          });
+          return;
+        }
         setItem(data);
         if (data.Type === "Series") {
+          const seasonParam = searchParams.get("season");
+          const highlightParam = searchParams.get("highlight");
           return api.getSeasons(data.Id).then((s) => {
             if (!cancelled) {
               setSeasons(s);
               const first = s[0];
-              if (first) {
-                setSelectedSeasonId(first.Id);
-                return api.getEpisodes(data.Id, first.Id).then((e) => {
+              const initialSeason =
+                seasonParam && s.some((se) => se.Id === seasonParam)
+                  ? seasonParam
+                  : first?.Id ?? null;
+              setSelectedSeasonId(initialSeason);
+              if (highlightParam) setHighlightEpisodeId(highlightParam);
+              if (initialSeason) {
+                return api.getEpisodes(data.Id, initialSeason).then((e) => {
                   if (!cancelled) setEpisodes(e);
                 });
               }
@@ -53,7 +71,7 @@ export function ItemDetail() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-  }, [id]);
+  }, [id, navigate, searchParams]);
 
   useEffect(() => {
     if (!item || item.Type !== "Series" || !selectedSeasonId) return;
@@ -68,6 +86,15 @@ export function ItemDetail() {
       cancelled = true;
     };
   }, [item, selectedSeasonId]);
+
+  // Scroll highlighted episode into view when episodes load
+  useEffect(() => {
+    if (!highlightEpisodeId || episodes.length === 0) return;
+    highlightedEpisodeRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [highlightEpisodeId, episodes]);
 
   if (loading || !item) {
     return (
@@ -202,12 +229,17 @@ export function ItemDetail() {
               {episodes.map((ep) => (
                 <button
                   key={ep.Id}
+                  ref={ep.Id === highlightEpisodeId ? highlightedEpisodeRef : undefined}
                   type="button"
                   onClick={() => {
                     play(ep);
                     navigate("/player");
                   }}
-                  className="flex w-full items-center gap-4 rounded-xl bg-surface p-3 text-left transition-colors hover:bg-white/10"
+                  className={`flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors hover:bg-white/10 ${
+                    ep.Id === highlightEpisodeId
+                      ? "bg-primary/20 ring-2 ring-primary"
+                      : "bg-surface"
+                  }`}
                 >
                   <span className="flex h-12 w-20 shrink-0 overflow-hidden rounded-lg bg-surface-elevated">
                     <img
