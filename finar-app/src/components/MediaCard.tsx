@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { ListMusic, Bookmark } from "lucide-react";
 import type { MediaItem } from "../types/jellyfin";
 import { getDisplayImageUrl } from "../utils/image";
 
@@ -30,6 +31,11 @@ export function MediaCard({
       ? `S${item.ParentIndexNumber ?? 0} E${item.IndexNumber ?? 0}`
       : item.ProductionYear?.toString());
   const imageUrl = getDisplayImageUrl(item, { maxWidth: 400 });
+  const isPlaylist = item.Type === "Playlist";
+  const isWatchlist = displayTitle.toLowerCase().includes("watchlist");
+  const showIconPlaceholder =
+    !imageUrl || (isPlaylist && !item.ImageTags?.Primary);
+  const PlaceholderIcon = isWatchlist ? Bookmark : ListMusic;
 
   return (
     <motion.div
@@ -40,16 +46,22 @@ export function MediaCard({
       onClick={onClick}
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-surface-elevated shadow-lg transition transform group-hover:scale-[1.02] group-hover:shadow-xl">
-        <img
-          src={imageUrl}
-          alt={displayTitle}
-          className="h-full w-full object-cover"
-          loading="lazy"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' fill='%23242428'%3E%3Crect width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23707070' font-size='14'%3ENo image%3C/text%3E%3C/svg%3E";
-          }}
-        />
+        {showIconPlaceholder ? (
+          <div className="flex h-full w-full items-center justify-center bg-surface text-text-tertiary">
+            <PlaceholderIcon className="h-16 w-16 shrink-0 opacity-60" />
+          </div>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={displayTitle}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' fill='%23242428'%3E%3Crect width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23707070' font-size='14'%3ENo image%3C/text%3E%3C/svg%3E";
+            }}
+          />
+        )}
         {showProgress && progress > 0 && progress < 1 && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/50">
             <div
