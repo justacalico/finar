@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Play } from "lucide-react";
 import { api } from "../api/jellyfin";
+import { AlbumCard } from "../components/AlbumCard";
 import { MediaCard } from "../components/MediaCard";
 import { usePlayerStore } from "../stores/player";
 import type { MediaItem, Library as LibraryType } from "../types/jellyfin";
@@ -214,7 +215,7 @@ export function Library() {
               {albums.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {albums.map((album, i) => (
-                    <MediaCard
+                    <AlbumCard
                       key={album.Id}
                       item={album}
                       index={i}
