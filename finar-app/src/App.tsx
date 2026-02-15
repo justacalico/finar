@@ -8,6 +8,7 @@ import { Home } from "./pages/Home";
 import { Search } from "./pages/Search";
 import { Favorites } from "./pages/Favorites";
 import { Library } from "./pages/Library";
+import { LibraryList } from "./pages/LibraryList";
 import { ItemDetail } from "./pages/ItemDetail";
 import { Player } from "./pages/Player";
 import { Settings } from "./pages/Settings";
@@ -36,7 +37,10 @@ function AppRoutes() {
         <Route path="search" element={<Search />} />
         <Route path="favorites" element={<Favorites />} />
         <Route path="downloads" element={<Downloads />} />
-        <Route path="library/:id" element={<Library />} />
+        <Route path="library">
+          <Route index element={<LibraryList />} />
+          <Route path=":id" element={<Library />} />
+        </Route>
         <Route path="item/:id" element={<ItemDetail />} />
         <Route path="settings" element={<Settings />} />
       </Route>
