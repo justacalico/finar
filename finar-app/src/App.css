@@ -114,3 +114,12 @@ button {
     background-color: #0f0f0f69;
   }
 }
+
+/* Video.js player: fill container (player page) */
+.video-js-wrapper .video-js {
+  width: 100%;
+  height: 100%;
+}
+.video-js-wrapper .video-js .vjs-tech {
+  object-fit: contain;
+}

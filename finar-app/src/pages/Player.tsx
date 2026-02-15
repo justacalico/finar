@@ -1,21 +1,65 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Hls from "hls.js";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { usePlayerStore } from "../stores/player";
 import { api } from "../api/jellyfin";
 
-/** Native HLS support (Safari, iOS). Use native src for .m3u8 on these. */
-function canPlayHlsNatively(): boolean {
-  if (typeof document === "undefined" || !document.createElement("video").canPlayType) return false;
-  const v = document.createElement("video");
-  return v.canPlayType("application/vnd.apple.mpegurl") !== "";
+/** Ref used by the xhr wrapper to append auth to HLS segment requests. */
+const hlsAuthQueryRef = { current: "" };
+
+/** Wrap videojs.xhr so every request gets HLS auth query string (for Jellyfin segment auth). */
+function installVideoJsXhrAuthWrapper() {
+  const xhr = videojs.xhr as typeof videojs.xhr & {
+    requestInterceptorsStorage?: { enable(): void };
+    requestType?: string;
+  };
+  if (typeof xhr !== "function" || (xhr as unknown as { __authWrapped?: boolean }).__authWrapped) {
+    return;
+  }
+  const original = xhr;
+  const wrapped = function (
+    this: unknown,
+    uri: string | Record<string, unknown>,
+    options?: Record<string, unknown> | ((err: unknown, a?: unknown, b?: unknown) => void),
+    callback?: (err: unknown, a?: unknown, b?: unknown) => void
+  ) {
+    let opts: Record<string, unknown>;
+    let cb: (err: unknown, a?: unknown, b?: unknown) => void;
+    if (typeof options === "function") {
+      cb = options;
+      opts = typeof uri === "string" ? { uri } : { ...uri } as Record<string, unknown>;
+    } else if (options && typeof callback === "function") {
+      cb = callback;
+      opts = { ...options, uri: typeof uri === "string" ? uri : (options as Record<string, unknown>).uri };
+    } else {
+      cb = options as (err: unknown, a?: unknown, b?: unknown) => void;
+      opts = typeof uri === "string" ? { uri } : { ...uri } as Record<string, unknown>;
+    }
+    const auth = hlsAuthQueryRef.current;
+    const u = (opts.uri as string) || (opts.url as string);
+    if (auth && u) {
+      const withAuth = u + (u.includes("?") ? "&" : "?") + auth;
+      opts.uri = withAuth;
+      opts.url = withAuth;
+    }
+    return (original as (...args: unknown[]) => unknown).call(this, opts, cb);
+  };
+  (wrapped as unknown as { __authWrapped?: boolean }).__authWrapped = true;
+  Object.keys(original).forEach((k) => {
+    const key = k as keyof typeof original;
+    if (typeof (original as Record<string, unknown>)[key] === "function" || (original as Record<string, unknown>)[key] != null) {
+      (wrapped as Record<string, unknown>)[key] = (original as Record<string, unknown>)[key];
+    }
+  });
+  (videojs as unknown as { xhr: typeof videojs.xhr }).xhr = wrapped as typeof videojs.xhr;
 }
 
 export function Player() {
   const navigate = useNavigate();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
   const sessionRef = useRef<{ sid?: string; mediaSourceId?: string }>({});
   const {
     currentItem,
@@ -38,6 +82,10 @@ export function Player() {
   } | null>(null);
   const controlsTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+
+  useEffect(() => {
+    installVideoJsXhrAuthWrapper();
+  }, []);
 
   // Load playback info and derive stream URL (direct or HLS)
   useEffect(() => {
@@ -79,18 +127,6 @@ export function Player() {
           PositionTicks: currentItem.UserData?.PlaybackPositionTicks,
           PlaySessionId: sid,
         });
-        progressIntervalRef.current = setInterval(() => {
-          if (videoRef.current && sessionRef.current.sid) {
-            setPosition(videoRef.current.currentTime);
-            setDuration(videoRef.current.duration);
-            api.reportPlaybackProgress({
-              ItemId: currentItem.Id,
-              PositionTicks: Math.floor(videoRef.current.currentTime * 10_000_000),
-              IsPaused: videoRef.current.paused,
-              PlaySessionId: sessionRef.current.sid,
-            });
-          }
-        }, 5000);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -105,99 +141,123 @@ export function Player() {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = undefined;
       }
-      destroyHls();
+      hlsAuthQueryRef.current = "";
+      const player = playerRef.current;
+      const pos = player && !player.isDisposed() ? player.currentTime() : 0;
       const { sid } = sessionRef.current;
-      if (sid && videoRef.current) {
+      if (sid && currentItem) {
         api.reportPlaybackStopped({
           ItemId: currentItem.Id,
-          PositionTicks: Math.floor(videoRef.current.currentTime * 10_000_000),
+          PositionTicks: Math.floor(pos * 10_000_000),
           PlaySessionId: sid,
         });
       }
       sessionRef.current = {};
     };
-  }, [currentItem?.Id]);
+  }, [currentItem?.Id, navigate]);
 
-  // Attach stream to video element (runs when streamConfig and ref are ready)
+  // Create Video.js player and set source when streamConfig is ready
   useEffect(() => {
-    if (!streamConfig || !videoRef.current) return;
+    if (!streamConfig || !containerRef.current) return;
     setPlaybackError(null);
     const { streamUrl, isHls, startTimeTicks } = streamConfig;
     const startSec = startTimeTicks / 10_000_000;
-    setStreamUrlOnVideo(videoRef.current, streamUrl, isHls, () => {
-      if (!videoRef.current) return;
-      videoRef.current.currentTime = startSec;
-      videoRef.current.play().catch((err) => {
+
+    if (isHls && streamUrl.includes(".m3u8")) {
+      try {
+        const u = new URL(streamUrl);
+        hlsAuthQueryRef.current = u.searchParams.toString();
+      } catch {
+        hlsAuthQueryRef.current = "";
+      }
+    } else {
+      hlsAuthQueryRef.current = "";
+    }
+
+    const videoEl = document.createElement("video-js");
+    videoEl.classList.add("vjs-big-play-centered");
+    videoEl.setAttribute("playsinline", "");
+    videoEl.setAttribute("disablepictureinpicture", "");
+    videoEl.setAttribute("disableremoteplayback", "");
+    containerRef.current.innerHTML = "";
+    containerRef.current.appendChild(videoEl);
+
+    const player = videojs(videoEl, {
+      controls: false,
+      autoplay: false,
+      preload: "auto",
+      fluid: true,
+      html5: { vhs: { overrideNative: true } },
+    });
+    playerRef.current = player;
+
+    const sourceType = isHls ? "application/x-mpegURL" : "video/mp4";
+    player.src({ src: streamUrl, type: sourceType });
+
+    player.ready(() => {
+      player.muted(muted);
+      progressIntervalRef.current = setInterval(() => {
+        const p = playerRef.current;
+        if (p && !p.isDisposed() && sessionRef.current.sid) {
+          const t = p.currentTime();
+          const d = p.duration();
+          if (Number.isFinite(t)) setPosition(t);
+          if (Number.isFinite(d)) setDuration(d);
+          api.reportPlaybackProgress({
+            ItemId: currentItem!.Id,
+            PositionTicks: Math.floor(t * 10_000_000),
+            IsPaused: p.paused(),
+            PlaySessionId: sessionRef.current.sid,
+          });
+        }
+      }, 5000);
+    });
+
+    player.on("loadedmetadata", () => {
+      player.currentTime(startSec);
+      player.play().catch((err: unknown) => {
         setPlaybackError(err instanceof Error ? err.message : "Playback failed to start.");
       });
     });
-    return () => destroyHls();
-  }, [streamConfig]);
 
-  function destroyHls() {
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-  }
+    player.on("timeupdate", () => {
+      const t = player.currentTime();
+      const d = player.duration();
+      if (Number.isFinite(t)) setPosition(t);
+      if (Number.isFinite(d)) setDuration(d);
+    });
 
-  function setStreamUrlOnVideo(
-    video: HTMLVideoElement | null,
-    streamUrl: string,
-    isHls: boolean,
-    onReady: () => void
-  ) {
-    if (!video) return;
-    destroyHls();
-    video.removeAttribute("src");
-    if (isHls && streamUrl.includes(".m3u8")) {
-      if (Hls.isSupported() && !canPlayHlsNatively()) {
-        const manifestUrl = new URL(streamUrl);
-        const authParams = manifestUrl.searchParams.toString();
-        if (!authParams) {
-          video.src = streamUrl;
-          video.addEventListener("loadedmetadata", () => onReady(), { once: true });
-          return;
-        }
-        const manifestBase = streamUrl.split("?")[0];
-        const hls = new Hls({
-          enableWorker: true,
-          fetchSetup: (context, initParams) => {
-            const resolved = new URL(context.url, manifestBase);
-            const sep = resolved.search ? "&" : "?";
-            const urlWithAuth = resolved.href + sep + authParams;
-            return new Request(urlWithAuth, initParams);
-          },
-        });
-        hlsRef.current = hls;
-        hls.loadSource(streamUrl);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => onReady());
-        hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) {
-            destroyHls();
-            const msg = data.details ?? data.type ?? "HLS error";
-            setPlaybackError(`Stream error: ${msg}`);
-          }
-        });
-      } else {
-        video.src = streamUrl;
-        video.addEventListener("loadedmetadata", () => onReady(), { once: true });
+    player.on("play", () => usePlayerStore.setState({ isPlaying: true }));
+    player.on("pause", () => usePlayerStore.setState({ isPlaying: false }));
+    player.on("ended", () => playNext());
+
+    player.on("error", () => {
+      const err = player.error();
+      const msg = err ? (err.message || getVideoErrorMessage(err)) : "Playback failed.";
+      setPlaybackError(msg);
+    });
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = undefined;
       }
-    } else {
-      video.src = streamUrl;
-      video.addEventListener("loadedmetadata", () => onReady(), { once: true });
-    }
-  }
+      if (player && !player.isDisposed()) {
+        player.dispose();
+        playerRef.current = null;
+      }
+      hlsAuthQueryRef.current = "";
+    };
+  }, [streamConfig, currentItem?.Id, setPosition, setDuration, playNext, setPlaybackError]);
 
   const handlePlayPause = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play().catch(() => {});
+    const p = playerRef.current;
+    if (!p || p.isDisposed()) return;
+    if (p.paused()) {
+      p.play().catch(() => {});
       usePlayerStore.setState({ isPlaying: true });
     } else {
-      v.pause();
+      p.pause();
       usePlayerStore.setState({ isPlaying: false });
     }
   };
@@ -216,9 +276,10 @@ export function Player() {
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
-  function getVideoErrorMessage(e: MediaError | null): string {
+  function getVideoErrorMessage(e: MediaError | { code?: number; message?: string } | null): string {
     if (!e) return "Playback failed.";
-    switch (e.code) {
+    const code = "code" in e ? e.code : undefined;
+    switch (code) {
       case MediaError.MEDIA_ERR_ABORTED:
         return "Playback was aborted.";
       case MediaError.MEDIA_ERR_NETWORK:
@@ -228,7 +289,7 @@ export function Player() {
       case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
         return "This format is not supported or the stream is unavailable.";
       default:
-        return e.message || "Playback failed.";
+        return (e as { message?: string }).message || "Playback failed.";
     }
   }
 
@@ -262,28 +323,20 @@ export function Player() {
       onMouseLeave={() => setShowControls(false)}
       onTouchStart={toggleControls}
     >
-      <video
-        ref={videoRef}
-        className="h-full w-full object-contain"
-        playsInline
-        muted={muted}
-        disablePictureInPicture
-        disableRemotePlayback
-        onError={() => {
-          const v = videoRef.current;
-          setPlaybackError(getVideoErrorMessage(v?.error ?? null));
-        }}
-        onTimeUpdate={() => {
-          if (videoRef.current) {
-            setPosition(videoRef.current.currentTime);
-            setDuration(videoRef.current.duration);
-          }
-        }}
-        onEnded={() => playNext()}
-        onPlay={() => usePlayerStore.setState({ isPlaying: true })}
-        onPause={() => usePlayerStore.setState({ isPlaying: false })}
+      <div
+        className="h-full w-full cursor-pointer"
         onClick={handlePlayPause}
-      />
+        onKeyDown={(e) => e.key === " " && handlePlayPause()}
+        role="button"
+        tabIndex={0}
+        aria-label="Play or pause"
+      >
+        <div
+          ref={containerRef}
+          className="video-js-wrapper h-full w-full vjs-fluid"
+          data-vjs-player
+        />
+      </div>
 
       {showControls && (
         <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/80 via-transparent to-black/50 p-4 pointer-events-none">
@@ -318,8 +371,9 @@ export function Player() {
               value={position}
               onChange={(e) => {
                 const v = Number(e.target.value);
-                if (videoRef.current) {
-                  videoRef.current.currentTime = v;
+                const p = playerRef.current;
+                if (p && !p.isDisposed()) {
+                  p.currentTime(v);
                   setPosition(v);
                 }
               }}
@@ -354,7 +408,11 @@ export function Player() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMuted((m) => !m)}
+                  onClick={() => {
+                    setMuted((m) => !m);
+                    const p = playerRef.current;
+                    if (p && !p.isDisposed()) p.muted(!muted);
+                  }}
                   className="rounded-full p-2 text-white hover:bg-white/20 touch-manipulation"
                 >
                   {muted ? (
