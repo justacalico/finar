@@ -35,10 +35,32 @@ export function Library() {
         ],
       }),
     ])
-      .then(([lib, result]) => {
+      .then(async ([lib, result]) => {
         if (cancelled) return;
         setLibrary(lib ?? null);
-        setItems(result?.Items ?? []);
+        let list = result?.Items ?? [];
+        // For Playlists library: fetch all playlists (incl. music) so the tab shows everything
+        if (lib?.CollectionType?.toLowerCase() === "playlists") {
+          const allPlaylists = await api.getItems({
+            includeItemTypes: ["Playlist"],
+            recursive: true,
+            limit: 100,
+            sortBy: "SortName",
+            sortOrder: "Ascending",
+            fields: ["Overview"],
+          });
+          const playlists = allPlaylists?.Items ?? [];
+          if (playlists.length > 0) {
+            const byId = new Map(list.map((i) => [i.Id, i]));
+            for (const p of playlists) {
+              if (!byId.has(p.Id)) byId.set(p.Id, p);
+            }
+            list = [...byId.values()].sort((a, b) =>
+              (a.Name ?? "").localeCompare(b.Name ?? "")
+            );
+          }
+        }
+        setItems(list);
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
