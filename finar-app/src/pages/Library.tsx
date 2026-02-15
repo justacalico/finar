@@ -31,6 +31,8 @@ export function Library() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [musicTab, setMusicTab] = useState<MusicTab>("albums");
+  const [tracksLoaded, setTracksLoaded] = useState(false);
+  const [tracksLoading, setTracksLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,105 +41,103 @@ export function Library() {
     setAlbums([]);
     setArtists([]);
     setTracks([]);
-    Promise.all([
-      api.getLibraries().then((libs) => libs.find((l) => l.Id === id)),
-      api.getItems({
-        parentId: id,
-        limit: 100,
-        recursive: true,
-        sortBy: "SortName",
-        sortOrder: "Ascending",
-        fields: ["Overview"],
-        excludeItemTypes: [
-          "Season",
-          "Episode",
-          "Audio",
-          "Folder",
-          "CollectionFolder",
-          "UserView",
-        ],
-      }),
-    ])
-      .then(async ([lib, result]) => {
+
+    const load = async () => {
+      const [libs, genericRes, albumsRes, artistsRes, directChildrenRes] = await Promise.all([
+        api.getLibraries(),
+        api.getItems({
+          parentId: id,
+          limit: 100,
+          recursive: true,
+          sortBy: "SortName",
+          sortOrder: "Ascending",
+          fields: ["Overview"],
+          excludeItemTypes: [
+            "Season",
+            "Episode",
+            "Audio",
+            "Folder",
+            "CollectionFolder",
+            "UserView",
+          ],
+        }),
+        api.getItems({
+          parentId: id,
+          includeItemTypes: ["MusicAlbum"],
+          recursive: true,
+          limit: 200,
+          sortBy: "SortName",
+          sortOrder: "Ascending",
+          fields: ["Overview"],
+        }),
+        api.getItems({
+          parentId: id,
+          includeItemTypes: ["MusicArtist", "Folder"],
+          recursive: true,
+          limit: 200,
+          sortBy: "SortName",
+          sortOrder: "Ascending",
+          fields: ["Overview"],
+        }),
+        api.getItems({
+          parentId: id,
+          recursive: false,
+          limit: 100,
+          sortBy: "SortName",
+          sortOrder: "Ascending",
+          fields: ["Overview"],
+          excludeItemTypes: ["Playlist", "UserView", "CollectionFolder"],
+        }),
+      ]);
+
+      if (cancelled) return;
+      const lib = libs.find((l) => l.Id === id) ?? null;
+      setLibrary(lib);
+
+      if (isMusicLibrary(lib)) {
+        setAlbums(albumsRes?.Items ?? []);
+        const artistItems = artistsRes?.Items ?? [];
+        const directChildren = directChildrenRes?.Items ?? [];
+        const hasRealArtists = artistItems.length > 0;
+        const artistFolders =
+          !hasRealArtists && directChildren.length > 0
+            ? directChildren.filter(
+                (i) => i.Type === "Folder" || i.Type === "MusicArtist"
+              )
+            : [];
+        setArtists(hasRealArtists ? artistItems : artistFolders);
+        setItems([]);
+      } else if (lib?.CollectionType?.toLowerCase() === "playlists") {
+        const list = genericRes?.Items ?? [];
+        const allPlaylists = await api.getItems({
+          includeItemTypes: ["Playlist"],
+          recursive: true,
+          limit: 100,
+          sortBy: "SortName",
+          sortOrder: "Ascending",
+          fields: ["Overview"],
+        });
         if (cancelled) return;
-        setLibrary(lib ?? null);
-        let list = result?.Items ?? [];
-        if (isMusicLibrary(lib ?? null)) {
-          const [albumsRes, artistsRes, tracksRes, directChildrenRes] = await Promise.all([
-            api.getItems({
-              parentId: id!,
-              includeItemTypes: ["MusicAlbum"],
-              recursive: true,
-              limit: 200,
-              sortBy: "SortName",
-              sortOrder: "Ascending",
-              fields: ["Overview"],
-            }),
-            api.getItems({
-              parentId: id!,
-              includeItemTypes: ["MusicArtist", "Folder"],
-              recursive: true,
-              limit: 200,
-              sortBy: "SortName",
-              sortOrder: "Ascending",
-              fields: ["Overview"],
-            }),
-            api.getItems({
-              parentId: id!,
-              includeItemTypes: ["Audio"],
-              recursive: true,
-              limit: 500,
-              sortBy: "SortName",
-              sortOrder: "Ascending",
-              fields: ["Overview", "MediaSources"],
-            }),
-            api.getItems({
-              parentId: id!,
-              recursive: false,
-              limit: 100,
-              sortBy: "SortName",
-              sortOrder: "Ascending",
-              fields: ["Overview"],
-              excludeItemTypes: ["Playlist", "UserView", "CollectionFolder"],
-            }),
-          ]);
-          if (!cancelled) {
-            setAlbums(albumsRes?.Items ?? []);
-            const artistItems = artistsRes?.Items ?? [];
-            const directChildren = directChildrenRes?.Items ?? [];
-            const hasRealArtists = artistItems.length > 0;
-            const artistFolders =
-              !hasRealArtists && directChildren.length > 0
-                ? directChildren.filter(
-                    (i) => i.Type === "Folder" || i.Type === "MusicArtist"
-                  )
-                : [];
-            setArtists(hasRealArtists ? artistItems : artistFolders);
-            setTracks(tracksRes?.Items ?? []);
+        const playlists = allPlaylists?.Items ?? [];
+        if (playlists.length > 0) {
+          const byId = new Map(list.map((i) => [i.Id, i]));
+          for (const p of playlists) {
+            if (!byId.has(p.Id)) byId.set(p.Id, p);
           }
-          list = [];
-        } else if (lib?.CollectionType?.toLowerCase() === "playlists") {
-          const allPlaylists = await api.getItems({
-            includeItemTypes: ["Playlist"],
-            recursive: true,
-            limit: 100,
-            sortBy: "SortName",
-            sortOrder: "Ascending",
-            fields: ["Overview"],
-          });
-          const playlists = allPlaylists?.Items ?? [];
-          if (playlists.length > 0) {
-            const byId = new Map(list.map((i) => [i.Id, i]));
-            for (const p of playlists) {
-              if (!byId.has(p.Id)) byId.set(p.Id, p);
-            }
-            list = [...byId.values()].sort((a, b) =>
+          setItems(
+            [...byId.values()].sort((a, b) =>
               (a.Name ?? "").localeCompare(b.Name ?? "")
-            );
-          }
+            )
+          );
+        } else {
+          setItems(list);
         }
-        setItems(list);
-      })
+      } else {
+        setItems(genericRes?.Items ?? []);
+      }
+    };
+
+    load()
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
       })
@@ -149,8 +149,35 @@ export function Library() {
     };
   }, [id]);
 
-  const play = usePlayerStore((s) => s.play);
   const musicLibrary = isMusicLibrary(library);
+  useEffect(() => {
+    if (!id || !musicLibrary || !tracksLoaded) return;
+    let cancelled = false;
+    setTracksLoading(true);
+    api
+      .getItems({
+        parentId: id,
+        includeItemTypes: ["Audio"],
+        recursive: true,
+        limit: 500,
+        sortBy: "SortName",
+        sortOrder: "Ascending",
+        fields: ["Overview"],
+      })
+      .then((res) => {
+        if (!cancelled) setTracks(res?.Items ?? []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setTracksLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      setTracksLoading(false);
+    };
+  }, [id, musicLibrary, tracksLoaded]);
+
+  const play = usePlayerStore((s) => s.play);
 
   if (loading) {
     return (
@@ -198,7 +225,10 @@ export function Library() {
                 type="button"
                 role="tab"
                 aria-selected={musicTab === tab}
-                onClick={() => setMusicTab(tab)}
+                onClick={() => {
+                  setMusicTab(tab);
+                  if (tab === "tracks") setTracksLoaded(true);
+                }}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   musicTab === tab
                     ? "bg-primary text-background"
@@ -250,7 +280,11 @@ export function Library() {
 
           {musicTab === "tracks" && (
             <section role="tabpanel" aria-labelledby="tab-tracks">
-              {tracks.length > 0 ? (
+              {tracksLoading ? (
+                <div className="flex min-h-[20vh] items-center justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              ) : tracks.length > 0 ? (
                 <div className="rounded-xl bg-surface">
                   <div className="divide-y divide-white/10">
                     {tracks.map((track) => {
