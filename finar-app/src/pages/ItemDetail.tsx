@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Play, Plus, Star, ArrowLeft, Download, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Play,
+  Plus,
+  Star,
+  ArrowLeft,
+  Download,
+  Loader2,
+  CheckCircle2,
+  DownloadCloud,
+  FolderDown,
+} from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
 import { useDownloadsStore } from "../stores/downloads";
@@ -21,9 +31,11 @@ export function ItemDetail() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
   const [highlightEpisodeId, setHighlightEpisodeId] = useState<string | null>(null);
+  const [downloadingAll, setDownloadingAll] = useState(false);
   const highlightedEpisodeRef = useRef<HTMLButtonElement | null>(null);
   const { play, playLocalFile } = usePlayerStore();
-  const { isTauriEnv, getTaskForItem, startDownload, cancelDownload } = useDownloadsStore();
+  const { isTauriEnv, getTaskForItem, startDownload, cancelDownload, isItemDownloaded } =
+    useDownloadsStore();
 
   useEffect(() => {
     if (!id) return;
@@ -137,6 +149,40 @@ export function ItemDetail() {
     if (isPlayable && item.Type !== "Audio") navigate("/player");
   };
 
+  const handleDownloadSeason = () => {
+    if (!isTauriEnv || episodes.length === 0) return;
+    episodes.forEach((ep) => {
+      if (!isItemDownloaded(ep.Id)) {
+        const task = getTaskForItem(ep.Id);
+        if (!task || (task.status !== "downloading" && task.status !== "pending")) {
+          startDownload(ep);
+        }
+      }
+    });
+  };
+
+  const handleDownloadAll = async () => {
+    if (!isTauriEnv || item?.Type !== "Series" || seasons.length === 0) return;
+    setDownloadingAll(true);
+    try {
+      const allEpisodes: MediaItem[] = [];
+      for (const season of seasons) {
+        const list = await api.getEpisodes(item.Id, season.Id);
+        allEpisodes.push(...list);
+      }
+      allEpisodes.forEach((ep) => {
+        if (!isItemDownloaded(ep.Id)) {
+          const task = getTaskForItem(ep.Id);
+          if (!task || (task.status !== "downloading" && task.status !== "pending")) {
+            startDownload(ep);
+          }
+        }
+      });
+    } finally {
+      setDownloadingAll(false);
+    }
+  };
+
   return (
     <div className="pb-20">
       <div className="relative h-[45vw] max-h-[500px] min-h-[240px] w-full overflow-hidden">
@@ -236,6 +282,22 @@ export function ItemDetail() {
                     </Button>
                   );
                 })()}
+                {isTauriEnv && isSeries && (
+                  <Button
+                    variant="outline"
+                    leftIcon={
+                      downloadingAll ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <DownloadCloud className="h-4 w-4" />
+                      )
+                    }
+                    onClick={handleDownloadAll}
+                    disabled={downloadingAll || seasons.length === 0}
+                  >
+                    {downloadingAll ? "Preparing…" : "Download all"}
+                  </Button>
+                )}
                 <Button variant="outline" leftIcon={<Plus className="h-4 w-4" />}>
                   Add to list
                 </Button>
@@ -279,9 +341,21 @@ export function ItemDetail() {
 
         {isSeries && episodes.length > 0 && (
           <section className="mb-8">
-            <h2 className="mb-4 text-lg font-semibold text-text-primary">
-              Episodes
-            </h2>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-text-primary">
+                Episodes
+              </h2>
+              {isTauriEnv && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<FolderDown className="h-4 w-4" />}
+                  onClick={handleDownloadSeason}
+                >
+                  Download season
+                </Button>
+              )}
+            </div>
             <div className="space-y-2">
               {episodes.map((ep) => (
                 <button
@@ -315,6 +389,62 @@ export function ItemDetail() {
                       </p>
                     )}
                   </div>
+                  {isTauriEnv && (() => {
+                    const task = getTaskForItem(ep.Id);
+                    if (task?.status === "completed" && task.localPath) {
+                      return (
+                        <span
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary"
+                          title="Downloaded"
+                        >
+                          <CheckCircle2 className="h-5 w-5" />
+                        </span>
+                      );
+                    }
+                    if (task?.status === "downloading" || task?.status === "pending") {
+                      return (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelDownload(task.id);
+                          }}
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary hover:bg-white/10"
+                          title="Cancel download"
+                        >
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        </button>
+                      );
+                    }
+                    if (task?.status === "failed") {
+                      return (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startDownload(ep);
+                          }}
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-white/10 hover:text-primary"
+                          title="Retry download"
+                        >
+                          <Download className="h-5 w-5" />
+                        </button>
+                      );
+                    }
+                    return (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startDownload(ep);
+                        }}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-white/10 hover:text-primary"
+                        title="Download episode"
+                      >
+                        <Download className="h-5 w-5" />
+                      </button>
+                    );
+                  })()}
                   <Play className="h-5 w-5 shrink-0 text-primary" fill="currentColor" />
                 </button>
               ))}
