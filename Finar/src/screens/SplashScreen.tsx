@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
+import { Play } from 'lucide-react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -47,7 +48,7 @@ export function SplashScreen() {
         style={logoAnimated}
         className="w-20 h-20 rounded-[20px] bg-finar-primary items-center justify-center shadow-finar-glow"
       >
-        <Text className="text-4xl text-finar-text-on-primary">▶</Text>
+        <Play size={36} color="#0D0D0F" fill="#0D0D0F" />
       </Animated.View>
       <Animated.Text
         style={[titleAnimated, { fontFamily: 'Outfit_600SemiBold' }]}

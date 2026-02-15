@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   LibraryBig,
+  Play,
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLibrary } from '../../context/LibraryContext';
@@ -101,11 +102,7 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
     <View className="w-[280px] bg-[#0D0D0F] px-4 pt-6 pb-4 border-r border-white/5">
       <View className="flex-row items-center gap-3 px-2 mb-8">
         <View className="w-11 h-11 rounded-xl bg-finar-primary items-center justify-center shadow-finar-glow">
-          <View className="w-5 h-5 rounded-full bg-[#041B18] items-center justify-center">
-            <Text className="text-[9px] text-finar-primary ml-[1px]" style={{ fontFamily: 'Outfit_600SemiBold' }}>
-              ▶
-            </Text>
-          </View>
+          <Play size={20} color="#041B18" fill="#041B18" />
         </View>
         <Text className="text-[40px] leading-[42px] text-white" style={{ fontFamily: 'Outfit_600SemiBold' }}>
           Finar
@@ -248,15 +245,15 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
           {title}
         </Text>
         <TouchableOpacity onPress={() => go('Settings')}>
-          <Text className="text-xl">⚙</Text>
+          <Settings size={22} color="#B0B0B0" />
         </TouchableOpacity>
       </View>
       <View className="flex-1">{children}</View>
       <View className="flex-row border-t border-finar-divider bg-finar-bg-secondary pb-6 pt-2">
-        <MobileNavButton icon="⌂" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
-        <MobileNavButton icon="⌕" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
+        <MobileNavButton icon={<House size={22} color={activeTab === 'home' ? '#00E5B8' : '#707070'} />} label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
+        <MobileNavButton icon={<Search size={22} color={activeTab === 'search' ? '#00E5B8' : '#707070'} />} label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
         <MobileNavButton
-          icon="▦"
+          icon={<LibraryBig size={22} color={activeTab === 'library' ? '#00E5B8' : '#707070'} />}
           label="Library"
           active={activeTab === 'library'}
           onPress={() => go('Library', { libraryId: '' })}
@@ -272,14 +269,14 @@ function MobileNavButton({
   active,
   onPress,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   active: boolean;
   onPress: () => void;
 }) {
   return (
     <TouchableOpacity onPress={onPress} className="flex-1 items-center py-2">
-      <Text className="text-[22px]">{icon}</Text>
+      <View>{icon}</View>
       <Text
         className={`${active ? 'text-finar-primary' : 'text-finar-text-tertiary'} text-[11px] mt-1`}
         style={{ fontFamily: active ? 'Outfit_600SemiBold' : 'Outfit_400Regular' }}

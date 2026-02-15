@@ -10,7 +10,7 @@ import { Image } from 'expo-image';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { AppShell } from '../components/layout/AppShell';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Info, Star } from 'lucide-react-native';
+import { Play, Info, Star, Film, Music, Folder, Tv, LibraryBig, Image as ImageIcon } from 'lucide-react-native';
 
 export function HomeScreen() {
   const { width } = useWindowDimensions();
@@ -239,7 +239,9 @@ export function HomeScreen() {
                   className="w-44 px-4 py-4 rounded-finar-lg bg-finar-surface border border-finar-glass-border"
                   onPress={() => navigateToLibrary(lib.id, lib.collectionType)}
                 >
-                  <Text className="text-3xl">{getLibraryIcon(lib.collectionType)}</Text>
+                  <View className="mb-2">
+                    {getLibraryIconElement(lib.collectionType)}
+                  </View>
                   <Text
                     className="text-[15px] text-finar-text-primary mt-2"
                     numberOfLines={2}
@@ -260,17 +262,19 @@ export function HomeScreen() {
   );
 }
 
-function getLibraryIcon(collectionType?: string): string {
+function getLibraryIconElement(collectionType?: string): React.ReactNode {
+  const size = 32;
+  const color = '#B0B0B0';
   switch (collectionType?.toLowerCase()) {
     case 'movies':
-      return '🎬';
+      return <Film size={size} color={color} />;
     case 'tvshows':
-      return '📺';
+      return <Tv size={size} color={color} />;
     case 'music':
-      return '🎵';
+      return <Music size={size} color={color} />;
     case 'photos':
-      return '🖼';
+      return <ImageIcon size={size} color={color} />;
     default:
-      return '📁';
+      return <LibraryBig size={size} color={color} />;
   }
 }

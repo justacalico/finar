@@ -14,8 +14,24 @@ import { useLibrary } from '../context/LibraryContext';
 import { MediaCard } from '../components/MediaCard';
 import type { MediaItem, Library } from '../api/models';
 import { AppShell } from '../components/layout/AppShell';
+import { Film, Music, Folder, Tv, LibraryBig } from 'lucide-react-native';
 
 type RouteParams = { libraryId: string; isMusic?: boolean };
+
+function libraryIcon(collectionType?: string): React.ReactNode {
+  const size = 40;
+  const color = '#B0B0B0';
+  switch (collectionType?.toLowerCase()) {
+    case 'movies':
+      return <Film size={size} color={color} />;
+    case 'music':
+      return <Music size={size} color={color} />;
+    case 'tvshows':
+      return <Tv size={size} color={color} />;
+    default:
+      return <LibraryBig size={size} color={color} />;
+  }
+}
 
 export function LibraryScreen() {
   const route = useRoute();
@@ -90,15 +106,7 @@ export function LibraryScreen() {
                 })
               }
             >
-              <Text className="text-4xl mb-2">
-                {item.collectionType?.toLowerCase() === 'music'
-                  ? '🎵'
-                  : item.collectionType?.toLowerCase() === 'movies'
-                    ? '🎬'
-                    : item.collectionType?.toLowerCase() === 'tvshows'
-                      ? '📺'
-                      : '📁'}
-              </Text>
+              <View className="mb-2">{libraryIcon(item.collectionType)}</View>
               <Text className="text-base text-finar-text-primary" numberOfLines={2} style={{ fontFamily: 'Outfit_600SemiBold' }}>
                 {item.name}
               </Text>

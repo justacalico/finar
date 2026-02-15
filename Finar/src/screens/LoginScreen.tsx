@@ -18,6 +18,7 @@ import Animated, {
   FadeIn,
   FadeInDown,
 } from 'react-native-reanimated';
+import { Play } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 
 export function LoginScreen() {
@@ -137,7 +138,7 @@ export function LoginScreen() {
             className="items-center mb-12"
           >
             <View className="w-[76px] h-[76px] rounded-[18px] bg-finar-primary items-center justify-center shadow-finar-glow">
-              <Text className="text-[44px] text-finar-text-on-primary">▶</Text>
+              <Play size={40} color="#0D0D0F" fill="#0D0D0F" />
             </View>
             <Text
               className="text-[44px] font-semibold text-finar-primary mt-4 tracking-tight"
