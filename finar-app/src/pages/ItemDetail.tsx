@@ -159,8 +159,6 @@ export function ItemDetail() {
             </div>
           </div>
         </div>
-      </div>
-
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-8">
         {item.Overview && (
           <section className="mb-8">
