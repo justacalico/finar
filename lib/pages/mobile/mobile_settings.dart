@@ -535,6 +535,22 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
             trailing: const Icon(Icons.open_in_new_rounded, size: 20),
             onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
           ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          ListTile(
+            leading: const Icon(
+              Icons.privacy_tip_outlined,
+              color: AppColors.primary,
+            ),
+            title: const Text('Privacy Policy'),
+            subtitle: Text(
+              'We do not collect any data',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
+            trailing: const Icon(Icons.open_in_new_rounded, size: 20),
+            onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md'),
+          ),
         ],
       ),
     );

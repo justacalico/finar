@@ -754,6 +754,18 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
               trailing: const Icon(Icons.open_in_new, size: 20),
               onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
             ),
+            const Divider(color: AppColors.glassBorder),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.primary),
+              title: Text('Privacy Policy', style: AppTextStyles.bodyLarge),
+              subtitle: Text(
+                'We do not collect any data',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              ),
+              trailing: const Icon(Icons.open_in_new, size: 20),
+              onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md'),
+            ),
           ],
         ),
       ],
