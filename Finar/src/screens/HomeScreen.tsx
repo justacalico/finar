@@ -104,7 +104,7 @@ export function HomeScreen() {
               {/* Content anchored to bottom of hero */}
               <Animated.View
                 entering={FadeInDown.delay(140)}
-                className="absolute left-0 right-0 bottom-0 px-5 pb-6 pt-4"
+                className="absolute left-0 right-0 bottom-0 px-8 pb-8 pt-4"
                 style={{
                   top: 0,
                   maxWidth: isWide ? 980 : undefined,
