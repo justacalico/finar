@@ -7,6 +7,7 @@ import { getDisplayImageUrl, getBackdropUrl, formatRuntime, getPlaybackProgress 
 import type { MediaItem } from '../api/models';
 import { AppShell } from '../components/layout/AppShell';
 import { MediaCard } from '../components/MediaCard';
+import { Star } from 'lucide-react-native';
 
 type RouteParams = { itemId: string };
 
@@ -128,9 +129,12 @@ export function DetailScreen() {
                   </Text>
                 ) : null}
                 {item.communityRating != null ? (
-                  <Text className="text-sm text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
-                    ★ {item.communityRating.toFixed(1)}
-                  </Text>
+                  <View className="flex-row items-center gap-1">
+                    <Star size={12} color="#FBBF24" fill="#FBBF24" />
+                    <Text className="text-sm text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+                      {item.communityRating.toFixed(1)}
+                    </Text>
+                  </View>
                 ) : null}
               </View>
               <TouchableOpacity onPress={() => goPlayer(item.id)} className="mt-4 bg-finar-primary px-6 py-3 rounded-finar-md self-start">

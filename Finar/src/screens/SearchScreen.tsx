@@ -5,6 +5,7 @@ import { useLibrary } from '../context/LibraryContext';
 import { useJellyfinApi } from '../context/AuthContext';
 import { MediaCard } from '../components/MediaCard';
 import { AppShell } from '../components/layout/AppShell';
+import { Search as SearchIcon } from 'lucide-react-native';
 
 export function SearchScreen() {
   const navigation = useNavigation();
@@ -31,7 +32,7 @@ export function SearchScreen() {
       <View className="flex-1">
         <View className="px-4 pt-4 pb-3">
           <View className="flex-row items-center gap-2 rounded-finar-lg border border-finar-glass-border bg-finar-surface px-3">
-            <Text className="text-lg">🔎</Text>
+            <SearchIcon size={20} color="#707070" />
             <TextInput
               className="flex-1 py-3 text-base text-finar-text-primary"
               placeholder="Search movies, shows, music..."

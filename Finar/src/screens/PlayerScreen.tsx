@@ -11,6 +11,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { useJellyfinApi } from '../context/AuthContext';
 import { createMediaService } from '../api/mediaService';
+import { X } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 
@@ -155,7 +156,7 @@ export function PlayerScreen() {
         onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
       />
       <TouchableOpacity style={styles.closeButton} onPress={goBack}>
-        <Text style={styles.closeButtonText}>✕</Text>
+        <X size={24} color="#FFF" strokeWidth={2.5} />
       </TouchableOpacity>
     </View>
   );
