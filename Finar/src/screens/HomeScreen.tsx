@@ -9,6 +9,8 @@ import type { MediaItem } from '../api/models';
 import { Image } from 'expo-image';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { AppShell } from '../components/layout/AppShell';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Play, Info, Star } from 'lucide-react-native';
 
 export function HomeScreen() {
   const { width } = useWindowDimensions();
@@ -20,7 +22,7 @@ export function HomeScreen() {
 
   const serverUrl = api.serverUrl ?? '';
   const isWide = width >= 900;
-  const featuredHeight = useMemo(() => (isWide ? 390 : 290), [isWide]);
+  const featuredHeight = useMemo(() => (isWide ? 500 : 360), [isWide]);
   const sectionCardWidth = useMemo(() => {
     if (width >= 1600) return 200;
     if (width >= 1200) return 180;
@@ -75,7 +77,7 @@ export function HomeScreen() {
         {featuredItem && (
           <Animated.View entering={FadeIn.duration(450)} className="mx-4 mt-3 mb-7">
             <TouchableOpacity
-              className="rounded-finar-xl overflow-hidden border border-finar-glass-border shadow-finar-card"
+              className="rounded-[22px] overflow-hidden border border-white/10 shadow-finar-card"
               style={{ height: featuredHeight }}
               onPress={() => navigateToDetail(featuredItem.id)}
               activeOpacity={0.93}
@@ -84,43 +86,63 @@ export function HomeScreen() {
                 source={{ uri: getBackdropImageUrl(serverUrl, featuredItem, { width: 1400 }) }}
                 className="absolute inset-0 w-full h-full"
                 contentFit="cover"
+                style={{ transform: [{ scale: 1.05 }] }}
               />
-              <View className="absolute inset-0 bg-black/35" />
-              <View className="absolute inset-x-0 bottom-0 h-48 bg-black/55" />
-              <Animated.View entering={FadeInDown.delay(140)} className="absolute left-0 right-0 bottom-0 p-6">
-                <View className="flex-row items-center gap-2 mb-2">
+              <LinearGradient
+                colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0)']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 0 }}
+                style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+              />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.92)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0)']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+              />
+              <View className="absolute inset-0 bg-black/10" />
+              <Animated.View
+                entering={FadeInDown.delay(140)}
+                className="absolute left-0 right-0 bottom-0 px-5 pb-8 pt-20"
+                style={{ maxWidth: isWide ? 980 : undefined }}
+              >
+                <View className="flex-row items-center gap-2 mb-4">
                   {featuredItem.communityRating ? (
-                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
-                      <Text className="text-[11px] text-finar-warning" style={{ fontFamily: 'Outfit_500Medium' }}>
-                        ★ {featuredItem.communityRating.toFixed(1)}
+                    <View className="flex-row items-center gap-1 px-2.5 py-1 rounded-md bg-black/60 border border-white/10">
+                      <Star size={12} color="#FBBF24" fill="#FBBF24" />
+                      <Text className="text-[11px] text-white" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+                        {featuredItem.communityRating.toFixed(1)}
                       </Text>
                     </View>
                   ) : null}
                   {featuredItem.productionYear ? (
-                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
-                      <Text className="text-[11px] text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+                    <View className="px-2.5 py-1 rounded-md bg-black/60 border border-white/10">
+                      <Text className="text-[11px] text-white/80" style={{ fontFamily: 'Outfit_500Medium' }}>
                         {featuredItem.productionYear}
                       </Text>
                     </View>
                   ) : null}
                   {featuredItem.runtimeTicks ? (
-                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
-                      <Text className="text-[11px] text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+                    <View className="px-2.5 py-1 rounded-md bg-black/60 border border-white/10">
+                      <Text className="text-[11px] text-white/80" style={{ fontFamily: 'Outfit_500Medium' }}>
                         {formatRuntime(featuredItem.runtimeTicks)}
                       </Text>
                     </View>
                   ) : null}
                 </View>
                 <Text
-                  className="text-[30px] text-finar-text-primary"
+                  className={`${isWide ? 'text-[58px]' : 'text-[36px]'} text-white leading-none`}
                   style={{ fontFamily: 'Outfit_600SemiBold' }}
                   numberOfLines={2}
                 >
                   {getHeroTitle(featuredItem)}
                 </Text>
+                <Text className="text-white/60 text-base mt-1 mb-3" style={{ fontFamily: 'Outfit_500Medium' }}>
+                  {featuredItem.typeString ?? featuredItem.type ?? 'Media'}
+                </Text>
                 {featuredItem.overview ? (
                   <Text
-                    className="text-[13px] text-finar-text-secondary mt-1.5"
+                    className={`${isWide ? 'text-base' : 'text-sm'} text-white/80 mt-1 leading-6 max-w-[900px]`}
                     style={{ fontFamily: 'Outfit_400Regular' }}
                     numberOfLines={3}
                   >
@@ -128,16 +150,18 @@ export function HomeScreen() {
                   </Text>
                 ) : null}
                 <View className="flex-row gap-3 mt-4">
-                  <TouchableOpacity className="bg-finar-primary px-7 py-3 rounded-finar-md" onPress={() => navigateToPlayer(featuredItem)}>
-                    <Text className="text-finar-text-on-primary text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+                  <TouchableOpacity className="bg-finar-primary px-7 py-3 rounded-full flex-row items-center gap-2" onPress={() => navigateToPlayer(featuredItem)}>
+                    <Play size={18} color="#041B18" fill="#041B18" />
+                    <Text className="text-[#041B18] text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
                       Play
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    className="bg-white/10 border border-finar-glass-border px-7 py-3 rounded-finar-md"
+                    className="bg-white/5 border border-white/40 px-7 py-3 rounded-full flex-row items-center gap-2"
                     onPress={() => navigateToDetail(featuredItem.id)}
                   >
-                    <Text className="text-finar-text-primary text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+                    <Info size={18} color="#FFFFFF" />
+                    <Text className="text-white text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
                       More Info
                     </Text>
                   </TouchableOpacity>
