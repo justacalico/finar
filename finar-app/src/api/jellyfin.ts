@@ -465,10 +465,86 @@ export class JellyfinApi {
     );
   }
 
+  /** Pick best media source: direct play > direct stream > first (match Flutter directPlaySource). */
+  getBestPlaybackSource(
+    info: PlaybackInfo
+  ): (typeof info.MediaSources)[0] | undefined {
+    const sources = info.MediaSources ?? [];
+    const directPlay = sources.find((s) => s.SupportsDirectPlay === true);
+    if (directPlay) return directPlay;
+    const directStream = sources.find((s) => s.SupportsDirectStream === true);
+    if (directStream) return directStream;
+    return sources[0];
+  }
+
+  /**
+   * Resolve stream URL from playback info. Prefers server-provided TranscodingUrl/DirectStreamUrl
+   * when present; otherwise builds URL like Flutter (Container, Static for direct; full params for HLS).
+   */
+  getStreamUrlFromPlaybackInfo(
+    itemId: string,
+    info: PlaybackInfo,
+    options: {
+      startTimeTicks?: number;
+      audioStreamIndex?: number;
+      subtitleStreamIndex?: number;
+    } = {}
+  ): { streamUrl: string; isHls: boolean } {
+    const source = this.getBestPlaybackSource(info);
+    if (!source) throw new Error("No playable media source found");
+    const sid = info.PlaySessionId ?? undefined;
+    const auth = this.accessToken ?? "";
+    const startTicks = options.startTimeTicks;
+
+    const appendAuth = (url: string): string => {
+      const u = url.startsWith("http") ? url : `${this.baseUrl.replace(/\/$/, "")}${url.startsWith("/") ? "" : "/"}${url}`;
+      const parsed = new URL(u);
+      if (auth && !parsed.searchParams.has("api_key")) {
+        parsed.searchParams.set("api_key", auth);
+        return parsed.toString();
+      }
+      return u;
+    };
+
+    // Prefer server-provided URLs (Jellyfin may return full path with session params)
+    if (source.SupportsDirectPlay === true || source.SupportsDirectStream === true) {
+      if (source.DirectStreamUrl) {
+        return { streamUrl: appendAuth(source.DirectStreamUrl), isHls: false };
+      }
+      return {
+        streamUrl: this.getStreamUrl(itemId, {
+          mediaSourceId: source.Id,
+          container: source.Container,
+          static: true,
+          audioStreamIndex: options.audioStreamIndex ?? source.DefaultAudioStreamIndex ?? undefined,
+          subtitleStreamIndex: options.subtitleStreamIndex ?? source.DefaultSubtitleStreamIndex ?? undefined,
+          startTimeTicks: startTicks,
+        }),
+        isHls: false,
+      };
+    }
+
+    if (source.TranscodingUrl) {
+      return { streamUrl: appendAuth(source.TranscodingUrl), isHls: true };
+    }
+    return {
+      streamUrl: this.getHlsStreamUrl(itemId, {
+        mediaSourceId: source.Id,
+        playSessionId: sid,
+        audioStreamIndex: options.audioStreamIndex ?? source.DefaultAudioStreamIndex ?? undefined,
+        subtitleStreamIndex: options.subtitleStreamIndex ?? source.DefaultSubtitleStreamIndex ?? undefined,
+        startTimeTicks: startTicks,
+      }),
+      isHls: true,
+    };
+  }
+
   getStreamUrl(
     itemId: string,
     opts?: {
       mediaSourceId?: string;
+      container?: string;
+      static?: boolean;
       audioStreamIndex?: number;
       subtitleStreamIndex?: number;
       startTimeTicks?: number;
@@ -478,6 +554,8 @@ export class JellyfinApi {
       api_key: this.accessToken ?? "",
     };
     if (opts?.mediaSourceId) params.MediaSourceId = opts.mediaSourceId;
+    if (opts?.container) params.Container = opts.container;
+    if (opts?.static != null) params.Static = String(opts.static);
     if (opts?.audioStreamIndex != null)
       params.AudioStreamIndex = String(opts.audioStreamIndex);
     if (opts?.subtitleStreamIndex != null)

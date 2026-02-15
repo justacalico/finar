@@ -110,6 +110,7 @@ export interface PlaybackInfo {
 export interface MediaSourceData {
   Id: string;
   Name?: string;
+  Container?: string;
   DirectStreamUrl?: string;
   TranscodingUrl?: string;
   SupportsDirectPlay?: boolean;

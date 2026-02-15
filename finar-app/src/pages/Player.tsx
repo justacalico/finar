@@ -102,29 +102,28 @@ export function Player() {
       })
       .then((info) => {
         if (cancelled) return;
-        const source = info.MediaSources?.[0];
+        const source = api.getBestPlaybackSource(info);
+        if (!source) {
+          setPlaybackError("No playable media source found");
+          return;
+        }
         const sid = info.PlaySessionId ?? undefined;
-        sessionRef.current = { sid, mediaSourceId: source?.Id };
-        const isHls = !source?.SupportsDirectPlay;
-        const streamUrl = isHls
-          ? api.getHlsStreamUrl(currentItem.Id, {
-              mediaSourceId: source?.Id,
-              playSessionId: sid,
-              startTimeTicks: currentItem.UserData?.PlaybackPositionTicks,
-            })
-          : api.getStreamUrl(currentItem.Id, {
-              mediaSourceId: source?.Id,
-              startTimeTicks: currentItem.UserData?.PlaybackPositionTicks,
-            });
+        sessionRef.current = { sid, mediaSourceId: source.Id };
+        const startTimeTicks = currentItem.UserData?.PlaybackPositionTicks;
+        const { streamUrl, isHls } = api.getStreamUrlFromPlaybackInfo(
+          currentItem.Id,
+          info,
+          { startTimeTicks }
+        );
         setStreamConfig({
           streamUrl,
           isHls,
-          startTimeTicks: currentItem.UserData?.PlaybackPositionTicks ?? 0,
+          startTimeTicks: startTimeTicks ?? 0,
         });
         api.reportPlaybackStart({
           ItemId: currentItem.Id,
-          MediaSourceId: source?.Id,
-          PositionTicks: currentItem.UserData?.PlaybackPositionTicks,
+          MediaSourceId: source.Id,
+          PositionTicks: startTimeTicks,
           PlaySessionId: sid,
         });
       })
