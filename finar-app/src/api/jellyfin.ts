@@ -7,6 +7,7 @@ import type {
   PlaybackInfo,
   SearchHint,
 } from "../types/jellyfin";
+import { cacheGet, cacheSet, cacheClear, CACHE_TTL } from "../utils/cache";
 
 const CLIENT_NAME = "Finar";
 const CLIENT_VERSION = "1.0.0";
@@ -49,6 +50,7 @@ export class JellyfinApi {
   clearCredentials() {
     this.accessToken = null;
     this.userId = null;
+    cacheClear();
   }
 
   get serverUrl(): string {
@@ -150,10 +152,15 @@ export class JellyfinApi {
   }
 
   async getLibraries(): Promise<Library[]> {
+    const key = `libs:${this.userId}`;
+    const cached = cacheGet<Library[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ Items: Library[] }>(
       `${this.baseUrl}/Users/${this.userId}/Views`
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.LONG);
+    return items;
   }
 
   async getItems(params: {
@@ -191,13 +198,21 @@ export class JellyfinApi {
     if (params.genres) searchParams.Genres = params.genres;
 
     const q = new URLSearchParams(searchParams).toString();
-    return this.request<ItemsResult>(
+    const key = `items:${this.userId}:${q}`;
+    const cached = cacheGet<ItemsResult>(key);
+    if (cached) return cached;
+    const result = await this.request<ItemsResult>(
       `${this.baseUrl}/Users/${this.userId}/Items?${q}`
     );
+    cacheSet(key, result, CACHE_TTL.MEDIUM);
+    return result;
   }
 
   async getItem(itemId: string): Promise<MediaItem> {
-    return this.request<MediaItem>(
+    const key = `item:${this.userId}:${itemId}`;
+    const cached = cacheGet<MediaItem>(key);
+    if (cached) return cached;
+    const item = await this.request<MediaItem>(
       `${this.baseUrl}/Users/${this.userId}/Items/${itemId}`,
       {
         searchParams: {
@@ -206,9 +221,14 @@ export class JellyfinApi {
         },
       }
     );
+    cacheSet(key, item, CACHE_TTL.LONG);
+    return item;
   }
 
   async getContinueWatching(limit = 12): Promise<MediaItem[]> {
+    const key = `resume:${this.userId}:${limit}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Users/${this.userId}/Items/Resume`,
       {
@@ -220,10 +240,15 @@ export class JellyfinApi {
         },
       }
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.SHORT);
+    return items;
   }
 
   async getNextUp(limit = 12, seriesId?: string): Promise<MediaItem[]> {
+    const key = `nextup:${this.userId}:${limit}:${seriesId ?? ""}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const params: Record<string, string> = {
       UserId: this.userId!,
       Limit: String(limit),
@@ -234,10 +259,15 @@ export class JellyfinApi {
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Shows/NextUp?${q}`
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.SHORT);
+    return items;
   }
 
   async getRecentlyAdded(limit = 16, includeItemTypes?: string[]): Promise<MediaItem[]> {
+    const key = `latest:${this.userId}:${limit}:${(includeItemTypes ?? []).join(",")}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const params: Record<string, string> = {
       Limit: String(limit),
       Fields: "Overview",
@@ -248,7 +278,9 @@ export class JellyfinApi {
     const data = await this.request<MediaItem[]>(
       `${this.baseUrl}/Users/${this.userId}/Items/Latest?${q}`
     );
-    return Array.isArray(data) ? data : [];
+    const items = Array.isArray(data) ? data : [];
+    cacheSet(key, items, CACHE_TTL.MEDIUM);
+    return items;
   }
 
   async getRecentlyReleased(limit = 16): Promise<MediaItem[]> {
@@ -276,12 +308,14 @@ export class JellyfinApi {
   }
 
   async getRecommended(limit = 16): Promise<MediaItem[]> {
+    const key = `suggestions:${this.userId}:${limit}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Users/${this.userId}/Suggestions`,
       { searchParams: { Limit: String(limit + 10), Fields: "Overview" } }
     );
-    const items = data.Items ?? [];
-    return items
+    const items = (data.Items ?? [])
       .filter(
         (i) =>
           !["CollectionFolder", "Season", "Folder", "Playlist", "BoxSet"].includes(
@@ -289,6 +323,8 @@ export class JellyfinApi {
           )
       )
       .slice(0, limit);
+    cacheSet(key, items, CACHE_TTL.MEDIUM);
+    return items;
   }
 
   async getFavorites(limit = 16): Promise<MediaItem[]> {
@@ -304,14 +340,22 @@ export class JellyfinApi {
   }
 
   async getSeasons(seriesId: string): Promise<MediaItem[]> {
+    const key = `seasons:${this.userId}:${seriesId}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Shows/${seriesId}/Seasons`,
       { searchParams: { UserId: this.userId!, Fields: "Overview" } }
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.LONG);
+    return items;
   }
 
   async getEpisodes(seriesId: string, seasonId?: string): Promise<MediaItem[]> {
+    const key = `episodes:${this.userId}:${seriesId}:${seasonId ?? ""}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const params: Record<string, string> = {
       UserId: this.userId!,
       Fields: "Overview,MediaSources",
@@ -321,10 +365,15 @@ export class JellyfinApi {
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Shows/${seriesId}/Episodes?${q}`
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.LONG);
+    return items;
   }
 
   async getSimilarItems(itemId: string, limit = 12): Promise<MediaItem[]> {
+    const key = `similar:${this.userId}:${itemId}:${limit}`;
+    const cached = cacheGet<MediaItem[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ Items: MediaItem[] }>(
       `${this.baseUrl}/Items/${itemId}/Similar`,
       {
@@ -335,10 +384,15 @@ export class JellyfinApi {
         },
       }
     );
-    return data.Items ?? [];
+    const items = data.Items ?? [];
+    cacheSet(key, items, CACHE_TTL.LONG);
+    return items;
   }
 
   async search(query: string, limit = 20): Promise<SearchHint[]> {
+    const key = `search:${this.userId}:${query}:${limit}`;
+    const cached = cacheGet<SearchHint[]>(key);
+    if (cached) return cached;
     const data = await this.request<{ SearchHints: SearchHint[] }>(
       `${this.baseUrl}/Search/Hints`,
       {
@@ -350,7 +404,9 @@ export class JellyfinApi {
         },
       }
     );
-    return data.SearchHints ?? [];
+    const hints = data.SearchHints ?? [];
+    cacheSet(key, hints, CACHE_TTL.SHORT);
+    return hints;
   }
 
   async getPlaybackInfo(
