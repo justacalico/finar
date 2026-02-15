@@ -14,7 +14,7 @@ import {
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
 import { useDownloadsStore } from "../stores/downloads";
-import { getBackdropUrl, getDisplayImageUrl } from "../utils/image";
+import { getBackdropUrl, getDisplayImageUrl, getPrimaryImageUrl } from "../utils/image";
 import { MediaCard } from "../components/MediaCard";
 import { Button } from "../components/Button";
 import type { MediaItem } from "../types/jellyfin";
@@ -176,9 +176,13 @@ export function ItemDetail() {
     );
   }
 
-  const backdrop = getBackdropUrl(item, 0, { maxWidth: 1280 });
   const isSeries = item.Type === "Series";
   const isAlbum = item.Type === "MusicAlbum";
+  const isArtist = item.Type === "MusicArtist";
+  const isMusicDetail = isAlbum || isArtist;
+  const heroImageUrl = isMusicDetail
+    ? getPrimaryImageUrl(item, { maxWidth: 800 })
+    : getBackdropUrl(item, 0, { maxWidth: 1280 });
   const isPlayable = ["Movie", "Episode", "Audio", "MusicVideo"].includes(item.Type);
 
   const formatTicks = (ticks?: number) => {
@@ -242,24 +246,87 @@ export function ItemDetail() {
 
   return (
     <div className="pb-20">
-      <div className="relative h-[45vw] max-h-[500px] min-h-[240px] w-full overflow-hidden">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-4 w-4 shrink-0" />
-          Back
-        </button>
-        <img
-          src={backdrop}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="min-w-0 max-w-3xl">
+      {isMusicDetail ? (
+        <div className="relative w-full overflow-hidden bg-surface">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Back
+          </button>
+          <div className="flex min-h-[280px] flex-col gap-6 p-6 md:flex-row md:items-end md:gap-8 md:p-10">
+            <div className="flex shrink-0 justify-center md:justify-start">
+              <div className="aspect-square w-full max-w-[240px] overflow-hidden rounded-xl bg-surface-elevated shadow-xl md:max-w-[280px]">
+                {heroImageUrl ? (
+                  <img
+                    src={heroImageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-text-tertiary">
+                    <span className="text-4xl font-bold opacity-40">
+                      {item.Name.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1 pb-1">
+              <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
+                {item.Type}
+              </span>
+              <h1 className="mt-2 text-2xl font-bold text-text-primary md:text-4xl">
+                {item.Name}
+              </h1>
+              <div className="mt-2 flex flex-wrap gap-3 text-sm text-text-secondary">
+                {item.ProductionYear && <span>{item.ProductionYear}</span>}
+                {item.CommunityRating != null && (
+                  <span className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    {item.CommunityRating.toFixed(1)}
+                  </span>
+                )}
+                {item.OfficialRating && <span>{item.OfficialRating}</span>}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {(isPlayable || (isAlbum && tracks.length > 0)) && (
+                  <Button
+                    leftIcon={<Play className="h-5 w-5" fill="currentColor" />}
+                    onClick={handlePlay}
+                  >
+                    Play
+                  </Button>
+                )}
+                <Button variant="outline" leftIcon={<Plus className="h-4 w-4" />}>
+                  Add to list
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative h-[45vw] max-h-[500px] min-h-[240px] w-full overflow-hidden">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Back
+          </button>
+          <img
+            src={heroImageUrl}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+            <div className="min-w-0 max-w-3xl">
               <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
                 {item.Type}
               </span>
@@ -362,6 +429,7 @@ export function ItemDetail() {
             </div>
           </div>
         </div>
+      )}
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-8">
         {item.Overview && (
           <section className="mb-8">
