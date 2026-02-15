@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useJellyfinApi } from '../context/AuthContext';
@@ -12,12 +13,14 @@ import { createMediaService } from '../api/mediaService';
 import { useLibrary } from '../context/LibraryContext';
 import { MediaCard } from '../components/MediaCard';
 import type { MediaItem, Library } from '../api/models';
+import { AppShell } from '../components/layout/AppShell';
 
 type RouteParams = { libraryId: string; isMusic?: boolean };
 
 export function LibraryScreen() {
   const route = useRoute();
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
   const { libraryId } = (route.params ?? {}) as RouteParams;
   const api = useJellyfinApi();
   const { libraries } = useLibrary();
@@ -27,6 +30,9 @@ export function LibraryScreen() {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [library, setLibrary] = useState<Library | null>(null);
+  const collectionColumns = width >= 1100 ? 4 : 2;
+  const mediaColumns = width >= 1300 ? 6 : width >= 1000 ? 5 : width >= 760 ? 4 : 3;
+  const mediaCardWidth = width >= 1300 ? 165 : width >= 1000 ? 145 : width >= 760 ? 130 : 110;
 
   useEffect(() => {
     if (libraryId && libraries.length > 0) {
@@ -67,16 +73,16 @@ export function LibraryScreen() {
 
   if (!libraryId) {
     return (
-      <View className="flex-1 bg-finar-bg pt-6">
-        <Text className="text-[22px] font-semibold text-finar-text-primary mb-4 px-4" style={{ fontFamily: 'Outfit_600SemiBold' }}>Libraries</Text>
+      <AppShell activeTab="library" title="Libraries">
         <FlatList
           data={libraries}
           keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+          numColumns={collectionColumns}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          columnWrapperStyle={collectionColumns > 1 ? { gap: 12, marginBottom: 12 } : undefined}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className="flex-1 m-2 p-6 bg-finar-surface rounded-xl border border-finar-glass-border items-center min-h-[120px]"
+              className="flex-1 p-6 bg-finar-surface rounded-finar-lg border border-finar-glass-border min-h-[130px]"
               onPress={() =>
                 (navigation as { navigate: (n: string, p: object) => void }).navigate('Library', {
                   libraryId: item.id,
@@ -93,39 +99,43 @@ export function LibraryScreen() {
                       ? '📺'
                       : '📁'}
               </Text>
-              <Text className="text-sm font-semibold text-finar-text-primary text-center" numberOfLines={2} style={{ fontFamily: 'Outfit_600SemiBold' }}>
+              <Text className="text-base text-finar-text-primary" numberOfLines={2} style={{ fontFamily: 'Outfit_600SemiBold' }}>
                 {item.name}
+              </Text>
+              <Text className="text-xs text-finar-text-tertiary mt-1" style={{ fontFamily: 'Outfit_400Regular' }}>
+                Open collection
               </Text>
             </TouchableOpacity>
           )}
         />
-      </View>
+      </AppShell>
     );
   }
 
   if (loading && items.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center bg-finar-bg">
-        <ActivityIndicator size="large" color="#00E5B8" />
-      </View>
+      <AppShell activeTab="library" title={library?.name ?? 'Library'}>
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#00E5B8" />
+        </View>
+      </AppShell>
     );
   }
 
   return (
-    <View className="flex-1 bg-finar-bg pt-6">
-      <Text className="text-[22px] font-semibold text-finar-text-primary mb-4 px-4" style={{ fontFamily: 'Outfit_600SemiBold' }}>{library?.name ?? 'Library'}</Text>
+    <AppShell activeTab="library" title={library?.name ?? 'Library'}>
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
-        numColumns={3}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
-        columnWrapperStyle={{ gap: 8, marginBottom: 16 }}
+        numColumns={mediaColumns}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 120 }}
+        columnWrapperStyle={mediaColumns > 1 ? { gap: 10, marginBottom: 14 } : undefined}
         renderItem={({ item, index }) => (
-          <View className="w-[31%]">
-            <MediaCard item={item} serverUrl={serverUrl} width={110} onPress={() => navigateToDetail(item.id)} index={index} />
+          <View>
+            <MediaCard item={item} serverUrl={serverUrl} width={mediaCardWidth} onPress={() => navigateToDetail(item.id)} index={index} />
           </View>
         )}
       />
-    </View>
+    </AppShell>
   );
 }
