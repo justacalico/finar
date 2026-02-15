@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Palette, Sun, Globe, Info } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import {
   useSettingsStore,
@@ -125,25 +126,38 @@ export function Settings() {
 
             {/* Language */}
             <div>
-              <label
-                htmlFor="settings-language"
-                className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary"
-              >
+              <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Globe className="h-4 w-4" />
                 Language
               </label>
-              <select
-                id="settings-language"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-surface-elevated px-4 py-3 text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {LANGUAGES.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-divider bg-surface-elevated px-4 py-3 text-left text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <span>{LANGUAGES.find((l) => l.code === language)?.label ?? "English"}</span>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl border border-divider bg-surface shadow-lg"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    {LANGUAGES.map((l) => (
+                      <DropdownMenu.Item
+                        key={l.code}
+                        onSelect={() => setLanguage(l.code)}
+                        className="cursor-pointer select-none px-4 py-2.5 text-text-primary outline-none hover:bg-text-primary/5 focus:outline-none data-[highlighted]:bg-text-primary/5"
+                      >
+                        {l.label}
+                      </DropdownMenu.Item>
+                    ))}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
             </div>
           </div>
         </section>
