@@ -67,14 +67,6 @@ export function Home() {
     loadHomeData();
   }, [loadHomeData]);
 
-  if (isLoading && !homeData) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
   if (error && !homeData) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
@@ -90,7 +82,15 @@ export function Home() {
     );
   }
 
-  const data = homeData!;
+  if (!homeData) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  const data = homeData;
   const heroItem = data.recentlyAdded[0] ?? data.continueWatching[0];
 
   return (
