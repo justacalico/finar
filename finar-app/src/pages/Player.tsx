@@ -87,6 +87,12 @@ export function Player() {
     installVideoJsXhrAuthWrapper();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (controlsTimeout.current) clearTimeout(controlsTimeout.current);
+    };
+  }, []);
+
   // Load playback info and derive stream URL (direct or HLS)
   useEffect(() => {
     if (!currentItem) {
@@ -261,11 +267,15 @@ export function Player() {
     }
   };
 
-  const toggleControls = () => {
-    setShowControls((c) => !c);
+  const HIDE_CONTROLS_AFTER_MS = 3500;
+  const showControlsAndScheduleHide = () => {
+    setShowControls(true);
     if (controlsTimeout.current) clearTimeout(controlsTimeout.current);
-    if (showControls) return;
-    controlsTimeout.current = setTimeout(() => setShowControls(false), 4000);
+    controlsTimeout.current = setTimeout(() => setShowControls(false), HIDE_CONTROLS_AFTER_MS);
+  };
+  const scheduleHideControls = () => {
+    if (controlsTimeout.current) clearTimeout(controlsTimeout.current);
+    controlsTimeout.current = setTimeout(() => setShowControls(false), 400);
   };
 
   const formatTime = (s: number) => {
@@ -318,12 +328,12 @@ export function Player() {
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col bg-black"
-      onMouseMove={toggleControls}
-      onMouseLeave={() => setShowControls(false)}
-      onTouchStart={toggleControls}
+      onMouseMove={showControlsAndScheduleHide}
+      onTouchStart={showControlsAndScheduleHide}
+      onMouseLeave={scheduleHideControls}
     >
       <div
-        className="h-full w-full cursor-pointer"
+        className="flex min-h-0 flex-1 cursor-pointer"
         onClick={handlePlayPause}
         onKeyDown={(e) => e.key === " " && handlePlayPause()}
         role="button"
@@ -332,14 +342,14 @@ export function Player() {
       >
         <div
           ref={containerRef}
-          className="video-js-wrapper h-full w-full vjs-fluid"
+          className="video-js-wrapper h-full w-full"
           data-vjs-player
         />
       </div>
 
       {showControls && (
-        <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/80 via-transparent to-black/50 p-4 pointer-events-none">
-          <div className="flex items-center justify-between pointer-events-auto">
+        <>
+          <div className="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent p-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -362,7 +372,7 @@ export function Player() {
             </button>
           </div>
 
-          <div className="flex flex-col gap-4 pointer-events-auto">
+          <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-4 bg-gradient-to-t from-black/80 to-transparent p-4">
             <input
               type="range"
               min={0}
@@ -426,7 +436,7 @@ export function Player() {
               </span>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

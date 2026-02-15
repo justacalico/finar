@@ -115,11 +115,25 @@ button {
   }
 }
 
-/* Video.js player: fill container (player page) */
+/* Video.js player: fill container and ensure video is visible (player page) */
+.video-js-wrapper {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
 .video-js-wrapper .video-js {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
 .video-js-wrapper .video-js .vjs-tech {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+}
+.video-js-wrapper .video-js.vjs-fluid {
+  padding-top: 0;
 }
