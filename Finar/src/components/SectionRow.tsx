@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { MediaCard } from './MediaCard';
 import type { MediaItem } from '../api/models';
-import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
 
 type SectionRowProps = {
   title: string;
@@ -25,21 +23,27 @@ export function SectionRow({
   if (items.length === 0) return null;
 
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+    <View className="mb-8">
+      <Text
+        className="text-[22px] font-semibold text-finar-text-primary mb-4 px-4"
+        style={{ fontFamily: 'Outfit_600SemiBold' }}
+      >
+        {title}
+      </Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.row}
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 16, paddingBottom: 8 }}
       >
-        {items.map((item) => (
-          <View key={item.id} style={styles.cardWrap}>
+        {items.map((item, index) => (
+          <View key={item.id} className="mr-4">
             <MediaCard
               item={item}
               serverUrl={serverUrl}
               width={cardWidth}
               showProgress={showProgress}
               onPress={() => onItemPress(item.id)}
+              index={index}
             />
           </View>
         ))}
@@ -47,24 +51,3 @@ export function SectionRow({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.md,
-  },
-  row: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.md,
-    paddingBottom: spacing.sm,
-  },
-  cardWrap: {
-    marginRight: spacing.md,
-  },
-});

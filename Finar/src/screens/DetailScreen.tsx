@@ -111,7 +111,7 @@ export function DetailScreen() {
         ) : null}
         <View style={styles.backdropOverlay} />
         <View style={styles.backdropBottom}>
-          <Text style={styles.title}>{item.name}</Text>
+          <Text style={[styles.title, { fontFamily: 'Outfit_600SemiBold' }]}>{item.name}</Text>
           <View style={styles.meta}>
             {item.productionYear != null && (
               <Text style={styles.metaText}>{item.productionYear}</Text>

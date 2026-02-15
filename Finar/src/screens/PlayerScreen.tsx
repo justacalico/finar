@@ -144,7 +144,7 @@ export function PlayerScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-black">
       <Video
         ref={videoRef}
         source={{ uri: streamUrl }}
@@ -162,10 +162,6 @@ export function PlayerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.black,
-  },
   centered: {
     flex: 1,
     justifyContent: 'center',

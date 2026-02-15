@@ -1,80 +1,59 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLibrary } from '../context/LibraryContext';
 import { useJellyfinApi } from '../context/AuthContext';
 import { MediaCard } from '../components/MediaCard';
-import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
 
 export function SearchScreen() {
   const navigation = useNavigation();
-  const { searchResults, search, clearSearch, isLoading } = useLibrary();
+  const { searchResults, search, clearSearch } = useLibrary();
   const api = useJellyfinApi();
   const serverUrl = api.serverUrl ?? '';
   const [query, setQuery] = useState('');
 
   const handleSearch = (text: string) => {
     setQuery(text);
-    if (text.length >= 2) {
-      search(text);
-    } else {
-      clearSearch();
-    }
+    if (text.length >= 2) search(text);
+    else clearSearch();
   };
 
   const navigateToDetail = (itemId: string) => {
-    (navigation as { navigate: (n: string, p: object) => void }).navigate('Detail', {
-      itemId,
-    });
+    (navigation as { navigate: (n: string, p: object) => void }).navigate('Detail', { itemId });
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View className="flex-1 bg-finar-bg">
+      <View className="flex-row items-center p-4 pt-12 gap-2">
         <TextInput
-          style={styles.input}
+          className="flex-1 bg-finar-surface rounded-lg px-4 py-3 text-base text-finar-text-primary border border-finar-glass-border"
           placeholder="Search movies, shows, music..."
-          placeholderTextColor={colors.textTertiary}
+          placeholderTextColor="#707070"
           value={query}
           onChangeText={handleSearch}
           autoFocus
         />
         {query.length > 0 && (
           <TouchableOpacity onPress={() => handleSearch('')}>
-            <Text style={styles.clearText}>Clear</Text>
+            <Text className="text-sm text-finar-primary" style={{ fontFamily: 'Outfit_500Medium' }}>Clear</Text>
           </TouchableOpacity>
         )}
       </View>
-      {searchResults.length === 0 && !isLoading ? (
-        <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>Search your media</Text>
-          <Text style={styles.emptySubtitle}>
-            Find movies, TV shows, and more
-          </Text>
+      {searchResults.length === 0 ? (
+        <View className="flex-1 justify-center items-center px-8">
+          <Text className="text-xl font-semibold text-finar-text-secondary mb-2" style={{ fontFamily: 'Outfit_600SemiBold' }}>Search your media</Text>
+          <Text className="text-sm text-finar-text-tertiary" style={{ fontFamily: 'Outfit_400Regular' }}>Find movies, TV shows, and more</Text>
         </View>
       ) : (
         <FlatList
           data={searchResults}
           keyExtractor={(item) => item.id}
           numColumns={3}
-          contentContainerStyle={styles.grid}
-          columnWrapperStyle={styles.gridRow}
-          renderItem={({ item }) => (
-            <View style={styles.gridItem}>
-              <MediaCard
-                item={item}
-                serverUrl={serverUrl}
-                width={110}
-                onPress={() => navigateToDetail(item.id)}
-              />
+          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+          columnWrapperStyle={{ gap: 8, marginBottom: 16 }}
+          renderItem={({ item, index }) => (
+            <View className="w-[31%]">
+              <MediaCard item={item} serverUrl={serverUrl} width={110} onPress={() => navigateToDetail(item.id)} index={index} />
             </View>
           )}
         />
@@ -82,60 +61,3 @@ export function SearchScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.md,
-    paddingTop: 48,
-    gap: spacing.sm,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: 16,
-    color: colors.textPrimary,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-  },
-  clearText: {
-    color: colors.primary,
-    fontSize: 14,
-  },
-  empty: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.textTertiary,
-    marginTop: spacing.sm,
-  },
-  grid: {
-    padding: spacing.md,
-    paddingBottom: 80,
-  },
-  gridRow: {
-    justifyContent: 'flex-start',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  gridItem: {
-    width: '31%',
-  },
-});

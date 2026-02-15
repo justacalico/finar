@@ -1,10 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   useWindowDimensions,
   RefreshControl,
 } from 'react-native';
@@ -12,13 +11,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
 import { SectionRow } from '../components/SectionRow';
-import { MediaCard } from '../components/MediaCard';
-import { colors } from '../theme/colors';
-import { spacing, radius } from '../theme/spacing';
-import { BREAKPOINTS } from '../utils/responsive';
 import { getBackdropImageUrl, getHeroTitle } from '../api/itemImages';
 import type { MediaItem, Library } from '../api/models';
 import { Image } from 'expo-image';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { BREAKPOINTS } from '../utils/responsive';
 
 type NavTab = 'home' | 'search' | 'library' | 'downloads';
 
@@ -26,13 +23,7 @@ export function HomeScreen() {
   const { width } = useWindowDimensions();
   const navigation = useNavigation();
   const { api, state: authState, logout } = useAuth();
-  const {
-    homeData,
-    libraries,
-    isLoading,
-    loadHomeData,
-    featuredItem,
-  } = useLibrary();
+  const { homeData, libraries, isLoading, loadHomeData, featuredItem } = useLibrary();
 
   const [navIndex, setNavIndex] = useState<NavTab>('home');
   const [refreshing, setRefreshing] = useState(false);
@@ -68,59 +59,79 @@ export function HomeScreen() {
 
   if (isLoading && !homeData) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View className="flex-1 justify-center items-center bg-finar-bg">
+        <Text className="text-base text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
   const content = (
     <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.scrollContent}
+      className="flex-1"
+      contentContainerStyle={{ paddingBottom: 20 }}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#00E5B8" />
       }
     >
       {featuredItem && (
-        <TouchableOpacity
-          style={styles.hero}
-          onPress={() => navigateToDetail(featuredItem.id)}
-          activeOpacity={0.95}
-        >
-          <Image
-            source={{
-              uri: getBackdropImageUrl(serverUrl, featuredItem, { width: 1200 }),
-            }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-          <View style={styles.heroOverlay} />
-          <View style={styles.heroContent}>
-            <Text style={styles.heroTitle} numberOfLines={2}>
-              {getHeroTitle(featuredItem)}
-            </Text>
-            {featuredItem.overview && (
-              <Text style={styles.heroOverview} numberOfLines={2}>
-                {featuredItem.overview}
+        <Animated.View entering={FadeIn.duration(500)} className="mx-4 mb-6">
+          <TouchableOpacity
+            className="h-[320px] rounded-finar-lg overflow-hidden"
+            onPress={() => navigateToDetail(featuredItem.id)}
+            activeOpacity={0.95}
+          >
+            <Image
+              source={{ uri: getBackdropImageUrl(serverUrl, featuredItem, { width: 1200 }) }}
+              className="absolute inset-0 w-full h-full"
+              contentFit="cover"
+            />
+            <View className="absolute inset-0 bg-black/50" />
+            <View className="absolute left-0 right-0 bottom-0 p-6">
+              <Text
+                className="text-[28px] font-semibold text-finar-text-primary"
+                style={{ fontFamily: 'Outfit_600SemiBold' }}
+                numberOfLines={2}
+              >
+                {getHeroTitle(featuredItem)}
               </Text>
-            )}
-            <View style={styles.heroActions}>
-              <TouchableOpacity
-                style={styles.heroPlayButton}
-                onPress={() => navigateToPlayer(featuredItem)}
-              >
-                <Text style={styles.heroPlayText}>Play</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.heroInfoButton}
-                onPress={() => navigateToDetail(featuredItem.id)}
-              >
-                <Text style={styles.heroInfoText}>Info</Text>
-              </TouchableOpacity>
+              {featuredItem.overview && (
+                <Text
+                  className="text-sm text-finar-text-secondary mt-2"
+                  style={{ fontFamily: 'Outfit_400Regular' }}
+                  numberOfLines={2}
+                >
+                  {featuredItem.overview}
+                </Text>
+              )}
+              <View className="flex-row gap-4 mt-4">
+                <TouchableOpacity
+                  className="bg-finar-primary px-8 py-3 rounded-finar-md"
+                  onPress={() => navigateToPlayer(featuredItem)}
+                >
+                  <Text
+                    className="text-base font-semibold text-finar-text-on-primary"
+                    style={{ fontFamily: 'Outfit_600SemiBold' }}
+                  >
+                    Play
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="bg-finar-glass-border px-8 py-3 rounded-finar-md"
+                  onPress={() => navigateToDetail(featuredItem.id)}
+                >
+                  <Text
+                    className="text-base font-semibold text-finar-text-primary"
+                    style={{ fontFamily: 'Outfit_600SemiBold' }}
+                  >
+                    Info
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
       {homeData?.continueWatching && homeData.continueWatching.length > 0 && (
@@ -179,17 +190,26 @@ export function HomeScreen() {
         />
       )}
       {libraries.length > 0 && (
-        <View style={[styles.section, { paddingHorizontal: spacing.md }]}>
-          <Text style={styles.sectionTitle}>Libraries</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.libraryRow}>
+        <View className="mb-8 px-4">
+          <Text
+            className="text-[22px] font-semibold text-finar-text-primary mb-4"
+            style={{ fontFamily: 'Outfit_600SemiBold' }}
+          >
+            Libraries
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingBottom: 8 }}>
             {libraries.map((lib) => (
               <TouchableOpacity
                 key={lib.id}
-                style={styles.libraryCard}
+                className="w-40 py-4 px-4 bg-finar-surface rounded-finar-md border border-finar-glass-border items-center"
                 onPress={() => navigateToLibrary(lib.id, lib.collectionType)}
               >
-                <Text style={styles.libraryIcon}>{getLibraryIcon(lib.collectionType)}</Text>
-                <Text style={styles.libraryName} numberOfLines={2}>
+                <Text className="text-3xl mb-2">{getLibraryIcon(lib.collectionType)}</Text>
+                <Text
+                  className="text-sm font-semibold text-finar-text-primary text-center"
+                  style={{ fontFamily: 'Outfit_600SemiBold' }}
+                  numberOfLines={2}
+                >
                   {lib.name}
                 </Text>
               </TouchableOpacity>
@@ -204,89 +224,87 @@ export function HomeScreen() {
   if (showSidebar) {
     const user = authState.status === 'authenticated' ? authState.user : null;
     return (
-      <View style={styles.root}>
-        <View style={styles.sidebar}>
-          <View style={styles.sidebarLogo}>
-            <Text style={styles.sidebarLogoIcon}>▶</Text>
-            <Text style={styles.sidebarLogoText}>Finar</Text>
+      <View className="flex-1 flex-row bg-finar-bg">
+        <View className="w-[260px] bg-finar-bg-secondary border-r border-finar-divider py-6">
+          <View className="flex-row items-center px-6 py-6 gap-2">
+            <Text className="text-2xl">▶</Text>
+            <Text className="text-xl font-semibold text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+              Finar
+            </Text>
           </View>
           <TouchableOpacity
-            style={[styles.navItem, navIndex === 'home' && styles.navItemActive]}
+            className={`flex-row items-center px-6 py-4 gap-2 ${navIndex === 'home' ? 'bg-finar-primary/20 border-l-4 border-finar-primary' : ''}`}
             onPress={() => setNavIndex('home')}
           >
-            <Text style={styles.navIcon}>🏠</Text>
-            <Text style={styles.navLabel}>Home</Text>
+            <Text className="text-xl">🏠</Text>
+            <Text className="text-[15px] text-finar-text-secondary flex-1" style={{ fontFamily: 'Outfit_500Medium' }}>Home</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.navItem, navIndex === 'search' && styles.navItemActive]}
+            className={`flex-row items-center px-6 py-4 gap-2 ${navIndex === 'search' ? 'bg-finar-primary/20 border-l-4 border-finar-primary' : ''}`}
             onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Search')}
           >
-            <Text style={styles.navIcon}>🔍</Text>
-            <Text style={styles.navLabel}>Search</Text>
+            <Text className="text-xl">🔍</Text>
+            <Text className="text-[15px] text-finar-text-secondary flex-1" style={{ fontFamily: 'Outfit_500Medium' }}>Search</Text>
           </TouchableOpacity>
           {libraries.slice(0, 8).map((lib) => (
             <TouchableOpacity
               key={lib.id}
-              style={styles.navItem}
+              className="flex-row items-center px-6 py-4 gap-2"
               onPress={() => navigateToLibrary(lib.id, lib.collectionType)}
             >
-              <Text style={styles.navIcon}>{getLibraryIcon(lib.collectionType)}</Text>
-              <Text style={styles.navLabel} numberOfLines={1}>
-                {lib.name}
-              </Text>
+              <Text className="text-xl">{getLibraryIcon(lib.collectionType)}</Text>
+              <Text className="text-[15px] text-finar-text-secondary flex-1" style={{ fontFamily: 'Outfit_500Medium' }} numberOfLines={1}>{lib.name}</Text>
             </TouchableOpacity>
           ))}
-          <View style={styles.sidebarFooter}>
-            <Text style={styles.userName}>{user?.name ?? 'Guest'}</Text>
+          <View className="mt-auto p-4 border-t border-finar-divider">
+            <Text className="text-sm font-semibold text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>{user?.name ?? 'Guest'}</Text>
             <TouchableOpacity onPress={() => logout()}>
-              <Text style={styles.logoutText}>Sign out</Text>
+              <Text className="text-[13px] text-finar-primary mt-1" style={{ fontFamily: 'Outfit_500Medium' }}>Sign out</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            style={styles.navItem}
+            className="flex-row items-center px-6 py-4 gap-2"
             onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Settings')}
           >
-            <Text style={styles.navIcon}>⚙</Text>
-            <Text style={styles.navLabel}>Settings</Text>
+            <Text className="text-xl">⚙</Text>
+            <Text className="text-[15px] text-finar-text-secondary flex-1" style={{ fontFamily: 'Outfit_500Medium' }}>Settings</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.main}>{content}</View>
+        <View className="flex-1">{content}</View>
       </View>
     );
   }
 
   return (
-    <View style={styles.root}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Finar</Text>
-        <TouchableOpacity
-          onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Settings')}
-        >
-          <Text style={styles.headerIcon}>⚙</Text>
+    <View className="flex-1 bg-finar-bg">
+      <View className="flex-row items-center justify-between px-4 pt-12 pb-2 bg-finar-bg">
+        <Text className="text-xl font-semibold text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>Finar</Text>
+        <TouchableOpacity onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Settings')}>
+          <Text className="text-[22px]">⚙</Text>
         </TouchableOpacity>
       </View>
       {content}
-      <View style={styles.bottomNav}>
+      <View className="flex-row bg-finar-bg-secondary border-t border-finar-divider pb-6 pt-2">
         <TouchableOpacity
-          style={[styles.bottomNavItem, navIndex === 'home' && styles.bottomNavItemActive]}
+          className={`flex-1 items-center py-2 ${navIndex === 'home' ? 'bg-finar-primary/15' : ''}`}
           onPress={() => setNavIndex('home')}
         >
-          <Text style={styles.bottomNavIcon}>🏠</Text>
-          <Text style={styles.bottomNavLabel}>Home</Text>
+          <Text className="text-2xl">🏠</Text>
+          <Text className="text-[10px] text-finar-text-secondary mt-1" style={{ fontFamily: 'Outfit_400Regular' }}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.bottomNavItem}
+          className="flex-1 items-center py-2"
           onPress={() => (navigation as { navigate: (n: string) => void }).navigate('Search')}
         >
-          <Text style={styles.bottomNavIcon}>🔍</Text>
-          <Text style={styles.bottomNavLabel}>Search</Text>
+          <Text className="text-2xl">🔍</Text>
+          <Text className="text-[10px] text-finar-text-secondary mt-1" style={{ fontFamily: 'Outfit_400Regular' }}>Search</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.bottomNavItem}
+          className="flex-1 items-center py-2"
           onPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '', isMusic: false })}
         >
-          <Text style={styles.bottomNavIcon}>📚</Text>
-          <Text style={styles.bottomNavLabel}>Library</Text>
+          <Text className="text-2xl">📚</Text>
+          <Text className="text-[10px] text-finar-text-secondary mt-1" style={{ fontFamily: 'Outfit_400Regular' }}>Library</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -307,216 +325,3 @@ function getLibraryIcon(collectionType?: string): string {
       return '📁';
   }
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    color: colors.textSecondary,
-    fontSize: 16,
-  },
-  sidebar: {
-    width: 260,
-    backgroundColor: colors.backgroundSecondary,
-    borderRightWidth: 1,
-    borderRightColor: colors.divider,
-    paddingVertical: spacing.lg,
-  },
-  sidebarLogo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    gap: spacing.sm,
-  },
-  sidebarLogoIcon: {
-    fontSize: 24,
-  },
-  sidebarLogoText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    gap: spacing.sm,
-  },
-  navItemActive: {
-    backgroundColor: colors.primary + '20',
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  navIcon: {
-    fontSize: 20,
-  },
-  navLabel: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  sidebarFooter: {
-    marginTop: 'auto',
-    padding: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.divider,
-  },
-  userName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  logoutText: {
-    fontSize: 13,
-    color: colors.primary,
-    marginTop: 4,
-  },
-  main: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    paddingTop: 48,
-    backgroundColor: colors.background,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  headerIcon: {
-    fontSize: 22,
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  hero: {
-    height: 320,
-    marginBottom: spacing.lg,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    marginHorizontal: spacing.md,
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  heroContent: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: spacing.lg,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  heroOverview: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-  },
-  heroActions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  heroPlayButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-  },
-  heroPlayText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textOnPrimary,
-  },
-  heroInfoButton: {
-    backgroundColor: colors.glassBorder,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-  },
-  heroInfoText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  libraryRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    paddingBottom: spacing.sm,
-  },
-  libraryCard: {
-    width: 160,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    alignItems: 'center',
-  },
-  libraryIcon: {
-    fontSize: 32,
-    marginBottom: spacing.sm,
-  },
-  libraryName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: colors.backgroundSecondary,
-    borderTopWidth: 1,
-    borderTopColor: colors.divider,
-    paddingBottom: 24,
-    paddingTop: spacing.sm,
-  },
-  bottomNavItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  bottomNavItemActive: {
-    backgroundColor: colors.primary + '15',
-  },
-  bottomNavIcon: {
-    fontSize: 24,
-  },
-  bottomNavLabel: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-});

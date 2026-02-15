@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -12,8 +11,6 @@ import { useJellyfinApi } from '../context/AuthContext';
 import { createMediaService } from '../api/mediaService';
 import { useLibrary } from '../context/LibraryContext';
 import { MediaCard } from '../components/MediaCard';
-import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
 import type { MediaItem, Library } from '../api/models';
 
 type RouteParams = { libraryId: string; isMusic?: boolean };
@@ -21,7 +18,7 @@ type RouteParams = { libraryId: string; isMusic?: boolean };
 export function LibraryScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { libraryId, isMusic } = (route.params ?? {}) as RouteParams;
+  const { libraryId } = (route.params ?? {}) as RouteParams;
   const api = useJellyfinApi();
   const { libraries } = useLibrary();
   const serverUrl = api.serverUrl ?? '';
@@ -65,34 +62,29 @@ export function LibraryScreen() {
   }, [libraryId, mediaService]);
 
   const navigateToDetail = (itemId: string) => {
-    (navigation as { navigate: (n: string, p: object) => void }).navigate('Detail', {
-      itemId,
-    });
+    (navigation as { navigate: (n: string, p: object) => void }).navigate('Detail', { itemId });
   };
 
   if (!libraryId) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Libraries</Text>
+      <View className="flex-1 bg-finar-bg pt-6">
+        <Text className="text-[22px] font-semibold text-finar-text-primary mb-4 px-4" style={{ fontFamily: 'Outfit_600SemiBold' }}>Libraries</Text>
         <FlatList
           data={libraries}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          contentContainerStyle={styles.grid}
+          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.libraryCard}
+              className="flex-1 m-2 p-6 bg-finar-surface rounded-xl border border-finar-glass-border items-center min-h-[120px]"
               onPress={() =>
-                (navigation as { navigate: (n: string, p: object) => void }).navigate(
-                  'Library',
-                  {
-                    libraryId: item.id,
-                    isMusic: item.collectionType?.toLowerCase() === 'music',
-                  }
-                )
+                (navigation as { navigate: (n: string, p: object) => void }).navigate('Library', {
+                  libraryId: item.id,
+                  isMusic: item.collectionType?.toLowerCase() === 'music',
+                })
               }
             >
-              <Text style={styles.libraryIcon}>
+              <Text className="text-4xl mb-2">
                 {item.collectionType?.toLowerCase() === 'music'
                   ? '🎵'
                   : item.collectionType?.toLowerCase() === 'movies'
@@ -101,7 +93,7 @@ export function LibraryScreen() {
                       ? '📺'
                       : '📁'}
               </Text>
-              <Text style={styles.libraryName} numberOfLines={2}>
+              <Text className="text-sm font-semibold text-finar-text-primary text-center" numberOfLines={2} style={{ fontFamily: 'Outfit_600SemiBold' }}>
                 {item.name}
               </Text>
             </TouchableOpacity>
@@ -113,85 +105,27 @@ export function LibraryScreen() {
 
   if (loading && items.length === 0) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View className="flex-1 justify-center items-center bg-finar-bg">
+        <ActivityIndicator size="large" color="#00E5B8" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>{library?.name ?? 'Library'}</Text>
+    <View className="flex-1 bg-finar-bg pt-6">
+      <Text className="text-[22px] font-semibold text-finar-text-primary mb-4 px-4" style={{ fontFamily: 'Outfit_600SemiBold' }}>{library?.name ?? 'Library'}</Text>
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
         numColumns={3}
-        contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.gridRow}
-        renderItem={({ item }) => (
-          <View style={styles.gridItem}>
-            <MediaCard
-              item={item}
-              serverUrl={serverUrl}
-              width={110}
-              onPress={() => navigateToDetail(item.id)}
-            />
+        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        columnWrapperStyle={{ gap: 8, marginBottom: 16 }}
+        renderItem={({ item, index }) => (
+          <View className="w-[31%]">
+            <MediaCard item={item} serverUrl={serverUrl} width={110} onPress={() => navigateToDetail(item.id)} index={index} />
           </View>
         )}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingTop: spacing.lg,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.md,
-  },
-  grid: {
-    padding: spacing.md,
-    paddingBottom: 80,
-  },
-  gridRow: {
-    justifyContent: 'flex-start',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  gridItem: {
-    width: '31%',
-  },
-  libraryCard: {
-    flex: 1,
-    margin: spacing.sm,
-    padding: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    alignItems: 'center',
-    minHeight: 120,
-  },
-  libraryIcon: {
-    fontSize: 40,
-    marginBottom: spacing.sm,
-  },
-  libraryName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-});

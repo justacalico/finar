@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  FadeIn,
+  FadeInDown,
+} from 'react-native-reanimated';
 import { useAuth } from '../context/AuthContext';
-import { colors } from '../theme/colors';
-import { spacing, radius } from '../theme/spacing';
 
 export function LoginScreen() {
   const { login, state, connectToServer, initiateQuickConnect, checkQuickConnect } = useAuth();
@@ -60,263 +66,189 @@ export function LoginScreen() {
 
   if (quickConnectCode) {
     return (
-      <View style={styles.container}>
-        <View style={styles.formCard}>
-          <Text style={styles.quickTitle}>Quick Connect</Text>
-          <Text style={styles.quickSubtitle}>
-            Enter this code in your Jellyfin dashboard
-          </Text>
-          <View style={styles.codeBox}>
-            <Text style={styles.codeText}>{quickConnectCode}</Text>
+      <View className="flex-1 bg-finar-bg">
+        <LinearGradient
+          colors={['#0D0D0F', '#0f1520', '#0D0D0F']}
+          locations={[0, 0.5, 1]}
+          className="absolute inset-0"
+        />
+        <Animated.View
+          entering={FadeIn.duration(400)}
+          className="flex-1 justify-center items-center px-8"
+        >
+          <View className="bg-finar-surface/90 border border-finar-glass-border rounded-finar-xl p-8 max-w-[420px] w-full">
+            <Text
+              className="text-2xl font-semibold text-finar-text-primary mb-2"
+              style={{ fontFamily: 'Outfit_600SemiBold' }}
+            >
+              Quick Connect
+            </Text>
+            <Text className="text-base text-finar-text-secondary mb-6">
+              Enter this code in your Jellyfin dashboard
+            </Text>
+            <View className="bg-finar-primary/20 py-4 px-8 rounded-finar-lg items-center mb-4">
+              <Text
+                className="text-[42px] font-bold text-finar-primary tracking-[8px]"
+                style={{ fontFamily: 'Outfit_600SemiBold' }}
+              >
+                {quickConnectCode}
+              </Text>
+            </View>
+            {quickConnectPolling && (
+              <ActivityIndicator color="#00E5B8" className="mb-4" />
+            )}
+            <TouchableOpacity
+              className="py-4 rounded-finar-md border border-finar-glass-border items-center"
+              onPress={() => {
+                setQuickConnectCode(null);
+                setQuickConnectPolling(false);
+              }}
+            >
+              <Text
+                className="text-base font-semibold text-finar-text-primary"
+                style={{ fontFamily: 'Outfit_600SemiBold' }}
+              >
+                Cancel
+              </Text>
+            </TouchableOpacity>
           </View>
-          {quickConnectPolling && (
-            <ActivityIndicator color={colors.primary} style={styles.codeSpinner} />
-          )}
-          <TouchableOpacity
-            style={[styles.button, styles.buttonOutlined]}
-            onPress={() => {
-              setQuickConnectCode(null);
-              setQuickConnectPolling(false);
-            }}
-          >
-            <Text style={styles.buttonTextOutlined}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+    <View className="flex-1 bg-finar-bg">
+      <LinearGradient
+        colors={['#0D0D0F', '#0d1520', '#0f1a26', '#0D0D0F']}
+        locations={[0, 0.35, 0.65, 1]}
+        className="absolute inset-0"
+      />
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.logoSection}>
-          <View style={styles.logoBox}>
-            <Text style={styles.logoIcon}>▶</Text>
-          </View>
-          <Text style={styles.brandTitle}>Finar</Text>
-          <Text style={styles.tagline}>Your Jellyfin Experience</Text>
-        </View>
-
-        <View style={styles.formCard}>
-          <Text style={styles.welcomeTitle}>Welcome</Text>
-          <Text style={styles.welcomeSubtitle}>Sign in to your Jellyfin server</Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Server URL (e.g. https://jellyfin.example.com)"
-            placeholderTextColor={colors.textTertiary}
-            value={serverUrl}
-            onChangeText={setServerUrl}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            placeholderTextColor={colors.textTertiary}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={colors.textTertiary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword((p) => !p)}
-            style={styles.showPassword}
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 48, paddingHorizontal: 32 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Animated.View
+            entering={FadeInDown.delay(100).duration(500)}
+            className="items-center mb-12"
           >
-            <Text style={styles.showPasswordText}>
-              {showPassword ? 'Hide' : 'Show'} password
-            </Text>
-          </TouchableOpacity>
-
-          {error && (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View className="w-[76px] h-[76px] rounded-[18px] bg-finar-primary items-center justify-center shadow-finar-glow">
+              <Text className="text-[44px] text-finar-text-on-primary">▶</Text>
             </View>
-          )}
+            <Text
+              className="text-[44px] font-semibold text-finar-primary mt-4 tracking-tight"
+              style={{ fontFamily: 'Outfit_600SemiBold' }}
+            >
+              Finar
+            </Text>
+            <Text
+              className="text-sm text-finar-text-tertiary mt-1 tracking-widest"
+              style={{ fontFamily: 'Outfit_400Regular' }}
+            >
+              Your Jellyfin Experience
+            </Text>
+          </Animated.View>
 
-          <TouchableOpacity
-            style={[styles.button, styles.buttonPrimary]}
-            onPress={handleLogin}
-            disabled={isLoading}
+          <Animated.View
+            entering={FadeIn.delay(300).duration(500)}
+            className="bg-finar-surface/95 border border-finar-glass-border rounded-finar-xl p-8 max-w-[420px] w-full self-center"
           >
-            {isLoading ? (
-              <ActivityIndicator color={colors.textOnPrimary} />
-            ) : (
-              <Text style={styles.buttonTextPrimary}>Sign In</Text>
+            <Text
+              className="text-[28px] font-semibold text-finar-text-primary"
+              style={{ fontFamily: 'Outfit_600SemiBold' }}
+            >
+              Welcome
+            </Text>
+            <Text
+              className="text-sm text-finar-text-secondary mt-2 mb-6"
+              style={{ fontFamily: 'Outfit_400Regular' }}
+            >
+              Sign in to your Jellyfin server
+            </Text>
+
+            <TextInput
+              className="bg-finar-bg-secondary rounded-finar-md px-4 py-4 text-base text-finar-text-primary border border-finar-glass-border mb-4"
+              placeholder="Server URL (e.g. https://jellyfin.example.com)"
+              placeholderTextColor="#707070"
+              value={serverUrl}
+              onChangeText={setServerUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+            />
+            <TextInput
+              className="bg-finar-bg-secondary rounded-finar-md px-4 py-4 text-base text-finar-text-primary border border-finar-glass-border mb-4"
+              placeholder="Username"
+              placeholderTextColor="#707070"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+            />
+            <TextInput
+              className="bg-finar-bg-secondary rounded-finar-md px-4 py-4 text-base text-finar-text-primary border border-finar-glass-border mb-2"
+              placeholder="Password"
+              placeholderTextColor="#707070"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword((p) => !p)}
+              className="self-end mb-4"
+            >
+              <Text
+                className="text-sm text-finar-primary"
+                style={{ fontFamily: 'Outfit_500Medium' }}
+              >
+                {showPassword ? 'Hide' : 'Show'} password
+              </Text>
+            </TouchableOpacity>
+
+            {error && (
+              <Animated.View
+                entering={FadeIn.duration(200)}
+                className="bg-finar-error/20 rounded-finar-md p-4 mb-4 border border-finar-error/50"
+              >
+                <Text className="text-sm text-finar-error">{error}</Text>
+              </Animated.View>
             )}
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, styles.buttonOutlined]}
-            onPress={handleQuickConnect}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonTextOutlined}>Quick Connect</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <TouchableOpacity
+              className="bg-finar-primary py-4 rounded-finar-md items-center justify-center min-h-[56px] mb-4"
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#0D0D0F" />
+              ) : (
+                <Text
+                  className="text-base font-semibold text-finar-text-on-primary"
+                  style={{ fontFamily: 'Outfit_600SemiBold' }}
+                >
+                  Sign In
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="py-4 rounded-finar-md border border-finar-glass-border items-center justify-center min-h-[56px]"
+              onPress={handleQuickConnect}
+              disabled={isLoading}
+            >
+              <Text
+                className="text-base font-semibold text-finar-text-primary"
+                style={{ fontFamily: 'Outfit_600SemiBold' }}
+              >
+                Quick Connect
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: spacing.xl,
-    paddingTop: 48,
-    paddingBottom: 48,
-  },
-  logoSection: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  logoBox: {
-    width: 76,
-    height: 76,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoIcon: {
-    fontSize: 44,
-    color: colors.textOnPrimary,
-  },
-  brandTitle: {
-    fontSize: 44,
-    fontWeight: '700',
-    color: colors.primary,
-    marginTop: spacing.md,
-    letterSpacing: -1,
-  },
-  tagline: {
-    fontSize: 14,
-    color: colors.textTertiary,
-    marginTop: 4,
-    letterSpacing: 1.5,
-  },
-  formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    maxWidth: 420,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  welcomeTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  welcomeSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  input: {
-    backgroundColor: colors.backgroundSecondary,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: 16,
-    color: colors.textPrimary,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    marginBottom: spacing.md,
-  },
-  showPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: spacing.md,
-  },
-  showPasswordText: {
-    fontSize: 14,
-    color: colors.primary,
-  },
-  errorBox: {
-    backgroundColor: colors.error + '20',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.error + '50',
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: 14,
-  },
-  button: {
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 56,
-    marginBottom: spacing.md,
-  },
-  buttonPrimary: {
-    backgroundColor: colors.primary,
-  },
-  buttonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textOnPrimary,
-  },
-  buttonOutlined: {
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-  },
-  buttonTextOutlined: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  quickTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  quickSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: spacing.lg,
-  },
-  codeBox: {
-    backgroundColor: colors.primary + '20',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.lg,
-    marginBottom: spacing.md,
-    alignItems: 'center',
-  },
-  codeText: {
-    fontSize: 42,
-    fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 8,
-  },
-  codeSpinner: {
-    marginBottom: spacing.md,
-  },
-});
