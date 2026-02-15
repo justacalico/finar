@@ -36,7 +36,7 @@ export function ItemDetail() {
   const [downloadingAll, setDownloadingAll] = useState(false);
   const highlightedEpisodeRef = useRef<HTMLDivElement | null>(null);
   const highlightedTrackRef = useRef<HTMLDivElement | null>(null);
-  const { play, playLocalFile } = usePlayerStore();
+  const { play, playLocalFile, setQueue } = usePlayerStore();
   const { isTauriEnv, getTaskForItem, startDownload, cancelDownload, isItemDownloaded } =
     useDownloadsStore();
 
@@ -202,6 +202,7 @@ export function ItemDetail() {
       return;
     }
     if (isAlbum && tracks.length > 0) {
+      setQueue(tracks);
       play(tracks[0]);
       navigate("/player");
       return;
@@ -598,12 +599,14 @@ export function ItemDetail() {
                   role="button"
                   tabIndex={0}
                   onClick={() => {
+                    setQueue(tracks);
                     play(track);
                     navigate("/player");
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
+                      setQueue(tracks);
                       play(track);
                       navigate("/player");
                     }

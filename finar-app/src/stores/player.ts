@@ -19,6 +19,8 @@ interface PlayerState {
   playLocalFile: (item: MediaItem, localPath: string) => void;
   playNext: () => void;
   playPrevious: () => void;
+  /** Switch to a specific item in the queue (e.g. user tapped a queue entry). */
+  playFromQueue: (item: MediaItem) => void;
   playOrPause: () => void;
   seek: (position: number) => void;
   setDuration: (d: number) => void;
@@ -68,6 +70,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const idx = currentItem ? queue.findIndex((i) => i.Id === currentItem.Id) : -1;
     const prev = idx > 0 ? queue[idx - 1] : null;
     if (prev) set({ currentItem: prev, isPlaying: true, position: 0, duration: 0 });
+  },
+
+  playFromQueue(item) {
+    set({ currentItem: item, isPlaying: true, position: 0, duration: 0 });
   },
 
   playOrPause() {

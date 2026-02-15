@@ -6,6 +6,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { usePlayerStore } from "../stores/player";
 import { api } from "../api/jellyfin";
+import { getDisplayImageUrl } from "../utils/image";
 
 /** Ref used by the xhr wrapper to append auth to HLS segment requests. */
 const hlsAuthQueryRef = { current: "" };
@@ -66,6 +67,7 @@ export function Player() {
   const {
     currentItem,
     localPlaybackPath,
+    queue,
     isPlaying,
     position,
     duration,
@@ -73,6 +75,7 @@ export function Player() {
     setDuration,
     playNext,
     playPrevious,
+    playFromQueue,
     stop,
   } = usePlayerStore();
   const [showControls, setShowControls] = useState(true);
@@ -343,6 +346,9 @@ export function Player() {
 
   if (!currentItem) return null;
 
+  const isMusic = currentItem.Type === "Audio";
+  const musicArtUrl = isMusic ? getDisplayImageUrl(currentItem, { maxWidth: 600 }) : "";
+
   if (playbackError) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-black p-6">
@@ -360,6 +366,158 @@ export function Player() {
         >
           Go back
         </button>
+      </div>
+    );
+  }
+
+  if (isMusic) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-background">
+        {/* Audio still plays via video.js; container hidden */}
+        <div
+          ref={containerRef}
+          className="video-js-wrapper absolute left-0 top-0 h-1 w-1 overflow-hidden opacity-0"
+          data-vjs-player
+          aria-hidden
+        />
+        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+          <div className="flex flex-1 flex-col p-4 md:justify-center md:p-8">
+            <div className="flex items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="rounded-lg p-2 text-text-primary hover:bg-white/10"
+              >
+                ← Back
+              </button>
+              <button
+                type="button"
+                onClick={() => { stop(); navigate("/"); }}
+                className="rounded-lg p-2 text-text-primary hover:bg-white/10"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex flex-1 flex-col items-center justify-center gap-6 py-8">
+              <div className="aspect-square w-full max-w-[280px] overflow-hidden rounded-2xl bg-surface shadow-xl">
+                {musicArtUrl ? (
+                  <img
+                    src={musicArtUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-6xl font-bold text-text-tertiary">
+                    {currentItem.Name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <div className="w-full max-w-md text-center">
+                <h1 className="text-xl font-bold text-text-primary md:text-2xl">
+                  {currentItem.Name}
+                </h1>
+                <p className="mt-1 truncate text-sm text-text-secondary">
+                  {[currentItem.AlbumArtist, ...(currentItem.Artists ?? [])]
+                    .filter(Boolean)
+                    .join(" · ") || currentItem.Album}
+                </p>
+                {currentItem.Album && currentItem.AlbumArtist && (
+                  <p className="mt-0.5 text-xs text-text-tertiary">{currentItem.Album}</p>
+                )}
+              </div>
+              <div className="w-full max-w-md space-y-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 100}
+                  value={position}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    const p = playerRef.current;
+                    if (p && !p.isDisposed()) {
+                      p.currentTime(v);
+                      setPosition(v);
+                    }
+                  }}
+                  className="h-2 w-full accent-primary"
+                />
+                <div className="flex items-center justify-between text-xs text-text-tertiary">
+                  <span>{formatTime(position)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+                <div className="flex items-center justify-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => playPrevious()}
+                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                  >
+                    <SkipBack className="h-8 w-8" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePlayPause}
+                    className="rounded-full bg-primary p-4 text-background hover:opacity-90"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-8 w-8" fill="currentColor" />
+                    ) : (
+                      <Play className="h-8 w-8" fill="currentColor" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => playNext()}
+                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                  >
+                    <SkipForward className="h-8 w-8" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMuted((m) => !m);
+                      const p = playerRef.current;
+                      if (p && !p.isDisposed()) p.muted(!muted);
+                    }}
+                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                  >
+                    {muted ? (
+                      <VolumeX className="h-6 w-6" />
+                    ) : (
+                      <Volume2 className="h-6 w-6" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex w-full flex-col border-t border-white/10 md:w-80 md:border-l md:border-t-0">
+            <div className="p-3 font-semibold text-text-primary">Queue</div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+              {queue.length === 0 ? (
+                <p className="py-4 text-center text-sm text-text-tertiary">No upcoming tracks</p>
+              ) : (
+                <ul className="space-y-1">
+                  {queue.map((q) => (
+                    <li key={q.Id}>
+                      <button
+                        type="button"
+                        onClick={() => playFromQueue(q)}
+                        className={`flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10 ${
+                          q.Id === currentItem.Id ? "bg-primary/20 text-primary" : "text-text-primary"
+                        }`}
+                      >
+                        <span className="truncate text-sm font-medium">{q.Name}</span>
+                        <span className="truncate text-xs text-text-tertiary">
+                          {[q.AlbumArtist, ...(q.Artists ?? [])].filter(Boolean).join(" · ") || q.Album}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
