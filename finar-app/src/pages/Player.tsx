@@ -143,7 +143,23 @@ export function Player() {
     video.removeAttribute("src");
     if (isHls && streamUrl.includes(".m3u8")) {
       if (Hls.isSupported() && !canPlayHlsNatively()) {
-        const hls = new Hls({ enableWorker: true });
+        const manifestUrl = new URL(streamUrl);
+        const authParams = manifestUrl.searchParams.toString();
+        if (!authParams) {
+          video.src = streamUrl;
+          video.addEventListener("loadedmetadata", () => onReady(), { once: true });
+          return;
+        }
+        const manifestBase = streamUrl.split("?")[0];
+        const hls = new Hls({
+          enableWorker: true,
+          fetchSetup: (context, initParams) => {
+            const resolved = new URL(context.url, manifestBase);
+            const sep = resolved.search ? "&" : "?";
+            const urlWithAuth = resolved.href + sep + authParams;
+            return new Request(urlWithAuth, initParams);
+          },
+        });
         hlsRef.current = hls;
         hls.loadSource(streamUrl);
         hls.attachMedia(video);
