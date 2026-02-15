@@ -41,7 +41,7 @@ export function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background md:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden bg-background md:flex-row">
       {/* Desktop sidebar */}
       <aside
         className={`hidden border-r border-white/10 bg-background-secondary md:flex md:flex-col ${
@@ -257,8 +257,8 @@ export function Layout() {
         )}
       </AnimatePresence>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      {/* Main content - single scroll region, no visible scrollbar */}
+      <main className="app-main-scroll min-h-0 flex-1 overflow-auto">
         <Outlet />
       </main>
     </div>

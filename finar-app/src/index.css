@@ -33,10 +33,47 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 #root {
   min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Native app feel: hide scrollbars everywhere, keep scroll behavior */
+.scrollbar-hide,
+.overflow-x-auto,
+.overflow-y-auto,
+.overflow-auto {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+  display: none;
+}
+
+/* Main app scroll area - single scrollable region like a native window */
+.app-main-scroll {
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+.app-main-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sidebar nav - scroll without visible scrollbar */
+aside nav {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+aside nav::-webkit-scrollbar {
+  display: none;
 }
 
 /* Video.js overrides for dark theme */
