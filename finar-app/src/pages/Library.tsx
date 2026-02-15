@@ -59,7 +59,7 @@ export function Library() {
         setLibrary(lib ?? null);
         let list = result?.Items ?? [];
         if (isMusicLibrary(lib ?? null)) {
-          const [albumsRes, artistsRes, tracksRes] = await Promise.all([
+          const [albumsRes, artistsRes, tracksRes, directChildrenRes] = await Promise.all([
             api.getItems({
               parentId: id!,
               includeItemTypes: ["MusicAlbum"],
@@ -71,7 +71,7 @@ export function Library() {
             }),
             api.getItems({
               parentId: id!,
-              includeItemTypes: ["MusicArtist"],
+              includeItemTypes: ["MusicArtist", "Folder"],
               recursive: true,
               limit: 200,
               sortBy: "SortName",
@@ -87,10 +87,28 @@ export function Library() {
               sortOrder: "Ascending",
               fields: ["Overview", "MediaSources"],
             }),
+            api.getItems({
+              parentId: id!,
+              recursive: false,
+              limit: 100,
+              sortBy: "SortName",
+              sortOrder: "Ascending",
+              fields: ["Overview"],
+              excludeItemTypes: ["Playlist", "UserView", "CollectionFolder"],
+            }),
           ]);
           if (!cancelled) {
             setAlbums(albumsRes?.Items ?? []);
-            setArtists(artistsRes?.Items ?? []);
+            const artistItems = artistsRes?.Items ?? [];
+            const directChildren = directChildrenRes?.Items ?? [];
+            const hasRealArtists = artistItems.length > 0;
+            const artistFolders =
+              !hasRealArtists && directChildren.length > 0
+                ? directChildren.filter(
+                    (i) => i.Type === "Folder" || i.Type === "MusicArtist"
+                  )
+                : [];
+            setArtists(hasRealArtists ? artistItems : artistFolders);
             setTracks(tracksRes?.Items ?? []);
           }
           list = [];
@@ -159,9 +177,9 @@ export function Library() {
 
       {musicLibrary ? (
         <div className="flex flex-col gap-10">
-          {albums.length > 0 && (
-            <section>
-              <h2 className="mb-3 text-lg font-semibold text-text-primary">Albums</h2>
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">Albums</h2>
+            {albums.length > 0 ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {albums.map((album, i) => (
                   <MediaCard
@@ -172,11 +190,13 @@ export function Library() {
                   />
                 ))}
               </div>
-            </section>
-          )}
-          {artists.length > 0 && (
-            <section>
-              <h2 className="mb-3 text-lg font-semibold text-text-primary">Artists</h2>
+            ) : (
+              <p className="text-sm text-text-tertiary">No albums in this library.</p>
+            )}
+          </section>
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">Artists</h2>
+            {artists.length > 0 ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {artists.map((artist, i) => (
                   <MediaCard
@@ -187,11 +207,13 @@ export function Library() {
                   />
                 ))}
               </div>
-            </section>
-          )}
-          {tracks.length > 0 && (
-            <section>
-              <h2 className="mb-3 text-lg font-semibold text-text-primary">Tracks</h2>
+            ) : (
+              <p className="text-sm text-text-tertiary">No artists in this library.</p>
+            )}
+          </section>
+          <section>
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">Tracks</h2>
+            {tracks.length > 0 ? (
               <div className="rounded-xl bg-surface">
                 <div className="divide-y divide-white/10">
                   {tracks.map((track) => {
@@ -242,11 +264,10 @@ export function Library() {
                   })}
                 </div>
               </div>
-            </section>
-          )}
-          {albums.length === 0 && artists.length === 0 && tracks.length === 0 && (
-            <p className="text-text-tertiary">No music in this library.</p>
-          )}
+            ) : (
+              <p className="text-sm text-text-tertiary">No tracks in this library.</p>
+            )}
+          </section>
         </div>
       ) : items.length === 0 ? (
         <p className="text-text-tertiary">No items in this library.</p>
