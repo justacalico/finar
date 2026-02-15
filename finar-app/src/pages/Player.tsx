@@ -425,7 +425,7 @@ export function Player() {
                   <p className="mt-0.5 text-xs text-text-tertiary">{currentItem.Album}</p>
                 )}
               </div>
-              <div className="w-full max-w-md space-y-3">
+              <div className="flex w-full max-w-md flex-col items-center space-y-3">
                 <input
                   type="range"
                   min={0}
@@ -441,11 +441,11 @@ export function Player() {
                   }}
                   className="h-2 w-full accent-primary"
                 />
-                <div className="flex items-center justify-between text-xs text-text-tertiary">
+                <div className="flex w-full items-center justify-between text-xs text-text-tertiary">
                   <span>{formatTime(position)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
-                <div className="flex items-center justify-center gap-4">
+                <div className="flex w-full items-center justify-center gap-4">
                   <button
                     type="button"
                     onClick={() => playPrevious()}
