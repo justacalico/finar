@@ -43,19 +43,23 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
     );
 
   const sidebar = (
-    <View className="w-[280px] bg-finar-bg-secondary border-r border-finar-divider">
-      <View className="px-6 pt-7 pb-5 border-b border-finar-divider">
-        <Text className="text-[26px] text-finar-primary">▶</Text>
-        <Text className="text-2xl text-finar-text-primary mt-1" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+    <View className="w-[248px] bg-[#0A0B10] border-r border-white/5">
+      <View className="px-5 pt-6 pb-5 border-b border-white/5 flex-row items-center gap-2">
+        <View className="w-7 h-7 rounded-lg bg-finar-primary items-center justify-center">
+          <Text className="text-xs text-finar-text-on-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+            ▶
+          </Text>
+        </View>
+        <Text className="text-[26px] text-finar-text-primary mt-0.5" style={{ fontFamily: 'Outfit_600SemiBold' }}>
           Finar
         </Text>
       </View>
 
-      <View className="px-3 pt-4">
-        <ShellNavButton icon="🏠" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
-        <ShellNavButton icon="🔎" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
+      <View className="px-3 pt-3">
+        <ShellNavButton icon="⌂" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
+        <ShellNavButton icon="⌕" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
         <ShellNavButton
-          icon="📚"
+          icon="▦"
           label="Library"
           active={activeTab === 'library'}
           onPress={() => go('Library', { libraryId: '' })}
@@ -63,19 +67,19 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
         <ShellNavButton icon="⚙" label="Settings" active={activeTab === 'settings'} onPress={() => go('Settings')} />
       </View>
 
-      <View className="px-5 pt-6">
+      <View className="px-5 pt-5">
         <Text className="text-xs text-finar-text-tertiary mb-2 uppercase tracking-[1px]" style={{ fontFamily: 'Outfit_500Medium' }}>
-          Collections
+          Libraries
         </Text>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
           {libraries.slice(0, 10).map((lib) => (
             <TouchableOpacity
               key={lib.id}
               onPress={() => go('Library', { libraryId: lib.id, isMusic: lib.collectionType?.toLowerCase() === 'music' })}
-              className="flex-row items-center gap-2.5 py-2.5 px-2 rounded-finar-md"
+              className="flex-row items-center gap-2.5 py-2.5 px-2 rounded-finar-md hover:bg-white/5"
             >
-              <Text>{iconForLibrary(lib.collectionType)}</Text>
-              <Text className="text-sm text-finar-text-secondary flex-1" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
+              <Text className="text-xs">{iconForLibrary(lib.collectionType)}</Text>
+              <Text className="text-[13px] text-finar-text-secondary flex-1" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
                 {lib.name}
               </Text>
             </TouchableOpacity>
@@ -83,12 +87,15 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
         </ScrollView>
       </View>
 
-      <View className="mt-auto border-t border-finar-divider px-5 py-4">
-        <Text className="text-sm text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+      <View className="mt-auto border-t border-white/5 px-4 py-4">
+        <Text className="text-sm text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }} numberOfLines={1}>
           {user?.name ?? 'Guest'}
         </Text>
+        <Text className="text-[11px] text-finar-text-tertiary mt-0.5" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
+          Connected
+        </Text>
         <TouchableOpacity onPress={logout} className="mt-1">
-          <Text className="text-sm text-finar-primary" style={{ fontFamily: 'Outfit_500Medium' }}>
+          <Text className="text-[13px] text-finar-primary" style={{ fontFamily: 'Outfit_500Medium' }}>
             Sign out
           </Text>
         </TouchableOpacity>
@@ -98,20 +105,20 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
 
   if (isDesktop) {
     return (
-      <View className="flex-1 flex-row bg-finar-bg">
+      <View className="flex-1 flex-row bg-[#05060A]">
         {sidebar}
-        <View className="flex-1 relative bg-finar-bg">
+        <View className="flex-1 relative bg-[#07080D]">
           <LinearGradient
-            colors={['rgba(0,229,184,0.10)', 'rgba(0,184,217,0.05)', 'rgba(13,13,15,0)']}
+            colors={['rgba(0,229,184,0.07)', 'rgba(0,184,217,0.03)', 'rgba(13,13,15,0)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 240 }}
           />
-          <View className="h-20 px-8 border-b border-finar-divider flex-row items-center justify-between">
-            <Text className="text-[26px] text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+          <View className="h-14 px-7 border-b border-white/5 flex-row items-center justify-between">
+            <Text className="text-[18px] text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
               {title}
             </Text>
-            <Text className="text-sm text-finar-text-tertiary" style={{ fontFamily: 'Outfit_400Regular' }}>
+            <Text className="text-xs text-finar-text-tertiary" style={{ fontFamily: 'Outfit_400Regular' }}>
               Jellyfin client
             </Text>
           </View>
@@ -139,10 +146,10 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
       </View>
       <View className="flex-1">{children}</View>
       <View className="flex-row border-t border-finar-divider bg-finar-bg-secondary pb-6 pt-2">
-        <MobileNavButton icon="🏠" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
-        <MobileNavButton icon="🔎" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
+        <MobileNavButton icon="⌂" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
+        <MobileNavButton icon="⌕" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
         <MobileNavButton
-          icon="📚"
+          icon="▦"
           label="Library"
           active={activeTab === 'library'}
           onPress={() => go('Library', { libraryId: '' })}
@@ -168,11 +175,11 @@ function ShellNavButton({
       onPress={onPress}
       className={`flex-row items-center gap-2.5 px-3 py-3 rounded-finar-md mb-1 border ${
         active
-          ? 'bg-finar-primary/10 border-finar-primary/50'
+          ? 'bg-[#0E2623] border-finar-primary/35'
           : 'bg-transparent border-transparent'
       }`}
     >
-      <Text className="text-base">{icon}</Text>
+      <Text className={`text-base ${active ? 'text-finar-primary' : 'text-finar-text-tertiary'}`}>{icon}</Text>
       <Text
         className={`${active ? 'text-finar-text-primary' : 'text-finar-text-secondary'} text-[15px]`}
         style={{ fontFamily: active ? 'Outfit_600SemiBold' : 'Outfit_500Medium' }}

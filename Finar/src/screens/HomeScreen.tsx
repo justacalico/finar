@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
 import { SectionRow } from '../components/SectionRow';
-import { getBackdropImageUrl, getHeroTitle } from '../api/itemImages';
+import { getBackdropImageUrl, getHeroTitle, formatRuntime } from '../api/itemImages';
 import type { MediaItem } from '../api/models';
 import { Image } from 'expo-image';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -20,7 +20,7 @@ export function HomeScreen() {
 
   const serverUrl = api.serverUrl ?? '';
   const isWide = width >= 900;
-  const featuredHeight = useMemo(() => (isWide ? 360 : 250), [isWide]);
+  const featuredHeight = useMemo(() => (isWide ? 390 : 290), [isWide]);
   const sectionCardWidth = useMemo(() => {
     if (width >= 1600) return 200;
     if (width >= 1200) return 180;
@@ -64,7 +64,7 @@ export function HomeScreen() {
   }
 
   return (
-    <AppShell activeTab="home" title="Discover">
+    <AppShell activeTab="home" title="Home">
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -73,7 +73,7 @@ export function HomeScreen() {
         }
       >
         {featuredItem && (
-          <Animated.View entering={FadeIn.duration(450)} className="mx-4 mt-4 mb-7">
+          <Animated.View entering={FadeIn.duration(450)} className="mx-4 mt-3 mb-7">
             <TouchableOpacity
               className="rounded-finar-xl overflow-hidden border border-finar-glass-border shadow-finar-card"
               style={{ height: featuredHeight }}
@@ -85,9 +85,32 @@ export function HomeScreen() {
                 className="absolute inset-0 w-full h-full"
                 contentFit="cover"
               />
-              <View className="absolute inset-0 bg-black/50" />
-              <View className="absolute inset-0 bg-black/25" />
+              <View className="absolute inset-0 bg-black/35" />
+              <View className="absolute inset-x-0 bottom-0 h-48 bg-black/55" />
               <Animated.View entering={FadeInDown.delay(140)} className="absolute left-0 right-0 bottom-0 p-6">
+                <View className="flex-row items-center gap-2 mb-2">
+                  {featuredItem.communityRating ? (
+                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
+                      <Text className="text-[11px] text-finar-warning" style={{ fontFamily: 'Outfit_500Medium' }}>
+                        ★ {featuredItem.communityRating.toFixed(1)}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {featuredItem.productionYear ? (
+                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
+                      <Text className="text-[11px] text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+                        {featuredItem.productionYear}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {featuredItem.runtimeTicks ? (
+                    <View className="px-2 py-1 rounded-full bg-black/45 border border-white/10">
+                      <Text className="text-[11px] text-finar-text-secondary" style={{ fontFamily: 'Outfit_400Regular' }}>
+                        {formatRuntime(featuredItem.runtimeTicks)}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
                 <Text
                   className="text-[30px] text-finar-text-primary"
                   style={{ fontFamily: 'Outfit_600SemiBold' }}
@@ -97,14 +120,14 @@ export function HomeScreen() {
                 </Text>
                 {featuredItem.overview ? (
                   <Text
-                    className="text-sm text-finar-text-secondary mt-2"
+                    className="text-[13px] text-finar-text-secondary mt-1.5"
                     style={{ fontFamily: 'Outfit_400Regular' }}
-                    numberOfLines={2}
+                    numberOfLines={3}
                   >
                     {featuredItem.overview}
                   </Text>
                 ) : null}
-                <View className="flex-row gap-3 mt-5">
+                <View className="flex-row gap-3 mt-4">
                   <TouchableOpacity className="bg-finar-primary px-7 py-3 rounded-finar-md" onPress={() => navigateToPlayer(featuredItem)}>
                     <Text className="text-finar-text-on-primary text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
                       Play
@@ -115,7 +138,7 @@ export function HomeScreen() {
                     onPress={() => navigateToDetail(featuredItem.id)}
                   >
                     <Text className="text-finar-text-primary text-base" style={{ fontFamily: 'Outfit_600SemiBold' }}>
-                      Details
+                      More Info
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -131,6 +154,7 @@ export function HomeScreen() {
           onItemPress={navigateToDetail}
           showProgress
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
         <SectionRow
           title="Next Up"
@@ -138,6 +162,7 @@ export function HomeScreen() {
           serverUrl={serverUrl}
           onItemPress={navigateToDetail}
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
         <SectionRow
           title="Recently Added"
@@ -145,6 +170,7 @@ export function HomeScreen() {
           serverUrl={serverUrl}
           onItemPress={navigateToDetail}
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
         <SectionRow
           title="Recommended For You"
@@ -152,6 +178,7 @@ export function HomeScreen() {
           serverUrl={serverUrl}
           onItemPress={navigateToDetail}
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
         <SectionRow
           title="Top Rated"
@@ -159,6 +186,7 @@ export function HomeScreen() {
           serverUrl={serverUrl}
           onItemPress={navigateToDetail}
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
         <SectionRow
           title="My Favorites"
@@ -166,6 +194,7 @@ export function HomeScreen() {
           serverUrl={serverUrl}
           onItemPress={navigateToDetail}
           cardWidth={sectionCardWidth}
+          onSeeAllPress={() => (navigation as { navigate: (name: string, params?: object) => void }).navigate('Library', { libraryId: '' })}
         />
 
         {libraries.length > 0 && (
