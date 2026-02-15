@@ -2,6 +2,20 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import {
+  House,
+  Search,
+  Heart,
+  Download,
+  Film,
+  Music,
+  Folder,
+  ListMusic,
+  Tv,
+  Settings,
+  LogOut,
+  LibraryBig,
+} from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLibrary } from '../../context/LibraryContext';
 
@@ -13,28 +27,38 @@ type AppShellProps = {
   title: string;
 };
 
-function iconForLibrary(collectionType?: string): string {
+function libraryIcon(collectionType?: string) {
+  const color = '#9CA3AF';
+  const size = 18;
   switch (collectionType?.toLowerCase()) {
     case 'movies':
-      return '🎬';
-    case 'tvshows':
-      return '📺';
+      return <Film size={size} color={color} />;
     case 'music':
-      return '🎵';
-    case 'photos':
-      return '🖼';
+      return <Music size={size} color={color} />;
+    case 'musicvideos':
+      return <Folder size={size} color={color} />;
+    case 'playlists':
+      return <ListMusic size={size} color={color} />;
+    case 'tvshows':
+      return <Tv size={size} color={color} />;
     default:
-      return '📁';
+      return <LibraryBig size={size} color={color} />;
   }
+}
+
+function truncate(value: string, max = 18): string {
+  if (value.length <= max) return value;
+  return `${value.slice(0, max - 3)}...`;
 }
 
 export function AppShell({ children, activeTab, title }: AppShellProps) {
   const { width } = useWindowDimensions();
   const navigation = useNavigation();
   const isDesktop = width >= 900;
-  const { state: authState, logout } = useAuth();
+  const { state: authState, logout, api } = useAuth();
   const { libraries } = useLibrary();
   const user = authState.status === 'authenticated' ? authState.user : null;
+  const serverUrl = api.serverUrl ?? 'Not connected';
 
   const go = (name: string, params?: object) =>
     (navigation as { navigate: (route: string, routeParams?: object) => void }).navigate(
@@ -42,62 +66,145 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
       params
     );
 
+  const navItems = [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: <House size={20} color={activeTab === 'home' ? '#00E5B8' : '#9CA3AF'} />,
+      onPress: () => go('Home'),
+      active: activeTab === 'home',
+    },
+    {
+      id: 'search',
+      label: 'Search',
+      icon: <Search size={20} color={activeTab === 'search' ? '#00E5B8' : '#9CA3AF'} />,
+      onPress: () => go('Search'),
+      active: activeTab === 'search',
+    },
+    {
+      id: 'favorites',
+      label: 'Favorites',
+      icon: <Heart size={20} color="#9CA3AF" />,
+      onPress: () => go('Home'),
+      active: false,
+    },
+    {
+      id: 'downloads',
+      label: 'Downloads',
+      icon: <Download size={20} color="#9CA3AF" />,
+      onPress: () => go('Home'),
+      active: false,
+    },
+  ];
+
   const sidebar = (
-    <View className="w-[248px] bg-[#0A0B10] border-r border-white/5">
-      <View className="px-5 pt-6 pb-5 border-b border-white/5 flex-row items-center gap-2">
-        <View className="w-7 h-7 rounded-lg bg-finar-primary items-center justify-center">
-          <Text className="text-xs text-finar-text-on-primary" style={{ fontFamily: 'Outfit_600SemiBold' }}>
-            ▶
-          </Text>
+    <View className="w-[280px] bg-[#0D0D0F] px-4 pt-6 pb-4 border-r border-white/5">
+      <View className="flex-row items-center gap-3 px-2 mb-8">
+        <View className="w-11 h-11 rounded-xl bg-finar-primary items-center justify-center shadow-finar-glow">
+          <View className="w-5 h-5 rounded-full bg-[#041B18] items-center justify-center">
+            <Text className="text-[9px] text-finar-primary ml-[1px]" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+              ▶
+            </Text>
+          </View>
         </View>
-        <Text className="text-[26px] text-finar-text-primary mt-0.5" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+        <Text className="text-[40px] leading-[42px] text-white" style={{ fontFamily: 'Outfit_600SemiBold' }}>
           Finar
         </Text>
       </View>
 
-      <View className="px-3 pt-3">
-        <ShellNavButton icon="⌂" label="Home" active={activeTab === 'home'} onPress={() => go('Home')} />
-        <ShellNavButton icon="⌕" label="Search" active={activeTab === 'search'} onPress={() => go('Search')} />
-        <ShellNavButton
-          icon="▦"
-          label="Library"
-          active={activeTab === 'library'}
-          onPress={() => go('Library', { libraryId: '' })}
-        />
-        <ShellNavButton icon="⚙" label="Settings" active={activeTab === 'settings'} onPress={() => go('Settings')} />
+      <View className="mb-7">
+        {navItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            onPress={item.onPress}
+            className={`w-full flex-row items-center gap-4 px-4 py-3.5 rounded-xl mb-1 ${
+              item.active
+                ? 'bg-[#152A28] border border-[#00E5B8]/30'
+                : 'bg-transparent border border-transparent'
+            }`}
+          >
+            {item.icon}
+            <Text
+              className={`text-base ${item.active ? 'text-white' : 'text-[#9CA3AF]'}`}
+              style={{ fontFamily: item.active ? 'Outfit_600SemiBold' : 'Outfit_500Medium' }}
+            >
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <View className="px-5 pt-5">
-        <Text className="text-xs text-finar-text-tertiary mb-2 uppercase tracking-[1px]" style={{ fontFamily: 'Outfit_500Medium' }}>
-          Libraries
+      <View className="flex-1">
+        <Text
+          className="text-[11px] text-[#4B5563] tracking-[4px] mb-4 px-4"
+          style={{ fontFamily: 'Outfit_600SemiBold' }}
+        >
+          LIBRARIES
         </Text>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
-          {libraries.slice(0, 10).map((lib) => (
-            <TouchableOpacity
-              key={lib.id}
-              onPress={() => go('Library', { libraryId: lib.id, isMusic: lib.collectionType?.toLowerCase() === 'music' })}
-              className="flex-row items-center gap-2.5 py-2.5 px-2 rounded-finar-md hover:bg-white/5"
-            >
-              <Text className="text-xs">{iconForLibrary(lib.collectionType)}</Text>
-              <Text className="text-[13px] text-finar-text-secondary flex-1" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
-                {lib.name}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="gap-1">
+            {libraries.map((lib) => (
+              <TouchableOpacity
+                key={lib.id}
+                onPress={() =>
+                  go('Library', {
+                    libraryId: lib.id,
+                    isMusic: lib.collectionType?.toLowerCase() === 'music',
+                  })
+                }
+                className="w-full flex-row items-center justify-between px-4 py-3 rounded-xl"
+              >
+                <View className="flex-row items-center gap-4 flex-1">
+                  {libraryIcon(lib.collectionType)}
+                  <Text
+                    className="text-base text-[#9CA3AF] flex-1"
+                    numberOfLines={1}
+                    style={{ fontFamily: 'Outfit_500Medium' }}
+                  >
+                    {lib.name}
+                  </Text>
+                </View>
+                {typeof lib.childCount === 'number' && (
+                  <View className="w-7 h-7 rounded-full bg-[#1A1A1C] items-center justify-center">
+                    <Text className="text-[11px] text-[#4B5563]" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+                      {lib.childCount > 99 ? '99+' : lib.childCount}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity onPress={() => go('Settings')} className="w-full flex-row items-center gap-4 px-4 py-3 rounded-xl mt-3">
+              <Settings size={20} color="#9CA3AF" />
+              <Text className="text-base text-[#9CA3AF]" style={{ fontFamily: 'Outfit_500Medium' }}>
+                Settings
               </Text>
             </TouchableOpacity>
-          ))}
+          </View>
         </ScrollView>
       </View>
 
-      <View className="mt-auto border-t border-white/5 px-4 py-4">
-        <Text className="text-sm text-finar-text-primary" style={{ fontFamily: 'Outfit_600SemiBold' }} numberOfLines={1}>
-          {user?.name ?? 'Guest'}
-        </Text>
-        <Text className="text-[11px] text-finar-text-tertiary mt-0.5" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
-          Connected
-        </Text>
-        <TouchableOpacity onPress={logout} className="mt-1">
-          <Text className="text-[13px] text-finar-primary" style={{ fontFamily: 'Outfit_500Medium' }}>
-            Sign out
-          </Text>
+      <View className="mt-4 bg-[#151517] border border-white/10 p-3.5 rounded-2xl flex-row items-center justify-between">
+        <View className="flex-row items-center gap-3 flex-1">
+          <View className="w-[42px] h-[42px] rounded-xl bg-finar-primary items-center justify-center">
+            <Text className="text-base text-[#111]" style={{ fontFamily: 'Outfit_600SemiBold' }}>
+              {(user?.name ?? 'G').charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <View className="flex-1">
+            <Text className="text-[13px] text-white" numberOfLines={1} style={{ fontFamily: 'Outfit_600SemiBold' }}>
+              {truncate(user?.name ?? 'Guest', 13)}
+            </Text>
+            <Text className="text-[11px] text-[#4B5563] mt-0.5" numberOfLines={1} style={{ fontFamily: 'Outfit_400Regular' }}>
+              {truncate(serverUrl.replace(/^https?:\/\//, ''), 18)}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          onPress={logout}
+          className="w-9 h-9 rounded-full bg-[#252528] items-center justify-center"
+        >
+          <LogOut size={16} color="#9CA3AF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -156,37 +263,6 @@ export function AppShell({ children, activeTab, title }: AppShellProps) {
         />
       </View>
     </View>
-  );
-}
-
-function ShellNavButton({
-  icon,
-  label,
-  active,
-  onPress,
-}: {
-  icon: string;
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`flex-row items-center gap-2.5 px-3 py-3 rounded-finar-md mb-1 border ${
-        active
-          ? 'bg-[#0E2623] border-finar-primary/35'
-          : 'bg-transparent border-transparent'
-      }`}
-    >
-      <Text className={`text-base ${active ? 'text-finar-primary' : 'text-finar-text-tertiary'}`}>{icon}</Text>
-      <Text
-        className={`${active ? 'text-finar-text-primary' : 'text-finar-text-secondary'} text-[15px]`}
-        style={{ fontFamily: active ? 'Outfit_600SemiBold' : 'Outfit_500Medium' }}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
   );
 }
 
