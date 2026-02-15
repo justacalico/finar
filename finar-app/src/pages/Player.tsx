@@ -445,47 +445,49 @@ export function Player() {
                   <span>{formatTime(position)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
-                <div className="flex w-full items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => playPrevious()}
-                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
-                  >
-                    <SkipBack className="h-8 w-8" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePlayPause}
-                    className="rounded-full bg-primary p-4 text-background hover:opacity-90"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-8 w-8" fill="currentColor" />
-                    ) : (
-                      <Play className="h-8 w-8" fill="currentColor" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => playNext()}
-                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
-                  >
-                    <SkipForward className="h-8 w-8" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMuted((m) => !m);
-                      const p = playerRef.current;
-                      if (p && !p.isDisposed()) p.muted(!muted);
-                    }}
-                    className="rounded-full p-2 text-text-primary hover:bg-white/10"
-                  >
-                    {muted ? (
-                      <VolumeX className="h-6 w-6" />
-                    ) : (
-                      <Volume2 className="h-6 w-6" />
-                    )}
-                  </button>
+                <div className="flex w-full justify-center">
+                  <div className="inline-flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => playPrevious()}
+                      className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                    >
+                      <SkipBack className="h-8 w-8" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePlayPause}
+                      className="rounded-full bg-primary p-4 text-background hover:opacity-90"
+                    >
+                      {isPlaying ? (
+                        <Pause className="h-8 w-8" fill="currentColor" />
+                      ) : (
+                        <Play className="h-8 w-8" fill="currentColor" />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => playNext()}
+                      className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                    >
+                      <SkipForward className="h-8 w-8" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMuted((m) => !m);
+                        const p = playerRef.current;
+                        if (p && !p.isDisposed()) p.muted(!muted);
+                      }}
+                      className="rounded-full p-2 text-text-primary hover:bg-white/10"
+                    >
+                      {muted ? (
+                        <VolumeX className="h-6 w-6" />
+                      ) : (
+                        <Volume2 className="h-6 w-6" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
