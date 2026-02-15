@@ -13,6 +13,7 @@ import { ItemDetail } from "./pages/ItemDetail";
 import { Player } from "./pages/Player";
 import { Settings } from "./pages/Settings";
 import { Downloads } from "./pages/Downloads";
+import { ThemeApplicator } from "./components/ThemeApplicator";
 import "./index.css";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -72,8 +73,11 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <>
+      <ThemeApplicator />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </>
   );
 }
