@@ -59,6 +59,11 @@ async fn download_media_file(
     if !response.status().is_success() {
         return Err(format!("HTTP {}", response.status()));
     }
+    if let Some(parent) = std::path::Path::new(&payload.path).parent() {
+        tokio::fs::create_dir_all(parent)
+            .await
+            .map_err(|e| e.to_string())?;
+    }
     let total = response.content_length().unwrap_or(0);
     let stream = response.bytes_stream();
     let file = tokio::fs::File::create(&payload.path)

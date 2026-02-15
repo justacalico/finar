@@ -19,6 +19,13 @@ export interface DownloadTask {
   itemName: string;
   itemType?: string;
   primaryImageTag?: string;
+  /** TV: series id for grouping */
+  seriesId?: string | null;
+  seriesName?: string | null;
+  seasonId?: string | null;
+  seasonName?: string | null;
+  parentIndexNumber?: number | null;
+  indexNumber?: number | null;
   status: DownloadStatus;
   progress: number;
   totalBytes: number;
@@ -31,6 +38,11 @@ export interface DownloadTask {
 }
 
 const STORAGE_KEY = "finar-downloads";
+
+/** Sanitize for use in file and folder names */
+function sanitizePathSegment(name: string): string {
+  return name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").replace(/\s+/g, " ").trim() || "Unknown";
+}
 
 function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -129,12 +141,19 @@ export const useDownloadsStore = create<DownloadsState>()(
           return;
         }
         const taskId = `${item.Id}_${Date.now()}`;
+        const isEpisode = item.Type === "Episode";
         const task: DownloadTask = {
           id: taskId,
           itemId: item.Id,
           itemName: item.Name,
           itemType: item.Type,
           primaryImageTag: item.ImageTags?.Primary,
+          seriesId: item.SeriesId ?? null,
+          seriesName: item.SeriesName ?? null,
+          seasonId: item.SeasonId ?? null,
+          seasonName: item.SeasonName ?? null,
+          parentIndexNumber: item.ParentIndexNumber ?? null,
+          indexNumber: item.IndexNumber ?? null,
           status: "pending",
           progress: 0,
           totalBytes: 0,
@@ -179,8 +198,17 @@ export const useDownloadsStore = create<DownloadsState>()(
           }
           const downloadsDir = await invoke<string>("get_downloads_dir");
           const ext = source.Container ?? "mp4";
-          const safeName = item.Name.replace(/[<>:"/\\|?*]/g, "_");
-          const path = `${downloadsDir}/${item.Id}_${safeName}.${ext}`;
+          const safeName = sanitizePathSegment(item.Name);
+          let path: string;
+          if (isEpisode && (item.SeriesName ?? item.SeriesId)) {
+            const seriesFolder = sanitizePathSegment(item.SeriesName ?? `Series_${item.SeriesId}`);
+            const seasonNum = item.ParentIndexNumber != null ? String(item.ParentIndexNumber).padStart(2, "0") : "00";
+            const seasonFolder = `Season ${seasonNum}`;
+            path = `${downloadsDir}/${seriesFolder}/${seasonFolder}/${safeName}.${ext}`;
+          } else {
+            const folder = item.Type === "Movie" ? "Movies" : "Other";
+            path = `${downloadsDir}/${folder}/${safeName}.${ext}`;
+          }
 
           get().updateTask(taskId, { status: "downloading" });
 
@@ -231,6 +259,12 @@ export const useDownloadsStore = create<DownloadsState>()(
           Name: task.itemName,
           Type: (task.itemType as MediaItem["Type"]) ?? "Movie",
           ImageTags: task.primaryImageTag ? { Primary: task.primaryImageTag } : undefined,
+          SeriesId: task.seriesId ?? undefined,
+          SeriesName: task.seriesName ?? undefined,
+          SeasonId: task.seasonId ?? undefined,
+          SeasonName: task.seasonName ?? undefined,
+          ParentIndexNumber: task.parentIndexNumber ?? undefined,
+          IndexNumber: task.indexNumber ?? undefined,
         };
         await get().startDownload(item);
       },

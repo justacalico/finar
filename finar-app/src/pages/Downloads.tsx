@@ -58,6 +58,37 @@ function statusIcon(status: DownloadStatus) {
   }
 }
 
+/** Group tasks into movies (and other non-TV) vs series → seasons → episodes */
+function groupDownloadTasks(tasks: DownloadTask[]) {
+  const movies: DownloadTask[] = [];
+  const seriesMap = new Map<
+    string,
+    { name: string; seasons: Map<number | string, DownloadTask[]> }
+  >();
+  for (const task of tasks) {
+    const hasSeries = task.seriesId ?? task.seriesName;
+    if (!hasSeries || (task.itemType !== "Episode" && !task.seriesName)) {
+      movies.push(task);
+      continue;
+    }
+    const key = task.seriesId ?? task.seriesName ?? "unknown";
+    const name = task.seriesName ?? `Series ${task.seriesId ?? "?"}`;
+    if (!seriesMap.has(key)) {
+      seriesMap.set(key, { name, seasons: new Map() });
+    }
+    const entry = seriesMap.get(key)!;
+    const seasonKey = task.parentIndexNumber ?? task.seasonName ?? "?";
+    if (!entry.seasons.has(seasonKey)) {
+      entry.seasons.set(seasonKey, []);
+    }
+    entry.seasons.get(seasonKey)!.push(task);
+  }
+  for (const entry of seriesMap.values()) {
+    entry.seasons.forEach((eps) => eps.sort((a, b) => (a.indexNumber ?? 0) - (b.indexNumber ?? 0)));
+  }
+  return { movies, series: Array.from(seriesMap.entries()) };
+}
+
 export function Downloads() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Filter>("all");
@@ -156,18 +187,75 @@ export function Downloads() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filtered.map((task) => (
-            <DownloadCard
-              key={task.id}
-              task={task}
-              imageUrl={getTaskImageUrl(task, api.apiKey)}
-              onPlay={() => handlePlay(task)}
-              onPause={() => cancelDownload(task.id)}
-              onRetry={() => retryDownload(task.id)}
-              onDelete={() => handleDelete(task)}
-            />
-          ))}
+        <div className="flex flex-col gap-8">
+          {(() => {
+            const { movies, series } = groupDownloadTasks(filtered);
+            return (
+              <>
+                {movies.length > 0 && (
+                  <section>
+                    <h2 className="mb-3 text-lg font-semibold text-text-primary">
+                      Movies & other
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                      {movies.map((task) => (
+                        <DownloadCard
+                          key={task.id}
+                          task={task}
+                          imageUrl={getTaskImageUrl(task, api.apiKey)}
+                          onPlay={() => handlePlay(task)}
+                          onPause={() => cancelDownload(task.id)}
+                          onRetry={() => retryDownload(task.id)}
+                          onDelete={() => handleDelete(task)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
+                {series.map(([seriesKey, { name: seriesName, seasons }]) => (
+                  <section key={seriesKey}>
+                    <h2 className="mb-3 text-lg font-semibold text-text-primary">{seriesName}</h2>
+                    <div className="flex flex-col gap-6">
+                      {Array.from(seasons.entries())
+                        .sort(([a], [b]) => {
+                          const na = typeof a === "number" ? a : NaN;
+                          const nb = typeof b === "number" ? b : NaN;
+                          if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+                          return String(a).localeCompare(String(b));
+                        })
+                        .map(([seasonKey, episodeTasks]) => (
+                          <div key={String(seasonKey)}>
+                            <h3 className="mb-2 text-sm font-medium text-text-secondary">
+                              {typeof seasonKey === "number"
+                                ? `Season ${seasonKey}`
+                                : seasonKey}
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                              {episodeTasks.map((task) => (
+                                <DownloadCard
+                                  key={task.id}
+                                  task={task}
+                                  imageUrl={getTaskImageUrl(task, api.apiKey)}
+                                  onPlay={() => handlePlay(task)}
+                                  onPause={() => cancelDownload(task.id)}
+                                  onRetry={() => retryDownload(task.id)}
+                                  onDelete={() => handleDelete(task)}
+                                  subtitle={
+                                    task.indexNumber != null
+                                      ? `S${task.parentIndexNumber ?? "?"} E${task.indexNumber}`
+                                      : undefined
+                                  }
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </section>
+                ))}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
@@ -181,6 +269,7 @@ function DownloadCard({
   onPause,
   onRetry,
   onDelete,
+  subtitle,
 }: {
   task: DownloadTask;
   imageUrl: string;
@@ -188,6 +277,7 @@ function DownloadCard({
   onPause: () => void;
   onRetry: () => void;
   onDelete: () => void;
+  subtitle?: string;
 }) {
   const isActive = task.status === "downloading" || task.status === "pending";
   const isCompleted = task.status === "completed";
@@ -250,11 +340,11 @@ function DownloadCard({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-text-primary">{task.itemName}</p>
           <p className="text-xs text-text-tertiary">
-            {task.status === "downloading" && task.totalBytes > 0
+            {subtitle ?? (task.status === "downloading" && task.totalBytes > 0
               ? `${formatBytes(task.downloadedBytes)} / ${formatBytes(task.totalBytes)}`
               : task.status === "failed" && task.errorMessage
                 ? task.errorMessage
-                : task.status}
+                : task.status)}
           </p>
         </div>
         {isActive && (
