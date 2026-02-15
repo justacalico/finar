@@ -107,10 +107,10 @@ export function ItemDetail() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 z-10 hidden items-center gap-2 rounded-lg bg-black/50 px-3 py-2 text-sm text-white hover:bg-black/70 md:inline-flex"
+          className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 shrink-0" />
           Back
         </button>
         <img
@@ -120,15 +120,7 @@ export function ItemDetail() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
-            <div className="relative h-32 w-24 shrink-0 overflow-hidden rounded-xl shadow-2xl md:h-44 md:w-32">
-              <img
-                src={getDisplayImageUrl(item, { maxWidth: 300 })}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="min-w-0 flex-1">
+          <div className="min-w-0 max-w-3xl">
               <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
                 {item.Type}
               </span>
