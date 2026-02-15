@@ -358,15 +358,23 @@ export function ItemDetail() {
             </div>
             <div className="space-y-2">
               {episodes.map((ep) => (
-                <button
+                <div
                   key={ep.Id}
                   ref={ep.Id === highlightEpisodeId ? highlightedEpisodeRef : undefined}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     play(ep);
                     navigate("/player");
                   }}
-                  className={`flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors hover:bg-white/10 ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      play(ep);
+                      navigate("/player");
+                    }
+                  }}
+                  className={`flex w-full cursor-pointer items-center gap-4 rounded-xl p-3 text-left transition-colors hover:bg-white/10 ${
                     ep.Id === highlightEpisodeId
                       ? "bg-primary/20 ring-2 ring-primary"
                       : "bg-surface"
@@ -446,7 +454,7 @@ export function ItemDetail() {
                     );
                   })()}
                   <Play className="h-5 w-5 shrink-0 text-primary" fill="currentColor" />
-                </button>
+                </div>
               ))}
             </div>
           </section>

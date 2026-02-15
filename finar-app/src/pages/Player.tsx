@@ -267,7 +267,10 @@ export function Player() {
 
     player.on("error", () => {
       const err = player.error();
-      const msg = err != null ? (err.message || getVideoErrorMessage(err)) : "Playback failed.";
+      let msg = err != null ? (err.message || getVideoErrorMessage(err)) : "Playback failed.";
+      if (localPlaybackPath && err && typeof (err as { code?: number }).code === "number" && (err as { code: number }).code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+        msg = "The downloaded file format may not be supported in this app (e.g. MKV). Try playing from the server instead, or re-download in a supported format.";
+      }
       setPlaybackError(msg);
     });
 
