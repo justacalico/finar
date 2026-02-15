@@ -34,11 +34,22 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #root {
   min-height: 100vh;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Native app feel: hide scrollbars everywhere, keep scroll behavior */
