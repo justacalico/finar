@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Play, Plus, Star, ArrowLeft } from "lucide-react";
+import { Play, Plus, Star, ArrowLeft, Download, Loader2, CheckCircle2 } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
+import { useDownloadsStore } from "../stores/downloads";
 import { getBackdropUrl, getDisplayImageUrl } from "../utils/image";
 import { MediaCard } from "../components/MediaCard";
 import { Button } from "../components/Button";
@@ -21,7 +22,8 @@ export function ItemDetail() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
   const [highlightEpisodeId, setHighlightEpisodeId] = useState<string | null>(null);
   const highlightedEpisodeRef = useRef<HTMLButtonElement | null>(null);
-  const { play } = usePlayerStore();
+  const { play, playLocalFile } = usePlayerStore();
+  const { isTauriEnv, getTaskForItem, startDownload, cancelDownload } = useDownloadsStore();
 
   useEffect(() => {
     if (!id) return;
@@ -186,6 +188,54 @@ export function ItemDetail() {
                     Play
                   </Button>
                 )}
+                {isTauriEnv && isPlayable && (() => {
+                  const task = getTaskForItem(item.Id);
+                  if (task?.status === "completed" && task.localPath) {
+                    return (
+                      <Button
+                        variant="outline"
+                        leftIcon={<CheckCircle2 className="h-4 w-4" />}
+                        onClick={() => {
+                          playLocalFile(item, task.localPath!);
+                          navigate("/player");
+                        }}
+                      >
+                        Play offline
+                      </Button>
+                    );
+                  }
+                  if (task?.status === "downloading" || task?.status === "pending") {
+                    return (
+                      <Button
+                        variant="outline"
+                        leftIcon={<Loader2 className="h-4 w-4 animate-spin" />}
+                        onClick={() => cancelDownload(task.id)}
+                      >
+                        {Math.round((task.progress ?? 0) * 100)}% — Cancel
+                      </Button>
+                    );
+                  }
+                  if (task?.status === "failed") {
+                    return (
+                      <Button
+                        variant="outline"
+                        leftIcon={<Download className="h-4 w-4" />}
+                        onClick={() => startDownload(item)}
+                      >
+                        Retry download
+                      </Button>
+                    );
+                  }
+                  return (
+                    <Button
+                      variant="outline"
+                      leftIcon={<Download className="h-4 w-4" />}
+                      onClick={() => startDownload(item)}
+                    >
+                      Download
+                    </Button>
+                  );
+                })()}
                 <Button variant="outline" leftIcon={<Plus className="h-4 w-4" />}>
                   Add to list
                 </Button>

@@ -61,6 +61,15 @@ export class JellyfinApi {
     return !!(this.accessToken && this.userId);
   }
 
+  /** Auth header value for use in download requests (e.g. Tauri backend). */
+  getAuthHeader(): string {
+    return buildAuthHeader(this.accessToken);
+  }
+
+  get apiKey(): string | null {
+    return this.accessToken;
+  }
+
   private async request<T>(
     path: string,
     options: RequestInit & { searchParams?: Record<string, string> } = {}

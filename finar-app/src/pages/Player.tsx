@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { usePlayerStore } from "../stores/player";
 import { api } from "../api/jellyfin";
@@ -34,7 +35,7 @@ function installVideoJsXhrAuthWrapper() {
       cb = callback;
       opts = { ...options, uri: typeof uri === "string" ? uri : (options as Record<string, unknown>).uri };
     } else {
-      cb = options as (err: unknown, a?: unknown, b?: unknown) => void;
+      cb = options as unknown as (err: unknown, a?: unknown, b?: unknown) => void;
       opts = typeof uri === "string" ? { uri } : { ...uri } as Record<string, unknown>;
     }
     const auth = hlsAuthQueryRef.current;
@@ -49,8 +50,9 @@ function installVideoJsXhrAuthWrapper() {
   (wrapped as unknown as { __authWrapped?: boolean }).__authWrapped = true;
   Object.keys(original).forEach((k) => {
     const key = k as keyof typeof original;
-    if (typeof (original as Record<string, unknown>)[key] === "function" || (original as Record<string, unknown>)[key] != null) {
-      (wrapped as Record<string, unknown>)[key] = (original as Record<string, unknown>)[key];
+    const orig = original as unknown as Record<string, unknown>;
+    if (typeof orig[key] === "function" || orig[key] != null) {
+      (wrapped as unknown as Record<string, unknown>)[key] = orig[key];
     }
   });
   (videojs as unknown as { xhr: typeof videojs.xhr }).xhr = wrapped as typeof videojs.xhr;
@@ -63,6 +65,7 @@ export function Player() {
   const sessionRef = useRef<{ sid?: string; mediaSourceId?: string }>({});
   const {
     currentItem,
+    localPlaybackPath,
     isPlaying,
     position,
     duration,
@@ -93,10 +96,27 @@ export function Player() {
     };
   }, []);
 
-  // Load playback info and derive stream URL (direct or HLS)
+  // Local file playback: use convertFileSrc and set streamConfig (no server calls)
   useEffect(() => {
-    if (!currentItem) {
-      navigate("/", { replace: true });
+    if (!currentItem || !localPlaybackPath) return;
+    setPlaybackError(null);
+    try {
+      const streamUrl = convertFileSrc(localPlaybackPath);
+      setStreamConfig({
+        streamUrl,
+        isHls: false,
+        startTimeTicks: 0,
+      });
+    } catch (e) {
+      setPlaybackError(e instanceof Error ? e.message : "Invalid local file");
+    }
+    return () => setStreamConfig(null);
+  }, [currentItem?.Id, localPlaybackPath]);
+
+  // Load playback info and derive stream URL (direct or HLS) when not local
+  useEffect(() => {
+    if (!currentItem || localPlaybackPath) {
+      if (!currentItem) navigate("/", { replace: true });
       return;
     }
     let cancelled = false;
@@ -148,7 +168,7 @@ export function Player() {
       }
       hlsAuthQueryRef.current = "";
       const player = playerRef.current;
-      const pos = player && !player.isDisposed() ? player.currentTime() : 0;
+      const pos = player && !player.isDisposed() ? (player.currentTime() ?? 0) : 0;
       const { sid } = sessionRef.current;
       if (sid && currentItem) {
         api.reportPlaybackStopped({
@@ -159,7 +179,7 @@ export function Player() {
       }
       sessionRef.current = {};
     };
-  }, [currentItem?.Id, navigate]);
+  }, [currentItem?.Id, localPlaybackPath, navigate]);
 
   // Create Video.js player and set source when streamConfig is ready
   useEffect(() => {
@@ -203,13 +223,13 @@ export function Player() {
       player.muted(muted);
       progressIntervalRef.current = setInterval(() => {
         const p = playerRef.current;
-        if (p && !p.isDisposed() && sessionRef.current.sid) {
-          const t = p.currentTime();
-          const d = p.duration();
+        if (p && !p.isDisposed() && sessionRef.current.sid && currentItem) {
+          const t = p.currentTime() ?? 0;
+          const d = p.duration() ?? 0;
           if (Number.isFinite(t)) setPosition(t);
           if (Number.isFinite(d)) setDuration(d);
           api.reportPlaybackProgress({
-            ItemId: currentItem!.Id,
+            ItemId: currentItem.Id,
             PositionTicks: Math.floor(t * 10_000_000),
             IsPaused: p.paused(),
             PlaySessionId: sessionRef.current.sid,
@@ -220,35 +240,48 @@ export function Player() {
 
     player.on("loadedmetadata", () => {
       player.currentTime(startSec);
-      player.play().catch((err: unknown) => {
-        setPlaybackError(err instanceof Error ? err.message : "Playback failed to start.");
-      });
+      const p = player.play();
+      if (p != null && typeof p.catch === "function") {
+        p.catch((err: unknown) => {
+          const msg =
+            err instanceof Error ? err.message : err != null ? String(err) : "Playback failed to start.";
+          setPlaybackError(msg);
+        });
+      }
     });
 
     player.on("timeupdate", () => {
-      const t = player.currentTime();
-      const d = player.duration();
+      const t = player.currentTime() ?? 0;
+      const d = player.duration() ?? 0;
       if (Number.isFinite(t)) setPosition(t);
       if (Number.isFinite(d)) setDuration(d);
     });
 
-    player.on("play", () => usePlayerStore.setState({ isPlaying: true }));
-    player.on("pause", () => usePlayerStore.setState({ isPlaying: false }));
+    player.on("play", () => {
+      usePlayerStore?.setState({ isPlaying: true });
+    });
+    player.on("pause", () => {
+      usePlayerStore?.setState({ isPlaying: false });
+    });
     player.on("ended", () => playNext());
 
     player.on("error", () => {
       const err = player.error();
-      const msg = err ? (err.message || getVideoErrorMessage(err)) : "Playback failed.";
+      const msg = err != null ? (err.message || getVideoErrorMessage(err)) : "Playback failed.";
       setPlaybackError(msg);
     });
 
+    const toDispose = player;
     return () => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = undefined;
       }
-      if (player && !player.isDisposed()) {
-        player.dispose();
+      try {
+        if (toDispose != null && !toDispose.isDisposed()) {
+          toDispose.dispose();
+        }
+      } finally {
         playerRef.current = null;
       }
       hlsAuthQueryRef.current = "";
@@ -257,9 +290,12 @@ export function Player() {
 
   const handlePlayPause = () => {
     const p = playerRef.current;
-    if (!p || p.isDisposed()) return;
+    if (p == null || p.isDisposed()) return;
     if (p.paused()) {
-      p.play().catch(() => {});
+      const playPromise = p.play();
+      if (playPromise != null && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
       usePlayerStore.setState({ isPlaying: true });
     } else {
       p.pause();
