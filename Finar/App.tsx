@@ -1,20 +1,35 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { LibraryProvider } from './src/context/LibraryContext';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { SplashScreen } from './src/screens/SplashScreen';
+import { LoginScreen } from './src/screens/LoginScreen';
 
-export default function App() {
+function AppContent() {
+  const { state } = useAuth();
+
+  if (state.status === 'initial' || state.status === 'loading') {
+    return <SplashScreen />;
+  }
+  if (state.status !== 'authenticated') {
+    return <LoginScreen />;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <LibraryProvider>
+      <RootNavigator />
+    </LibraryProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <StatusBar style="light" />
+        <AppContent />
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}
