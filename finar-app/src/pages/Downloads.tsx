@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Download,
@@ -101,17 +101,11 @@ export function Downloads() {
     getActiveTasks,
     getFailedTasks,
     getPausedTasks,
-    initListeners,
     cancelDownload,
     deleteDownload,
     retryDownload,
   } = useDownloadsStore();
   const { playLocalFile } = usePlayerStore();
-
-  useEffect(() => {
-    const unlisten = initListeners();
-    return unlisten;
-  }, [initListeners]);
 
   const filtered =
     filter === "all"

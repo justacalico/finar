@@ -17,6 +17,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
+import { useDownloadsStore } from "../stores/downloads";
 import { useLibraryStore } from "../stores/library";
 import { useTranslation } from "../translations";
 import { getUserAvatarUrl } from "../utils/image";
@@ -67,10 +68,16 @@ export function Layout() {
   const navigate = useNavigate();
   const { user, serverUrl } = useAuthStore();
   const { libraries, loadLibraries } = useLibraryStore();
+  const initListeners = useDownloadsStore((s) => s.initListeners);
 
   useEffect(() => {
     loadLibraries();
   }, [loadLibraries]);
+
+  useEffect(() => {
+    const unlisten = initListeners();
+    return unlisten;
+  }, [initListeners]);
 
   const isLibraryDetail = /^\/library\/[^/]+$/.test(location.pathname);
   const isItemDetail = /^\/item\/[^/]+$/.test(location.pathname);

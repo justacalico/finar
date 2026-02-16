@@ -47,7 +47,10 @@ async fn download_media_file(
     state: tauri::State<'_, DownloadCancels>,
     payload: DownloadMediaFilePayload,
 ) -> Result<(), String> {
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .connect_timeout(std::time::Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
     let mut request = client.get(&payload.url);
     if let Some(ref h) = payload.auth_header {
         request = request.header("X-Emby-Authorization", h);
