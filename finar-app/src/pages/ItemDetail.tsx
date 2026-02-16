@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Play,
   Plus,
@@ -10,6 +11,7 @@ import {
   CheckCircle2,
   DownloadCloud,
   FolderDown,
+  ChevronDown,
 } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
@@ -449,22 +451,57 @@ export function ItemDetail() {
             <h2 className="mb-4 text-lg font-semibold text-text-primary">
               {t("itemDetail.seasons")}
             </h2>
-            <div className="flex flex-wrap gap-2">
-              {seasons.map((s) => (
-                <button
-                  key={s.Id}
-                  type="button"
-                  onClick={() => setSelectedSeasonId(s.Id)}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                    selectedSeasonId === s.Id
-                      ? "bg-primary text-background"
-                      : "bg-surface text-text-secondary hover:bg-white/10"
-                  }`}
-                >
-                  {s.Name}
-                </button>
-              ))}
-            </div>
+            {seasons.length > 10 ? (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button
+                    type="button"
+                    className="flex min-w-[12rem] items-center justify-between gap-2 rounded-xl border border-divider bg-surface-elevated px-4 py-2.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-white/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <span>
+                      {seasons.find((s) => s.Id === selectedSeasonId)?.Name ?? seasons[0]?.Name}
+                    </span>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="max-h-[min(70vh,24rem)] min-w-[12rem] overflow-y-auto rounded-xl border border-divider bg-surface shadow-lg"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    {seasons.map((s) => (
+                      <DropdownMenu.Item
+                        key={s.Id}
+                        onSelect={() => setSelectedSeasonId(s.Id)}
+                        className={`cursor-pointer select-none px-4 py-2.5 text-sm outline-none focus:outline-none data-[highlighted]:bg-white/10 ${
+                          selectedSeasonId === s.Id ? "bg-primary/20 text-primary" : "text-text-primary"
+                        }`}
+                      >
+                        {s.Name}
+                      </DropdownMenu.Item>
+                    ))}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {seasons.map((s) => (
+                  <button
+                    key={s.Id}
+                    type="button"
+                    onClick={() => setSelectedSeasonId(s.Id)}
+                    className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+                      selectedSeasonId === s.Id
+                        ? "bg-primary text-background"
+                        : "bg-surface text-text-secondary hover:bg-white/10"
+                    }`}
+                  >
+                    {s.Name}
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
