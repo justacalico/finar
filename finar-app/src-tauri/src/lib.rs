@@ -94,6 +94,8 @@ async fn download_media_file(
             let mut file = tokio::io::BufWriter::new(file);
             let mut stream = std::pin::pin!(stream);
             let mut downloaded: u64 = 0;
+            const PROGRESS_INTERVAL_MS: u64 = 150;
+            let mut last_emit = tokio::time::Instant::now();
 
             loop {
                 tokio::select! {
@@ -104,17 +106,28 @@ async fn download_media_file(
                         let len = chunk.len() as u64;
                         file.write_all(&chunk).await.map_err(|e| e.to_string())?;
                         downloaded += len;
-                        let _ = app.emit(
-                            "download://progress",
-                            serde_json::json!({
-                                "taskId": task_id,
-                                "downloaded": downloaded,
-                                "total": total,
-                            }),
-                        );
+                        if last_emit.elapsed().as_millis() as u64 >= PROGRESS_INTERVAL_MS {
+                            last_emit = tokio::time::Instant::now();
+                            let _ = app.emit(
+                                "download://progress",
+                                serde_json::json!({
+                                    "taskId": task_id,
+                                    "downloaded": downloaded,
+                                    "total": total,
+                                }),
+                            );
+                        }
                     }
                 }
             }
+            let _ = app.emit(
+                "download://progress",
+                serde_json::json!({
+                    "taskId": task_id,
+                    "downloaded": downloaded,
+                    "total": total,
+                }),
+            );
             file.flush().await.map_err(|e| e.to_string())
         }
         .await;

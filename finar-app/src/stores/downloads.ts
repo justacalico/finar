@@ -38,6 +38,8 @@ export interface DownloadTask {
 }
 
 const STORAGE_KEY = "finar-downloads";
+const PROGRESS_THROTTLE_MS = 120;
+const progressLastEmit = new Map<string, number>();
 
 /** Sanitize for use in file and folder names */
 function sanitizePathSegment(name: string): string {
@@ -275,12 +277,18 @@ export const useDownloadsStore = create<DownloadsState>()(
           "download://progress",
           (ev) => {
             const { taskId, downloaded, total } = ev.payload;
-            const progress = total > 0 ? downloaded / total : 0;
-            get().updateTask(taskId, {
-              downloadedBytes: downloaded,
-              totalBytes: total,
-              progress,
-            });
+            const now = Date.now();
+            const last = progressLastEmit.get(taskId) ?? 0;
+            const isComplete = total > 0 && downloaded >= total;
+            if (isComplete || now - last >= PROGRESS_THROTTLE_MS) {
+              if (!isComplete) progressLastEmit.set(taskId, now);
+              const progress = total > 0 ? downloaded / total : 0;
+              get().updateTask(taskId, {
+                downloadedBytes: downloaded,
+                totalBytes: total,
+                progress,
+              });
+            }
           }
         );
         const unlistenComplete = listen<{ taskId: string; path: string }>(
