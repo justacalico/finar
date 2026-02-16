@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, ChevronRight } from "lucide-react";
 import { useLibraryStore } from "../stores/library";
+import { useTranslation } from "../translations";
 import { usePlayerStore } from "../stores/player";
 import { MediaCard } from "../components/MediaCard";
 import { getBackdropUrl } from "../utils/image";
@@ -13,11 +14,13 @@ function MediaRow({
   items,
   showProgress = false,
   onSeeAll,
+  seeAllLabel,
 }: {
   title: string;
   items: MediaItem[];
   showProgress?: boolean;
   onSeeAll?: () => void;
+  seeAllLabel: string;
 }) {
   const navigate = useNavigate();
 
@@ -33,7 +36,7 @@ function MediaRow({
             onClick={onSeeAll}
             className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            See All
+            {seeAllLabel}
             <ChevronRight className="h-4 w-4" />
           </button>
         )}
@@ -60,6 +63,7 @@ function MediaRow({
 }
 
 export function Home() {
+  const { t } = useTranslation();
   const { homeData, loadHomeData, error } = useLibraryStore();
   const navigate = useNavigate();
 
@@ -76,7 +80,7 @@ export function Home() {
           onClick={() => loadHomeData()}
           className="rounded-xl bg-primary px-6 py-2 font-medium text-background"
         >
-          Retry
+          {t("home.retry")}
         </button>
       </div>
     );
@@ -110,7 +114,7 @@ export function Home() {
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="max-w-2xl">
               <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
-                {heroItem.Type}
+                {t(`contentType.${heroItem.Type}`) || heroItem.Type}
               </span>
               <h1 className="mt-2 text-3xl font-bold text-white drop-shadow md:text-4xl">
                 {heroItem.Type === "Episode"
@@ -134,14 +138,14 @@ export function Home() {
                   className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-background hover:opacity-90"
                 >
                   <Play className="h-5 w-5" fill="currentColor" />
-                  Play
+                  {t("home.play")}
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate(`/item/${heroItem.Id}`)}
                   className="rounded-xl border border-white/30 bg-white/10 px-5 py-2.5 font-semibold text-white backdrop-blur hover:bg-white/20"
                 >
-                  More Info
+                  {t("home.moreInfo")}
                 </button>
               </div>
             </div>
@@ -151,16 +155,17 @@ export function Home() {
 
       <div className="mt-6">
         <MediaRow
-          title="Continue Watching"
+          title={t("home.continueWatching")}
           items={data.continueWatching}
           showProgress
+          seeAllLabel={t("home.seeAll")}
         />
-        <MediaRow title="Next Up" items={data.nextUp} />
-        <MediaRow title="Recently Added" items={data.recentlyAdded.slice(1)} />
-        <MediaRow title="New Releases" items={data.recentlyReleased} />
-        <MediaRow title="Recommended For You" items={data.recommended} />
-        <MediaRow title="Top Rated" items={data.topRated} />
-        <MediaRow title="My Favorites" items={data.favorites} />
+        <MediaRow title={t("home.nextUp")} items={data.nextUp} seeAllLabel={t("home.seeAll")} />
+        <MediaRow title={t("home.recentlyAdded")} items={data.recentlyAdded.slice(1)} seeAllLabel={t("home.seeAll")} />
+        <MediaRow title={t("home.newReleases")} items={data.recentlyReleased} seeAllLabel={t("home.seeAll")} />
+        <MediaRow title={t("home.recommendedForYou")} items={data.recommended} seeAllLabel={t("home.seeAll")} />
+        <MediaRow title={t("home.topRated")} items={data.topRated} seeAllLabel={t("home.seeAll")} />
+        <MediaRow title={t("home.myFavorites")} items={data.favorites} onSeeAll={() => navigate("/favorites")} seeAllLabel={t("home.seeAll")} />
       </div>
     </div>
   );

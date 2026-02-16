@@ -34,12 +34,16 @@ export function useTranslation() {
     language === "zh-CN" || language === "ru" ? language : "en";
 
   const t = useCallback(
-    (key: string): string => {
+    (key: string, params?: Record<string, string | number>): string => {
       const dict = messages[locale];
-      const value = get(dict, key);
-      if (value != null) return value;
-      const fallback = get(messages.en as Record<string, unknown>, key);
-      return fallback ?? key;
+      let value = get(dict, key);
+      if (value == null)
+        value = get(messages.en as Record<string, unknown>, key);
+      let s = (value ?? key) as string;
+      if (params)
+        for (const [k, v] of Object.entries(params))
+          s = s.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+      return s;
     },
     [locale],
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Play } from "lucide-react";
 import { api } from "../api/jellyfin";
+import { useTranslation } from "../translations";
 import { AlbumCard } from "../components/AlbumCard";
 import { MediaCard } from "../components/MediaCard";
 import { usePlayerStore } from "../stores/player";
@@ -21,6 +22,7 @@ function formatTrackDuration(ticks?: number): string {
 }
 
 export function Library() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [library, setLibrary] = useState<LibraryType | null>(null);
@@ -139,7 +141,7 @@ export function Library() {
 
     load()
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
+        if (!cancelled) setError(e instanceof Error ? e.message : t("library.failedToLoad"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -147,7 +149,7 @@ export function Library() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, t]);
 
   const musicLibrary = isMusicLibrary(library);
   useEffect(() => {
@@ -190,7 +192,7 @@ export function Library() {
   if (error || !library) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 px-4">
-        <p className="text-text-secondary">{error ?? "Library not found"}</p>
+        <p className="text-text-secondary">{error ?? t("library.libraryNotFound")}</p>
       </div>
     );
   }
@@ -202,7 +204,7 @@ export function Library() {
         className="mb-4 hidden items-center gap-2 text-sm text-text-secondary hover:text-text-primary md:inline-flex"
       >
         <ArrowLeft className="h-4 w-4" />
-        Library
+        {t("library.backLink")}
       </Link>
       <h1 className="mb-6 text-2xl font-bold text-text-primary">{library.Name}</h1>
 
@@ -211,13 +213,13 @@ export function Library() {
           <div
             className="flex gap-2 border-b border-white/10 pb-2"
             role="tablist"
-            aria-label="Music library sections"
+            aria-label={t("library.musicLibrarySections")}
           >
             {(
               [
-                ["albums", "Albums"] as const,
-                ["artists", "Artists"] as const,
-                ["tracks", "Tracks"] as const,
+                ["albums", t("library.albums")] as const,
+                ["artists", t("library.artists")] as const,
+                ["tracks", t("library.tracks")] as const,
               ] as const
             ).map(([tab, label]) => (
               <button
@@ -254,7 +256,7 @@ export function Library() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-text-tertiary">No albums in this library.</p>
+                <p className="text-sm text-text-tertiary">{t("library.noAlbums")}</p>
               )}
             </section>
           )}
@@ -273,7 +275,7 @@ export function Library() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-text-tertiary">No artists in this library.</p>
+                <p className="text-sm text-text-tertiary">{t("library.noArtists")}</p>
               )}
             </section>
           )}
@@ -336,13 +338,13 @@ export function Library() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-text-tertiary">No tracks in this library.</p>
+                <p className="text-sm text-text-tertiary">{t("library.noTracks")}</p>
               )}
             </section>
           )}
         </div>
       ) : items.length === 0 ? (
-        <p className="text-text-tertiary">No items in this library.</p>
+        <p className="text-text-tertiary">{t("library.noItems")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {items.map((item, i) => (

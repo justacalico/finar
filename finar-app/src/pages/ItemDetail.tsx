@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { api } from "../api/jellyfin";
 import { usePlayerStore } from "../stores/player";
+import { useTranslation } from "../translations";
 import { useDownloadsStore } from "../stores/downloads";
 import { getBackdropUrl, getDisplayImageUrl, getPrimaryImageUrl } from "../utils/image";
 import { MediaCard } from "../components/MediaCard";
@@ -20,6 +21,7 @@ import { Button } from "../components/Button";
 import type { MediaItem } from "../types/jellyfin";
 
 export function ItemDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -108,12 +110,12 @@ export function ItemDetail() {
         });
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
+        if (!cancelled) setError(e instanceof Error ? e.message : t("library.failedToLoad"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-  }, [id, navigate, searchParams]);
+  }, [id, navigate, searchParams, t]);
 
   useEffect(() => {
     if (!item || item.Type !== "Series" || !selectedSeasonId) return;
@@ -253,10 +255,10 @@ export function ItemDetail() {
             type="button"
             onClick={() => navigate(-1)}
             className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
-            aria-label="Go back"
+            aria-label={t("itemDetail.goBack")}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
-            Back
+            {t("itemDetail.back")}
           </button>
           <div className="flex min-h-[280px] flex-col gap-6 p-6 md:flex-row md:items-end md:gap-8 md:p-10">
             <div className="flex shrink-0 justify-center md:justify-start">
@@ -278,7 +280,7 @@ export function ItemDetail() {
             </div>
             <div className="min-w-0 flex-1 pb-1">
               <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
-                {item.Type}
+                {t(`contentType.${item.Type}`) || item.Type}
               </span>
               <h1 className="mt-2 text-2xl font-bold text-text-primary md:text-4xl">
                 {item.Name}
@@ -299,11 +301,11 @@ export function ItemDetail() {
                     leftIcon={<Play className="h-5 w-5" fill="currentColor" />}
                     onClick={handlePlay}
                   >
-                    Play
+                    {t("home.play")}
                   </Button>
                 )}
                 <Button variant="outline" leftIcon={<Plus className="h-4 w-4" />}>
-                  Add to list
+                  {t("itemDetail.addToList")}
                 </Button>
               </div>
             </div>
@@ -315,10 +317,10 @@ export function ItemDetail() {
             type="button"
             onClick={() => navigate(-1)}
             className="absolute left-5 top-5 z-20 hidden items-center gap-2 rounded-lg bg-black/60 px-3 py-2.5 text-sm text-white shadow-lg hover:bg-black/75 md:inline-flex"
-            aria-label="Go back"
+            aria-label={t("itemDetail.goBack")}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
-            Back
+            {t("itemDetail.back")}
           </button>
           <img
             src={heroImageUrl}
@@ -329,7 +331,7 @@ export function ItemDetail() {
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="min-w-0 max-w-3xl">
               <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase text-background">
-                {item.Type}
+                {t(`contentType.${item.Type}`) || item.Type}
               </span>
               <h1 className="mt-2 text-2xl font-bold text-white md:text-4xl">
                 {item.Type === "Episode" ? item.SeriesName : item.Name}
@@ -356,7 +358,7 @@ export function ItemDetail() {
                     leftIcon={<Play className="h-5 w-5" fill="currentColor" />}
                     onClick={handlePlay}
                   >
-                    Play
+                    {t("home.play")}
                   </Button>
                 )}
                 {isTauriEnv && isPlayable && (() => {
@@ -371,7 +373,7 @@ export function ItemDetail() {
                           navigate("/player");
                         }}
                       >
-                        Play offline
+                        {t("itemDetail.playOffline")}
                       </Button>
                     );
                   }
@@ -382,7 +384,7 @@ export function ItemDetail() {
                         leftIcon={<Loader2 className="h-4 w-4 animate-spin" />}
                         onClick={() => cancelDownload(task.id)}
                       >
-                        {Math.round((task.progress ?? 0) * 100)}% — Cancel
+                        {Math.round((task.progress ?? 0) * 100)}% — {t("downloads.cancel")}
                       </Button>
                     );
                   }
@@ -393,7 +395,7 @@ export function ItemDetail() {
                         leftIcon={<Download className="h-4 w-4" />}
                         onClick={() => startDownload(item)}
                       >
-                        Retry download
+                        {t("itemDetail.retryDownload")}
                       </Button>
                     );
                   }
@@ -403,7 +405,7 @@ export function ItemDetail() {
                       leftIcon={<Download className="h-4 w-4" />}
                       onClick={() => startDownload(item)}
                     >
-                      Download
+                      {t("itemDetail.download")}
                     </Button>
                   );
                 })()}
@@ -420,11 +422,11 @@ export function ItemDetail() {
                     onClick={handleDownloadAll}
                     disabled={downloadingAll || seasons.length === 0}
                   >
-                    {downloadingAll ? "Preparing…" : "Download all"}
+                    {downloadingAll ? t("itemDetail.preparing") : t("itemDetail.downloadAll")}
                   </Button>
                 )}
                 <Button variant="outline" leftIcon={<Plus className="h-4 w-4" />}>
-                  Add to list
+                  {t("itemDetail.addToList")}
                 </Button>
               </div>
             </div>
@@ -435,7 +437,7 @@ export function ItemDetail() {
         {item.Overview && (
           <section className="mb-8">
             <h2 className="mb-2 text-lg font-semibold text-text-primary">
-              Overview
+              {t("itemDetail.overview")}
             </h2>
             <p className="text-text-secondary">{item.Overview}</p>
           </section>
@@ -444,7 +446,7 @@ export function ItemDetail() {
         {isSeries && seasons.length > 0 && (
           <section className="mb-8">
             <h2 className="mb-4 text-lg font-semibold text-text-primary">
-              Seasons
+              {t("itemDetail.seasons")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {seasons.map((s) => (
@@ -469,7 +471,7 @@ export function ItemDetail() {
           <section className="mb-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-text-primary">
-                Episodes
+                {t("itemDetail.episodes")}
               </h2>
               {isTauriEnv && (
                 <Button
@@ -478,7 +480,7 @@ export function ItemDetail() {
                   leftIcon={<FolderDown className="h-4 w-4" />}
                   onClick={handleDownloadSeason}
                 >
-                  Download season
+                  {t("itemDetail.downloadSeason")}
                 </Button>
               )}
             </div>
@@ -529,7 +531,7 @@ export function ItemDetail() {
                       return (
                         <span
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary"
-                          title="Downloaded"
+                          title={t("itemDetail.downloaded")}
                         >
                           <CheckCircle2 className="h-5 w-5" />
                         </span>
@@ -544,7 +546,7 @@ export function ItemDetail() {
                             cancelDownload(task.id);
                           }}
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary hover:bg-white/10"
-                          title="Cancel download"
+                          title={t("itemDetail.cancelDownload")}
                         >
                           <Loader2 className="h-5 w-5 animate-spin" />
                         </button>
@@ -559,7 +561,7 @@ export function ItemDetail() {
                             startDownload(ep);
                           }}
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-white/10 hover:text-primary"
-                          title="Retry download"
+                          title={t("itemDetail.retryDownload")}
                         >
                           <Download className="h-5 w-5" />
                         </button>
@@ -573,7 +575,7 @@ export function ItemDetail() {
                           startDownload(ep);
                         }}
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-white/10 hover:text-primary"
-                        title="Download episode"
+                        title={t("itemDetail.downloadEpisode")}
                       >
                         <Download className="h-5 w-5" />
                       </button>
@@ -589,7 +591,7 @@ export function ItemDetail() {
         {isAlbum && tracks.length > 0 && (
           <section className="mb-8">
             <h2 className="mb-4 text-lg font-semibold text-text-primary">
-              Tracks
+              {t("library.tracks")}
             </h2>
             <div className="space-y-1">
               {tracks.map((track) => (
@@ -641,7 +643,7 @@ export function ItemDetail() {
         {similar.length > 0 && (
           <section>
             <h2 className="mb-4 text-lg font-semibold text-text-primary">
-              More Like This
+              {t("itemDetail.moreLikeThis")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
               {similar.map((s, i) => (

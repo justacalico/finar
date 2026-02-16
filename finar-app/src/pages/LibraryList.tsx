@@ -8,6 +8,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { useLibraryStore } from "../stores/library";
+import { useTranslation } from "../translations";
 
 function getLibraryIcon(collectionType?: string) {
   switch (collectionType?.toLowerCase()) {
@@ -27,13 +28,14 @@ function getLibraryIcon(collectionType?: string) {
 }
 
 export function LibraryList() {
+  const { t } = useTranslation();
   const { libraries } = useLibraryStore();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="mb-4 text-xl font-bold text-text-primary">Library</h1>
+      <h1 className="mb-4 text-xl font-bold text-text-primary">{t("libraryList.title")}</h1>
       {libraries.length === 0 ? (
-        <p className="text-text-tertiary">No libraries available.</p>
+        <p className="text-text-tertiary">{t("libraryList.noLibraries")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {libraries.map((lib) => {
@@ -52,7 +54,7 @@ export function LibraryList() {
                   <p className="truncate font-semibold text-text-primary">
                     {lib.Name}
                   </p>
-                  <p className="text-xs text-text-tertiary">{count} items</p>
+                  <p className="text-xs text-text-tertiary">{t("libraryList.itemsCount", { count })}</p>
                 </div>
               </Link>
             );

@@ -5,6 +5,7 @@ import "video.js/dist/video-js.css";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { usePlayerStore } from "../stores/player";
+import { useTranslation } from "../translations";
 import { api } from "../api/jellyfin";
 import { getDisplayImageUrl } from "../utils/image";
 
@@ -60,6 +61,7 @@ function installVideoJsXhrAuthWrapper() {
 }
 
 export function Player() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
@@ -111,7 +113,7 @@ export function Player() {
         startTimeTicks: 0,
       });
     } catch (e) {
-      setPlaybackError(e instanceof Error ? e.message : "Invalid local file");
+      setPlaybackError(e instanceof Error ? e.message : t("player.invalidLocalFile"));
     }
     return () => setStreamConfig(null);
   }, [currentItem?.Id, localPlaybackPath]);
@@ -133,7 +135,7 @@ export function Player() {
         if (cancelled) return;
         const source = api.getBestPlaybackSource(info);
         if (!source) {
-          setPlaybackError("No playable media source found");
+          setPlaybackError(t("player.noPlayableSource"));
           return;
         }
         const sid = info.PlaySessionId ?? undefined;
@@ -158,7 +160,7 @@ export function Player() {
       })
       .catch((err) => {
         if (!cancelled) {
-          setPlaybackError(err instanceof Error ? err.message : "Could not load playback info.");
+          setPlaybackError(err instanceof Error ? err.message : t("player.couldNotLoadPlaybackInfo"));
         }
       });
 
@@ -537,7 +539,7 @@ export function Player() {
         onKeyDown={(e) => e.key === " " && handlePlayPause()}
         role="button"
         tabIndex={0}
-        aria-label="Play or pause"
+        aria-label={t("player.playOrPause")}
       >
         <div
           ref={containerRef}

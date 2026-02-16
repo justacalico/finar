@@ -12,18 +12,19 @@ import {
   FolderDown,
 } from "lucide-react";
 import { useDownloadsStore, type DownloadTask, type DownloadStatus } from "../stores/downloads";
+import { useTranslation } from "../translations";
 import { usePlayerStore } from "../stores/player";
 import { api } from "../api/jellyfin";
 import { GlassCard } from "../components/GlassCard";
 
 type Filter = "all" | "completed" | "downloading" | "paused" | "failed";
 
-const filterLabels: Record<Filter, string> = {
-  all: "All",
-  completed: "Downloaded",
-  downloading: "Downloading",
-  paused: "Paused",
-  failed: "Failed",
+const filterKeys: Record<Filter, string> = {
+  all: "filterAll",
+  completed: "filterCompleted",
+  downloading: "filterDownloading",
+  paused: "filterPaused",
+  failed: "filterFailed",
 };
 
 function getTaskImageUrl(task: DownloadTask, apiKey: string | null): string {
@@ -90,6 +91,7 @@ function groupDownloadTasks(tasks: DownloadTask[]) {
 }
 
 export function Downloads() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Filter>("all");
   const {
@@ -134,7 +136,7 @@ export function Downloads() {
   };
 
   const handleDelete = async (task: DownloadTask) => {
-    if (window.confirm(`Remove "${task.itemName}" from downloads?`)) {
+    if (window.confirm(t("downloads.removeConfirm", { name: task.itemName }))) {
       await deleteDownload(task.id);
     }
   };
@@ -143,10 +145,9 @@ export function Downloads() {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4">
         <FolderDown className="h-16 w-16 text-text-tertiary/50" />
-        <h2 className="text-xl font-semibold text-text-primary">Downloads</h2>
+        <h2 className="text-xl font-semibold text-text-primary">{t("downloads.title")}</h2>
         <p className="max-w-sm text-center text-sm text-text-tertiary">
-          Downloads are available only in the desktop app (Tauri). Use the Finar app to download
-          content for offline playback.
+          {t("downloads.tauriOnlyMessage")}
         </p>
       </div>
     );
@@ -155,9 +156,9 @@ export function Downloads() {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-text-primary">Downloads</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">{t("downloads.title")}</h1>
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(filterLabels) as Filter[]).map((key) => (
+          {(Object.keys(filterKeys) as Filter[]).map((key) => (
             <button
               key={key}
               type="button"
@@ -168,7 +169,7 @@ export function Downloads() {
                   : "bg-surface-elevated text-text-secondary hover:bg-surface hover:text-text-primary"
               }`}
             >
-              {filterLabels[key]}
+              {t(`downloads.${filterKeys[key]}`)}
             </button>
           ))}
         </div>
@@ -178,12 +179,10 @@ export function Downloads() {
         <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 rounded-2xl bg-surface-elevated/50 p-8">
           <Download className="h-14 w-14 text-text-tertiary/50" />
           <h2 className="text-lg font-medium text-text-primary">
-            {filter === "all" ? "No downloads yet" : `No ${filterLabels[filter].toLowerCase()}`}
+            {filter === "all" ? t("downloads.noDownloadsYet") : `No ${t(`downloads.${filterKeys[filter]}`).toLowerCase()}`}
           </h2>
           <p className="max-w-md text-center text-sm text-text-tertiary">
-            {filter === "all"
-              ? "Download movies and episodes from item details to watch offline."
-              : "Change the filter or start a new download from an item page."}
+            {filter === "all" ? t("downloads.downloadHint") : t("downloads.changeFilterHint")}
           </p>
         </div>
       ) : (
@@ -195,7 +194,7 @@ export function Downloads() {
                 {movies.length > 0 && (
                   <section>
                     <h2 className="mb-3 text-lg font-semibold text-text-primary">
-                      Movies & other
+                      {t("downloads.moviesAndOther")}
                     </h2>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                       {movies.map((task) => (
@@ -227,7 +226,7 @@ export function Downloads() {
                           <div key={String(seasonKey)}>
                             <h3 className="mb-2 text-sm font-medium text-text-secondary">
                               {typeof seasonKey === "number"
-                                ? `Season ${seasonKey}`
+                                ? `${t("downloads.season")} ${seasonKey}`
                                 : seasonKey}
                             </h3>
                             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -279,6 +278,7 @@ function DownloadCard({
   onDelete: () => void;
   subtitle?: string;
 }) {
+  const { t } = useTranslation();
   const isActive = task.status === "downloading" || task.status === "pending";
   const isCompleted = task.status === "completed";
   const isFailed = task.status === "failed";
@@ -304,7 +304,7 @@ function DownloadCard({
               <p className="mt-1 text-sm">
                 {task.totalBytes > 0
                   ? `${Math.round(task.progress * 100)}%`
-                  : "Starting…"}
+                  : t("downloads.starting")}
               </p>
               {task.totalBytes > 0 && (
                 <p className="text-xs opacity-90">
@@ -322,13 +322,13 @@ function DownloadCard({
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary py-2 text-sm font-medium text-background hover:opacity-90"
             >
               <Play className="h-4 w-4" fill="currentColor" />
-              Play
+              {t("home.play")}
             </button>
             <button
               type="button"
               onClick={onDelete}
               className="rounded-lg bg-white/20 p-2 text-white hover:bg-white/30"
-              title="Remove download"
+              title={t("downloads.removeDownload")}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -352,7 +352,7 @@ function DownloadCard({
             type="button"
             onClick={onPause}
             className="rounded-lg p-1.5 text-text-secondary hover:bg-surface hover:text-text-primary"
-            title="Cancel"
+            title={t("downloads.cancel")}
           >
             <Pause className="h-4 w-4" />
           </button>
@@ -362,7 +362,7 @@ function DownloadCard({
             type="button"
             onClick={onRetry}
             className="rounded-lg p-1.5 text-text-secondary hover:bg-surface hover:text-primary"
-            title="Retry"
+            title={t("downloads.retry")}
           >
             <RotateCw className="h-4 w-4" />
           </button>
@@ -372,7 +372,7 @@ function DownloadCard({
             type="button"
             onClick={onDelete}
             className="rounded-lg p-1.5 text-text-tertiary hover:bg-surface hover:text-red-400"
-            title="Remove download"
+            title={t("downloads.removeDownload")}
           >
             <Trash2 className="h-4 w-4" />
           </button>
