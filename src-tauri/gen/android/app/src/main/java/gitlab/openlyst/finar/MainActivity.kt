@@ -1,4 +1,4 @@
-package com.httpanimations.finar_app
+package gitlab.openlyst.finar
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

@@ -1077,7 +1077,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "finar-app"
+name = "finar"
 version = "0.1.0"
 dependencies = [
  "futures-util",
