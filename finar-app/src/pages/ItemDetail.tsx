@@ -16,6 +16,7 @@ import { usePlayerStore } from "../stores/player";
 import { useTranslation } from "../translations";
 import { useDownloadsStore } from "../stores/downloads";
 import { getBackdropUrl, getDisplayImageUrl, getPrimaryImageUrl } from "../utils/image";
+import { AlbumCard } from "../components/AlbumCard";
 import { MediaCard } from "../components/MediaCard";
 import { Button } from "../components/Button";
 import type { MediaItem } from "../types/jellyfin";
@@ -646,14 +647,23 @@ export function ItemDetail() {
               {t("itemDetail.moreLikeThis")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              {similar.map((s, i) => (
-                <MediaCard
-                  key={s.Id}
-                  item={s}
-                  index={i}
-                  onClick={() => navigate(`/item/${s.Id}`)}
-                />
-              ))}
+              {similar.map((s, i) =>
+                s.Type === "MusicAlbum" ? (
+                  <AlbumCard
+                    key={s.Id}
+                    item={s}
+                    index={i}
+                    onClick={() => navigate(`/item/${s.Id}`)}
+                  />
+                ) : (
+                  <MediaCard
+                    key={s.Id}
+                    item={s}
+                    index={i}
+                    onClick={() => navigate(`/item/${s.Id}`)}
+                  />
+                ),
+              )}
             </div>
           </section>
         )}
