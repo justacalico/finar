@@ -183,6 +183,8 @@ async fn delete_download_file(app: tauri::AppHandle, path: String) -> Result<(),
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_devtools::init())
+        .plugin(tauri_plugin_devtools_app::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .manage(DownloadCancels::default())
