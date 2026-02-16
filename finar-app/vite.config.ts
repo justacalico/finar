@@ -17,6 +17,13 @@ export default defineConfig(async () => ({
     port: 1420,
     strictPort: true,
     host: host || false,
+    proxy: {
+      "/api/openlyst": {
+        target: "https://openlyst.ink",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/openlyst/, "/api/v1"),
+      },
+    },
     hmr: host
       ? {
           protocol: "ws",

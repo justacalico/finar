@@ -3,7 +3,8 @@
  * @see https://openlyst.ink/docs/api
  */
 
-const OPENLYST_BASE = "https://openlyst.ink/api/v1";
+const OPENLYST_BASE =
+  import.meta.env.DEV ? "/api/openlyst" : "https://openlyst.ink/api/v1";
 const APP_SLUG = "finar";
 
 export interface OpenLystLatest {
