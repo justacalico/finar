@@ -5,14 +5,17 @@ import { Layout } from "./components/Layout";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
-import { Search } from "./pages/Search";
-import { Favorites } from "./pages/Favorites";
-import { Library } from "./pages/Library";
-import { LibraryList } from "./pages/LibraryList";
-import { ItemDetail } from "./pages/ItemDetail";
-import { Player } from "./pages/Player";
-import { Settings } from "./pages/Settings";
-import { Downloads } from "./pages/Downloads";
+import {
+  LazySearch,
+  LazyFavorites,
+  LazyLibrary,
+  LazyLibraryList,
+  LazyItemDetail,
+  LazySettings,
+  LazyDownloads,
+  LazyPlayer,
+  withSuspense,
+} from "./routes";
 import { ThemeApplicator } from "./components/ThemeApplicator";
 import "./index.css";
 
@@ -35,21 +38,21 @@ function AppRoutes() {
         }
       >
         <Route index element={<Home />} />
-        <Route path="search" element={<Search />} />
-        <Route path="favorites" element={<Favorites />} />
-        <Route path="downloads" element={<Downloads />} />
+        <Route path="search" element={withSuspense(LazySearch)} />
+        <Route path="favorites" element={withSuspense(LazyFavorites)} />
+        <Route path="downloads" element={withSuspense(LazyDownloads)} />
         <Route path="library">
-          <Route index element={<LibraryList />} />
-          <Route path=":id" element={<Library />} />
+          <Route index element={withSuspense(LazyLibraryList)} />
+          <Route path=":id" element={withSuspense(LazyLibrary)} />
         </Route>
-        <Route path="item/:id" element={<ItemDetail />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="item/:id" element={withSuspense(LazyItemDetail)} />
+        <Route path="settings" element={withSuspense(LazySettings)} />
       </Route>
       <Route
         path="/player"
         element={
           <AuthGuard>
-            <Player />
+            {withSuspense(LazyPlayer)}
           </AuthGuard>
         }
       />

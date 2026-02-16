@@ -11,6 +11,7 @@ interface MediaCardProps {
   showProgress?: boolean;
   index?: number;
   onClick?: () => void;
+  onMouseEnter?: () => void;
   className?: string;
 }
 
@@ -22,6 +23,7 @@ export function MediaCard({
   showProgress,
   index = 0,
   onClick,
+  onMouseEnter,
   className = "",
 }: MediaCardProps) {
   const displayTitle = title ?? item.Name;
@@ -44,6 +46,7 @@ export function MediaCard({
       transition={{ duration: 0.25, delay: index * 0.03 }}
       className={`group cursor-pointer ${className}`}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-surface-elevated shadow-lg transition transform group-hover:scale-[1.02] group-hover:shadow-xl">
         {showIconPlaceholder ? (

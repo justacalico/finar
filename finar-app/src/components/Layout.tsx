@@ -16,6 +16,7 @@ import {
   LayoutGrid,
   ArrowLeft,
 } from "lucide-react";
+import { preloadRoute, preloadLibrary } from "../routes";
 import { useAuthStore } from "../stores/auth";
 import { useDownloadsStore } from "../stores/downloads";
 import { useLibraryStore } from "../stores/library";
@@ -67,12 +68,16 @@ export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, serverUrl } = useAuthStore();
-  const { libraries, loadLibraries } = useLibraryStore();
+  const { libraries, loadLibraries, loadHomeData } = useLibraryStore();
   const initListeners = useDownloadsStore((s) => s.initListeners);
 
   useEffect(() => {
     loadLibraries();
   }, [loadLibraries]);
+
+  useEffect(() => {
+    loadHomeData();
+  }, [loadHomeData]);
 
   useEffect(() => {
     const unlisten = initListeners();
@@ -120,6 +125,7 @@ export function Layout() {
               <Link
                 key={path}
                 to={path}
+                onMouseEnter={() => path !== "/" && preloadRoute(path)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-gradient-to-r from-primary to-primary/80 text-white"
@@ -143,6 +149,7 @@ export function Layout() {
                   <Link
                     key={lib.Id}
                     to={`/library/${lib.Id}`}
+                    onMouseEnter={preloadLibrary}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                       location.pathname === `/library/${lib.Id}`
                         ? "bg-surface text-primary"
@@ -167,6 +174,7 @@ export function Layout() {
         <div className="border-t border-white/10 p-3">
           <Link
             to="/settings"
+            onMouseEnter={() => preloadRoute("/settings")}
             className={`flex items-center gap-3 rounded-xl bg-surface p-3 transition-colors ${
               !sidebarOpen ? "justify-center" : ""
             } ${
@@ -253,10 +261,16 @@ export function Layout() {
             const isActive = isLibrary
               ? location.pathname === "/library" || location.pathname.startsWith("/library/")
               : location.pathname === path;
+            const onPreload = () => {
+              if (path === "/library") preloadLibrary();
+              else if (path !== "/") preloadRoute(path);
+            };
             return (
               <Link
                 key={path}
                 to={path}
+                onMouseEnter={onPreload}
+                onTouchStart={onPreload}
                 className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 transition-colors ${
                   isActive ? "text-primary" : "text-text-secondary"
                 }`}

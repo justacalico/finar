@@ -6,6 +6,7 @@ import { useLibraryStore } from "../stores/library";
 import { useTranslation } from "../translations";
 import { usePlayerStore } from "../stores/player";
 import { MediaCard } from "../components/MediaCard";
+import { preloadItemDetail } from "../routes";
 import { getBackdropUrl } from "../utils/image";
 import type { MediaItem } from "../types/jellyfin";
 
@@ -54,6 +55,7 @@ function MediaRow({
               showProgress={showProgress}
               index={i}
               onClick={() => navigate(`/item/${item.Id}`)}
+              onMouseEnter={preloadItemDetail}
             />
           </div>
         ))}
@@ -68,8 +70,8 @@ export function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadHomeData();
-  }, [loadHomeData]);
+    if (!homeData) loadHomeData();
+  }, [loadHomeData, homeData]);
 
   if (error && !homeData) {
     return (
@@ -109,6 +111,8 @@ export function Home() {
             src={getBackdropUrl(heroItem, 0, { maxWidth: 1920 })}
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
