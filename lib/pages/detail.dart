@@ -13,14 +13,16 @@ import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import '../adaptive_pages.dart';
+import 'adaptive_pages.dart';
+import 'home.dart';
+import 'player.dart';
 
-class MobileDetail extends ConsumerStatefulWidget {
+class DetailPage extends ConsumerStatefulWidget {
   final String itemId;
   final String? initialSeasonId;
   final String? initialEpisodeId;
 
-  const MobileDetail({
+  const DetailPage({
     super.key,
     required this.itemId,
     this.initialSeasonId,
@@ -28,10 +30,10 @@ class MobileDetail extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<MobileDetail> createState() => _MobileDetailState();
+  ConsumerState<DetailPage> createState() => _DetailPageState();
 }
 
-class _MobileDetailState extends ConsumerState<MobileDetail>
+class _DetailPageState extends ConsumerState<DetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
@@ -68,7 +70,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => AdaptiveDetailPage(itemId: item.albumId!),
+                  builder: (_) => DetailPage(itemId: item.albumId!),
                 ),
               );
             });
@@ -82,7 +84,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => AdaptiveDetailPage(
+                  builder: (_) => DetailPage(
                     itemId: item.seriesId!,
                     initialSeasonId: item.seasonId,
                     initialEpisodeId: item.id,
@@ -1056,7 +1058,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
                     onTap: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (_) => AdaptiveDetailPage(itemId: item.id),
+                          builder: (_) => DetailPage(itemId: item.id),
                         ),
                       );
                     },
@@ -1099,7 +1101,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       if (!isMusic) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+        ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
       }
     }
   }
@@ -1121,7 +1123,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
         if (mounted) {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+          ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -1135,7 +1137,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+                MaterialPageRoute(builder: (_) => const PlayerPage()),
               );
             }
           } else {
@@ -1188,7 +1190,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
           ref.read(playerProvider.notifier).play(trailers.first);
           if (mounted) {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+              MaterialPageRoute(builder: (_) => const PlayerPage()),
             );
           }
           return;
@@ -1352,7 +1354,7 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       if (!isMusic && mounted) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+        ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
       }
     } catch (e) {
       if (mounted) {

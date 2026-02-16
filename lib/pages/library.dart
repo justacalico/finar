@@ -7,18 +7,19 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import '../adaptive_pages.dart';
+import 'detail.dart';
+import 'player.dart';
 
-class MobileLibrary extends ConsumerStatefulWidget {
+class LibraryPage extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const MobileLibrary({super.key, required this.libraryId});
+  const LibraryPage({super.key, required this.libraryId});
 
   @override
-  ConsumerState<MobileLibrary> createState() => _MobileLibraryState();
+  ConsumerState<LibraryPage> createState() => _LibraryPageState();
 }
 
-class _MobileLibraryState extends ConsumerState<MobileLibrary> {
+class _LibraryPageState extends ConsumerState<LibraryPage> {
   final ScrollController _scrollController = ScrollController();
   String _sortBy = 'SortName';
   String _sortOrder = 'Ascending';
@@ -433,7 +434,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
+      MaterialPageRoute(builder: (_) => DetailPage(itemId: itemId)),
     );
   }
 
@@ -461,7 +462,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
       if (!isMusic) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+        ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
       }
     }
   }
@@ -477,7 +478,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
         if (mounted) {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+          ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -491,7 +492,7 @@ class _MobileLibraryState extends ConsumerState<MobileLibrary> {
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+                MaterialPageRoute(builder: (_) => const PlayerPage()),
               );
             }
           } else {

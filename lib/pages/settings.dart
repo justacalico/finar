@@ -7,14 +7,14 @@ import '../../core/theme/text_styles.dart';
 import '../../core/utils/platform_detector.dart';
 import '../../providers/providers.dart';
 
-class MobileSettings extends ConsumerStatefulWidget {
-  const MobileSettings({super.key});
+class SettingsPage extends ConsumerStatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  ConsumerState<MobileSettings> createState() => _MobileSettingsState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _MobileSettingsState extends ConsumerState<MobileSettings> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);

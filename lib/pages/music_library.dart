@@ -7,18 +7,18 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import '../adaptive_pages.dart';
+import 'detail.dart';
 
-class MobileMusicLibrary extends ConsumerStatefulWidget {
+class MusicLibraryPage extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const MobileMusicLibrary({super.key, required this.libraryId});
+  const MusicLibraryPage({super.key, required this.libraryId});
 
   @override
-  ConsumerState<MobileMusicLibrary> createState() => _MobileMusicLibraryState();
+  ConsumerState<MusicLibraryPage> createState() => _MusicLibraryPageState();
 }
 
-class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
+class _MusicLibraryPageState extends ConsumerState<MusicLibraryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
@@ -601,7 +601,7 @@ class _MobileMusicLibraryState extends ConsumerState<MobileMusicLibrary>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
+      MaterialPageRoute(builder: (_) => DetailPage(itemId: itemId)),
     );
   }
 

@@ -9,11 +9,16 @@ import 'dart:ui';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/responsive.dart';
 import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import '../adaptive_pages.dart';
+import 'detail.dart';
+import 'library.dart';
+import 'music_library.dart';
+import 'player.dart';
+import 'settings.dart';
 
 /// Helper to get MediaType from string
 MediaType _getMediaTypeFromString(String? typeString) {
@@ -35,16 +40,16 @@ MediaType _getMediaTypeFromString(String? typeString) {
   }
 }
 
-class MobileHome extends ConsumerStatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   final int initialIndex;
 
-  const MobileHome({super.key, this.initialIndex = 0});
+  const HomePage({super.key, this.initialIndex = 0});
 
   @override
-  ConsumerState<MobileHome> createState() => _MobileHomeState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _MobileHomeState extends ConsumerState<MobileHome>
+class _HomePageState extends ConsumerState<HomePage>
     with SingleTickerProviderStateMixin {
   late int _currentIndex;
   late final PageController _pageController;
@@ -115,70 +120,90 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
     final isOnline = ref.watch(isOnlineProvider);
+    final isWideLayout = MediaQuery.of(context).size.width >=
+        Responsive.tabletBreakpoint;
     final isMusic =
         playerState.currentItem?.type.name == 'audio' ||
         playerState.currentItem?.type.name == 'album';
+    final offlineIndex = kIsWeb ? 2 : 3;
 
     // If offline and not on downloads page, force navigation to downloads
-    if (!isOnline && _currentIndex != 3) {
+    if (!isOnline && _currentIndex != offlineIndex) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          setState(() => _currentIndex = 3);
-          _pageController.jumpToPage(3);
+          setState(() => _currentIndex = offlineIndex);
+          _pageController.jumpToPage(offlineIndex);
         }
       });
     }
 
     return Scaffold(
-      body: Stack(
+      body: Row(
         children: [
-          // Main page content
-          PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              // Prevent navigation away from downloads when offline
-              if (!isOnline && index != 3) {
-                _pageController.jumpToPage(3);
-                return;
-              }
-              setState(() => _currentIndex = index);
-            },
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildHomePage(),
-              _buildSearchPage(),
-              _buildLibraryPage(),
-              if (!kIsWeb) _buildDownloadsPage(),
-            ],
+          if (isWideLayout)
+            _buildNavigationRail(
+              isOnline: isOnline,
+              offlineIndex: offlineIndex,
+            ),
+          Expanded(
+            child: Stack(
+              children: [
+                // Main page content
+                PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    // Prevent navigation away from downloads when offline
+                    if (!isOnline && index != offlineIndex) {
+                      _pageController.jumpToPage(offlineIndex);
+                      return;
+                    }
+                    setState(() => _currentIndex = index);
+                  },
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildHomePage(),
+                    _buildSearchPage(),
+                    _buildLibraryPage(),
+                    if (!kIsWeb) _buildDownloadsPage(),
+                  ],
+                ),
+
+                // Offline banner
+                if (!isOnline)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top,
+                    left: 0,
+                    right: 0,
+                    child: _buildOfflineBanner(),
+                  ),
+
+                // Expanded music player overlay
+                if (_isPlayerExpanded && showMiniPlayer && isMusic)
+                  ExpandedMusicPlayer(
+                    onCollapse: () => setState(() => _isPlayerExpanded = false),
+                  ),
+              ],
+            ),
           ),
-
-          // Offline banner
-          if (!isOnline)
-            Positioned(
-              top: MediaQuery.of(context).padding.top,
-              left: 0,
-              right: 0,
-              child: _buildOfflineBanner(),
-            ),
-
-          // Expanded music player overlay
-          if (_isPlayerExpanded && showMiniPlayer && isMusic)
-            ExpandedMusicPlayer(
-              onCollapse: () => setState(() => _isPlayerExpanded = false),
-            ),
         ],
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Mini player above nav bar
-          if (showMiniPlayer && isMusic && !_isPlayerExpanded)
-            MobileMiniPlayer(
-              onExpand: () => setState(() => _isPlayerExpanded = true),
+      bottomNavigationBar: isWideLayout
+          ? (showMiniPlayer && isMusic && !_isPlayerExpanded
+              ? MobileMiniPlayer(
+                  onExpand: () => setState(() => _isPlayerExpanded = true),
+                )
+              : null)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Mini player above nav bar
+                if (showMiniPlayer && isMusic && !_isPlayerExpanded)
+                  MobileMiniPlayer(
+                    onExpand: () => setState(() => _isPlayerExpanded = true),
+                  ),
+                _buildBottomNav(isOnline: isOnline, offlineIndex: offlineIndex),
+              ],
             ),
-          _buildBottomNav(isOnline: isOnline),
-        ],
-      ),
     );
   }
 
@@ -241,7 +266,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
         .slideY(begin: -1, end: 0, duration: 300.ms);
   }
 
-  Widget _buildBottomNav({bool isOnline = true}) {
+  Widget _buildBottomNav({bool isOnline = true, required int offlineIndex}) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
@@ -317,6 +342,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                       Icons.home_rounded,
                       'Home',
                       isOnline: isOnline,
+                      offlineIndex: offlineIndex,
                     ),
                     _buildNavItem(
                       1,
@@ -324,6 +350,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                       Icons.search_rounded,
                       'Search',
                       isOnline: isOnline,
+                      offlineIndex: offlineIndex,
                     ),
                     _buildNavItem(
                       2,
@@ -331,6 +358,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                       Icons.video_library_rounded,
                       'Library',
                       isOnline: isOnline,
+                      offlineIndex: offlineIndex,
                     ),
                     if (!kIsWeb)
                       _buildNavItem(
@@ -339,6 +367,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                         Icons.download_rounded,
                         'Downloads',
                         isOnline: isOnline,
+                        offlineIndex: offlineIndex,
                       ),
                   ],
                 ),
@@ -364,10 +393,11 @@ class _MobileHomeState extends ConsumerState<MobileHome>
     IconData selectedIcon,
     String label, {
     bool isOnline = true,
+    required int offlineIndex,
   }) {
     final isSelected = _currentIndex == index;
     // Disable non-downloads items when offline
-    final isDisabled = !isOnline && index != 3;
+    final isDisabled = !isOnline && index != offlineIndex;
 
     return Expanded(
       child: GestureDetector(
@@ -419,6 +449,61 @@ class _MobileHomeState extends ConsumerState<MobileHome>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationRail({
+    required bool isOnline,
+    required int offlineIndex,
+  }) {
+    final destinations = <NavigationRailDestination>[
+      const NavigationRailDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home_rounded),
+        label: Text('Home'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.search_outlined),
+        selectedIcon: Icon(Icons.search_rounded),
+        label: Text('Search'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.video_library_outlined),
+        selectedIcon: Icon(Icons.video_library_rounded),
+        label: Text('Library'),
+      ),
+      if (!kIsWeb)
+        const NavigationRailDestination(
+          icon: Icon(Icons.download_outlined),
+          selectedIcon: Icon(Icons.download_rounded),
+          label: Text('Downloads'),
+        ),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSecondary,
+        border: Border(
+          right: BorderSide(
+            color: AppColors.divider.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: NavigationRail(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) {
+            if (!isOnline && index != offlineIndex) return;
+            setState(() => _currentIndex = index);
+            _pageController.jumpToPage(index);
+          },
+          labelType: NavigationRailLabelType.all,
+          useIndicator: true,
+          backgroundColor: Colors.transparent,
+          destinations: destinations,
         ),
       ),
     );
@@ -544,7 +629,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const AdaptiveSettingsPage(),
+                              builder: (_) => const SettingsPage(),
                             ),
                           );
                         },
@@ -1219,8 +1304,8 @@ class _MobileHomeState extends ConsumerState<MobileHome>
             context,
             MaterialPageRoute(
               builder: (_) => library.collectionType?.toLowerCase() == 'music'
-                  ? AdaptiveMusicLibraryPage(libraryId: library.id)
-                  : AdaptiveLibraryPage(libraryId: library.id),
+                  ? MusicLibraryPage(libraryId: library.id)
+                  : LibraryPage(libraryId: library.id),
             ),
           ),
           child: SizedBox(
@@ -1305,7 +1390,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
   void _navigateToDetail(String itemId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: itemId)),
+      MaterialPageRoute(builder: (_) => DetailPage(itemId: itemId)),
     );
   }
 
@@ -1328,7 +1413,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
       if (!isMusic) {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+        ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
       }
     }
   }
@@ -1344,7 +1429,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
         if (mounted) {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+          ).push(MaterialPageRoute(builder: (_) => const PlayerPage()));
         }
       } else {
         // No next up episode, get the first episode of the first season
@@ -1358,7 +1443,7 @@ class _MobileHomeState extends ConsumerState<MobileHome>
             ref.read(playerProvider.notifier).play(episodes.first);
             if (mounted) {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+                MaterialPageRoute(builder: (_) => const PlayerPage()),
               );
             }
           } else {
@@ -1426,7 +1511,7 @@ class _MobileSeeAllPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AdaptiveDetailPage(itemId: item.id),
+                  builder: (_) => DetailPage(itemId: item.id),
                 ),
               );
             },
@@ -1514,7 +1599,7 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => AdaptiveDetailPage(itemId: item.id),
+                            builder: (_) => DetailPage(itemId: item.id),
                           ),
                         ),
                       );
@@ -1596,8 +1681,8 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                         MaterialPageRoute(
                           builder: (_) =>
                               library.collectionType?.toLowerCase() == 'music'
-                              ? AdaptiveMusicLibraryPage(libraryId: library.id)
-                              : AdaptiveLibraryPage(libraryId: library.id),
+                              ? MusicLibraryPage(libraryId: library.id)
+                              : LibraryPage(libraryId: library.id),
                         ),
                       ),
                       child: Container(
@@ -1862,7 +1947,7 @@ class _MobileDownloadsPage extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const AdaptivePlayerPage(),
+                              builder: (_) => const PlayerPage(),
                             ),
                           );
                         }

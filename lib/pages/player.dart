@@ -11,14 +11,14 @@ import '../../core/theme/app_theme.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 
-class MobilePlayer extends ConsumerStatefulWidget {
-  const MobilePlayer({super.key});
+class PlayerPage extends ConsumerStatefulWidget {
+  const PlayerPage({super.key});
 
   @override
-  ConsumerState<MobilePlayer> createState() => _MobilePlayerState();
+  ConsumerState<PlayerPage> createState() => _PlayerPageState();
 }
 
-class _MobilePlayerState extends ConsumerState<MobilePlayer> {
+class _PlayerPageState extends ConsumerState<PlayerPage> {
   bool _controlsVisible = true;
   bool _isLocked = false;
   bool _showSettings = false;
