@@ -237,7 +237,7 @@ export const useDownloadsStore = create<DownloadsState>()(
         if (!get().isTauriEnv) return;
         try {
           await invoke("cancel_download", { taskId });
-          get().updateTask(taskId, { status: "cancelled" });
+          get().removeTask(taskId);
         } catch (_) {}
       },
 

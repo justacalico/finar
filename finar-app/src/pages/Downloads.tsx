@@ -109,7 +109,7 @@ export function Downloads() {
 
   const filtered =
     filter === "all"
-      ? tasks
+      ? tasks.filter((t) => t.status !== "cancelled")
       : filter === "completed"
         ? getCompletedTasks()
         : filter === "downloading"
