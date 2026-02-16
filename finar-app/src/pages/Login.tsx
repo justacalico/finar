@@ -1,9 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
-import { Play, Server, User, Lock, QrCode, Loader2 } from "lucide-react";
+import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
+import { useSettingsStore, type Theme } from "../stores/settings";
 import { Button } from "../components/Button";
+
+const THEMES: { id: Theme; label: string }[] = [
+  { id: "light", label: "Light" },
+  { id: "dark", label: "Dark" },
+  { id: "oled", label: "OLED" },
+];
+
+const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "zh-CN", label: "简体中文" },
+  { code: "ru", label: "Русский" },
+  { code: "de", label: "Deutsch" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
+];
 import { Input } from "../components/Input";
 import { GlassCard } from "../components/GlassCard";
 
@@ -26,6 +43,11 @@ export function Login() {
   const togglePasswordVisibility = () => setShowPassword((p) => !p);
   const [quickConnectCode, setQuickConnectCode] = useState<string | null>(null);
   const [quickConnectPolling, setQuickConnectPolling] = useState(false);
+
+  const theme = useSettingsStore((s) => s.theme);
+  const setTheme = useSettingsStore((s) => s.setTheme);
+  const language = useSettingsStore((s) => s.language);
+  const setLanguage = useSettingsStore((s) => s.setLanguage);
 
   useEffect(() => {
     if (isAuthenticated) navigate("/", { replace: true });
@@ -209,6 +231,67 @@ export function Login() {
               >
                 Quick Connect
               </Button>
+
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4">
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
+                    <Sun className="h-4 w-4" />
+                    Theme
+                  </label>
+                  <div className="flex gap-1.5">
+                    {THEMES.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setTheme(t.id)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                          theme === t.id
+                            ? "bg-primary text-background"
+                            : "bg-surface-elevated text-text-secondary hover:bg-white/10 hover:text-text-primary"
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1 basis-32">
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
+                    <Globe className="h-4 w-4" />
+                    Language
+                  </label>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between gap-2 rounded-lg border border-divider bg-surface-elevated px-3 py-1.5 text-left text-sm text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <span className="truncate">
+                          {LANGUAGES.find((l) => l.code === language)?.label ?? "English"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
+                      </button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.Content
+                        className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl border border-divider bg-surface shadow-lg"
+                        sideOffset={4}
+                        align="end"
+                      >
+                        {LANGUAGES.map((l) => (
+                          <DropdownMenu.Item
+                            key={l.code}
+                            onSelect={() => setLanguage(l.code)}
+                            className="cursor-pointer select-none px-4 py-2.5 text-text-primary outline-none hover:bg-text-primary/5 focus:outline-none data-[highlighted]:bg-text-primary/5"
+                          >
+                            {l.label}
+                          </DropdownMenu.Item>
+                        ))}
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Root>
+                </div>
+              </div>
             </form>
           </GlassCard>
         </motion.div>
