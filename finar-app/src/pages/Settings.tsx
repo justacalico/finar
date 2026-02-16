@@ -11,25 +11,14 @@ import {
   type Theme,
   type AccentColor,
 } from "../stores/settings";
+import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
 import { Button } from "../components/Button";
 
-const THEMES: { id: Theme; label: string }[] = [
-  { id: "light", label: "Light" },
-  { id: "dark", label: "Dark" },
-  { id: "oled", label: "OLED" },
-];
-
-const LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "zh-CN", label: "简体中文" },
-  { code: "ru", label: "Русский" },
-  { code: "de", label: "Deutsch" },
-  { code: "fr", label: "Français" },
-  { code: "es", label: "Español" },
-];
+const THEME_IDS: Theme[] = ["light", "dark", "oled"];
 
 export function Settings() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, serverUrl, logout } = useAuthStore();
   const theme = useSettingsStore((s) => s.theme);
   const setTheme = useSettingsStore((s) => s.setTheme);
@@ -61,21 +50,21 @@ export function Settings() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 md:px-8">
-      <h1 className="mb-8 text-2xl font-bold text-text-primary">Settings</h1>
+      <h1 className="mb-8 text-2xl font-bold text-text-primary">{t("settings.title")}</h1>
 
       <div className="space-y-8">
         {/* Account */}
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <User className="h-4 w-4" />
-            Account
+            {t("settings.account")}
           </h2>
           <p className="text-text-primary">
-            Signed in as <strong>{user?.Name ?? "Guest"}</strong>
+            {t("settings.signedInAs")} <strong>{user?.Name ?? t("common.guest")}</strong>
           </p>
           {serverUrl && (
             <p className="mt-1 truncate text-sm text-text-tertiary">
-              Server: {serverUrl}
+              {t("settings.server")}: {serverUrl}
             </p>
           )}
           <Button
@@ -84,7 +73,7 @@ export function Settings() {
             leftIcon={<LogOut className="h-4 w-4" />}
             onClick={handleSignOut}
           >
-            Sign out
+            {t("settings.signOut")}
           </Button>
         </section>
 
@@ -92,14 +81,14 @@ export function Settings() {
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <Palette className="h-4 w-4" />
-            Customization
+            {t("settings.customization")}
           </h2>
 
           <div className="space-y-6">
             {/* Accent colour */}
             <div>
               <label className="mb-2 block text-sm font-medium text-text-secondary">
-                Accent colour
+                {t("settings.accentColour")}
               </label>
               <div className="flex flex-wrap gap-2">
                 {ACCENT_COLORS.map((c) => (
@@ -125,21 +114,21 @@ export function Settings() {
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Sun className="h-4 w-4" />
-                Theme
+                {t("settings.theme")}
               </label>
               <div className="flex flex-wrap gap-2">
-                {THEMES.map((t) => (
+                {THEME_IDS.map((id) => (
                   <button
-                    key={t.id}
+                    key={id}
                     type="button"
-                    onClick={() => setTheme(t.id)}
+                    onClick={() => setTheme(id)}
                     className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                      theme === t.id
+                      theme === id
                         ? "bg-primary text-background"
                         : "bg-surface-elevated text-text-secondary hover:bg-white/10 hover:text-text-primary"
                     }`}
                   >
-                    {t.label}
+                    {t(`common.${id}`)}
                   </button>
                 ))}
               </div>
@@ -149,7 +138,7 @@ export function Settings() {
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Globe className="h-4 w-4" />
-                Language
+                {t("settings.language")}
               </label>
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
@@ -157,7 +146,7 @@ export function Settings() {
                     type="button"
                     className="flex w-full items-center justify-between gap-2 rounded-xl border border-divider bg-surface-elevated px-4 py-3 text-left text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    <span>{LANGUAGES.find((l) => l.code === language)?.label ?? "English"}</span>
+                    <span>{SUPPORTED_LANGUAGES.find((l) => l.code === language)?.label ?? "English"}</span>
                     <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
                   </button>
                 </DropdownMenu.Trigger>
@@ -167,7 +156,7 @@ export function Settings() {
                     sideOffset={4}
                     align="start"
                   >
-                    {LANGUAGES.map((l) => (
+                    {SUPPORTED_LANGUAGES.map((l) => (
                       <DropdownMenu.Item
                         key={l.code}
                         onSelect={() => setLanguage(l.code)}
@@ -187,19 +176,18 @@ export function Settings() {
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <Info className="h-4 w-4" />
-            About
+            {t("settings.about")}
           </h2>
           <p className="text-text-secondary">
-            Finar — A beautiful Jellyfin client. Built with Tauri, React, and
-            TypeScript.
+            {t("settings.aboutDescription")}
           </p>
           <p className="mt-2 text-sm text-text-tertiary">
-            Version {pkg.version}
+            {t("settings.version")} {pkg.version}
           </p>
           {updateCheck?.isUpdateAvailable && (
             <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">
               <p className="font-medium text-primary">
-                Update available: v{updateCheck.latestVersion}
+                {t("settings.updateAvailable")}: v{updateCheck.latestVersion}
               </p>
               {updateCheck.downloadUrl && (
                 <a
@@ -209,7 +197,7 @@ export function Settings() {
                   className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Download from OpenLyst
+                  {t("settings.downloadFromOpenLyst")}
                 </a>
               )}
             </div>

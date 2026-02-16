@@ -4,28 +4,17 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
 import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
-import { useSettingsStore, type Theme } from "../stores/settings";
+import { useSettingsStore } from "../stores/settings";
+import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
 import { Button } from "../components/Button";
-
-const THEMES: { id: Theme; label: string }[] = [
-  { id: "light", label: "Light" },
-  { id: "dark", label: "Dark" },
-  { id: "oled", label: "OLED" },
-];
-
-const LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "zh-CN", label: "简体中文" },
-  { code: "ru", label: "Русский" },
-  { code: "de", label: "Deutsch" },
-  { code: "fr", label: "Français" },
-  { code: "es", label: "Español" },
-];
 import { Input } from "../components/Input";
 import { GlassCard } from "../components/GlassCard";
 
+const THEME_IDS = ["light", "dark", "oled"] as const;
+
 export function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     login,
     initiateQuickConnect,
@@ -104,10 +93,10 @@ export function Login() {
                 <QrCode className="h-12 w-12 text-primary" />
               </div>
               <h2 className="mt-4 text-xl font-bold text-text-primary">
-                Quick Connect
+                {t("login.quickConnectTitle")}
               </h2>
               <p className="mt-2 text-sm text-text-secondary">
-                Enter this code in your Jellyfin dashboard
+                {t("login.quickConnectEnterCode")}
               </p>
               <div className="mt-6 rounded-xl bg-primary/10 px-8 py-4">
                 <span className="font-mono text-3xl font-bold tracking-[0.3em] text-primary">
@@ -116,7 +105,7 @@ export function Login() {
               </div>
               <div className="mt-6 flex items-center gap-2 text-text-secondary">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Waiting for authorization...</span>
+                <span>{t("login.waitingForAuth")}</span>
               </div>
               <Button
                 variant="outline"
@@ -126,7 +115,7 @@ export function Login() {
                   setQuickConnectPolling(false);
                 }}
               >
-                Cancel
+                {t("login.cancel")}
               </Button>
             </div>
           </GlassCard>
@@ -151,10 +140,10 @@ export function Login() {
             <Play className="h-10 w-10 text-background" fill="currentColor" />
           </div>
           <h1 className="mt-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-4xl font-bold text-transparent">
-            Finar
+            {t("common.appName")}
           </h1>
           <p className="mt-1 text-sm text-text-tertiary">
-            Your Jellyfin Experience
+            {t("common.tagline")}
           </p>
         </motion.div>
 
@@ -166,31 +155,31 @@ export function Login() {
         >
           <GlassCard padding="lg">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="text-xl font-bold text-text-primary">Welcome</h2>
+              <h2 className="text-xl font-bold text-text-primary">{t("login.welcome")}</h2>
               <p className="text-sm text-text-secondary">
-                Sign in to your Jellyfin server
+                {t("login.signInTo")}
               </p>
 
               <Input
-                label="Server URL"
-                placeholder="https://jellyfin.example.com"
+                label={t("login.serverUrl")}
+                placeholder={t("login.serverUrlPlaceholder")}
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
                 leftIcon={<Server className="h-5 w-5" />}
                 required
               />
               <Input
-                label="Username"
-                placeholder="Enter your username"
+                label={t("login.username")}
+                placeholder={t("login.usernamePlaceholder")}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 leftIcon={<User className="h-5 w-5" />}
                 required
               />
               <Input
-                label="Password"
+                label={t("login.password")}
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={t("login.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 leftIcon={<Lock className="h-5 w-5" />}
@@ -199,7 +188,7 @@ export function Login() {
                     type="button"
                     onClick={togglePasswordVisibility}
                     className="text-text-tertiary hover:text-text-primary"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                   >
                     {showPassword ? "🙈" : "👁"}
                   </button>
@@ -219,7 +208,7 @@ export function Login() {
                 className="w-full"
                 leftIcon={!isLoading ? <Lock className="h-4 w-4" /> : undefined}
               >
-                Sign In
+                {t("login.signIn")}
               </Button>
               <Button
                 type="button"
@@ -229,28 +218,28 @@ export function Login() {
                 disabled={isLoading}
                 leftIcon={<QrCode className="h-4 w-4" />}
               >
-                Quick Connect
+                {t("login.quickConnect")}
               </Button>
 
               <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4">
                 <div>
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
                     <Sun className="h-4 w-4" />
-                    Theme
+                    {t("common.theme")}
                   </label>
                   <div className="flex gap-1.5">
-                    {THEMES.map((t) => (
+                    {THEME_IDS.map((id) => (
                       <button
-                        key={t.id}
+                        key={id}
                         type="button"
-                        onClick={() => setTheme(t.id)}
+                        onClick={() => setTheme(id)}
                         className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                          theme === t.id
+                          theme === id
                             ? "bg-primary text-background"
                             : "bg-surface-elevated text-text-secondary hover:bg-white/10 hover:text-text-primary"
                         }`}
                       >
-                        {t.label}
+                        {t(`common.${id}`)}
                       </button>
                     ))}
                   </div>
@@ -258,7 +247,7 @@ export function Login() {
                 <div className="min-w-0 flex-1 basis-32">
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
                     <Globe className="h-4 w-4" />
-                    Language
+                    {t("common.language")}
                   </label>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
@@ -267,7 +256,7 @@ export function Login() {
                         className="flex w-full items-center justify-between gap-2 rounded-lg border border-divider bg-surface-elevated px-3 py-1.5 text-left text-sm text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                       >
                         <span className="truncate">
-                          {LANGUAGES.find((l) => l.code === language)?.label ?? "English"}
+                          {SUPPORTED_LANGUAGES.find((l) => l.code === language)?.label ?? "English"}
                         </span>
                         <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
                       </button>
@@ -278,7 +267,7 @@ export function Login() {
                         sideOffset={4}
                         align="end"
                       >
-                        {LANGUAGES.map((l) => (
+                        {SUPPORTED_LANGUAGES.map((l) => (
                           <DropdownMenu.Item
                             key={l.code}
                             onSelect={() => setLanguage(l.code)}

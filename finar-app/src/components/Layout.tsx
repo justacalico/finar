@@ -18,13 +18,14 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import { useLibraryStore } from "../stores/library";
+import { useTranslation } from "../translations";
 import { getUserAvatarUrl } from "../utils/image";
 
-const NAV = [
-  { path: "/", label: "Home", icon: Home },
-  { path: "/search", label: "Search", icon: Search },
-  { path: "/favorites", label: "Favorites", icon: Heart },
-  { path: "/downloads", label: "Downloads", icon: Download },
+const NAV_PATHS = [
+  { path: "/", labelKey: "common.home" as const, icon: Home },
+  { path: "/search", labelKey: "common.search" as const, icon: Search },
+  { path: "/favorites", labelKey: "common.favorites" as const, icon: Heart },
+  { path: "/downloads", labelKey: "common.downloads" as const, icon: Download },
 ];
 
 function getLibraryIcon(collectionType?: string) {
@@ -52,14 +53,15 @@ function truncateUrl(url: string, maxLen = 24): string {
   return url.slice(0, 12) + "..." + url.slice(-8);
 }
 
-const MOBILE_NAV = [
-  { path: "/", label: "Home", icon: Home },
-  { path: "/search", label: "Search", icon: Search },
-  { path: "/library", label: "Library", icon: LayoutGrid },
-  { path: "/downloads", label: "Downloads", icon: Download },
+const MOBILE_NAV_PATHS = [
+  { path: "/", labelKey: "common.home" as const, icon: Home },
+  { path: "/search", labelKey: "common.search" as const, icon: Search },
+  { path: "/library", labelKey: "common.library" as const, icon: LayoutGrid },
+  { path: "/downloads", labelKey: "common.downloads" as const, icon: Download },
 ];
 
 export function Layout() {
+  const { t } = useTranslation();
   const [sidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
@@ -100,12 +102,12 @@ export function Layout() {
           </div>
           {sidebarOpen && (
             <span className="text-lg font-bold tracking-tight text-text-primary">
-              Finar
+              {t("common.appName")}
             </span>
           )}
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {NAV.map(({ path, label, icon: Icon }) => {
+          {NAV_PATHS.map(({ path, labelKey, icon: Icon }) => {
             const isActive = location.pathname === path;
             return (
               <Link
@@ -118,14 +120,14 @@ export function Layout() {
                 }`}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                {sidebarOpen && <span>{label}</span>}
+                {sidebarOpen && <span>{t(labelKey)}</span>}
               </Link>
             );
           })}
           {sidebarOpen && libraries.length > 0 && (
             <>
               <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                LIBRARIES
+                {t("common.libraries").toUpperCase()}
               </div>
               {libraries.slice(0, 8).map((lib) => {
                 const LibIcon = getLibraryIcon(lib.CollectionType);
@@ -182,10 +184,10 @@ export function Layout() {
             {sidebarOpen && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-text-primary">
-                  {user?.Name ?? "Guest"}
+                  {user?.Name ?? t("common.guest")}
                 </p>
                 <p className="truncate text-xs text-text-tertiary">
-                  {serverUrl ? truncateUrl(serverUrl) : "Signed in"}
+                  {serverUrl ? truncateUrl(serverUrl) : t("common.signedIn")}
                 </p>
               </div>
             )}
@@ -195,7 +197,7 @@ export function Layout() {
                   ? "text-primary"
                   : "hover:bg-white/10 hover:text-text-primary"
               }`}
-              title="Settings"
+              title={t("common.settings")}
             >
               <Settings className="h-4 w-4" />
             </span>
@@ -211,21 +213,21 @@ export function Layout() {
               type="button"
               onClick={handleBack}
               className="flex items-center gap-1 rounded-lg py-2 pr-2 text-text-primary hover:bg-white/10"
-              aria-label="Go back"
+              aria-label={t("common.goBack")}
             >
               <ArrowLeft className="h-6 w-6 shrink-0" />
             </button>
           ) : (
             <>
               <Play className="h-6 w-6 shrink-0 text-primary" fill="currentColor" />
-              <span className="font-bold tracking-tight text-text-primary">Finar</span>
+              <span className="font-bold tracking-tight text-text-primary">{t("common.appName")}</span>
             </>
           )}
         </div>
         <Link
           to="/settings"
           className="rounded-lg p-2 text-text-secondary hover:bg-white/10 hover:text-text-primary"
-          aria-label="Settings"
+          aria-label={t("common.settings")}
         >
           <Settings className="h-6 w-6" />
         </Link>
@@ -239,7 +241,7 @@ export function Layout() {
       {/* Mobile bottom nav (Flutter-style: Home, Search, Library, Downloads) */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 mx-4 mb-3 flex md:hidden">
         <div className="flex h-16 flex-1 items-center rounded-[28px] border border-white/10 bg-background-secondary/90 shadow-lg backdrop-blur-xl">
-          {MOBILE_NAV.map(({ path, label, icon: Icon }) => {
+          {MOBILE_NAV_PATHS.map(({ path, labelKey, icon: Icon }) => {
             const isLibrary = path === "/library";
             const isActive = isLibrary
               ? location.pathname === "/library" || location.pathname.startsWith("/library/")
@@ -254,7 +256,7 @@ export function Layout() {
               >
                 <Icon className={`h-6 w-6 ${isActive ? "scale-105" : ""}`} />
                 <span className={`text-[10px] font-medium ${isActive ? "font-semibold" : ""}`}>
-                  {label}
+                  {t(labelKey)}
                 </span>
               </Link>
             );
