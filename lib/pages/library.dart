@@ -33,6 +33,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
   }
 
   void _onScroll() {
+    if (!mounted) return;
+    if (!_scrollController.hasClients) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 300) {
       ref.read(libraryContentProvider(widget.libraryId).notifier).loadMore();
