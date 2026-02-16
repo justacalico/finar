@@ -1,10 +1,13 @@
 /**
  * OpenLyst API client for update checks.
+ * In dev we use the Vite proxy to avoid CORS. In production (Tauri) we call the
+ * backend so the request is not from tauri://localhost and CORS does not apply.
  * @see https://openlyst.ink/docs/api
  */
 
-const OPENLYST_BASE =
-  import.meta.env.DEV ? "/api/openlyst" : "https://openlyst.ink/api/v1";
+import { invoke } from "@tauri-apps/api/core";
+
+const OPENLYST_BASE = "/api/openlyst";
 const APP_SLUG = "finar";
 
 export interface OpenLystLatest {
@@ -75,14 +78,23 @@ export async function checkForUpdate(
 ): Promise<UpdateCheckResult> {
   try {
     const langParam = lang === "zh-CN" ? "zh" : lang === "ru" ? "ru" : "en";
-    const res = await fetch(
-      `${OPENLYST_BASE}/apps/${APP_SLUG}/latest?lang=${langParam}`,
-      { headers: { Accept: "application/json" } },
-    );
-    if (!res.ok) {
-      return { latestVersion: currentVersion, isUpdateAvailable: false };
+    let json: OpenLystLatest;
+    if (import.meta.env.DEV) {
+      const res = await fetch(
+        `${OPENLYST_BASE}/apps/${APP_SLUG}/latest?lang=${langParam}`,
+        { headers: { Accept: "application/json" } },
+      );
+      if (!res.ok) {
+        return { latestVersion: currentVersion, isUpdateAvailable: false };
+      }
+      json = (await res.json()) as OpenLystLatest;
+    } else {
+      const body = await invoke<string>("fetch_openlyst_latest", {
+        appSlug: APP_SLUG,
+        lang: langParam,
+      });
+      json = JSON.parse(body) as OpenLystLatest;
     }
-    const json = (await res.json()) as OpenLystLatest;
     if (!json.success || !json.data) {
       return { latestVersion: currentVersion, isUpdateAvailable: false };
     }

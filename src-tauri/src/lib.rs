@@ -14,6 +14,29 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+/// Fetch Openlyst /apps/{slug}/latest from the backend to avoid CORS in production (tauri://localhost).
+#[tauri::command]
+async fn fetch_openlyst_latest(app_slug: String, lang: String) -> Result<String, String> {
+    const BASE: &str = "https://openlyst.ink/api/v1";
+    let url = format!("{BASE}/apps/{app_slug}/latest?lang={lang}");
+    let client = reqwest::Client::builder()
+        .connect_timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let body = client
+        .get(&url)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .error_for_status()
+        .map_err(|e| e.to_string())?
+        .text()
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(body)
+}
+
 /// Returns the app's downloads directory path (e.g. app_data/Finar/Downloads).
 #[tauri::command]
 async fn get_downloads_dir(app: tauri::AppHandle) -> Result<String, String> {
@@ -190,6 +213,7 @@ pub fn run() {
         .manage(DownloadCancels::default())
         .invoke_handler(tauri::generate_handler![
             greet,
+            fetch_openlyst_latest,
             get_downloads_dir,
             download_media_file,
             cancel_download,
