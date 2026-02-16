@@ -41,6 +41,7 @@ struct DownloadMediaFilePayload {
 }
 
 /// Downloads a file from URL to path, emitting "download://progress" events.
+/// Runs on a background task so the invoke returns immediately and the UI stays responsive.
 #[tauri::command]
 async fn download_media_file(
     app: tauri::AppHandle,
@@ -51,28 +52,12 @@ async fn download_media_file(
         .connect_timeout(std::time::Duration::from_secs(15))
         .build()
         .map_err(|e| e.to_string())?;
-    let mut request = client.get(&payload.url);
-    if let Some(ref h) = payload.auth_header {
-        request = request.header("X-Emby-Authorization", h);
-    }
-    let response = request
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    if !response.status().is_success() {
-        return Err(format!("HTTP {}", response.status()));
-    }
+
     if let Some(parent) = std::path::Path::new(&payload.path).parent() {
         tokio::fs::create_dir_all(parent)
             .await
             .map_err(|e| e.to_string())?;
     }
-    let total = response.content_length().unwrap_or(0);
-    let stream = response.bytes_stream();
-    let file = tokio::fs::File::create(&payload.path)
-        .await
-        .map_err(|e| e.to_string())?;
-    let mut file = tokio::io::BufWriter::new(file);
 
     let cancel = CancellationToken::new();
     {
@@ -81,57 +66,81 @@ async fn download_media_file(
     }
 
     let task_id = payload.task_id.clone();
-    let app_emit = app.clone();
-    let mut downloaded: u64 = 0;
+    let path = payload.path.clone();
+    let url = payload.url.clone();
+    let auth_header = payload.auth_header.clone();
+    let app = app.clone();
 
-    let write_result = async {
+    tauri::async_runtime::spawn(async move {
         use futures_util::StreamExt;
-        let mut stream = std::pin::pin!(stream);
-        loop {
-            tokio::select! {
-                _ = cancel.cancelled() => return Err::<(), String>("cancelled".to_string()),
-                chunk = stream.next() => {
-                    let Some(chunk) = chunk else { break };
-                    let chunk = chunk.map_err(|e| e.to_string())?;
-                    let len = chunk.len() as u64;
-                    file.write_all(&chunk).await.map_err(|e| e.to_string())?;
-                    downloaded += len;
-                    let _ = app_emit.emit(
-                        "download://progress",
-                        serde_json::json!({
-                            "taskId": task_id,
-                            "downloaded": downloaded,
-                            "total": total,
-                        }),
-                    );
+
+        let result = async {
+            let mut request = client.get(&url);
+            if let Some(ref h) = auth_header {
+                request = request.header("X-Emby-Authorization", h);
+            }
+            let response = request
+                .send()
+                .await
+                .map_err(|e| e.to_string())?;
+            if !response.status().is_success() {
+                return Err::<(), String>(format!("HTTP {}", response.status()));
+            }
+            let total = response.content_length().unwrap_or(0);
+            let stream = response.bytes_stream();
+            let file = tokio::fs::File::create(&path)
+                .await
+                .map_err(|e| e.to_string())?;
+            let mut file = tokio::io::BufWriter::new(file);
+            let mut stream = std::pin::pin!(stream);
+            let mut downloaded: u64 = 0;
+
+            loop {
+                tokio::select! {
+                    _ = cancel.cancelled() => return Err("cancelled".to_string()),
+                    chunk = stream.next() => {
+                        let Some(chunk) = chunk else { break };
+                        let chunk = chunk.map_err(|e| e.to_string())?;
+                        let len = chunk.len() as u64;
+                        file.write_all(&chunk).await.map_err(|e| e.to_string())?;
+                        downloaded += len;
+                        let _ = app.emit(
+                            "download://progress",
+                            serde_json::json!({
+                                "taskId": task_id,
+                                "downloaded": downloaded,
+                                "total": total,
+                            }),
+                        );
+                    }
                 }
             }
+            file.flush().await.map_err(|e| e.to_string())
         }
-        file.flush().await.map_err(|e| e.to_string())
-    }
-    .await;
+        .await;
 
-    {
-        let mut map = state.0.lock().map_err(|_| "lock failed")?;
-        map.remove(&payload.task_id);
-    }
+        if let Some(state) = app.try_state::<DownloadCancels>() {
+            let mut map = state.0.lock().unwrap();
+            map.remove(&task_id);
+        }
 
-    match write_result {
-        Ok(()) => {
-            let _ = app.emit(
-                "download://complete",
-                serde_json::json!({ "taskId": payload.task_id, "path": payload.path }),
-            );
-            Ok(())
+        match result {
+            Ok(()) => {
+                let _ = app.emit(
+                    "download://complete",
+                    serde_json::json!({ "taskId": task_id, "path": path }),
+                );
+            }
+            Err(e) => {
+                let _ = app.emit(
+                    "download://error",
+                    serde_json::json!({ "taskId": task_id, "error": e }),
+                );
+            }
         }
-        Err(e) => {
-            let _ = app.emit(
-                "download://error",
-                serde_json::json!({ "taskId": payload.task_id, "error": e }),
-            );
-            Err(e)
-        }
-    }
+    });
+
+    Ok(())
 }
 
 #[tauri::command]
