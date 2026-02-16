@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Finar",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "identifier": "com.finar.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -21,7 +21,9 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$APPDATA/**"]
+        "scope": [
+          "$APPDATA/**"
+        ]
       }
     }
   },

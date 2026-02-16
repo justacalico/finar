@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
-import { APP_VERSION } from "../version";
+import pkg from "../../package.json";
 import { checkForUpdate } from "../api/openlyst";
 import {
   useSettingsStore,
@@ -45,7 +45,7 @@ export function Settings() {
   } | null>(null);
 
   useEffect(() => {
-    checkForUpdate(APP_VERSION, language).then((r) =>
+    checkForUpdate(pkg.version, language).then((r) =>
       setUpdateCheck({
         latestVersion: r.latestVersion,
         isUpdateAvailable: r.isUpdateAvailable,
@@ -194,7 +194,7 @@ export function Settings() {
             TypeScript.
           </p>
           <p className="mt-2 text-sm text-text-tertiary">
-            Version {APP_VERSION}
+            Version {pkg.version}
           </p>
           {updateCheck?.isUpdateAvailable && (
             <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">

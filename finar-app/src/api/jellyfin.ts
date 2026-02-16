@@ -8,7 +8,7 @@ import type {
   SearchHint,
 } from "../types/jellyfin";
 import { cacheGet, cacheSet, cacheClear, CACHE_TTL } from "../utils/cache";
-import { APP_VERSION } from "../version";
+import pkg from "../../package.json";
 
 const CLIENT_NAME = "Finar";
 
@@ -26,7 +26,7 @@ function buildAuthHeader(accessToken: string | null): string {
     `MediaBrowser Client="${CLIENT_NAME}"`,
     `Device="${typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 50) : "Finar"}"`,
     `DeviceId="${getDeviceId()}"`,
-    `Version="${APP_VERSION}"`,
+    `Version="${pkg.version}"`,
   ];
   if (accessToken) parts.push(`Token="${accessToken}"`);
   return parts.join(", ");
