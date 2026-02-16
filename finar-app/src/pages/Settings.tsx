@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink } from "lucide-react";
+import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import pkg from "../../package.json";
 import { checkForUpdate } from "../api/openlyst";
@@ -32,6 +32,21 @@ export function Settings() {
     isUpdateAvailable: boolean;
     downloadUrl?: string;
   } | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+
+  const handleCheckVersion = async () => {
+    setCheckingUpdate(true);
+    try {
+      const r = await checkForUpdate(pkg.version, language);
+      setUpdateCheck({
+        latestVersion: r.latestVersion,
+        isUpdateAvailable: r.isUpdateAvailable,
+        downloadUrl: r.downloadUrl,
+      });
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
 
   useEffect(() => {
     checkForUpdate(pkg.version, language).then((r) =>
@@ -184,6 +199,15 @@ export function Settings() {
           <p className="mt-2 text-sm text-text-tertiary">
             {t("settings.version")} {pkg.version}
           </p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            leftIcon={<RefreshCw className={`h-4 w-4 ${checkingUpdate ? "animate-spin" : ""}`} />}
+            onClick={handleCheckVersion}
+            disabled={checkingUpdate}
+          >
+            {t("settings.checkForUpdates")}
+          </Button>
           {updateCheck?.isUpdateAvailable && (
             <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">
               <p className="font-medium text-primary">
@@ -201,6 +225,9 @@ export function Settings() {
                 </a>
               )}
             </div>
+          )}
+          {updateCheck && !updateCheck.isUpdateAvailable && (
+            <p className="mt-4 text-sm text-text-tertiary">{t("settings.upToDate")}</p>
           )}
         </section>
       </div>
