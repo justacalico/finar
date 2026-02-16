@@ -18,6 +18,8 @@ const THEMES: { id: Theme; label: string }[] = [
 
 const LANGUAGES = [
   { code: "en", label: "English" },
+  { code: "zh-CN", label: "简体中文" },
+  { code: "ru", label: "Русский" },
   { code: "de", label: "Deutsch" },
   { code: "fr", label: "Français" },
   { code: "es", label: "Español" },
