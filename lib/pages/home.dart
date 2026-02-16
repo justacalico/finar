@@ -1663,14 +1663,30 @@ class _MobileLibraryBrowser extends ConsumerWidget {
             backgroundColor: Colors.transparent,
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
+            padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
+            sliver: LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = Responsive.value(
+                  context,
+                  mobile: 2,
+                  tablet: 3,
+                  desktop: 4,
+                  largeDesktop: 5,
+                );
+                
+                return SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: Responsive.value(
+                      context,
+                      mobile: 1.4,
+                      tablet: 1.5,
+                      desktop: 1.6,
+                      largeDesktop: 1.7,
+                    ),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
               delegate: SliverChildBuilderDelegate((context, index) {
                 final library = libraries[index];
                 final gradient = _getLibraryGradient(library.collectionType);
@@ -1707,33 +1723,33 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                           children: [
                             // Pattern overlay
                             Positioned(
-                              right: -20,
-                              bottom: -20,
+                              right: -15,
+                              bottom: -15,
                               child: Icon(
                                 _getLibraryIcon(library.collectionType),
-                                size: 100,
+                                size: 60,
                                 color: AppColors.white.withValues(alpha: 0.1),
                               ),
                             ),
                             // Content
                             Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: AppColors.white.withValues(
                                         alpha: 0.2,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Icon(
                                       _getLibraryIcon(library.collectionType),
-                                      size: 24,
+                                      size: 20,
                                       color: AppColors.white,
                                     ),
                                   ),
@@ -1743,7 +1759,7 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                                     children: [
                                       Text(
                                         library.name,
-                                        style: AppTextStyles.titleMedium
+                                        style: AppTextStyles.titleSmall
                                             .copyWith(
                                               color: AppColors.white,
                                               fontWeight: FontWeight.bold,
@@ -1756,7 +1772,7 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                                         _getLibraryTypeLabel(
                                           library.collectionType,
                                         ),
-                                        style: AppTextStyles.bodySmall.copyWith(
+                                        style: AppTextStyles.labelSmall.copyWith(
                                           color: AppColors.white.withValues(
                                             alpha: 0.8,
                                           ),
@@ -1775,6 +1791,8 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                     .fadeIn(delay: Duration(milliseconds: index * 100))
                     .scale(begin: const Offset(0.9, 0.9));
               }, childCount: libraries.length),
+                );
+              },
             ),
           ),
         ],

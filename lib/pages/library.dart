@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/api/models/media_item.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
+import '../../core/utils/responsive.dart';
 import 'detail.dart';
 import 'player.dart';
 
@@ -94,15 +95,20 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             .refresh();
       },
       color: AppColors.primary,
-      child: GridView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 2 / 3.3,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = Responsive.gridColumns(context);
+          final padding = Responsive.horizontalPadding(context);
+          
+          return GridView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.all(padding),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 2 / 3.3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
         itemCount: state.items.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
@@ -120,6 +126,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             onTap: () => _navigateToDetail(item.id),
           );
         },
+          );
+        },
       ),
     );
   }
@@ -132,9 +140,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             .refresh();
       },
       color: AppColors.primary,
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final padding = Responsive.horizontalPadding(context);
+          
+          return ListView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.all(padding),
         itemCount: state.items.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
@@ -148,6 +160,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
 
           final item = state.items[index];
           return _buildListItem(item, serverUrl, index);
+        },
+          );
         },
       ),
     );
@@ -239,17 +253,24 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
   }
 
   Widget _buildLoadingGrid() {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 2 / 3.3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = Responsive.gridColumns(context);
+        final padding = Responsive.horizontalPadding(context);
+        
+        return GridView.builder(
+          padding: EdgeInsets.all(padding),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 2 / 3.3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
       itemCount: 9,
       itemBuilder: (context, index) {
         return const ShimmerLoading(borderRadius: AppTheme.radiusMd);
+      },
+        );
       },
     );
   }
