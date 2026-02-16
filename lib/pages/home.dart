@@ -1664,7 +1664,7 @@ class _MobileLibraryBrowser extends ConsumerWidget {
           ),
           SliverPadding(
             padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
-            sliver: LayoutBuilder(
+            sliver: SliverLayoutBuilder(
               builder: (context, constraints) {
                 final crossAxisCount = Responsive.value(
                   context,
@@ -1687,7 +1687,7 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
-              delegate: SliverChildBuilderDelegate((context, index) {
+                  delegate: SliverChildBuilderDelegate((context, index) {
                 final library = libraries[index];
                 final gradient = _getLibraryGradient(library.collectionType);
 
@@ -1790,7 +1790,7 @@ class _MobileLibraryBrowser extends ConsumerWidget {
                     .animate()
                     .fadeIn(delay: Duration(milliseconds: index * 100))
                     .scale(begin: const Offset(0.9, 0.9));
-              }, childCount: libraries.length),
+                  }, childCount: libraries.length),
                 );
               },
             ),
