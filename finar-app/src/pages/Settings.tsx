@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown } from "lucide-react";
+import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
+import { APP_VERSION } from "../version";
+import { checkForUpdate } from "../api/openlyst";
 import {
   useSettingsStore,
   ACCENT_COLORS,
@@ -34,6 +37,22 @@ export function Settings() {
   const setAccentColor = useSettingsStore((s) => s.setAccentColor);
   const language = useSettingsStore((s) => s.language);
   const setLanguage = useSettingsStore((s) => s.setLanguage);
+
+  const [updateCheck, setUpdateCheck] = useState<{
+    latestVersion: string;
+    isUpdateAvailable: boolean;
+    downloadUrl?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    checkForUpdate(APP_VERSION, language).then((r) =>
+      setUpdateCheck({
+        latestVersion: r.latestVersion,
+        isUpdateAvailable: r.isUpdateAvailable,
+        downloadUrl: r.downloadUrl,
+      }),
+    );
+  }, [language]);
 
   const handleSignOut = async () => {
     await logout();
@@ -174,6 +193,27 @@ export function Settings() {
             Finar — A beautiful Jellyfin client. Built with Tauri, React, and
             TypeScript.
           </p>
+          <p className="mt-2 text-sm text-text-tertiary">
+            Version {APP_VERSION}
+          </p>
+          {updateCheck?.isUpdateAvailable && (
+            <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">
+              <p className="font-medium text-primary">
+                Update available: v{updateCheck.latestVersion}
+              </p>
+              {updateCheck.downloadUrl && (
+                <a
+                  href={updateCheck.downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Download from OpenLyst
+                </a>
+              )}
+            </div>
+          )}
         </section>
       </div>
     </div>

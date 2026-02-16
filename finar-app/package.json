@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node scripts/sync-version.mjs && tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "pretauri": "node scripts/sync-version.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
