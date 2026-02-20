@@ -15,6 +15,7 @@ import {
   Play,
   LayoutGrid,
   ArrowLeft,
+  UserCircle,
 } from "lucide-react";
 import { preloadRoute, preloadLibrary } from "../routes";
 import { useAuthStore } from "../stores/auth";
@@ -67,7 +68,7 @@ export function Layout() {
   const [sidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, serverUrl } = useAuthStore();
+  const { user, serverUrl, profiles, logout } = useAuthStore();
   const { libraries, loadLibraries, loadHomeData } = useLibraryStore();
   const initListeners = useDownloadsStore((s) => s.initListeners);
 
@@ -171,7 +172,7 @@ export function Layout() {
             </>
           )}
         </nav>
-        <div className="border-t border-white/10 p-3">
+        <div className="border-t border-white/10 p-3 space-y-2">
           <Link
             to="/settings"
             onMouseEnter={() => preloadRoute("/settings")}
@@ -217,6 +218,19 @@ export function Layout() {
               <Settings className="h-4 w-4" />
             </span>
           </Link>
+          {sidebarOpen && profiles.length > 0 && (
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                navigate("/profile-picker");
+              }}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-white/10 hover:text-text-primary"
+            >
+              <UserCircle className="h-4 w-4 shrink-0" />
+              <span>{t("settings.switchProfile")}</span>
+            </button>
+          )}
         </div>
       </aside>
 
