@@ -14,6 +14,7 @@ interface LibraryState {
   loadLibraries: () => Promise<void>;
   search: (query: string) => Promise<void>;
   clearSearch: () => void;
+  clearErrorAndData: () => void;
 }
 
 export const useLibraryStore = create<LibraryState>((set) => ({
@@ -69,5 +70,14 @@ export const useLibraryStore = create<LibraryState>((set) => ({
 
   clearSearch() {
     set({ searchResults: [], searchQuery: "" });
+  },
+
+  clearErrorAndData() {
+    set({
+      homeData: null,
+      libraries: [],
+      searchResults: [],
+      error: null,
+    });
   },
 }));

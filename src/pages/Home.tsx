@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, ChevronRight } from "lucide-react";
 import { useLibraryStore } from "../stores/library";
+import { useAuthStore } from "../stores/auth";
 import { useTranslation } from "../translations";
 import { usePlayerStore } from "../stores/player";
 import { MediaCard } from "../components/MediaCard";
@@ -66,12 +67,20 @@ function MediaRow({
 
 export function Home() {
   const { t } = useTranslation();
-  const { homeData, loadHomeData, error } = useLibraryStore();
+  const { homeData, loadHomeData, error, clearErrorAndData } = useLibraryStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!homeData) loadHomeData();
   }, [loadHomeData, homeData]);
+
+  useEffect(() => {
+    if (error?.includes("401")) {
+      useAuthStore.getState().logout();
+      clearErrorAndData();
+      navigate("/profile-picker", { replace: true });
+    }
+  }, [error, clearErrorAndData, navigate]);
 
   if (error && !homeData) {
     return (

@@ -275,9 +275,10 @@ export const useAuthStore = create<AuthState>()(
 
       async switchProfile(profileId: string) {
         const profile = get().profiles.find((p) => p.id === profileId);
-        if (!profile) return false;
+        if (!profile?.accessToken?.trim()) return false;
         api.setServerUrl(profile.serverUrl);
         api.setCredentials(profile.accessToken, profile.userId);
+        api.clearCache();
         let user: User;
         try {
           user = await api.getCurrentUser();

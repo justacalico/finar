@@ -53,6 +53,11 @@ export class JellyfinApi {
     cacheClear();
   }
 
+  /** Clear cache only (e.g. after switching profile so requests use new credentials). */
+  clearCache() {
+    cacheClear();
+  }
+
   get serverUrl(): string {
     return this.baseUrl;
   }
