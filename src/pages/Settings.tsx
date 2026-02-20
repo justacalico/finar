@@ -27,17 +27,17 @@ export function Settings() {
   const language = useSettingsStore((s) => s.language);
   const setLanguage = useSettingsStore((s) => s.setLanguage);
 
-  const updateCheck = useUpdateStore((s) =>
-    s.lastChecked === null
-      ? null
-      : {
-          latestVersion: s.latestVersion,
-          isUpdateAvailable: s.isUpdateAvailable,
-          downloadUrl: s.downloadUrl,
-        },
-  );
+  const lastChecked = useUpdateStore((s) => s.lastChecked);
+  const latestVersion = useUpdateStore((s) => s.latestVersion);
+  const isUpdateAvailable = useUpdateStore((s) => s.isUpdateAvailable);
+  const downloadUrl = useUpdateStore((s) => s.downloadUrl);
   const checkingUpdate = useUpdateStore((s) => s.checking);
   const checkForUpdates = useUpdateStore((s) => s.check);
+
+  const updateCheck =
+    lastChecked === null
+      ? null
+      : { latestVersion, isUpdateAvailable, downloadUrl };
 
   // Re-run background check when language changes so messages/URLs match
   useEffect(() => {
