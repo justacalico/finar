@@ -83,6 +83,8 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  reauthServerUrl: string | null;
+  reauthUserName: string | null;
   restoreSession: () => Promise<boolean>;
   login: (serverUrl: string, username: string, password: string) => Promise<boolean>;
   initiateQuickConnect: (serverUrl: string) => Promise<string | null>;
@@ -104,6 +106,8 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
       isAuthenticated: false,
+      reauthServerUrl: null,
+      reauthUserName: null,
 
       async restoreSession() {
         let { profiles, lastProfileId } = loadStoredProfiles();
@@ -189,6 +193,8 @@ export const useAuthStore = create<AuthState>()(
               isAuthenticated: true,
               isLoading: false,
               error: null,
+              reauthServerUrl: null,
+              reauthUserName: null,
             });
             return true;
           }
@@ -211,6 +217,8 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
             error: null,
+            reauthServerUrl: null,
+            reauthUserName: null,
           });
           return true;
         } catch (e: unknown) {
@@ -286,6 +294,10 @@ export const useAuthStore = create<AuthState>()(
         } catch (e) {
           const is401 = e instanceof Error && e.message.includes("401");
           if (is401) {
+            set({
+              reauthServerUrl: profile.serverUrl,
+              reauthUserName: profile.userName,
+            });
             get().removeProfile(profileId);
             api.clearCredentials();
             set({ error: "profilePicker.sessionExpired" });

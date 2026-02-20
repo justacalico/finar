@@ -107,9 +107,16 @@ export function ProfilePicker() {
           {t("profilePicker.whoIsWatching")}
         </motion.h1>
         {error && (
-          <p className="mt-4 max-w-md rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-center text-sm text-error">
-            {error.startsWith("profilePicker.") ? t(error) : error}
-          </p>
+          <div className="mt-4 flex max-w-md flex-col items-center gap-3 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-center text-sm text-error">
+            <span>{error.startsWith("profilePicker.") ? t(error) : error}</span>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleManageProfiles}
+            >
+              {t("profilePicker.signInAgain")}
+            </Button>
+          </div>
         )}
         <motion.div
           className="mt-10 flex flex-wrap justify-center gap-8 md:gap-12"

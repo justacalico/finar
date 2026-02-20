@@ -27,6 +27,8 @@ export function Login() {
     clearError,
     isAuthenticated,
     profiles,
+    reauthServerUrl,
+    reauthUserName,
   } = useAuthStore();
 
   const [serverUrl, setServerUrl] = useState("");
@@ -45,6 +47,13 @@ export function Login() {
   useEffect(() => {
     if (isAuthenticated) navigate("/", { replace: true });
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (reauthServerUrl || reauthUserName) {
+      if (reauthServerUrl) setServerUrl(reauthServerUrl);
+      if (reauthUserName) setUsername(reauthUserName);
+    }
+  }, [reauthServerUrl, reauthUserName]);
 
   useEffect(() => {
     if (!quickConnectCode || !quickConnectPolling) return;
@@ -249,7 +258,7 @@ export function Login() {
 
                 {error && (
                   <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2.5 text-sm text-error sm:px-4 sm:py-3">
-                    {error}
+                    {error.includes(".") && t(error) !== error ? t(error) : error}
                   </div>
                 )}
 
