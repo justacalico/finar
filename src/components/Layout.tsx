@@ -68,7 +68,7 @@ export function Layout() {
   const [sidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, serverUrl, profiles, logout } = useAuthStore();
+  const { user, serverUrl, profiles, goToProfilePicker } = useAuthStore();
   const { libraries, loadLibraries, loadHomeData } = useLibraryStore();
   const initListeners = useDownloadsStore((s) => s.initListeners);
 
@@ -221,8 +221,8 @@ export function Layout() {
           {sidebarOpen && profiles.length > 0 && (
             <button
               type="button"
-              onClick={async () => {
-                await logout();
+              onClick={() => {
+                goToProfilePicker();
                 navigate("/profile-picker");
               }}
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-white/10 hover:text-text-primary"

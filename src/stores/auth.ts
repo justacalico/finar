@@ -90,6 +90,8 @@ interface AuthState {
   initiateQuickConnect: (serverUrl: string) => Promise<string | null>;
   checkQuickConnect: (code: string) => Promise<boolean>;
   switchProfile: (profileId: string) => Promise<boolean>;
+  /** Clear current session locally and go to profile picker. Does NOT invalidate token on server. */
+  goToProfilePicker: () => void;
   logout: () => Promise<void>;
   removeProfile: (profileId: string) => void;
   clearError: () => void;
@@ -320,6 +322,20 @@ export const useAuthStore = create<AuthState>()(
           error: null,
         });
         return true;
+      },
+
+      goToProfilePicker() {
+        api.clearCredentials();
+        const { profiles } = loadStoredProfiles();
+        saveProfiles(profiles, null);
+        set({
+          currentProfileId: null,
+          user: null,
+          serverUrl: null,
+          accessToken: null,
+          isAuthenticated: false,
+          error: null,
+        });
       },
 
       async logout() {

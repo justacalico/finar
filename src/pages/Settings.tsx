@@ -32,7 +32,7 @@ function censorUrl(url: string): string {
 export function Settings() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, serverUrl, logout, profiles } = useAuthStore();
+  const { user, serverUrl, logout, goToProfilePicker, profiles } = useAuthStore();
   const theme = useSettingsStore((s) => s.theme);
   const setTheme = useSettingsStore((s) => s.setTheme);
   const accentColor = useSettingsStore((s) => s.accentColor);
@@ -62,8 +62,8 @@ export function Settings() {
     navigate(profiles.length > 0 ? "/profile-picker" : "/login");
   };
 
-  const handleSwitchProfile = async () => {
-    await logout();
+  const handleSwitchProfile = () => {
+    goToProfilePicker();
     navigate("/profile-picker");
   };
 
