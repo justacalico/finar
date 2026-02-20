@@ -42,7 +42,6 @@ export function Settings() {
       ? null
       : { latestVersion, isUpdateAvailable, downloadUrl };
 
-  // Re-run background check when language changes so messages/URLs match
   useEffect(() => {
     checkForUpdates();
   }, [language, checkForUpdates]);
@@ -62,7 +61,6 @@ export function Settings() {
       <h1 className="mb-8 text-2xl font-bold text-text-primary">{t("settings.title")}</h1>
 
       <div className="space-y-8">
-        {/* Account */}
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <User className="h-4 w-4" />
@@ -96,7 +94,6 @@ export function Settings() {
           </div>
         </section>
 
-        {/* Customization */}
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <Palette className="h-4 w-4" />
@@ -104,7 +101,6 @@ export function Settings() {
           </h2>
 
           <div className="space-y-6">
-            {/* Accent colour */}
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Palette className="h-4 w-4" />
@@ -205,7 +201,6 @@ export function Settings() {
               )}
             </div>
 
-            {/* Theme */}
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Sun className="h-4 w-4" />
@@ -241,7 +236,6 @@ export function Settings() {
               </DropdownMenu.Root>
             </div>
 
-            {/* Language */}
             <div>
               <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
                 <Globe className="h-4 w-4" />
@@ -279,7 +273,6 @@ export function Settings() {
           </div>
         </section>
 
-        {/* About */}
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
           <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <Info className="h-4 w-4" />
@@ -289,7 +282,6 @@ export function Settings() {
             {t("settings.aboutDescription")}
           </p>
           <div className="overflow-hidden rounded-xl border border-white/10 bg-surface-elevated/50">
-            {/* Version row */}
             <div className="flex items-center gap-4 px-4 py-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400">
                 <Info className="h-5 w-5" />
@@ -300,7 +292,6 @@ export function Settings() {
               <span className="text-sm text-text-tertiary">{pkg.version}</span>
             </div>
             <div className="border-t border-white/10" />
-            {/* Check for updates row — label shows status */}
             <button
               type="button"
               onClick={() => checkForUpdates()}
@@ -327,7 +318,6 @@ export function Settings() {
               <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
             </button>
             <div className="border-t border-white/10" />
-            {/* Visit OpenLyst row */}
             <button
               type="button"
               onClick={() => window.open("https://openlyst.ink/", "_blank", "noopener,noreferrer")}
@@ -342,7 +332,6 @@ export function Settings() {
               <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
             </button>
             <div className="border-t border-white/10" />
-            {/* Support OpenLyst row */}
             <button
               type="button"
               onClick={() => window.open("https://openlyst.ink/support", "_blank", "noopener,noreferrer")}
@@ -357,7 +346,6 @@ export function Settings() {
               <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
             </button>
             <div className="border-t border-white/10" />
-            {/* Privacy Policy row */}
             <button
               type="button"
               onClick={() => window.open("https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md", "_blank", "noopener,noreferrer")}

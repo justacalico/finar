@@ -9,10 +9,8 @@ import { useTranslation } from "../translations";
 import { api } from "../api/jellyfin";
 import { getDisplayImageUrl } from "../utils/image";
 
-/** Ref used by the xhr wrapper to append auth to HLS segment requests. */
 const hlsAuthQueryRef = { current: "" };
 
-/** Wrap videojs.xhr so every request gets HLS auth query string (for Jellyfin segment auth). */
 function installVideoJsXhrAuthWrapper() {
   const xhr = videojs.xhr as typeof videojs.xhr & {
     requestInterceptorsStorage?: { enable(): void };
@@ -101,7 +99,6 @@ export function Player() {
     };
   }, []);
 
-  // Local file playback: use convertFileSrc and set streamConfig (no server calls)
   useEffect(() => {
     if (!currentItem || !localPlaybackPath) return;
     setPlaybackError(null);
@@ -118,7 +115,6 @@ export function Player() {
     return () => setStreamConfig(null);
   }, [currentItem?.Id, localPlaybackPath]);
 
-  // Load playback info and derive stream URL (direct or HLS) when not local
   useEffect(() => {
     if (!currentItem || localPlaybackPath) {
       if (!currentItem) navigate("/", { replace: true });
@@ -186,7 +182,6 @@ export function Player() {
     };
   }, [currentItem?.Id, localPlaybackPath, navigate]);
 
-  // Create Video.js player and set source when streamConfig is ready
   useEffect(() => {
     if (!streamConfig || !containerRef.current) return;
     setPlaybackError(null);
@@ -376,7 +371,6 @@ export function Player() {
   if (isMusic) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-background">
-        {/* Audio still plays via video.js; container hidden */}
         <div
           ref={containerRef}
           className="video-js-wrapper absolute left-0 top-0 h-1 w-1 overflow-hidden opacity-0"

@@ -1,7 +1,3 @@
-/**
- * In-memory cache with TTL. Used to avoid refetching Jellyfin data on every navigation.
- */
-
 interface Entry<T> {
   data: T;
   expires: number;
@@ -30,9 +26,8 @@ export function cacheClear(): void {
   store.clear();
 }
 
-/** TTLs in ms */
 export const CACHE_TTL = {
-  SHORT: 60 * 1000,       // 1 min - search, resume
-  MEDIUM: 2 * 60 * 1000,  // 2 min - home sections
-  LONG: 5 * 60 * 1000,    // 5 min - libraries, item detail, seasons
+  SHORT: 60 * 1000,
+  MEDIUM: 2 * 60 * 1000,
+  LONG: 5 * 60 * 1000,
 } as const;

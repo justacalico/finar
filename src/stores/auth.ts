@@ -47,7 +47,6 @@ function updateProfileUserInfo(profileId: string, userName: string, primaryImage
   saveProfiles(next, lastProfileId);
 }
 
-/** Migrate single-session auth to first profile. */
 function migrateLegacyAuth(): Profile | null {
   const stored = localStorage.getItem(AUTH_KEY);
   if (!stored) return null;
@@ -59,7 +58,7 @@ function migrateLegacyAuth(): Profile | null {
       serverUrl,
       accessToken,
       userId,
-      userName: "", // will be filled on first restore
+      userName: "",
       primaryImageTag: undefined,
     };
     const { profiles } = loadStoredProfiles();
@@ -90,7 +89,6 @@ interface AuthState {
   initiateQuickConnect: (serverUrl: string) => Promise<string | null>;
   checkQuickConnect: (code: string) => Promise<boolean>;
   switchProfile: (profileId: string) => Promise<boolean>;
-  /** Clear current session locally and go to profile picker. Does NOT invalidate token on server. */
   goToProfilePicker: () => void;
   logout: () => Promise<void>;
   removeProfile: (profileId: string) => void;

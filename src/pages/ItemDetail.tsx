@@ -134,7 +134,6 @@ export function ItemDetail() {
     };
   }, [item, selectedSeasonId]);
 
-  // Scroll highlighted episode into view when episodes load
   useEffect(() => {
     if (!highlightEpisodeId || episodes.length === 0) return;
     highlightedEpisodeRef.current?.scrollIntoView({
@@ -143,14 +142,12 @@ export function ItemDetail() {
     });
   }, [highlightEpisodeId, episodes]);
 
-  // Clear highlight after 2 seconds
   useEffect(() => {
     if (!highlightEpisodeId) return;
     const t = setTimeout(() => setHighlightEpisodeId(null), 2000);
     return () => clearTimeout(t);
   }, [highlightEpisodeId]);
 
-  // Scroll highlighted track into view when tracks load
   useEffect(() => {
     if (!highlightTrackId || tracks.length === 0) return;
     highlightedTrackRef.current?.scrollIntoView({

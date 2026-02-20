@@ -1,4 +1,4 @@
-// Jellyfin API types (from Flutter models)
+// Jellyfin API types
 
 export interface User {
   Id: string;

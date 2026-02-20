@@ -53,7 +53,6 @@ export class JellyfinApi {
     cacheClear();
   }
 
-  /** Clear cache only (e.g. after switching profile so requests use new credentials). */
   clearCache() {
     cacheClear();
   }
@@ -66,7 +65,6 @@ export class JellyfinApi {
     return !!(this.accessToken && this.userId);
   }
 
-  /** Auth header value for use in download requests (e.g. Tauri backend). */
   getAuthHeader(): string {
     return buildAuthHeader(this.accessToken);
   }
@@ -479,7 +477,6 @@ export class JellyfinApi {
     );
   }
 
-  /** Pick best media source: direct play > direct stream > first (match Flutter directPlaySource). */
   getBestPlaybackSource(
     info: PlaybackInfo
   ): (typeof info.MediaSources)[0] | undefined {
@@ -491,10 +488,6 @@ export class JellyfinApi {
     return sources[0];
   }
 
-  /**
-   * Resolve stream URL from playback info. Prefers server-provided TranscodingUrl/DirectStreamUrl
-   * when present; otherwise builds URL like Flutter (Container, Static for direct; full params for HLS).
-   */
   getStreamUrlFromPlaybackInfo(
     itemId: string,
     info: PlaybackInfo,
@@ -520,7 +513,6 @@ export class JellyfinApi {
       return u;
     };
 
-    // Prefer server-provided URLs (Jellyfin may return full path with session params)
     if (source.SupportsDirectPlay === true || source.SupportsDirectStream === true) {
       if (source.DirectStreamUrl) {
         return { streamUrl: appendAuth(source.DirectStreamUrl), isHls: false };

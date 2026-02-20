@@ -83,7 +83,6 @@ export default function App() {
     restoreSession().then(() => setHydrated(true));
   }, [restoreSession]);
 
-  // Background update check: run once when app is ready and when window gains focus
   useEffect(() => {
     if (!hydrated || !isAuthenticated) return;
     const check = () => useUpdateStore.getState().check();
