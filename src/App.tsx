@@ -5,6 +5,7 @@ import { useUpdateStore } from "./stores/update";
 import { Layout } from "./components/Layout";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
+import { ProfilePicker } from "./pages/ProfilePicker";
 import { Home } from "./pages/Home";
 import {
   LazySearch,
@@ -22,7 +23,14 @@ import "./index.css";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const profiles = useAuthStore((s) => s.profiles);
+  if (!isAuthenticated)
+    return (
+      <Navigate
+        to={profiles.length > 0 ? "/profile-picker" : "/login"}
+        replace
+      />
+    );
   return <>{children}</>;
 }
 
@@ -30,6 +38,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/profile-picker" element={<ProfilePicker />} />
       <Route
         path="/"
         element={

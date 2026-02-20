@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw } from "lucide-react";
+import { LogOut, User, UserCircle, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import pkg from "../../package.json";
 import {
@@ -32,7 +32,7 @@ function censorUrl(url: string): string {
 export function Settings() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, serverUrl, logout } = useAuthStore();
+  const { user, serverUrl, logout, profiles } = useAuthStore();
   const theme = useSettingsStore((s) => s.theme);
   const setTheme = useSettingsStore((s) => s.setTheme);
   const accentColor = useSettingsStore((s) => s.accentColor);
@@ -59,7 +59,12 @@ export function Settings() {
 
   const handleSignOut = async () => {
     await logout();
-    navigate("/login");
+    navigate(profiles.length > 0 ? "/profile-picker" : "/login");
+  };
+
+  const handleSwitchProfile = async () => {
+    await logout();
+    navigate("/profile-picker");
   };
 
   return (
@@ -81,14 +86,24 @@ export function Settings() {
               {t("settings.server")}: {censorUrl(serverUrl)}
             </p>
           )}
-          <Button
-            variant="outline"
-            className="mt-4"
-            leftIcon={<LogOut className="h-4 w-4" />}
-            onClick={handleSignOut}
-          >
-            {t("settings.signOut")}
-          </Button>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {profiles.length > 0 && (
+              <Button
+                variant="outline"
+                leftIcon={<UserCircle className="h-4 w-4" />}
+                onClick={handleSwitchProfile}
+              >
+                {t("settings.switchProfile")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              leftIcon={<LogOut className="h-4 w-4" />}
+              onClick={handleSignOut}
+            >
+              {t("settings.signOut")}
+            </Button>
+          </div>
         </section>
 
         {/* Customization */}

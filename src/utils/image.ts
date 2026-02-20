@@ -47,3 +47,13 @@ export function getUserAvatarUrl(user: { Id: string; PrimaryImageTag?: string })
   if (!user.PrimaryImageTag) return "";
   return `${api.serverUrl}/Users/${user.Id}/Images/Primary?tag=${user.PrimaryImageTag}`;
 }
+
+export function getProfileAvatarUrl(profile: {
+  serverUrl: string;
+  userId: string;
+  primaryImageTag?: string;
+}): string {
+  if (!profile.primaryImageTag) return "";
+  const base = profile.serverUrl.replace(/\/$/, "");
+  return `${base}/Users/${profile.userId}/Images/Primary?tag=${profile.primaryImageTag}`;
+}
