@@ -67,6 +67,8 @@ export function ProfilePicker() {
   const profiles = useAuthStore((s) => s.profiles);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const switchProfile = useAuthStore((s) => s.switchProfile);
+  const error = useAuthStore((s) => s.error);
+  const clearError = useAuthStore((s) => s.clearError);
 
   useEffect(() => {
     if (profiles.length === 0) navigate("/login", { replace: true });
@@ -76,9 +78,15 @@ export function ProfilePicker() {
   }, [isAuthenticated, navigate]);
 
   const handleSelect = async (profileId: string) => {
+    clearError();
     const ok = await switchProfile(profileId);
     if (ok) navigate("/", { replace: true });
     return ok;
+  };
+
+  const handleManageProfiles = () => {
+    clearError();
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -98,6 +106,11 @@ export function ProfilePicker() {
         >
           {t("profilePicker.whoIsWatching")}
         </motion.h1>
+        {error && (
+          <p className="mt-4 max-w-md rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-center text-sm text-error">
+            {error.startsWith("profilePicker.") ? t(error) : error}
+          </p>
+        )}
         <motion.div
           className="mt-10 flex flex-wrap justify-center gap-8 md:gap-12"
           initial={{ opacity: 0 }}
@@ -124,7 +137,7 @@ export function ProfilePicker() {
           <Button
             variant="outline"
             leftIcon={<UserPlus className="h-4 w-4" />}
-            onClick={() => navigate("/login", { replace: true })}
+            onClick={handleManageProfiles}
           >
             {t("profilePicker.manageProfiles")}
           </Button>

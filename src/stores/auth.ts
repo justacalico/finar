@@ -283,7 +283,14 @@ export const useAuthStore = create<AuthState>()(
         try {
           user = await api.getCurrentUser();
           updateProfileUserInfo(profileId, user.Name, user.PrimaryImageTag);
-        } catch {
+        } catch (e) {
+          const is401 = e instanceof Error && e.message.includes("401");
+          if (is401) {
+            get().removeProfile(profileId);
+            api.clearCredentials();
+            set({ error: "profilePicker.sessionExpired" });
+            return false;
+          }
           user = {
             Id: profile.userId,
             Name: profile.userName,
