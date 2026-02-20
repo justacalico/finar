@@ -9,7 +9,8 @@ export type AccentColor =
   | "green"
   | "orange"
   | "red"
-  | "pink";
+  | "pink"
+  | "custom";
 
 export const ACCENT_COLORS: { id: AccentColor; name: string; primary: string; accent: string }[] = [
   { id: "teal", name: "Teal", primary: "#00e5b8", accent: "#00b8d9" },
@@ -24,9 +25,11 @@ export const ACCENT_COLORS: { id: AccentColor; name: string; primary: string; ac
 interface SettingsState {
   theme: Theme;
   accentColor: AccentColor;
+  customAccentHex: string;
   language: string;
   setTheme: (theme: Theme) => void;
   setAccentColor: (accent: AccentColor) => void;
+  setCustomAccentHex: (hex: string) => void;
   setLanguage: (lang: string) => void;
 }
 
@@ -35,11 +38,13 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       theme: "dark",
       accentColor: "teal",
+      customAccentHex: "#00e5b8",
       language: "en",
       setTheme: (theme) => set({ theme }),
       setAccentColor: (accentColor) => set({ accentColor }),
+      setCustomAccentHex: (customAccentHex) => set({ customAccentHex }),
       setLanguage: (language) => set({ language }),
     }),
-    { name: "finar_settings" },
+    { name: "finar_settings", partialize: (s) => ({ theme: s.theme, accentColor: s.accentColor, customAccentHex: s.customAccentHex, language: s.language }) },
   ),
 );

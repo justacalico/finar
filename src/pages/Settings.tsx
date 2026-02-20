@@ -25,6 +25,8 @@ export function Settings() {
   const setTheme = useSettingsStore((s) => s.setTheme);
   const accentColor = useSettingsStore((s) => s.accentColor);
   const setAccentColor = useSettingsStore((s) => s.setAccentColor);
+  const customAccentHex = useSettingsStore((s) => s.customAccentHex);
+  const setCustomAccentHex = useSettingsStore((s) => s.setCustomAccentHex);
   const language = useSettingsStore((s) => s.language);
   const setLanguage = useSettingsStore((s) => s.setLanguage);
 
@@ -104,27 +106,103 @@ export function Settings() {
           <div className="space-y-6">
             {/* Accent colour */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-text-secondary">
+              <label className="mb-2 flex items-center gap-2 text-sm font-medium text-text-secondary">
+                <Palette className="h-4 w-4" />
                 {t("settings.accentColour")}
               </label>
-              <div className="flex flex-wrap gap-2">
-                {ACCENT_COLORS.map((c) => (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
                   <button
-                    key={c.id}
                     type="button"
-                    title={c.name}
-                    onClick={() => setAccentColor(c.id as AccentColor)}
-                    className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 ${
-                      accentColor === c.id
-                        ? "border-text-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
-                        : "border-transparent hover:border-white/30"
-                    }`}
-                    style={{
-                      background: `linear-gradient(135deg, ${c.primary}, ${c.accent})`,
-                    }}
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-divider bg-surface-elevated px-4 py-3 text-left text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <span className="flex items-center gap-2">
+                      {accentColor === "custom" ? (
+                        <>
+                          <span
+                            className="h-4 w-4 rounded-full border border-white/20"
+                            style={{ backgroundColor: customAccentHex }}
+                          />
+                          {t("settings.custom")}
+                        </>
+                      ) : (
+                        (() => {
+                          const c = ACCENT_COLORS.find((x) => x.id === accentColor);
+                          return c ? (
+                            <>
+                              <span
+                                className="h-4 w-4 rounded-full border border-white/20"
+                                style={{ background: `linear-gradient(135deg, ${c.primary}, ${c.accent})` }}
+                              />
+                              {c.name}
+                            </>
+                          ) : (
+                            t("settings.accentColour")
+                          );
+                        })()
+                      )}
+                    </span>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl border border-divider bg-surface shadow-lg"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    {ACCENT_COLORS.filter((c) => c.id !== "custom").map((c) => (
+                      <DropdownMenu.Item
+                        key={c.id}
+                        onSelect={() => setAccentColor(c.id as AccentColor)}
+                        className="cursor-pointer select-none px-4 py-2.5 text-text-primary outline-none hover:bg-text-primary/5 focus:outline-none data-[highlighted]:bg-text-primary/5"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="h-4 w-4 rounded-full border border-white/20"
+                            style={{ background: `linear-gradient(135deg, ${c.primary}, ${c.accent})` }}
+                          />
+                          {c.name}
+                        </span>
+                      </DropdownMenu.Item>
+                    ))}
+                    <DropdownMenu.Item
+                      onSelect={() => setAccentColor("custom")}
+                      className="cursor-pointer select-none px-4 py-2.5 text-text-primary outline-none hover:bg-text-primary/5 focus:outline-none data-[highlighted]:bg-text-primary/5"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="h-4 w-4 rounded-full border border-white/20"
+                          style={{ backgroundColor: customAccentHex }}
+                        />
+                        {t("settings.custom")}
+                      </span>
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
+              {accentColor === "custom" && (
+                <div className="mt-3 flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={customAccentHex}
+                    onChange={(e) => setCustomAccentHex(e.target.value)}
+                    className="h-10 w-10 cursor-pointer rounded-lg border border-white/20 bg-transparent p-0"
+                    aria-label={t("settings.custom")}
                   />
-                ))}
-              </div>
+                  <input
+                    type="text"
+                    value={customAccentHex}
+                    onChange={(e) => {
+                      const v = e.target.value.trim();
+                      if (v === "" || v.startsWith("#")) setCustomAccentHex(v || "#00e5b8");
+                      else if (/^[0-9A-Fa-f]{0,6}$/.test(v)) setCustomAccentHex("#" + v);
+                    }}
+                    className="w-24 rounded-xl border border-divider bg-surface-elevated px-3 py-2 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="#00e5b8"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Theme */}
@@ -133,22 +211,34 @@ export function Settings() {
                 <Sun className="h-4 w-4" />
                 {t("settings.theme")}
               </label>
-              <div className="flex flex-wrap gap-2">
-                {THEME_IDS.map((id) => (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
                   <button
-                    key={id}
                     type="button"
-                    onClick={() => setTheme(id)}
-                    className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                      theme === id
-                        ? "bg-primary text-background"
-                        : "bg-surface-elevated text-text-secondary hover:bg-white/10 hover:text-text-primary"
-                    }`}
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-divider bg-surface-elevated px-4 py-3 text-left text-text-primary transition-colors hover:bg-text-primary/5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    {t(`common.${id}`)}
+                    <span>{t(`common.${theme}`)}</span>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-text-tertiary" />
                   </button>
-                ))}
-              </div>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl border border-divider bg-surface shadow-lg"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    {THEME_IDS.map((id) => (
+                      <DropdownMenu.Item
+                        key={id}
+                        onSelect={() => setTheme(id)}
+                        className="cursor-pointer select-none px-4 py-2.5 text-text-primary outline-none hover:bg-text-primary/5 focus:outline-none data-[highlighted]:bg-text-primary/5"
+                      >
+                        {t(`common.${id}`)}
+                      </DropdownMenu.Item>
+                    ))}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
             </div>
 
             {/* Language */}
