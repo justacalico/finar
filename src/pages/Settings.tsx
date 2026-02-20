@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, User, UserCircle, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw, Heart } from "lucide-react";
+import { LogOut, User, UserCircle, Palette, Sun, Globe, Info, ChevronDown, ChevronRight, ExternalLink, RefreshCw, Heart, Lock } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import pkg from "../../package.json";
 import {
@@ -191,39 +191,86 @@ export function Settings() {
 
         {/* About */}
         <section className="rounded-2xl border border-white/10 bg-surface/50 p-6">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-tertiary">
             <Info className="h-4 w-4" />
             {t("settings.about")}
           </h2>
-          <p className="text-text-secondary">
+          <p className="mb-4 text-sm text-text-secondary">
             {t("settings.aboutDescription")}
           </p>
-          <p className="mt-2 text-sm text-text-tertiary">
-            {t("settings.version")} {pkg.version}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              leftIcon={<ExternalLink className="h-4 w-4" />}
-              onClick={() => window.open("https://openlyst.ink/", "_blank", "noopener,noreferrer")}
-            >
-              {t("settings.visitOpenLyst")}
-            </Button>
-            <Button
-              variant="outline"
-              leftIcon={<Heart className="h-4 w-4" />}
-              onClick={() => window.open("https://openlyst.ink/support", "_blank", "noopener,noreferrer")}
-            >
-              {t("settings.supportOpenLyst")}
-            </Button>
-            <Button
-              variant="outline"
-              leftIcon={<RefreshCw className={`h-4 w-4 ${checkingUpdate ? "animate-spin" : ""}`} />}
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-surface-elevated/50">
+            {/* Version row */}
+            <div className="flex items-center gap-4 px-4 py-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400">
+                <Info className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-text-primary">{t("settings.version")}</p>
+              </div>
+              <span className="text-sm text-text-tertiary">{pkg.version}</span>
+            </div>
+            <div className="border-t border-white/10" />
+            {/* Check for updates row */}
+            <button
+              type="button"
               onClick={() => checkForUpdates()}
               disabled={checkingUpdate}
+              className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/5 disabled:opacity-60"
             >
-              {t("settings.checkForUpdates")}
-            </Button>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-400">
+                <RefreshCw className={`h-5 w-5 ${checkingUpdate ? "animate-spin" : ""}`} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-text-primary">{t("settings.checkForUpdates")}</p>
+                <p className="text-xs text-text-tertiary">{t("settings.checkForUpdatesDescription")}</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
+            </button>
+            <div className="border-t border-white/10" />
+            {/* Visit OpenLyst row */}
+            <button
+              type="button"
+              onClick={() => window.open("https://openlyst.ink/", "_blank", "noopener,noreferrer")}
+              className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/5"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                <Globe className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-text-primary">{t("settings.visitOpenLyst")}</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
+            </button>
+            <div className="border-t border-white/10" />
+            {/* Support OpenLyst row */}
+            <button
+              type="button"
+              onClick={() => window.open("https://openlyst.ink/support", "_blank", "noopener,noreferrer")}
+              className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/5"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400">
+                <Heart className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-text-primary">{t("settings.supportOpenLyst")}</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
+            </button>
+            <div className="border-t border-white/10" />
+            {/* Privacy Policy row */}
+            <button
+              type="button"
+              onClick={() => window.open("https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md", "_blank", "noopener,noreferrer")}
+              className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/5"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-text-primary">{t("settings.privacyPolicy")}</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
+            </button>
           </div>
           {updateCheck?.isUpdateAvailable && (
             <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">
