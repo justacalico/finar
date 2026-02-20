@@ -210,7 +210,7 @@ export function Settings() {
               <span className="text-sm text-text-tertiary">{pkg.version}</span>
             </div>
             <div className="border-t border-white/10" />
-            {/* Check for updates row */}
+            {/* Check for updates row — label shows status */}
             <button
               type="button"
               onClick={() => checkForUpdates()}
@@ -221,8 +221,18 @@ export function Settings() {
                 <RefreshCw className={`h-5 w-5 ${checkingUpdate ? "animate-spin" : ""}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-text-primary">{t("settings.checkForUpdates")}</p>
-                <p className="text-xs text-text-tertiary">{t("settings.checkForUpdatesDescription")}</p>
+                <p className="font-medium text-text-primary">
+                  {checkingUpdate
+                    ? t("settings.checkingUpdates")
+                    : updateCheck?.isUpdateAvailable
+                      ? t("settings.updateAvailable")
+                      : updateCheck
+                        ? t("settings.upToDate")
+                        : t("settings.checkForUpdates")}
+                </p>
+                {!checkingUpdate && !updateCheck && (
+                  <p className="text-xs text-text-tertiary">{t("settings.checkForUpdatesDescription")}</p>
+                )}
               </div>
               <ChevronRight className="h-5 w-5 shrink-0 text-text-tertiary" />
             </button>
@@ -289,9 +299,6 @@ export function Settings() {
                 </a>
               )}
             </div>
-          )}
-          {updateCheck && !updateCheck.isUpdateAvailable && (
-            <p className="mt-4 text-sm text-text-tertiary">{t("settings.upToDate")}</p>
           )}
         </section>
       </div>
