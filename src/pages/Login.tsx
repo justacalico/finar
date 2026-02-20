@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
-import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown } from "lucide-react";
+import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
 import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
@@ -81,18 +81,22 @@ export function Login() {
 
   if (quickConnectCode) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="login-page flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl" />
+        </div>
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.25 }}
+          className="relative w-full max-w-md"
         >
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" className="login-form-card">
             <div className="flex flex-col items-center text-center">
               <div className="rounded-2xl bg-primary/20 p-4">
                 <QrCode className="h-12 w-12 text-primary" />
               </div>
-              <h2 className="mt-4 text-xl font-bold text-text-primary">
+              <h2 className="login-brand mt-4 text-xl font-semibold text-text-primary">
                 {t("login.quickConnectTitle")}
               </h2>
               <p className="mt-2 text-sm text-text-secondary">
@@ -125,40 +129,49 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+    <div className="login-page min-h-screen bg-background">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute left-1/2 top-1/2 h-[min(100vmax,720px)] w-[min(100vmax,720px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/12 blur-3xl"
+          aria-hidden
+        />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden />
       </div>
-      <div className="relative flex min-h-screen flex-col items-center justify-center p-4 md:flex-row md:gap-12">
+      <div className="relative flex min-h-screen flex-col items-center justify-center p-6 md:flex-row md:gap-16 md:p-8">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
-          className="mb-8 flex flex-col items-center md:mb-0 md:items-start"
+          transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="login-brand mb-10 flex flex-col items-center md:mb-0 md:items-start"
         >
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-xl shadow-primary/30">
-            <Play className="h-10 w-10 text-background" fill="currentColor" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-xl shadow-primary/25 ring-2 ring-white/10">
+            <Play className="h-12 w-12 text-background" fill="currentColor" />
           </div>
-          <h1 className="mt-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-4xl font-bold text-transparent">
+          <h1 className="mt-5 bg-gradient-to-r from-primary to-accent bg-clip-text text-4xl font-semibold tracking-tight text-transparent md:text-5xl">
             {t("common.appName")}
           </h1>
-          <p className="mt-1 text-sm text-text-tertiary">
+          <p className="mt-1.5 text-sm text-text-tertiary">
             {t("common.tagline")}
           </p>
+          <div className="mt-8 hidden h-px w-12 bg-gradient-to-r from-primary/50 to-transparent md:block" aria-hidden />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="w-full max-w-md"
+          transition={{ delay: 0.08, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="w-full max-w-[420px]"
         >
-          <GlassCard padding="lg">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="text-xl font-bold text-text-primary">{t("login.welcome")}</h2>
-              <p className="text-sm text-text-secondary">
-                {t("login.signInTo")}
-              </p>
+          <GlassCard padding="lg" className="login-form-card">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <h2 className="login-brand text-2xl font-semibold tracking-tight text-text-primary">
+                  {t("login.welcome")}
+                </h2>
+                <p className="mt-1 text-sm text-text-secondary">
+                  {t("login.signInTo")}
+                </p>
+              </div>
 
               <Input
                 label={t("login.serverUrl")}
@@ -190,7 +203,7 @@ export function Login() {
                     className="text-text-tertiary hover:text-text-primary"
                     aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                   >
-                    {showPassword ? "🙈" : "👁"}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 }
                 required
@@ -221,19 +234,19 @@ export function Login() {
                 {t("login.quickConnect")}
               </Button>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4">
+              <div className="flex flex-wrap items-end justify-between gap-4 border-t border-white/10 pt-5">
                 <div>
-                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
-                    <Sun className="h-4 w-4" />
+                  <span className="mb-2 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
+                    <Sun className="h-3.5 w-3.5" />
                     {t("common.theme")}
-                  </label>
+                  </span>
                   <div className="flex gap-1.5">
                     {THEME_IDS.map((id) => (
                       <button
                         key={id}
                         type="button"
                         onClick={() => setTheme(id)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                        className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
                           theme === id
                             ? "bg-primary text-background"
                             : "bg-surface-elevated text-text-secondary hover:bg-white/10 hover:text-text-primary"
@@ -244,11 +257,11 @@ export function Login() {
                     ))}
                   </div>
                 </div>
-                <div className="min-w-0 flex-1 basis-32">
-                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
-                    <Globe className="h-4 w-4" />
+                <div className="min-w-0 flex-1 basis-28">
+                  <span className="mb-2 flex items-center gap-1.5 text-xs font-medium text-text-tertiary">
+                    <Globe className="h-3.5 w-3.5" />
                     {t("common.language")}
-                  </label>
+                  </span>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
                       <button
