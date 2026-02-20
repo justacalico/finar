@@ -12,22 +12,10 @@ import {
 } from "../stores/settings";
 import { useUpdateStore } from "../stores/update";
 import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
+import { censorUrl } from "../utils/url";
 import { Button } from "../components/Button";
 
 const THEME_IDS: Theme[] = ["light", "dark", "oled"];
-
-function censorUrl(url: string): string {
-  try {
-    const u = new URL(url);
-    const host = u.hostname;
-    const dot = host.lastIndexOf(".");
-    if (dot <= 0 || host.length <= 6) return `${u.protocol}//***`;
-    const suffix = host.slice(dot);
-    return `${u.protocol}//${host.slice(0, 3)}***${suffix}`;
-  } catch {
-    return "***";
-  }
-}
 
 export function Settings() {
   const navigate = useNavigate();

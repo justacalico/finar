@@ -6,6 +6,7 @@ import { Layout } from "./components/Layout";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
 import { ProfilePicker } from "./pages/ProfilePicker";
+import { ManageProfiles } from "./pages/ManageProfiles";
 import { Home } from "./pages/Home";
 import {
   LazySearch,
@@ -39,6 +40,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/profile-picker" element={<ProfilePicker />} />
+      <Route path="/manage-profiles" element={<ManageProfiles />} />
       <Route
         path="/"
         element={

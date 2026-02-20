@@ -86,7 +86,7 @@ export function ProfilePicker() {
 
   const handleManageProfiles = () => {
     clearError();
-    navigate("/login", { replace: true });
+    navigate("/manage-profiles", { replace: true });
   };
 
   return (
