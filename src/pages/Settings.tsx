@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, User, UserCircle, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw } from "lucide-react";
+import { LogOut, User, UserCircle, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw, Heart } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import pkg from "../../package.json";
 import {
@@ -201,15 +201,30 @@ export function Settings() {
           <p className="mt-2 text-sm text-text-tertiary">
             {t("settings.version")} {pkg.version}
           </p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            leftIcon={<RefreshCw className={`h-4 w-4 ${checkingUpdate ? "animate-spin" : ""}`} />}
-            onClick={() => checkForUpdates()}
-            disabled={checkingUpdate}
-          >
-            {t("settings.checkForUpdates")}
-          </Button>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              leftIcon={<ExternalLink className="h-4 w-4" />}
+              onClick={() => window.open("https://openlyst.ink/", "_blank", "noopener,noreferrer")}
+            >
+              {t("settings.visitOpenLyst")}
+            </Button>
+            <Button
+              variant="outline"
+              leftIcon={<Heart className="h-4 w-4" />}
+              onClick={() => window.open("https://openlyst.ink/support", "_blank", "noopener,noreferrer")}
+            >
+              {t("settings.supportOpenLyst")}
+            </Button>
+            <Button
+              variant="outline"
+              leftIcon={<RefreshCw className={`h-4 w-4 ${checkingUpdate ? "animate-spin" : ""}`} />}
+              onClick={() => checkForUpdates()}
+              disabled={checkingUpdate}
+            >
+              {t("settings.checkForUpdates")}
+            </Button>
+          </div>
           {updateCheck?.isUpdateAvailable && (
             <div className="mt-4 rounded-xl bg-primary/10 px-4 py-3">
               <p className="font-medium text-primary">
