@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
-import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { Play, Server, User, Lock, QrCode, Loader2, Sun, Globe, ChevronDown, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
 import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
@@ -23,6 +23,7 @@ export function Login() {
     error,
     clearError,
     isAuthenticated,
+    profiles,
   } = useAuthStore();
 
   const [serverUrl, setServerUrl] = useState("");
@@ -92,6 +93,21 @@ export function Login() {
           className="relative w-full max-w-md"
         >
           <GlassCard padding="lg" className="login-form-card">
+            {profiles.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="-ml-2 mb-4"
+                leftIcon={<ArrowLeft className="h-4 w-4" />}
+                onClick={() => {
+                  setQuickConnectCode(null);
+                  setQuickConnectPolling(false);
+                  navigate("/profile-picker", { replace: true });
+                }}
+              >
+                {t("common.goBack")}
+              </Button>
+            )}
             <div className="flex flex-col items-center text-center">
               <div className="rounded-2xl bg-primary/20 p-4">
                 <QrCode className="h-12 w-12 text-primary" />
@@ -163,6 +179,17 @@ export function Login() {
           className="w-full max-w-[420px]"
         >
           <GlassCard padding="lg" className="login-form-card">
+            {profiles.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="-ml-2 mb-2"
+                leftIcon={<ArrowLeft className="h-4 w-4" />}
+                onClick={() => navigate("/profile-picker", { replace: true })}
+              >
+                {t("common.goBack")}
+              </Button>
+            )}
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <h2 className="login-brand text-2xl font-semibold tracking-tight text-text-primary">
