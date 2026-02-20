@@ -1,85 +1,87 @@
 # Finar
 
-Finar is a Jellyfin client built with Flutter.
+Finar is a cross-platform Jellyfin client built with Tauri, React, and TypeScript.
 
 Pronounced "fye-nar".
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Tauri](https://img.shields.io/badge/Tauri-2-FFC131?style=for-the-badge&logo=tauri&logoColor=black)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=for-the-badge)
 
 ## Features
 
-- Video playback powered by `media_kit`
+- Video playback with HLS (video.js / hls.js)
 - Android, iOS, macOS, Windows, Linux, and Web support
-- Shared core with separate page layouts for desktop and mobile
-- Riverpod-based state management
-- Local persistence and cache with Hive/shared preferences
-- Designed for media browsing with gamepad/remote-friendly input support
+- Multiple Jellyfin accounts and servers; profile picker and manage-profiles flow
+- Offline downloads (Tauri desktop)
+- Responsive layout with sidebar on desktop and bottom nav on mobile
+- Customisable theme (light, dark, OLED) and accent colour (presets + custom hex)
+- Multi-language (English, 简体中文, Русский)
 
 ## Requirements
 
-- Flutter SDK `^3.10.3`
+- Node.js (LTS)
+- Rust (for Tauri; see [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/))
 - A running [Jellyfin](https://jellyfin.org/) server
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/openlyst/finar.git
+git clone https://gitlab.com/Openlyst/finar.git
 cd finar
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter run
+npm install
+npm run tauri dev
 ```
 
-If you are actively working on models/adapters, run this in a second terminal:
+Web-only development (no native features like downloads):
 
 ```bash
-dart run build_runner watch --delete-conflicting-outputs
+npm run dev
 ```
 
 ## Project Structure
 
 ```text
-lib/
-├── main.dart
-├── app.dart
-├── core/
-│   ├── api/
-│   ├── services/
-│   ├── theme/
-│   └── utils/
-├── pages/
-│   ├── desktop/
-│   └── mobile/
-├── providers/
-└── widgets/
+src/
+├── main.tsx
+├── App.tsx
+├── api/           # Jellyfin API, OpenLyst update check
+├── components/    # Layout, Button, Input, GlassCard, etc.
+├── pages/         # Home, Login, Player, Settings, Library, …
+├── stores/        # Auth, settings, library, player, downloads (Zustand)
+├── translations/  # en, zh-CN, ru
+├── types/
+└── utils/
+src-tauri/         # Tauri Rust backend (desktop, mobile)
 ```
 
 ## Tech Stack
 
-- Flutter + Dart
-- Riverpod
-- media_kit
-- Dio/http
-- Hive + shared_preferences
-- flutter_animate + glassmorphism
+- **Tauri 2** — desktop and mobile shell
+- **React 19** + **TypeScript**
+- **Vite** — build and dev server
+- **Zustand** — state (auth, settings, library, player, downloads)
+- **React Router** — routing
+- **Tailwind CSS** — styling
+- **Radix UI** — dropdowns, dialogs, slider, toast
+- **Framer Motion** — animations
+- **Lucide React** — icons
+- **video.js** / **hls.js** — playback
 
 ## Build Releases
 
 ```bash
-flutter build apk --release
-flutter build ios --release
-flutter build macos --release
-flutter build windows --release
-flutter build linux --release
-flutter build web --release
+# Sync version and build
+npm run tauri build
 ```
+
+Outputs depend on the target (e.g. desktop installers in `src-tauri/target/release/bundle/`, Android APK in the Tauri gen output). For specific platforms, use [Tauri’s build targets](https://v2.tauri.app/guides/build/).
 
 ## Contributing
 
-Pull requests are welcome.
+Merge requests are welcome.
 
 ## License
 
-This project is licensed under [GPL](LICENSE).
+This project is licensed under the [GNU Affero General Public License v3](LICENSE) (AGPL-3.0).
