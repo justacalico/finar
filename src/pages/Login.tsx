@@ -85,8 +85,8 @@ export function Login() {
 
   if (quickConnectCode) {
     return (
-      <div className="min-h-screen min-h-[100dvh] overflow-y-auto bg-background">
-        <div className="flex min-h-full flex-col items-center justify-center p-4 sm:p-6">
+      <div className="h-screen min-h-[100dvh] overflow-y-auto overflow-x-hidden bg-background">
+        <div className="flex min-h-full min-h-[100dvh] flex-col items-center justify-center p-4 sm:p-6 pb-8">
           <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
           <div className="absolute left-1/2 top-1/2 h-[min(100vmax,32rem)] w-[min(100vmax,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl" />
         </div>
@@ -150,8 +150,8 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] overflow-y-auto bg-background">
-      <div className="flex min-h-full flex-col items-center justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+    <div className="h-screen min-h-[100dvh] overflow-y-auto overflow-x-hidden bg-background">
+      <div className="flex min-h-full min-h-[100dvh] flex-col items-center justify-center p-4 sm:p-6 md:p-8 lg:p-10 pb-8">
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
         <div
           className="absolute left-1/2 top-1/2 h-[min(100vmax,40rem)] w-[min(100vmax,40rem)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/12 blur-3xl"
