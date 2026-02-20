@@ -12,7 +12,7 @@ Pronounced "fye-nar".
 ## Features
 
 - Video playback with HLS (video.js / hls.js)
-- Android, iOS, macOS, Windows, Linux, and Web support
+- Android, iOS, macOS, Windows, and Linux support
 - Multiple Jellyfin accounts and servers; profile picker and manage-profiles flow
 - Offline downloads (Tauri desktop)
 - Responsive layout with sidebar on desktop and bottom nav on mobile
@@ -32,12 +32,6 @@ git clone https://gitlab.com/Openlyst/finar.git
 cd finar
 npm install
 npm run tauri dev
-```
-
-Web-only development (no native features like downloads):
-
-```bash
-npm run dev
 ```
 
 ## Project Structure
