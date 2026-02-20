@@ -133,7 +133,11 @@ button {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center;
 }
 .video-js-wrapper .video-js.vjs-fluid {
   padding-top: 0;
+}
+.video-js-wrapper .video-js.vjs-fill {
+  padding-top: 0 !important;
 }

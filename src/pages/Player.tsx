@@ -216,7 +216,8 @@ export function Player() {
       controls: false,
       autoplay: false,
       preload: "auto",
-      fluid: true,
+      fill: true,
+      fluid: false,
       html5: { vhs: { overrideNative: true } },
     });
     playerRef.current = player;
