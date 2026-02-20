@@ -9,6 +9,8 @@ Pronounced "fye-nar".
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=for-the-badge)
 
+**Downloads** — Pre-built installers and APKs for Android, iOS, macOS, Windows, and Linux: [openlyst.ink/apps/finar](https://openlyst.ink/apps/finar)
+
 ## Features
 
 - Video playback with HLS (video.js / hls.js)
