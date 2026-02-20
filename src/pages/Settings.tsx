@@ -4,13 +4,13 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { LogOut, User, Palette, Sun, Globe, Info, ChevronDown, ExternalLink, RefreshCw } from "lucide-react";
 import { useAuthStore } from "../stores/auth";
 import pkg from "../../package.json";
-import { checkForUpdate } from "../api/openlyst";
 import {
   useSettingsStore,
   ACCENT_COLORS,
   type Theme,
   type AccentColor,
 } from "../stores/settings";
+import { useUpdateStore } from "../stores/update";
 import { useTranslation, SUPPORTED_LANGUAGES } from "../translations";
 import { Button } from "../components/Button";
 
@@ -27,36 +27,22 @@ export function Settings() {
   const language = useSettingsStore((s) => s.language);
   const setLanguage = useSettingsStore((s) => s.setLanguage);
 
-  const [updateCheck, setUpdateCheck] = useState<{
-    latestVersion: string;
-    isUpdateAvailable: boolean;
-    downloadUrl?: string;
-  } | null>(null);
-  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const updateCheck = useUpdateStore((s) =>
+    s.lastChecked === null
+      ? null
+      : {
+          latestVersion: s.latestVersion,
+          isUpdateAvailable: s.isUpdateAvailable,
+          downloadUrl: s.downloadUrl,
+        },
+  );
+  const checkingUpdate = useUpdateStore((s) => s.checking);
+  const checkForUpdates = useUpdateStore((s) => s.check);
 
-  const handleCheckVersion = async () => {
-    setCheckingUpdate(true);
-    try {
-      const r = await checkForUpdate(pkg.version, language);
-      setUpdateCheck({
-        latestVersion: r.latestVersion,
-        isUpdateAvailable: r.isUpdateAvailable,
-        downloadUrl: r.downloadUrl,
-      });
-    } finally {
-      setCheckingUpdate(false);
-    }
-  };
-
+  // Re-run background check when language changes so messages/URLs match
   useEffect(() => {
-    checkForUpdate(pkg.version, language).then((r) =>
-      setUpdateCheck({
-        latestVersion: r.latestVersion,
-        isUpdateAvailable: r.isUpdateAvailable,
-        downloadUrl: r.downloadUrl,
-      }),
-    );
-  }, [language]);
+    checkForUpdates();
+  }, [language, checkForUpdates]);
 
   const handleSignOut = async () => {
     await logout();
@@ -203,7 +189,7 @@ export function Settings() {
             variant="outline"
             className="mt-4"
             leftIcon={<RefreshCw className={`h-4 w-4 ${checkingUpdate ? "animate-spin" : ""}`} />}
-            onClick={handleCheckVersion}
+            onClick={() => checkForUpdates()}
             disabled={checkingUpdate}
           >
             {t("settings.checkForUpdates")}

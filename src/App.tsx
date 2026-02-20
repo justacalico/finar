@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./stores/auth";
+import { useUpdateStore } from "./stores/update";
 import { Layout } from "./components/Layout";
 import { Splash } from "./pages/Splash";
 import { Login } from "./pages/Login";
@@ -70,6 +71,16 @@ export default function App() {
   useEffect(() => {
     restoreSession().then(() => setHydrated(true));
   }, [restoreSession]);
+
+  // Background update check: run once when app is ready and when window gains focus
+  useEffect(() => {
+    if (!hydrated || !isAuthenticated) return;
+    const check = () => useUpdateStore.getState().check();
+    check();
+    const onFocus = () => check();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [hydrated, isAuthenticated]);
 
   if (!hydrated || (!isAuthenticated && isLoading)) {
     return <Splash />;

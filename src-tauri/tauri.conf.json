@@ -18,7 +18,7 @@
       }
     ],
     "security": {
-      "csp": null,
+      "csp": {"default-src": "'self' asset:", "connect-src": "'self' ipc: http://ipc.localhost https://openlyst.ink"},
       "assetProtocol": {
         "enable": true,
         "scope": [
