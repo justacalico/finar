@@ -11,6 +11,9 @@ Pronounced "fye-nar".
 
 **Downloads** — Pre-built installers and APKs for Android, iOS, macOS, Windows, and Linux: [openlyst.ink/apps/finar](https://openlyst.ink/apps/finar)
 
+![image.png](image.png)
+![mobile.png](mobile.png)
+
 ## Features
 
 - Video playback with HLS (video.js / hls.js)
