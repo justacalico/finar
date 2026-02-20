@@ -276,25 +276,30 @@ export const useAuthStore = create<AuthState>()(
       async switchProfile(profileId: string) {
         const profile = get().profiles.find((p) => p.id === profileId);
         if (!profile) return false;
+        api.setServerUrl(profile.serverUrl);
+        api.setCredentials(profile.accessToken, profile.userId);
+        let user: User;
         try {
-          api.setServerUrl(profile.serverUrl);
-          api.setCredentials(profile.accessToken, profile.userId);
-          const user = await api.getCurrentUser();
+          user = await api.getCurrentUser();
           updateProfileUserInfo(profileId, user.Name, user.PrimaryImageTag);
-          saveProfiles(get().profiles, profileId);
-          set({
-            profiles: loadStoredProfiles().profiles,
-            currentProfileId: profileId,
-            user,
-            serverUrl: profile.serverUrl,
-            accessToken: profile.accessToken,
-            isAuthenticated: true,
-            error: null,
-          });
-          return true;
         } catch {
-          return false;
+          user = {
+            Id: profile.userId,
+            Name: profile.userName,
+            PrimaryImageTag: profile.primaryImageTag,
+          };
         }
+        saveProfiles(get().profiles, profileId);
+        set({
+          profiles: loadStoredProfiles().profiles,
+          currentProfileId: profileId,
+          user,
+          serverUrl: profile.serverUrl,
+          accessToken: profile.accessToken,
+          isAuthenticated: true,
+          error: null,
+        });
+        return true;
       },
 
       async logout() {
