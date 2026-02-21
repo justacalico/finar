@@ -12,6 +12,13 @@ import '../core/services/download_service.dart';
 import 'library_provider.dart';
 import 'download_provider.dart';
 
+/// Repeat mode for playlist playback
+enum RepeatMode {
+  off,
+  one,
+  all,
+}
+
 /// Player state
 class PlayerState {
   final MediaItem? currentItem;
@@ -30,6 +37,7 @@ class PlayerState {
   final MediaItem? nextItem;
   final List<MediaItem>? playlist;
   final int? playlistIndex;
+  final RepeatMode repeatMode;
   final List<ChapterInfo>? chapters;
   final int? currentSubtitleTrack;
   final int? currentAudioTrack;
@@ -56,6 +64,7 @@ class PlayerState {
     this.nextItem,
     this.playlist,
     this.playlistIndex,
+    this.repeatMode = RepeatMode.off,
     this.chapters,
     this.currentSubtitleTrack,
     this.currentAudioTrack,
@@ -83,6 +92,7 @@ class PlayerState {
     MediaItem? nextItem,
     List<MediaItem>? playlist,
     int? playlistIndex,
+    RepeatMode? repeatMode,
     List<ChapterInfo>? chapters,
     int? currentSubtitleTrack,
     int? currentAudioTrack,
@@ -109,6 +119,7 @@ class PlayerState {
       nextItem: nextItem ?? this.nextItem,
       playlist: playlist ?? this.playlist,
       playlistIndex: playlistIndex ?? this.playlistIndex,
+      repeatMode: repeatMode ?? this.repeatMode,
       chapters: chapters ?? this.chapters,
       currentSubtitleTrack: currentSubtitleTrack ?? this.currentSubtitleTrack,
       currentAudioTrack: currentAudioTrack ?? this.currentAudioTrack,
@@ -217,9 +228,38 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     );
 
     _subscriptions.add(
-      _player.stream.completed.listen((completed) {
-        if (completed && state.hasNext) {
-          playNext();
+      _player.stream.completed.listen((completed) async {
+        if (!completed) return;
+        switch (state.repeatMode) {
+          case RepeatMode.one:
+            if (state.currentItem != null) {
+              await play(
+                state.currentItem!,
+                startPositionTicks: 0,
+                playlist: state.playlist,
+                playlistIndex: state.playlistIndex,
+              );
+            }
+            break;
+          case RepeatMode.all:
+            if (state.playlist != null && state.playlist!.isNotEmpty) {
+              final atEnd = !state.hasNext;
+              if (atEnd) {
+                await play(
+                  state.playlist!.first,
+                  playlist: state.playlist,
+                  playlistIndex: 0,
+                );
+              } else {
+                await playNext();
+              }
+            }
+            break;
+          case RepeatMode.off:
+            if (state.hasNext) {
+              await playNext();
+            }
+            break;
         }
       }),
     );
@@ -563,6 +603,28 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       playlist: state.playlist,
       playlistIndex: prevIndex,
     );
+  }
+
+  /// Shuffle playlist and play from start
+  Future<void> shufflePlaylist() async {
+    final list = state.playlist;
+    if (list == null || list.length < 2) return;
+    final shuffled = List<MediaItem>.from(list)..shuffle();
+    await play(
+      shuffled.first,
+      playlist: shuffled,
+      playlistIndex: 0,
+    );
+  }
+
+  /// Cycle repeat mode: off -> one -> all -> off
+  void cycleRepeatMode() {
+    final next = switch (state.repeatMode) {
+      RepeatMode.off => RepeatMode.one,
+      RepeatMode.one => RepeatMode.all,
+      RepeatMode.all => RepeatMode.off,
+    };
+    state = state.copyWith(repeatMode: next);
   }
 
   /// Add item to end of queue

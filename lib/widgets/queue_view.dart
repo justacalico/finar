@@ -96,7 +96,7 @@ class QueueView extends ConsumerWidget {
               item: playlist[currentIndex],
               index: currentIndex,
               isPlaying: true,
-              onTap: () {},
+              onTap: () => ref.read(playerProvider.notifier).playOrPause(),
               onRemove: null, // Can't remove currently playing
             ),
             if (currentIndex < playlist.length - 1) ...[

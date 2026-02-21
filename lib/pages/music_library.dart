@@ -529,10 +529,19 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                       const SizedBox(width: 16),
                       // Actions
                       IconButton(
-                        icon: const Icon(Icons.favorite_border, size: 20),
-                        color: AppColors.textSecondary,
-                        onPressed: () {},
-                        tooltip: 'Add to favorites',
+                        icon: Icon(
+                          track.isFavorite == true
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          size: 20,
+                        ),
+                        color: track.isFavorite == true
+                            ? Colors.redAccent
+                            : AppColors.textSecondary,
+                        onPressed: () => _toggleTrackFavorite(track),
+                        tooltip: track.isFavorite == true
+                            ? 'Remove from favorites'
+                            : 'Add to favorites',
                       ),
                       IconButton(
                         icon: const Icon(Icons.more_vert, size: 20),
@@ -709,6 +718,37 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
     );
   }
 
+  Future<void> _toggleTrackFavorite(MediaItem track) async {
+    try {
+      await ref.read(mediaActionsProvider).toggleFavorite(
+            track.id,
+            !(track.isFavorite == true),
+          );
+      ref.invalidate(musicLibraryProvider(widget.libraryId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              track.isFavorite == true
+                  ? 'Removed from favorites'
+                  : 'Added to favorites',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update favorites'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   void _showTrackOptions(MediaItem track) {
     showModalBottomSheet(
       context: context,
@@ -748,10 +788,17 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: const Text('Add to Favorites'),
+              leading: Icon(
+                track.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+              ),
+              title: Text(
+                track.isFavorite == true
+                    ? 'Remove from Favorites'
+                    : 'Add to Favorites',
+              ),
               onTap: () {
                 Navigator.pop(context);
+                _toggleTrackFavorite(track);
               },
             ),
           ],

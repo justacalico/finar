@@ -153,7 +153,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
         const PopupMenuItem(value: 'Random', child: Text('Random')),
       ],
       child: GlassButton(
-        onPressed: null,
+        onPressed: () {},
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisSize: MainAxisSize.min,

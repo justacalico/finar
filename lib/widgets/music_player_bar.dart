@@ -341,12 +341,17 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Shuffle (placeholder)
+                      // Shuffle
                       IconButton(
                         icon: const Icon(Icons.shuffle),
                         iconSize: 20,
                         color: AppColors.textSecondary,
-                        onPressed: () {},
+                        onPressed: playerState.playlist != null &&
+                                playerState.playlist!.length > 1
+                            ? () => ref
+                                .read(playerProvider.notifier)
+                                .shufflePlaylist()
+                            : null,
                         tooltip: 'Shuffle',
                       ),
 
@@ -412,13 +417,30 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
 
                       const SizedBox(width: 8),
 
-                      // Repeat (placeholder)
+                      // Repeat
                       IconButton(
-                        icon: const Icon(Icons.repeat),
+                        icon: Icon(
+                          playerState.repeatMode == RepeatMode.one
+                              ? Icons.repeat_one
+                              : Icons.repeat,
+                        ),
                         iconSize: 20,
-                        color: AppColors.textSecondary,
-                        onPressed: () {},
-                        tooltip: 'Repeat',
+                        color: playerState.repeatMode != RepeatMode.off
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        onPressed: () => ref
+                            .read(playerProvider.notifier)
+                            .cycleRepeatMode(),
+                        tooltip: () {
+                          switch (playerState.repeatMode) {
+                            case RepeatMode.off:
+                              return 'Repeat off';
+                            case RepeatMode.one:
+                              return 'Repeat one';
+                            case RepeatMode.all:
+                              return 'Repeat all';
+                          }
+                        }(),
                       ),
                     ],
                   ),
@@ -598,7 +620,15 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                           icon: const Icon(Icons.more_vert),
                           iconSize: 24,
                           color: AppColors.textPrimary,
-                          onPressed: () {},
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('More options coming soon'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                          tooltip: 'More',
                         ),
                       ],
                     ),
@@ -784,7 +814,12 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                           icon: const Icon(Icons.shuffle),
                           iconSize: isCompact ? 24 : 28,
                           color: AppColors.textSecondary,
-                          onPressed: () {},
+                          onPressed: playerState.playlist != null &&
+                                  playerState.playlist!.length > 1
+                              ? () => ref
+                                  .read(playerProvider.notifier)
+                                  .shufflePlaylist()
+                              : null,
                         ),
 
                         // Previous
@@ -842,10 +877,18 @@ class ExpandedMusicPlayer extends ConsumerWidget {
 
                         // Repeat
                         IconButton(
-                          icon: const Icon(Icons.repeat),
+                          icon: Icon(
+                            playerState.repeatMode == RepeatMode.one
+                                ? Icons.repeat_one
+                                : Icons.repeat,
+                          ),
                           iconSize: isCompact ? 24 : 28,
-                          color: AppColors.textSecondary,
-                          onPressed: () {},
+                          color: playerState.repeatMode != RepeatMode.off
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                          onPressed: () => ref
+                              .read(playerProvider.notifier)
+                              .cycleRepeatMode(),
                         ),
                       ],
                     ),

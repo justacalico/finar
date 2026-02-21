@@ -1669,7 +1669,85 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => _MoreOptionsSheet(item: item),
+      builder: (context) => _MoreOptionsSheet(
+        item: item,
+        onDownload: () => _downloadItem(item),
+        onShare: () => _shareItem(item),
+        onMediaInfo: () => _showMediaInfoDialog(item),
+        onAddToPlaylist: () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Add to playlist coming soon'), behavior: SnackBarBehavior.floating),
+            );
+          }
+        },
+        onReportIssue: () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Report issue coming soon'), behavior: SnackBarBehavior.floating),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _shareItem(MediaItem item) {
+    final StringBuffer shareText = StringBuffer();
+    shareText.write(item.name);
+    if (item.productionYear != null) {
+      shareText.write(' (${item.productionYear})');
+    }
+    if (item.overview != null && item.overview!.isNotEmpty) {
+      final overview = item.overview!.length > 200
+          ? '${item.overview!.substring(0, 200)}...'
+          : item.overview!;
+      shareText.write('\n\n$overview');
+    }
+    if (item.communityRating != null) {
+      shareText.write('\n\n⭐ ${item.communityRating!.toStringAsFixed(1)}');
+    }
+    if (item.genres?.isNotEmpty == true) {
+      shareText.write('\n🎬 ${item.genres!.take(3).join(', ')}');
+    }
+    shareText.write('\n\nShared via Finar');
+    SharePlus.instance.share(ShareParams(
+      text: shareText.toString(),
+      subject: item.name,
+    ));
+  }
+
+  void _showMediaInfoDialog(MediaItem item) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(item.name, style: AppTextStyles.titleLarge),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (item.productionYear != null)
+                Text('Year: ${item.productionYear}', style: AppTextStyles.bodyMedium),
+              if (item.formattedRuntime != null) ...[
+                const SizedBox(height: 8),
+                Text('Runtime: ${item.formattedRuntime}', style: AppTextStyles.bodyMedium),
+              ],
+              if (item.overview != null && item.overview!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(item.overview!, style: AppTextStyles.bodySmall),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1723,8 +1801,20 @@ class _LoadingShimmer extends StatelessWidget {
 
 class _MoreOptionsSheet extends StatelessWidget {
   final MediaItem item;
+  final VoidCallback? onDownload;
+  final VoidCallback? onShare;
+  final VoidCallback? onAddToPlaylist;
+  final VoidCallback? onMediaInfo;
+  final VoidCallback? onReportIssue;
 
-  const _MoreOptionsSheet({required this.item});
+  const _MoreOptionsSheet({
+    required this.item,
+    this.onDownload,
+    this.onShare,
+    this.onAddToPlaylist,
+    this.onMediaInfo,
+    this.onReportIssue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1746,18 +1836,27 @@ class _MoreOptionsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _buildOption(Icons.download_outlined, 'Download'),
-          _buildOption(Icons.playlist_add, 'Add to Playlist'),
-          _buildOption(Icons.share_outlined, 'Share'),
-          _buildOption(Icons.info_outline, 'Media Info'),
-          _buildOption(Icons.bug_report_outlined, 'Report Issue'),
+          _buildOption(context, Icons.download_outlined, 'Download', onDownload),
+          _buildOption(context, Icons.playlist_add, 'Add to Playlist', onAddToPlaylist),
+          _buildOption(context, Icons.share_outlined, 'Share', onShare),
+          _buildOption(context, Icons.info_outline, 'Media Info', onMediaInfo),
+          _buildOption(context, Icons.bug_report_outlined, 'Report Issue', onReportIssue),
         ],
       ),
     );
   }
 
-  Widget _buildOption(IconData icon, String label) {
-    return ListTile(leading: Icon(icon), title: Text(label), onTap: () {});
+  Widget _buildOption(BuildContext context, IconData icon, String label, VoidCallback? onTap) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      onTap: onTap != null
+          ? () {
+              Navigator.pop(context);
+              onTap();
+            }
+          : () {},
+    );
   }
 }
 

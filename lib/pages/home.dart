@@ -2888,7 +2888,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                         GlassIconButton(
                           icon: Icons.add,
                           size: 44,
-                          onPressed: () {},
+                          onPressed: item is MediaItem ? () => _addToWatchlist(item) : null,
                         ),
                         const SizedBox(width: 8),
                         GlassIconButton(
@@ -3269,6 +3269,32 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
       context,
       MaterialPageRoute(builder: (_) => DetailPage(itemId: itemId)),
     );
+  }
+
+  Future<void> _addToWatchlist(MediaItem item) async {
+    try {
+      final isNowInWatchlist =
+          await ref.read(mediaActionsProvider).toggleWatchlist(item.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isNowInWatchlist ? 'Added to Watchlist' : 'Removed from Watchlist',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update watchlist'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   void _playItem(dynamic item) {
