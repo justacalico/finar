@@ -9,6 +9,7 @@ import 'dart:ui';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/api/models/library.dart';
 import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
@@ -1556,159 +1557,219 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
   }
 }
 
+class _LibraryListCard extends StatelessWidget {
+  final Library library;
+  final Color accentColor;
+  final IconData icon;
+  final String typeLabel;
+  final VoidCallback onTap;
+
+  const _LibraryListCard({
+    required this.library,
+    required this.accentColor,
+    required this.icon,
+    required this.typeLabel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final count = library.childCount;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.surface.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            border: Border.all(
+              color: AppColors.divider.withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: accentColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      library.name,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      count != null
+                          ? '$typeLabel · $count items'
+                          : typeLabel,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textTertiary,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _MobileLibraryBrowser extends ConsumerWidget {
   const _MobileLibraryBrowser();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final libraries = ref.watch(libraryProvider).libraries;
+    final libraryState = ref.watch(libraryProvider);
+    final libraries = libraryState.libraries;
 
     return SafeArea(
       child: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            floating: true,
-            title: Row(
-              children: [
-                Icon(Icons.video_library, color: AppColors.primary),
-                const SizedBox(width: 12),
-                Text('Library', style: AppTextStyles.headlineMedium),
-              ],
-            ),
-            backgroundColor: Colors.transparent,
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Library',
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your collections',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ],
               ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final library = libraries[index];
-                final gradient = _getLibraryGradient(library.collectionType);
-
-                return GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              library.collectionType?.toLowerCase() == 'music'
-                              ? AdaptiveMusicLibraryPage(libraryId: library.id)
-                              : AdaptiveLibraryPage(libraryId: library.id),
-                        ),
+            ),
+          ),
+          if (libraryState.isLoading && libraries.isEmpty)
+            const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else if (libraryState.error != null && libraries.isEmpty)
+            SliverFillRemaining(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.cloud_off_outlined,
+                        size: 48,
+                        color: AppColors.textTertiary,
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: gradient,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusMd,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: gradient[0].withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Couldn\'t load libraries',
+                        style: AppTextStyles.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        libraryState.error!,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                        child: Stack(
-                          children: [
-                            // Pattern overlay
-                            Positioned(
-                              right: -20,
-                              bottom: -20,
-                              child: Icon(
-                                _getLibraryIcon(library.collectionType),
-                                size: 100,
-                                color: AppColors.white.withValues(alpha: 0.1),
-                              ),
-                            ),
-                            // Content
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.white.withValues(
-                                        alpha: 0.2,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final library = libraries[index];
+                    final accentColor = _getLibraryAccentColor(
+                      library.collectionType,
+                    );
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _LibraryListCard(
+                        library: library,
+                        accentColor: accentColor,
+                        icon: _getLibraryIcon(library.collectionType),
+                        typeLabel: _getLibraryTypeLabel(library.collectionType),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                library.collectionType?.toLowerCase() == 'music'
+                                    ? AdaptiveMusicLibraryPage(
+                                        libraryId: library.id,
+                                      )
+                                    : AdaptiveLibraryPage(
+                                        libraryId: library.id,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      _getLibraryIcon(library.collectionType),
-                                      size: 24,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        library.name,
-                                        style: AppTextStyles.titleMedium
-                                            .copyWith(
-                                              color: AppColors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        _getLibraryTypeLabel(
-                                          library.collectionType,
-                                        ),
-                                        style: AppTextStyles.bodySmall.copyWith(
-                                          color: AppColors.white.withValues(
-                                            alpha: 0.8,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     )
-                    .animate()
-                    .fadeIn(delay: Duration(milliseconds: index * 100))
-                    .scale(begin: const Offset(0.9, 0.9));
-              }, childCount: libraries.length),
+                        .animate()
+                        .fadeIn(delay: Duration(milliseconds: index * 50))
+                        .slideX(begin: 0.03, end: 0, curve: Curves.easeOutCubic);
+                  },
+                  childCount: libraries.length,
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  List<Color> _getLibraryGradient(String? collectionType) {
+  Color _getLibraryAccentColor(String? collectionType) {
     switch (collectionType) {
       case 'movies':
-        return [const Color(0xFFE53935), const Color(0xFFB71C1C)];
+        return const Color(0xFFE53935);
       case 'tvshows':
-        return [const Color(0xFF1E88E5), const Color(0xFF0D47A1)];
+        return const Color(0xFF1E88E5);
       case 'music':
-        return [const Color(0xFF43A047), const Color(0xFF1B5E20)];
+        return const Color(0xFF43A047);
       case 'photos':
-        return [const Color(0xFFFF9800), const Color(0xFFE65100)];
+        return const Color(0xFFFF9800);
       default:
-        return [const Color(0xFF7E57C2), const Color(0xFF4527A0)];
+        return AppColors.secondary;
     }
   }
 
