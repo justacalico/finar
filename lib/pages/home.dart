@@ -946,6 +946,12 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             child: _buildMediaRow(title: 'My Favorites', items: data.favorites),
           ),
 
+        // Watchlist
+        if (data.watchlist.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildMediaRow(title: 'Watchlist', items: data.watchlist),
+          ),
+
         const SliverToBoxAdapter(child: SizedBox(height: 48)),
       ],
     );
@@ -2646,6 +2652,21 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                 ),
                 SliverToBoxAdapter(
                   child: _buildMediaRow(libraryState.favorites, serverUrl),
+                ),
+              ],
+
+              // Watchlist
+              if (libraryState.watchlist.isNotEmpty) ...[
+                _buildSectionHeader(
+                  'Watchlist',
+                  icon: Icons.bookmark_outline,
+                  onSeeAll: () => _openSeeAllMedia(
+                    title: 'Watchlist',
+                    items: libraryState.watchlist,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildMediaRow(libraryState.watchlist, serverUrl),
                 ),
               ],
 

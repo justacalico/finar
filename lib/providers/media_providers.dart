@@ -322,8 +322,9 @@ class MediaActions {
   /// Toggle watchlist status for an item
   Future<bool> toggleWatchlist(String itemId) async {
     final result = await _api.toggleWatchlist(itemId);
-    // Invalidate the watchlist status provider to refresh UI
     _ref.invalidate(isInWatchlistProvider(itemId));
+    _ref.invalidate(homeDataProvider);
+    _ref.read(libraryProvider.notifier).loadHomeData();
     return result;
   }
 
@@ -331,11 +332,15 @@ class MediaActions {
   Future<void> addToWatchlist(String itemId) async {
     await _api.addToWatchlist(itemId);
     _ref.invalidate(isInWatchlistProvider(itemId));
+    _ref.invalidate(homeDataProvider);
+    _ref.read(libraryProvider.notifier).loadHomeData();
   }
 
   /// Remove item from watchlist
   Future<void> removeFromWatchlist(String itemId) async {
     await _api.removeFromWatchlist(itemId);
     _ref.invalidate(isInWatchlistProvider(itemId));
+    _ref.invalidate(homeDataProvider);
+    _ref.read(libraryProvider.notifier).loadHomeData();
   }
 }

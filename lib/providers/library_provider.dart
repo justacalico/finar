@@ -60,6 +60,7 @@ class LibraryState {
   List<MediaItem> get topRated => homeData?.topRated ?? [];
   List<MediaItem> get recommended => homeData?.recommended ?? [];
   List<MediaItem> get favorites => homeData?.favorites ?? [];
+  List<MediaItem> get watchlist => homeData?.watchlist ?? [];
   List<MediaItem> get recentlyAddedMovies =>
       homeData?.recentlyAddedMovies ?? [];
   List<MediaItem> get recentlyAddedShows => homeData?.recentlyAddedShows ?? [];

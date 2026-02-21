@@ -22,6 +22,7 @@ class MediaService {
       _api.getRecentlyAdded(limit: 12, includeItemTypes: ['Movie']),
       _api.getRecentlyAdded(limit: 12, includeItemTypes: ['Series']),
       _api.getLibraries(),
+      getWatchlistItems(),
     ]);
 
     return HomeData(
@@ -35,7 +36,15 @@ class MediaService {
       recentlyAddedMovies: results[7] as List<MediaItem>,
       recentlyAddedShows: results[8] as List<MediaItem>,
       libraries: results[9] as List<Library>,
+      watchlist: results[10] as List<MediaItem>,
     );
+  }
+
+  /// Get watchlist items (user's watchlist playlist).
+  Future<List<MediaItem>> getWatchlistItems() async {
+    final watchlist = await _api.getOrCreateWatchlist();
+    if (watchlist == null) return [];
+    return _api.getPlaylistItems(watchlist.id);
   }
 
   /// Get library content
@@ -536,6 +545,7 @@ class HomeData {
   final List<MediaItem> recentlyAddedMovies;
   final List<MediaItem> recentlyAddedShows;
   final List<Library> libraries;
+  final List<MediaItem> watchlist;
 
   const HomeData({
     required this.continueWatching,
@@ -548,6 +558,7 @@ class HomeData {
     required this.recentlyAddedMovies,
     required this.recentlyAddedShows,
     required this.libraries,
+    this.watchlist = const [],
   });
 }
 

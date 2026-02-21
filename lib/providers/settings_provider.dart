@@ -19,6 +19,8 @@ class AppSettings {
   final bool skipCredits;
   final int forwardSkipDuration;
   final int rewindSkipDuration;
+  /// Sleep timer: 0 = off, 15/30/45/60 = minutes, -1 = end of current
+  final int sleepTimerMinutes;
 
   // Subtitles
   final bool subtitlesEnabled;
@@ -34,6 +36,8 @@ class AppSettings {
   // Appearance
   final ThemeMode themeMode;
   final bool useSystemAccent;
+  /// Index into accentColorOptions (0 = teal default)
+  final int accentColorIndex;
   final bool enableAnimations;
   final bool reducedMotion;
 
@@ -56,6 +60,7 @@ class AppSettings {
     this.skipCredits = false,
     this.forwardSkipDuration = 10,
     this.rewindSkipDuration = 10,
+    this.sleepTimerMinutes = 0,
     this.subtitlesEnabled = false,
     this.subtitleLanguage = 'eng',
     this.subtitleSize = 1.0,
@@ -65,6 +70,7 @@ class AppSettings {
     this.normalizeVolume = false,
     this.themeMode = ThemeMode.dark,
     this.useSystemAccent = false,
+    this.accentColorIndex = 0,
     this.enableAnimations = true,
     this.reducedMotion = false,
     this.maxStreamingBitrate = 40000000,
@@ -82,6 +88,7 @@ class AppSettings {
     bool? skipCredits,
     int? forwardSkipDuration,
     int? rewindSkipDuration,
+    int? sleepTimerMinutes,
     bool? subtitlesEnabled,
     String? subtitleLanguage,
     double? subtitleSize,
@@ -91,6 +98,7 @@ class AppSettings {
     bool? normalizeVolume,
     ThemeMode? themeMode,
     bool? useSystemAccent,
+    int? accentColorIndex,
     bool? enableAnimations,
     bool? reducedMotion,
     int? maxStreamingBitrate,
@@ -107,6 +115,7 @@ class AppSettings {
       skipCredits: skipCredits ?? this.skipCredits,
       forwardSkipDuration: forwardSkipDuration ?? this.forwardSkipDuration,
       rewindSkipDuration: rewindSkipDuration ?? this.rewindSkipDuration,
+      sleepTimerMinutes: sleepTimerMinutes ?? this.sleepTimerMinutes,
       subtitlesEnabled: subtitlesEnabled ?? this.subtitlesEnabled,
       subtitleLanguage: subtitleLanguage ?? this.subtitleLanguage,
       subtitleSize: subtitleSize ?? this.subtitleSize,
@@ -116,6 +125,7 @@ class AppSettings {
       normalizeVolume: normalizeVolume ?? this.normalizeVolume,
       themeMode: themeMode ?? this.themeMode,
       useSystemAccent: useSystemAccent ?? this.useSystemAccent,
+      accentColorIndex: accentColorIndex ?? this.accentColorIndex,
       enableAnimations: enableAnimations ?? this.enableAnimations,
       reducedMotion: reducedMotion ?? this.reducedMotion,
       maxStreamingBitrate: maxStreamingBitrate ?? this.maxStreamingBitrate,
@@ -135,6 +145,7 @@ class AppSettings {
       'skipCredits': skipCredits,
       'forwardSkipDuration': forwardSkipDuration,
       'rewindSkipDuration': rewindSkipDuration,
+      'sleepTimerMinutes': sleepTimerMinutes,
       'subtitlesEnabled': subtitlesEnabled,
       'subtitleLanguage': subtitleLanguage,
       'subtitleSize': subtitleSize,
@@ -144,6 +155,7 @@ class AppSettings {
       'normalizeVolume': normalizeVolume,
       'themeMode': themeMode.index,
       'useSystemAccent': useSystemAccent,
+      'accentColorIndex': accentColorIndex,
       'enableAnimations': enableAnimations,
       'reducedMotion': reducedMotion,
       'maxStreamingBitrate': maxStreamingBitrate,
@@ -163,6 +175,7 @@ class AppSettings {
       skipCredits: json['skipCredits'] as bool? ?? false,
       forwardSkipDuration: json['forwardSkipDuration'] as int? ?? 10,
       rewindSkipDuration: json['rewindSkipDuration'] as int? ?? 10,
+      sleepTimerMinutes: json['sleepTimerMinutes'] as int? ?? 0,
       subtitlesEnabled: json['subtitlesEnabled'] as bool? ?? false,
       subtitleLanguage: json['subtitleLanguage'] as String? ?? 'eng',
       subtitleSize: (json['subtitleSize'] as num?)?.toDouble() ?? 1.0,
@@ -178,6 +191,7 @@ class AppSettings {
           ? ThemeMode.values[json['themeMode'] as int]
           : ThemeMode.dark,
       useSystemAccent: json['useSystemAccent'] as bool? ?? false,
+      accentColorIndex: json['accentColorIndex'] as int? ?? 0,
       enableAnimations: json['enableAnimations'] as bool? ?? true,
       reducedMotion: json['reducedMotion'] as bool? ?? false,
       maxStreamingBitrate: json['maxStreamingBitrate'] as int? ?? 40000000,
@@ -261,6 +275,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     await updateSettings((s) => s.copyWith(rewindSkipDuration: seconds));
   }
 
+  Future<void> setSleepTimerMinutes(int minutes) async {
+    await updateSettings((s) => s.copyWith(sleepTimerMinutes: minutes));
+  }
+
   // Subtitle settings
   Future<void> setSubtitlesEnabled(bool value) async {
     await updateSettings((s) => s.copyWith(subtitlesEnabled: value));
@@ -298,6 +316,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
   Future<void> setReducedMotion(bool value) async {
     await updateSettings((s) => s.copyWith(reducedMotion: value));
+  }
+
+  Future<void> setAccentColorIndex(int index) async {
+    await updateSettings((s) => s.copyWith(accentColorIndex: index));
   }
 
   // Network settings
@@ -356,6 +378,25 @@ final forcedUiModeProvider = Provider<UiMode>((ref) {
   final settings = ref.watch(settingsProvider);
   return settings.forcedUiMode;
 });
+
+/// Accent color options for theme (index, label, color)
+const accentColorOptions = [
+  (0, 'Teal', Color(0xFF00E5B8)),
+  (1, 'Purple', Color(0xFF9D7EF7)),
+  (2, 'Blue', Color(0xFF5B8DEF)),
+  (3, 'Pink', Color(0xFFFF6B9D)),
+  (4, 'Orange', Color(0xFFFF9F43)),
+];
+
+/// Sleep timer options: value 0 = off, -1 = end of current, else minutes
+const sleepTimerOptions = [
+  (value: 0, label: 'Off'),
+  (value: 15, label: '15 minutes'),
+  (value: 30, label: '30 minutes'),
+  (value: 45, label: '45 minutes'),
+  (value: 60, label: '1 hour'),
+  (value: -1, label: 'End of current'),
+];
 
 /// Video quality options
 const videoQualityOptions = [

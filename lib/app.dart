@@ -163,13 +163,23 @@ class _FinarAppState extends ConsumerState<FinarApp> {
       onBackPressed: () {
         _handleBack(context);
       },
-      child: MaterialApp(
-        title: 'Finar',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.dark,
-        home: const _AppRouter(),
+      child: Consumer(
+        builder: (context, ref, _) {
+          final settings = ref.watch(settingsProvider);
+          final primary = settings.useSystemAccent
+              ? AppColors.primary
+              : accentColorOptions[
+                  settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
+                ].$3;
+          return MaterialApp(
+            title: 'Finar',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightThemeWithPrimary(primary),
+            darkTheme: AppTheme.darkThemeWithPrimary(primary),
+            themeMode: settings.themeMode,
+            home: const _AppRouter(),
+          );
+        },
       ),
     );
   }

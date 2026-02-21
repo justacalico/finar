@@ -351,6 +351,48 @@ class _SettingsContentDesktop {
           title: 'Appearance',
           icon: Icons.palette_outlined,
           children: [
+            _dropdownTile<ThemeMode>(
+              ref,
+              title: 'Theme',
+              subtitle: settings.themeMode == ThemeMode.system
+                  ? 'Follow system'
+                  : settings.themeMode == ThemeMode.light
+                  ? 'Light'
+                  : 'Dark',
+              value: settings.themeMode,
+              items: [
+                const DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                const DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+                const DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+              ],
+              onChanged: (v) {
+                if (v != null) ref.read(settingsProvider.notifier).setThemeMode(v);
+              },
+            ),
+            const Divider(color: AppColors.glassBorder),
+            _switchTile(
+              ref,
+              title: 'Use system accent',
+              subtitle: 'Use device accent color when available',
+              value: settings.useSystemAccent,
+              onChanged: (v) => ref.read(settingsProvider.notifier).updateSettings((s) => s.copyWith(useSystemAccent: v)),
+            ),
+            const Divider(color: AppColors.glassBorder),
+            _dropdownTile<int>(
+              ref,
+              title: 'Accent color',
+              subtitle: settings.useSystemAccent
+                  ? 'Using system'
+                  : accentColorOptions[settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)].$2,
+              value: settings.accentColorIndex,
+              items: accentColorOptions
+                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+              },
+            ),
+            const Divider(color: AppColors.glassBorder),
             _switchTile(
               ref,
               title: 'Enable Animations',
@@ -669,6 +711,27 @@ class _SettingsContentDesktop {
               max: 60,
               divisions: 11,
               onChanged: (v) => ref.read(settingsProvider.notifier).setRewindSkipDuration(v.toInt()),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _settingsCard(
+          title: 'Sleep Timer',
+          icon: Icons.timer_outlined,
+          children: [
+            _dropdownTile<int>(
+              ref,
+              title: 'Stop playback after',
+              subtitle: sleepTimerOptions
+                  .firstWhere((o) => o.value == settings.sleepTimerMinutes, orElse: () => sleepTimerOptions.first)
+                  .label,
+              value: settings.sleepTimerMinutes,
+              items: sleepTimerOptions
+                  .map((o) => DropdownMenuItem(value: o.value, child: Text(o.label)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) ref.read(settingsProvider.notifier).setSleepTimerMinutes(v);
+              },
             ),
           ],
         ),
@@ -1199,6 +1262,17 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
               if (v != null) ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
             },
           ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          _dropdownTile<int>(
+            'Sleep Timer',
+            settings.sleepTimerMinutes,
+            sleepTimerOptions
+                .map((o) => DropdownMenuItem(value: o.value, child: Text(o.label)))
+                .toList(),
+            (v) {
+              if (v != null) ref.read(settingsProvider.notifier).setSleepTimerMinutes(v);
+            },
+          ),
         ],
       ),
     );
@@ -1267,6 +1341,33 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
       ),
       child: Column(
         children: [
+          _dropdownTile<ThemeMode>(
+            'Theme',
+            settings.themeMode,
+            [
+              const DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+              const DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+              const DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+            ],
+            (v) {
+              if (v != null) ref.read(settingsProvider.notifier).setThemeMode(v);
+            },
+          ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          _switchTile('Use system accent', 'Use device accent', settings.useSystemAccent,
+              (v) => ref.read(settingsProvider.notifier).updateSettings((s) => s.copyWith(useSystemAccent: v))),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          _dropdownTile<int>(
+            'Accent color',
+            settings.accentColorIndex,
+            accentColorOptions
+                .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
+                .toList(),
+            (v) {
+              if (v != null) ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+            },
+          ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _switchTile('Enable Animations', 'Show smooth transitions', settings.enableAnimations,
               (v) => ref.read(settingsProvider.notifier).setEnableAnimations(v)),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
