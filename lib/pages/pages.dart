@@ -1,0 +1,16 @@
+// Adaptive pages
+export 'adaptive_pages.dart';
+
+// Desktop pages
+export 'desktop/desktop_home.dart';
+export 'desktop/desktop_library.dart';
+export 'desktop/desktop_music_library.dart';
+export 'desktop/desktop_detail.dart';
+export 'desktop/desktop_player.dart';
+
+// Mobile pages
+export 'mobile/mobile_home.dart';
+export 'mobile/mobile_library.dart';
+export 'mobile/mobile_music_library.dart';
+export 'mobile/mobile_detail.dart';
+export 'mobile/mobile_player.dart';

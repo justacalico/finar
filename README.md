@@ -1,86 +1,85 @@
 # Finar
 
-Finar is a cross-platform Jellyfin client built with Tauri, React, and TypeScript.
+Finar is a Jellyfin client built with Flutter.
 
 Pronounced "fye-nar".
 
-![Tauri](https://img.shields.io/badge/Tauri-2-FFC131?style=for-the-badge&logo=tauri&logoColor=black)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=for-the-badge)
-
-**Downloads** — Pre-built installers and APKs for Android, iOS, macOS, Windows, and Linux: [openlyst.ink/apps/finar](https://openlyst.ink/apps/finar)
-
-![image.png](image.png)
-![mobile.png](mobile.png)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 ## Features
 
-- Video playback with HLS (video.js / hls.js)
-- Android, iOS, macOS, Windows, and Linux support
-- Multiple Jellyfin accounts and servers; profile picker and manage-profiles flow
-- Offline downloads (Tauri desktop)
-- Responsive layout with sidebar on desktop and bottom nav on mobile
-- Customisable theme (light, dark, OLED) and accent colour (presets + custom hex)
-- Multi-language (English, 简体中文, Русский)
+- Video playback powered by `media_kit`
+- Android, iOS, macOS, Windows, Linux, and Web support
+- Shared core with separate page layouts for desktop and mobile
+- Riverpod-based state management
+- Local persistence and cache with Hive/shared preferences
+- Designed for media browsing with gamepad/remote-friendly input support
 
 ## Requirements
 
-- Node.js (LTS)
-- Rust (for Tauri; see [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/))
+- Flutter SDK `^3.10.3`
 - A running [Jellyfin](https://jellyfin.org/) server
 
 ## Getting Started
 
 ```bash
-git clone https://gitlab.com/Openlyst/finar.git
+git clone https://github.com/openlyst/finar.git
 cd finar
-npm install
-npm run tauri dev
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+
+If you are actively working on models/adapters, run this in a second terminal:
+
+```bash
+dart run build_runner watch --delete-conflicting-outputs
 ```
 
 ## Project Structure
 
 ```text
-src/
-├── main.tsx
-├── App.tsx
-├── api/           # Jellyfin API, OpenLyst update check
-├── components/    # Layout, Button, Input, GlassCard, etc.
-├── pages/         # Home, Login, Player, Settings, Library, …
-├── stores/        # Auth, settings, library, player, downloads (Zustand)
-├── translations/  # en, zh-CN, ru
-├── types/
-└── utils/
-src-tauri/         # Tauri Rust backend (desktop, mobile)
+lib/
+├── main.dart
+├── app.dart
+├── core/
+│   ├── api/
+│   ├── services/
+│   ├── theme/
+│   └── utils/
+├── pages/
+│   ├── desktop/
+│   └── mobile/
+├── providers/
+└── widgets/
 ```
 
 ## Tech Stack
 
-- **Tauri 2** — desktop and mobile shell
-- **React 19** + **TypeScript**
-- **Vite** — build and dev server
-- **Zustand** — state (auth, settings, library, player, downloads)
-- **React Router** — routing
-- **Tailwind CSS** — styling
-- **Radix UI** — dropdowns, dialogs, slider, toast
-- **Framer Motion** — animations
-- **Lucide React** — icons
-- **video.js** / **hls.js** — playback
+- Flutter + Dart
+- Riverpod
+- media_kit
+- Dio/http
+- Hive + shared_preferences
+- flutter_animate + glassmorphism
 
 ## Build Releases
 
 ```bash
-# Sync version and build
-npm run tauri build
+flutter build apk --release
+flutter build ios --release
+flutter build macos --release
+flutter build windows --release
+flutter build linux --release
+flutter build web --release
 ```
-
-Outputs depend on the target (e.g. desktop installers in `src-tauri/target/release/bundle/`, Android APK in the Tauri gen output). For specific platforms, use [Tauri’s build targets](https://v2.tauri.app/guides/build/).
 
 ## Contributing
 
-Merge requests are welcome.
+Pull requests are welcome.
 
 ## License
 
-This project is licensed under the [GNU Affero General Public License v3](LICENSE) (AGPL-3.0).
+This project is licensed under [GPL](LICENSE).
