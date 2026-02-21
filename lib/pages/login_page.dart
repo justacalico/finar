@@ -657,6 +657,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
           padding: EdgeInsets.all(isTV ? 40 : 32),
           borderRadius: AppTheme.radiusXl,
           blur: AppTheme.blurMedium,
+          color: AppColors.surface,
+          opacity: 0.95,
+          gradient: null,
           child: Form(
             key: _formKey,
             child: Column(
