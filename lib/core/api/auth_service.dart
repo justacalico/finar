@@ -2,6 +2,92 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'jellyfin_api.dart';
 import 'models/user.dart';
 
+/// Stored session for one Jellyfin account (profile)
+class SavedProfile {
+  final String serverUrl;
+  final String userId;
+  final String accessToken;
+  final String userName;
+  final String? primaryImageTag;
+  final String? serverId;
+  final String? serverName;
+  final DateTime? lastUsedAt;
+
+  const SavedProfile({
+    required this.serverUrl,
+    required this.userId,
+    required this.accessToken,
+    required this.userName,
+    this.primaryImageTag,
+    this.serverId,
+    this.serverName,
+    this.lastUsedAt,
+  });
+
+  String get avatarUrl {
+    if (primaryImageTag == null || serverUrl.isEmpty) return '';
+    return '$serverUrl/Users/$userId/Images/Primary?tag=$primaryImageTag';
+  }
+
+  String get displayLetter {
+    final t = userName.trim();
+    return t.isEmpty ? '?' : t.toUpperCase().substring(0, 1);
+  }
+
+  bool isSameProfile(SavedProfile other) =>
+      serverUrl == other.serverUrl && userId == other.userId;
+
+  factory SavedProfile.fromJson(Map<String, dynamic> json) {
+    return SavedProfile(
+      serverUrl: json['serverUrl'] as String,
+      userId: json['userId'] as String,
+      accessToken: json['accessToken'] as String,
+      userName: json['userName'] as String,
+      primaryImageTag: json['primaryImageTag'] as String?,
+      serverId: json['serverId'] as String?,
+      serverName: json['serverName'] as String?,
+      lastUsedAt: json['lastUsedAt'] != null
+          ? DateTime.tryParse(json['lastUsedAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'serverUrl': serverUrl,
+      'userId': userId,
+      'accessToken': accessToken,
+      'userName': userName,
+      'primaryImageTag': primaryImageTag,
+      'serverId': serverId,
+      'serverName': serverName,
+      'lastUsedAt': lastUsedAt?.toIso8601String(),
+    };
+  }
+
+  SavedProfile copyWith({
+    String? serverUrl,
+    String? userId,
+    String? accessToken,
+    String? userName,
+    String? primaryImageTag,
+    String? serverId,
+    String? serverName,
+    DateTime? lastUsedAt,
+  }) {
+    return SavedProfile(
+      serverUrl: serverUrl ?? this.serverUrl,
+      userId: userId ?? this.userId,
+      accessToken: accessToken ?? this.accessToken,
+      userName: userName ?? this.userName,
+      primaryImageTag: primaryImageTag ?? this.primaryImageTag,
+      serverId: serverId ?? this.serverId,
+      serverName: serverName ?? this.serverName,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+    );
+  }
+}
+
 /// Service for handling authentication and session management
 class AuthService {
   static const _boxName = 'auth';
@@ -9,6 +95,7 @@ class AuthService {
   static const _keyCurrentUser = 'current_user';
   static const _keyAccessToken = 'access_token';
   static const _keyServers = 'servers';
+  static const _keySavedProfiles = 'saved_profiles';
 
   Box? _authBox;
   bool _initialized = false;
@@ -21,6 +108,39 @@ class AuthService {
     if (_initialized) return;
     _authBox = await Hive.openBox(_boxName);
     _initialized = true;
+    await _migrateToSavedProfilesIfNeeded();
+  }
+
+  /// Migrate existing single session to saved_profiles so existing users keep one profile
+  Future<void> _migrateToSavedProfilesIfNeeded() async {
+    final data = _authBox?.get(_keySavedProfiles) as List<dynamic>?;
+    if (data != null && data.isNotEmpty) return; // Already migrated
+    final serverUrl = _authBox?.get(_keyCurrentServer) as String?;
+    final userId = _authBox?.get(_keyCurrentUser) as String?;
+    final token = _authBox?.get(_keyAccessToken) as String?;
+    if (serverUrl == null || userId == null || token == null) return;
+    final servers = savedServers;
+    SavedServer? match;
+    for (final s in servers) {
+      if (s.url == serverUrl) {
+        match = s;
+        break;
+      }
+    }
+    final userName = match?.lastUserName ?? 'User';
+    final profile = SavedProfile(
+      serverUrl: serverUrl,
+      userId: userId,
+      accessToken: token,
+      userName: userName,
+      serverId: match?.serverId,
+      serverName: match?.name,
+      lastUsedAt: DateTime.now(),
+    );
+    await _authBox!.put(
+      _keySavedProfiles,
+      [profile.toJson()],
+    );
   }
 
   /// Check if user is logged in
@@ -51,6 +171,15 @@ class AuthService {
     if (data == null) return [];
     return data
         .map((e) => SavedServer.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
+
+  /// Get saved profiles (multiple Jellyfin accounts)
+  List<SavedProfile> get savedProfiles {
+    final data = _authBox?.get(_keySavedProfiles) as List<dynamic>?;
+    if (data == null) return [];
+    return data
+        .map((e) => SavedProfile.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -146,7 +275,7 @@ class AuthService {
     }
   }
 
-  /// Save session data
+  /// Save session data and add/update profile
   Future<void> _saveSession(AuthenticationResult result) async {
     await _authBox!.put(_keyCurrentServer, result.serverUrl);
     await _authBox!.put(_keyCurrentUser, result.user.id);
@@ -161,6 +290,29 @@ class AuthService {
       lastUserName: result.user.name,
     );
     await addServer(server);
+
+    // Add or update saved profile
+    final profile = SavedProfile(
+      serverUrl: result.serverUrl,
+      userId: result.user.id,
+      accessToken: result.accessToken,
+      userName: result.user.name,
+      primaryImageTag: result.user.primaryImageTag,
+      serverId: result.serverId,
+      serverName: result.user.serverName ?? 'Jellyfin',
+      lastUsedAt: DateTime.now(),
+    );
+    final profiles = savedProfiles;
+    final index = profiles.indexWhere((p) => p.isSameProfile(profile));
+    if (index >= 0) {
+      profiles[index] = profile;
+    } else {
+      profiles.add(profile);
+    }
+    await _authBox!.put(
+      _keySavedProfiles,
+      profiles.map((p) => p.toJson()).toList(),
+    );
   }
 
   /// Clear current session
@@ -178,6 +330,50 @@ class AuthService {
       // Ignore errors during logout
     }
     await clearSession();
+  }
+
+  /// Set active session from a saved profile (no API logout)
+  Future<void> setActiveProfile(SavedProfile profile) async {
+    _api.setServerUrl(profile.serverUrl);
+    _api.setCredentials(
+      accessToken: profile.accessToken,
+      userId: profile.userId,
+    );
+    await _authBox!.put(_keyCurrentServer, profile.serverUrl);
+    await _authBox!.put(_keyCurrentUser, profile.userId);
+    await _authBox!.put(_keyAccessToken, profile.accessToken);
+    // Update lastUsedAt for this profile
+    final profiles = savedProfiles;
+    final index = profiles.indexWhere((p) => p.isSameProfile(profile));
+    if (index >= 0) {
+      profiles[index] = profile.copyWith(lastUsedAt: DateTime.now());
+      await _authBox!.put(
+        _keySavedProfiles,
+        profiles.map((p) => p.toJson()).toList(),
+      );
+    }
+  }
+
+  /// Remove a profile from saved list. If it was current, clear session only (no API logout).
+  Future<void> removeProfile(SavedProfile profile) async {
+    final profiles = savedProfiles;
+    final wasCurrent = currentUserId == profile.userId &&
+        currentServerUrl == profile.serverUrl;
+    profiles.removeWhere((p) => p.isSameProfile(profile));
+    await _authBox!.put(
+      _keySavedProfiles,
+      profiles.map((p) => p.toJson()).toList(),
+    );
+    if (wasCurrent) {
+      await clearSession();
+    }
+  }
+
+  /// Clear current session only (for 2+ profiles launch: show Who's watching with no active session)
+  Future<void> clearCurrentSessionOnly() async {
+    await _authBox?.delete(_keyCurrentUser);
+    await _authBox?.delete(_keyAccessToken);
+    _api.clearCredentials();
   }
 
   /// Switch to a different user on the same server

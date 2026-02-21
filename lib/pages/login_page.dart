@@ -9,7 +9,10 @@ import '../widgets/glass_container.dart';
 
 /// Adaptive login page for TV, Mobile, and Desktop
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+  /// When true, after successful login navigate back to Who's watching (Add profile flow).
+  final bool fromAddProfile;
+
+  const LoginPage({super.key, this.fromAddProfile = false});
 
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
@@ -82,11 +85,16 @@ class _LoginPageState extends ConsumerState<LoginPage>
             password: _passwordController.text,
           );
 
-      if (!success && mounted) {
-        final authState = ref.read(authProvider);
-        setState(() {
-          _error = authState.errorMessage ?? 'Login failed. Please check your credentials and try again.';
-        });
+      if (mounted) {
+        if (!success) {
+          final authState = ref.read(authProvider);
+          setState(() {
+            _error = authState.errorMessage ?? 'Login failed. Please check your credentials and try again.';
+          });
+        } else if (widget.fromAddProfile) {
+          await ref.read(authProvider.notifier).clearCurrentSessionForProfilePicker();
+          if (mounted) Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       if (mounted) {

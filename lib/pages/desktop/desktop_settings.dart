@@ -7,8 +7,10 @@ import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/platform_detector.dart';
+import '../../core/api/auth_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
+import '../whos_watching_page.dart';
 
 class DesktopSettings extends ConsumerStatefulWidget {
   const DesktopSettings({super.key});
@@ -149,28 +151,53 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
               },
             ),
           ),
-          // Logout button with refined styling
+          // Switch profile and Sign out
           Padding(
             padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ref.read(authProvider.notifier).logout();
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.logout_rounded, size: 20),
-                label: const Text('Sign Out'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error.withValues(alpha: 0.12),
-                  foregroundColor: AppColors.error,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const WhosWatchingPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.swap_horiz_rounded, size: 20),
+                    label: const Text('Switch profile'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      side: BorderSide(color: AppColors.divider),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showSignOutDialog(context),
+                    icon: const Icon(Icons.logout_rounded, size: 20),
+                    label: const Text('Sign out'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error.withValues(alpha: 0.12),
+                      foregroundColor: AppColors.error,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -917,6 +944,50 @@ class _DesktopSettingsState extends ConsumerState<DesktopSettings> {
           onChanged: onChanged,
         ),
       ],
+    );
+  }
+
+  void _showSignOutDialog(BuildContext context) {
+    final profiles = ref.read(savedProfilesProvider);
+    final user = ref.read(currentUserProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl;
+    if (user == null || serverUrl == null) return;
+    SavedProfile? currentProfile;
+    for (final p in profiles) {
+      if (p.userId == user.id && p.serverUrl == serverUrl) {
+        currentProfile = p;
+        break;
+      }
+    }
+    if (currentProfile == null) {
+      ref.read(authProvider.notifier).logout();
+      Navigator.pop(context);
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text('Sign out'),
+        content: const Text(
+          'Sign out and remove this profile from this device? You can add it again later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+              await ref.read(authProvider.notifier).removeProfile(currentProfile!);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
     );
   }
 

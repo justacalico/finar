@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/api/auth_service.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/utils/platform_detector.dart';
 import '../../providers/providers.dart';
+import '../whos_watching_page.dart';
 
 class MobileSettings extends ConsumerStatefulWidget {
   const MobileSettings({super.key});
@@ -87,6 +89,13 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
           _buildSectionHeader('Network'),
           const SizedBox(height: 10),
           _buildNetworkCard(settings),
+
+          const SizedBox(height: 28),
+
+          // Account Section
+          _buildSectionHeader('Account'),
+          const SizedBox(height: 10),
+          _buildAccountCard(),
 
           const SizedBox(height: 28),
 
@@ -447,6 +456,91 @@ class _MobileSettingsState extends ConsumerState<MobileSettings> {
             value: settings.cacheImages,
             onChanged: (v) =>
                 ref.read(settingsProvider.notifier).setCacheImages(v),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.swap_horiz_rounded, color: AppColors.primary),
+            title: const Text('Switch profile'),
+            subtitle: Text(
+              'Choose a different account',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded, size: 22),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const WhosWatchingPage(),
+                ),
+              );
+            },
+          ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          ListTile(
+            leading: Icon(Icons.logout_rounded, color: AppColors.error),
+            title: Text(
+              'Sign out',
+              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error),
+            ),
+            subtitle: Text(
+              'Remove this profile from device',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            ),
+            onTap: () => _showSignOutDialog(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSignOutDialog() {
+    final profiles = ref.read(savedProfilesProvider);
+    final user = ref.read(currentUserProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl;
+    if (user == null || serverUrl == null) return;
+    SavedProfile? currentProfile;
+    for (final p in profiles) {
+      if (p.userId == user.id && p.serverUrl == serverUrl) {
+        currentProfile = p;
+        break;
+      }
+    }
+    if (currentProfile == null) {
+      ref.read(authProvider.notifier).logout();
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Sign out'),
+        content: const Text(
+          'Sign out and remove this profile from this device? You can add it again later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(authProvider.notifier).removeProfile(currentProfile!);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Sign out'),
           ),
         ],
       ),

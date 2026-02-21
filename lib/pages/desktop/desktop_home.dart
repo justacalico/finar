@@ -7,12 +7,14 @@ import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/api/models/library.dart';
 import '../../core/api/models/media_item.dart';
+import '../../core/api/auth_service.dart';
 import '../../core/api/models/user.dart';
 import '../../core/api/media_service.dart';
 import '../../core/services/controller_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
 import '../adaptive_pages.dart';
+import '../whos_watching_page.dart';
 import 'desktop_library.dart';
 import 'desktop_music_library.dart';
 import 'desktop_downloads.dart';
@@ -733,8 +735,23 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
             ),
           ),
           IconButton(
+            icon: const Icon(Icons.swap_horiz_rounded, size: 20),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const WhosWatchingPage(),
+                ),
+              );
+            },
+            tooltip: 'Switch profile',
+            style: IconButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              backgroundColor: AppColors.glassWhite,
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout_rounded, size: 20),
-            onPressed: () => _showLogoutDialog(),
+            onPressed: () => _showSignOutDialog(),
             tooltip: 'Sign out',
             style: IconButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
@@ -1634,23 +1651,40 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
     }
   }
 
-  void _showLogoutDialog() {
+  void _showSignOutDialog() {
+    final profiles = ref.read(savedProfilesProvider);
+    final user = ref.read(currentUserProvider);
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl;
+    if (user == null || serverUrl == null) return;
+    SavedProfile? currentProfile;
+    for (final p in profiles) {
+      if (p.userId == user.id && p.serverUrl == serverUrl) {
+        currentProfile = p;
+        break;
+      }
+    }
+    if (currentProfile == null) {
+      ref.read(authProvider.notifier).logout();
+      return;
+    }
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign out'),
+        content: const Text(
+          'Sign out and remove this profile from this device? You can add it again later.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authProvider.notifier).logout();
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(authProvider.notifier).removeProfile(currentProfile!);
             },
-            child: const Text('Logout'),
+            child: const Text('Sign out'),
           ),
         ],
       ),

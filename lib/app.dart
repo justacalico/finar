@@ -10,6 +10,7 @@ import 'core/services/controller_service.dart';
 import 'providers/providers.dart';
 import 'pages/adaptive_pages.dart';
 import 'pages/login_page.dart';
+import 'pages/whos_watching_page.dart';
 
 class FinarApp extends ConsumerStatefulWidget {
   const FinarApp({super.key});
@@ -180,14 +181,18 @@ class _AppRouter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final profiles = ref.watch(savedProfilesProvider);
 
     // Show loading while checking auth
     if (authState.isLoading) {
       return const _SplashScreen();
     }
 
-    // Show login if not authenticated
+    // Not authenticated: show Who's watching if we have any saved profiles, else login
     if (!authState.isAuthenticated) {
+      if (profiles.isNotEmpty) {
+        return const WhosWatchingPage();
+      }
       return const LoginPage();
     }
 

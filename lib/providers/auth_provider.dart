@@ -86,11 +86,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authService, this._api) : super(const AuthState.initial());
 
-  /// Initialize auth state
+  /// Initialize auth state. With 2+ profiles, do not restore; show Who's watching.
   Future<void> initialize() async {
     state = const AuthState.loading();
     try {
       await _authService.init();
+      final profiles = _authService.savedProfiles;
+      if (profiles.length >= 2) {
+        await _authService.clearCurrentSessionOnly();
+        state = const AuthState.unauthenticated();
+        return;
+      }
+      if (profiles.length == 1) {
+        await _authService.setActiveProfile(profiles.first);
+      }
       final restored = await _authService.restoreSession();
       if (restored) {
         final user = await _api.getCurrentUser();
@@ -203,6 +212,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Get server URL
   String? get serverUrl => _api.serverUrl;
+
+  /// Select a saved profile and set as active session
+  Future<bool> selectProfile(SavedProfile profile) async {
+    state = const AuthState.loading();
+    try {
+      await _authService.setActiveProfile(profile);
+      final user = await _api.getCurrentUser();
+      state = AuthState.authenticated(user: user);
+      return true;
+    } catch (e) {
+      state = AuthState.error(_getErrorMessage(e));
+      return false;
+    }
+  }
+
+  /// Remove a profile from the list. If it was current, state becomes unauthenticated or another profile.
+  Future<void> removeProfile(SavedProfile profile) async {
+    await _authService.removeProfile(profile);
+    final currentUserId = _authService.currentUserId;
+    final currentServerUrl = _authService.currentServerUrl;
+    if (currentUserId == null || currentServerUrl == null) {
+      state = const AuthState.unauthenticated();
+      return;
+    }
+    try {
+      final user = await _api.getCurrentUser();
+      state = AuthState.authenticated(user: user);
+    } catch (_) {
+      state = const AuthState.unauthenticated();
+    }
+  }
+
+  /// Clear current session but keep saved profiles (e.g. after Add profile login to show Who's watching).
+  Future<void> clearCurrentSessionForProfilePicker() async {
+    await _authService.clearCurrentSessionOnly();
+    state = const AuthState.unauthenticated();
+  }
 }
 
 /// Auth state
@@ -270,4 +316,10 @@ final currentUserProvider = Provider<User?>((ref) {
 final isAuthenticatedProvider = Provider<bool>((ref) {
   final authState = ref.watch(authProvider);
   return authState.isAuthenticated;
+});
+
+/// Saved profiles (multiple Jellyfin accounts) for Who's watching
+final savedProfilesProvider = Provider<List<SavedProfile>>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  return authService.savedProfiles;
 });
