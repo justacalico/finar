@@ -1,16 +1,11 @@
-// Adaptive pages
+// Adaptive page wrappers (route names used by Navigator.push)
 export 'adaptive_pages.dart';
 
-// Desktop pages
-export 'desktop/desktop_home.dart';
-export 'desktop/desktop_library.dart';
-export 'desktop/desktop_music_library.dart';
-export 'desktop/desktop_detail.dart';
-export 'desktop/desktop_player.dart';
-
-// Mobile pages
-export 'mobile/mobile_home.dart';
-export 'mobile/mobile_library.dart';
-export 'mobile/mobile_music_library.dart';
-export 'mobile/mobile_detail.dart';
-export 'mobile/mobile_player.dart';
+// Unified cross-platform pages
+export 'detail.dart';
+export 'downloads.dart';
+export 'home.dart';
+export 'library.dart';
+export 'music_library.dart';
+export 'player.dart';
+export 'settings.dart';

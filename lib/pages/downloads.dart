@@ -10,16 +10,18 @@ import '../../core/api/models/media_item.dart';
 import '../../core/services/download_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/widgets.dart';
-import '../adaptive_pages.dart';
+import 'adaptive_pages.dart';
 
-class DesktopDownloads extends ConsumerStatefulWidget {
-  const DesktopDownloads({super.key});
+/// Cross-platform Downloads page. Used as a full page (e.g. from desktop sidebar)
+/// and as the Downloads tab content inside [Home].
+class DownloadsPage extends ConsumerStatefulWidget {
+  const DownloadsPage({super.key});
 
   @override
-  ConsumerState<DesktopDownloads> createState() => _DesktopDownloadsState();
+  ConsumerState<DownloadsPage> createState() => _DownloadsPageState();
 }
 
-class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
+class _DownloadsPageState extends ConsumerState<DownloadsPage> {
   String _selectedFilter = 'all';
   String _sortBy = 'date';
   bool _gridView = true;
@@ -557,8 +559,6 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     );
 
     try {
-      // Use playLocalFile to play directly from the file path
-      // This avoids any server lookups which would fail for items from other servers
       await ref
           .read(playerProvider.notifier)
           .playLocalFile(item, download.localPath!);
@@ -580,7 +580,6 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
     }
   }
 
-  /// Helper to get MediaType from string
   MediaType _getMediaTypeFromString(String? typeString) {
     switch (typeString?.toLowerCase()) {
       case 'movie':
@@ -630,13 +629,10 @@ class _DesktopDownloadsState extends ConsumerState<DesktopDownloads> {
   }
 
   void _retryDownload(DownloadTask download) async {
-    // Get the media item and retry download
     final mediaService = ref.read(mediaServiceProvider);
     try {
       final item = await mediaService.getItemDetails(download.itemId);
-      // Delete failed download first
       await ref.read(downloadProvider.notifier).deleteDownload(download.id);
-      // Start new download
       await ref.read(downloadProvider.notifier).downloadItem(item);
     } catch (e) {
       if (mounted) {
@@ -741,13 +737,11 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Poster image - prefer local, fall back to network
                     ClipRRect(
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       child: _buildPosterImage(download, widget.serverUrl),
                     ),
 
-                    // Progress overlay for active downloads
                     if (isActive || isPaused)
                       Positioned.fill(
                         child: Container(
@@ -805,7 +799,6 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                         ),
                       ),
 
-                    // Failed overlay
                     if (isFailed)
                       Positioned.fill(
                         child: Container(
@@ -835,7 +828,6 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                         ),
                       ),
 
-                    // Hover overlay with actions
                     if (_isHovered && isCompleted)
                       Positioned.fill(
                         child: Container(
@@ -883,7 +875,6 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                         ),
                       ),
 
-                    // Download indicator badge
                     if (isCompleted)
                       Positioned(
                         top: 8,
@@ -902,7 +893,6 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                         ),
                       ),
 
-                    // Action buttons on hover
                     if (_isHovered)
                       Positioned(
                         bottom: 8,
@@ -942,7 +932,6 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                 ),
               ),
 
-              // Title and info
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Column(
@@ -992,9 +981,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
     ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.95, 0.95));
   }
 
-  /// Build poster image - prefer local file, fall back to network
   Widget _buildPosterImage(DownloadTask download, String serverUrl) {
-    // Check if we have a local image first
     if (download.localPrimaryImagePath != null) {
       final file = File(download.localPrimaryImagePath!);
       return FutureBuilder<bool>(
@@ -1004,7 +991,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
             return Image.file(
               file,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) =>
+              errorBuilder: (_, e, st) =>
                   _buildNetworkPoster(download, serverUrl),
             );
           }
@@ -1021,8 +1008,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
         imageUrl:
             '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
         fit: BoxFit.cover,
-        placeholder: (_, _) => _buildPlaceholder(),
-        errorWidget: (_, _, _) => _buildPlaceholder(),
+        placeholder: (context, url) => _buildPlaceholder(),
+        errorWidget: (_, e, st) => _buildPlaceholder(),
       );
     }
     return _buildPlaceholder();
@@ -1146,7 +1133,6 @@ class _DownloadListItemState extends State<_DownloadListItem> {
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           child: Row(
             children: [
-              // Thumbnail - prefer local image
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 child: Stack(
@@ -1179,7 +1165,6 @@ class _DownloadListItemState extends State<_DownloadListItem> {
 
               const SizedBox(width: 16),
 
-              // Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1224,7 +1209,6 @@ class _DownloadListItemState extends State<_DownloadListItem> {
 
               const SizedBox(width: 16),
 
-              // Actions
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1403,7 +1387,6 @@ class _DownloadListItemState extends State<_DownloadListItem> {
   }
 
   Widget _buildListPosterImage(DownloadTask download, String serverUrl) {
-    // Check for local primary image first
     final localPrimaryPath = download.localPrimaryImagePath;
     if (localPrimaryPath != null && localPrimaryPath.isNotEmpty) {
       final localFile = File(localPrimaryPath);
@@ -1411,7 +1394,7 @@ class _DownloadListItemState extends State<_DownloadListItem> {
         return Image.file(
           localFile,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
+          errorBuilder: (context, e, st) =>
               _buildNetworkImage(download, serverUrl),
         );
       }

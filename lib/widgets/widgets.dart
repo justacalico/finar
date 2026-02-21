@@ -1,3 +1,4 @@
+export 'adaptive_layout.dart';
 export 'glass_container.dart';
 export 'blur_backdrop.dart';
 export 'animated_card.dart';
