@@ -318,8 +318,11 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
   return authState.isAuthenticated;
 });
 
-/// Saved profiles (multiple Jellyfin accounts) for Who's watching
+/// Saved profiles (multiple Jellyfin accounts) for Who's watching.
+/// Depends on authProvider so the list is recomputed after init (avoids showing
+/// empty list when opening Who's watching from Switch profile).
 final savedProfilesProvider = Provider<List<SavedProfile>>((ref) {
+  ref.watch(authProvider);
   final authService = ref.watch(authServiceProvider);
   return authService.savedProfiles;
 });
