@@ -174,13 +174,48 @@ class AuthService {
         .toList();
   }
 
-  /// Get saved profiles (multiple Jellyfin accounts)
+  /// Get saved profiles (multiple Jellyfin accounts).
+  /// If list is empty but current session exists, syncs current session into saved_profiles (recovery).
   List<SavedProfile> get savedProfiles {
     final data = _authBox?.get(_keySavedProfiles) as List<dynamic>?;
-    if (data == null) return [];
-    return data
-        .map((e) => SavedProfile.fromJson(Map<String, dynamic>.from(e as Map)))
-        .toList();
+    List<SavedProfile> profiles = [];
+    if (data != null && data.isNotEmpty) {
+      profiles = data
+          .map((e) => SavedProfile.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    }
+    if (profiles.isEmpty &&
+        currentServerUrl != null &&
+        currentUserId != null &&
+        accessToken != null &&
+        _authBox != null) {
+      final serverUrl = currentServerUrl!;
+      final userId = currentUserId!;
+      final token = accessToken!;
+      SavedServer? match;
+      for (final s in savedServers) {
+        if (s.url == serverUrl) {
+          match = s;
+          break;
+        }
+      }
+      final userName = match?.lastUserName ?? 'User';
+      final profile = SavedProfile(
+        serverUrl: serverUrl,
+        userId: userId,
+        accessToken: token,
+        userName: userName,
+        serverId: match?.serverId,
+        serverName: match?.name,
+        lastUsedAt: DateTime.now(),
+      );
+      profiles = [profile];
+      _authBox!.put(
+        _keySavedProfiles,
+        profiles.map((p) => p.toJson()).toList(),
+      );
+    }
+    return profiles;
   }
 
   /// Add a new server

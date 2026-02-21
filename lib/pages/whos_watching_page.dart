@@ -47,41 +47,50 @@ class WhosWatchingPage extends ConsumerWidget {
                       const spacing = 24.0;
                       final count = profiles.length + 1; // +1 for Add profile
                       final totalWidth = count * cardSize + (count - 1) * spacing;
-                      final wrap = constraints.maxWidth < totalWidth;
-                      return wrap
-                          ? Wrap(
-                              alignment: WrapAlignment.center,
-                              spacing: spacing,
-                              runSpacing: spacing,
-                              children: [
-                                ...profiles.map((p) => _ProfileCard(
-                                      profile: p,
-                                      size: cardSize,
-                                      onTap: () => _selectProfile(context, ref, p),
-                                    )),
-                                _AddProfileCard(
+                      final useWrap = constraints.maxWidth.isFinite &&
+                          constraints.maxWidth < totalWidth;
+                      final children = [
+                        ...profiles.map((p) => _ProfileCard(
+                              profile: p,
+                              size: cardSize,
+                              onTap: () => _selectProfile(context, ref, p),
+                            )),
+                        _AddProfileCard(
+                          size: cardSize,
+                          onTap: () => _openAddProfile(context),
+                        ),
+                      ];
+                      if (useWrap) {
+                        return Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: spacing,
+                          runSpacing: spacing,
+                          children: children,
+                        );
+                      }
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < profiles.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(right: spacing),
+                                child: _ProfileCard(
+                                  profile: profiles[i],
                                   size: cardSize,
-                                  onTap: () => _openAddProfile(context),
+                                  onTap: () =>
+                                      _selectProfile(context, ref, profiles[i]),
                                 ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ...profiles.map((p) => Padding(
-                                      padding: const EdgeInsets.only(right: spacing),
-                                      child: _ProfileCard(
-                                        profile: p,
-                                        size: cardSize,
-                                        onTap: () => _selectProfile(context, ref, p),
-                                      ),
-                                    )),
-                                _AddProfileCard(
-                                  size: cardSize,
-                                  onTap: () => _openAddProfile(context),
-                                ),
-                              ],
-                            );
+                              ),
+                            _AddProfileCard(
+                              size: cardSize,
+                              onTap: () => _openAddProfile(context),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   ),
                 if (profiles.isNotEmpty) ...[
