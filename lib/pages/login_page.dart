@@ -659,7 +659,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
           blur: AppTheme.blurMedium,
           color: AppColors.surface,
           opacity: 0.95,
-          gradient: null,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.surface, AppColors.surface],
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -821,7 +825,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
