@@ -243,9 +243,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       policy: OrderedTraversalPolicy(),
                       child: homeData.when(
                         data: (data) => _buildContent(data),
-                        loading: () => const Center(
+                        loading: () => Center(
                           child: CircularProgressIndicator(
-                            color: AppColors.primary,
+                            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                           ),
                         ),
                         error: (error, stack) => _buildError(error.toString()),
@@ -373,11 +373,18 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppColors.primarySoftGradient,
+                        gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                        ],
+                      ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -551,16 +558,16 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.12)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
                   : isFocused
                   ? AppColors.glassActive
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: isFocused
-                  ? Border.all(color: AppColors.primary, width: 2)
+                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                   : isSelected
                   ? Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       width: 1,
                     )
                   : null,
@@ -571,7 +578,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   isSelected ? activeIcon : icon,
                   size: 22,
                   color: isSelected || isFocused
-                      ? AppColors.primary
+                      ? Theme.of(context).colorScheme.primary
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 14),
@@ -616,19 +623,19 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.12)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
                   : isFocused
                   ? AppColors.glassActive
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: isFocused
                   ? Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                       width: 2,
                     )
                   : isSelected
                   ? Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       width: 1,
                     )
                   : null,
@@ -639,7 +646,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   icon,
                   size: 22,
                   color: isSelected
-                      ? AppColors.primary
+                      ? Theme.of(context).colorScheme.primary
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 14),
@@ -793,7 +800,14 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        gradient: AppColors.primarySoftGradient,
+        gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                        ],
+                      ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
@@ -983,7 +997,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 TextButton(
                   onPressed: () => _showExpandedCategory(title, items),
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary,
+                    foregroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -995,7 +1009,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       Text(
                         'See All',
                         style: AppTextStyles.labelLarge.copyWith(
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1098,7 +1112,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
               onChanged: (value) {
@@ -1116,8 +1130,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
           // Results
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
+                ? Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                    ),
                   )
                 : searchResults.isEmpty
                 ? _buildEmptySearch()
@@ -1236,7 +1252,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 children: [
                   Icon(
                     _getCategoryIcon(category),
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 22,
                   ),
                   const SizedBox(width: 10),
@@ -1253,13 +1269,13 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '${items.length}',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1275,15 +1291,15 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                           Text(
                             'See All',
                             style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(
+                          Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -1348,7 +1364,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               const SizedBox(width: 8),
               Icon(
                 _getCategoryIcon(category),
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 28,
               ),
               const SizedBox(width: 12),
@@ -1360,13 +1376,13 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${items.length} items',
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1476,7 +1492,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
           // Header
           Row(
             children: [
-              const Icon(Icons.favorite, color: AppColors.primary, size: 28),
+              Icon(Icons.favorite, color: Theme.of(context).colorScheme.primary, size: 28),
               const SizedBox(width: 12),
               Text('Favorites', style: AppTextStyles.headlineLarge),
             ],
@@ -1494,8 +1510,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 final groupedItems = _groupMediaByType(items);
                 return _buildGroupedMediaGrid(groupedItems, serverUrl);
               },
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                ),
               ),
               error: (e, _) => Center(
                 child: Column(
@@ -1744,10 +1762,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               trackHeight: 4,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              activeTrackColor: AppColors.primary,
+              activeTrackColor: Theme.of(context).colorScheme.primary,
               inactiveTrackColor: AppColors.surface,
-              thumbColor: AppColors.primary,
-              overlayColor: AppColors.primary.withValues(alpha: 0.2),
+              thumbColor: Theme.of(context).colorScheme.primary,
+              overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
             ),
             child: Slider(
               value: playerState.progress.clamp(0.0, 1.0),
@@ -1847,8 +1865,8 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.primary,
-                          boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                          color: Theme.of(context).colorScheme.primary,
+                          boxShadow: AppTheme.shadowGlow(Theme.of(context).colorScheme.primary),
                         ),
                         child: IconButton(
                           icon: Icon(
@@ -2042,7 +2060,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
           _accentColor =
               paletteGenerator.vibrantColor?.color ??
               paletteGenerator.mutedColor?.color ??
-              AppColors.primary;
+              Theme.of(context).colorScheme.primary;
         });
       }
     } catch (e) {
@@ -2241,13 +2259,13 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                         center: Alignment.topCenter,
                         radius: 1.2,
                         colors: [
-                          AppColors.primary.withValues(alpha: 0.4),
-                          AppColors.primary.withValues(alpha: 0.15),
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 16,
                           spreadRadius: -2,
                         ),
@@ -2377,8 +2395,10 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
 
     // Show loading state
     if (libraryState.isLoading && libraryState.homeData == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+        ),
       );
     }
 
@@ -2417,7 +2437,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
           onRefresh: () async {
             await ref.read(libraryProvider.notifier).loadHomeData();
           },
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           child: CustomScrollView(
             slivers: [
               // App bar - refined styling
@@ -2452,7 +2472,14 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              gradient: AppColors.primarySoftGradient,
+                              gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                        ],
+                      ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(
@@ -2922,10 +2949,10 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: AppColors.primary),
+                child: Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
               ),
               const SizedBox(width: 12),
             ],
@@ -2963,15 +2990,15 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                     Text(
                       'See All',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 12,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -3198,7 +3225,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                   Icon(
                     _getLibraryIcon(library.collectionType),
                     size: 32,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -3663,9 +3690,11 @@ class _MobileLibraryBrowser extends ConsumerWidget {
             ),
           ),
           if (libraryState.isLoading && libraries.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                ),
               ),
             )
           else if (libraryState.error != null && libraries.isEmpty)
@@ -3858,7 +3887,7 @@ class _MobileDownloadsPage extends ConsumerWidget {
                   Text(
                     '${downloadState.activeDownloads.length} active',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
               ],
@@ -3988,7 +4017,7 @@ class _DownloadListTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  _buildStatusRow(),
+                  _buildStatusRow(context),
                   if (download.status == DownloadStatus.downloading ||
                       download.status == DownloadStatus.paused) ...[
                     const SizedBox(height: 8),
@@ -3998,7 +4027,7 @@ class _DownloadListTile extends StatelessWidget {
                       valueColor: AlwaysStoppedAnimation<Color>(
                         download.status == DownloadStatus.paused
                             ? AppColors.warning
-                            : AppColors.primary,
+                            : Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -4007,14 +4036,14 @@ class _DownloadListTile extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             // Actions
-            _buildActionButton(),
+            _buildActionButton(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusRow() {
+  Widget _buildStatusRow(BuildContext context) {
     IconData icon;
     Color color;
     String text;
@@ -4027,7 +4056,7 @@ class _DownloadListTile extends StatelessWidget {
         break;
       case DownloadStatus.downloading:
         icon = Icons.downloading;
-        color = AppColors.primary;
+        color = Theme.of(context).colorScheme.primary;
         text = '${(download.progress * 100).toInt()}%';
         break;
       case DownloadStatus.paused:
@@ -4112,7 +4141,7 @@ class _DownloadListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton() {
+  Widget _buildActionButton(BuildContext context) {
     switch (download.status) {
       case DownloadStatus.downloading:
         return IconButton(
@@ -4126,7 +4155,7 @@ class _DownloadListTile extends StatelessWidget {
           children: [
             IconButton(
               onPressed: onResume,
-              icon: const Icon(Icons.play_arrow, color: AppColors.primary),
+              icon: Icon(Icons.play_arrow, color: Theme.of(context).colorScheme.primary),
               tooltip: 'Resume',
             ),
             IconButton(
@@ -4170,7 +4199,7 @@ class _DownloadListTile extends StatelessWidget {
           children: [
             IconButton(
               onPressed: onResume,
-              icon: const Icon(Icons.refresh, color: AppColors.primary),
+              icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.primary),
               tooltip: 'Retry',
             ),
             IconButton(

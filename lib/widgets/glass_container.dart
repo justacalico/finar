@@ -167,7 +167,7 @@ class _GlassCardState extends State<GlassCard> {
             padding: widget.padding,
             showBorder: true,
             borderColor: _isHovered
-                ? AppColors.primary.withValues(alpha: 0.3)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                 : AppColors.glassBorder,
             shadows: _isHovered ? AppTheme.shadowMedium : null,
             onTap: widget.onTap,
@@ -241,7 +241,7 @@ class _GlassButtonState extends State<GlassButton> {
             color: widget.backgroundColor ?? AppColors.white,
             showBorder: true,
             borderColor: _isPressed
-                ? AppColors.primary.withValues(alpha: 0.5)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
                 : AppColors.glassBorder,
             child: DefaultTextStyle(
               style: TextStyle(
@@ -249,12 +249,12 @@ class _GlassButtonState extends State<GlassButton> {
                 fontWeight: FontWeight.w600,
               ),
               child: widget.isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppColors.primary,
+                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                       ),
                     )
                   : widget.child,
@@ -384,12 +384,12 @@ class _GlassIconButtonState extends State<GlassIconButton> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: _isFocused
-                  ? Border.all(color: AppColors.primary, width: 2)
+                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                   : null,
               boxShadow: _isFocused
                   ? [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                         blurRadius: 8,
                         spreadRadius: 1,
                       ),
@@ -403,7 +403,7 @@ class _GlassIconButtonState extends State<GlassIconButton> {
               opacity: isHighlighted ? widget.opacity * 2 : widget.opacity,
               borderRadius: widget.size / 2,
               color: widget.isActive
-                  ? AppColors.primary
+                  ? Theme.of(context).colorScheme.primary
                   : widget.backgroundColor ?? AppColors.white,
               showBorder: !widget.isActive && !_isFocused,
               child: Center(
@@ -411,7 +411,7 @@ class _GlassIconButtonState extends State<GlassIconButton> {
                   widget.icon,
                   size: widget.iconSize,
                   color: _isFocused
-                      ? AppColors.primary
+                      ? Theme.of(context).colorScheme.primary
                       : (widget.iconColor ??
                             (widget.isActive
                                 ? AppColors.black
@@ -456,7 +456,7 @@ class GlassNavItem extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.15)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
@@ -466,7 +466,7 @@ class GlassNavItem extends StatelessWidget {
             Icon(
               isSelected ? (activeIcon ?? icon) : icon,
               size: 24,
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
+              color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textTertiary,
             ),
             const SizedBox(height: 4),
             Text(
@@ -474,7 +474,7 @@ class GlassNavItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textTertiary,
               ),
             ),
           ],

@@ -272,7 +272,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           Positioned(
             top: -80,
             right: -80,
-            child: _buildGlowOrb(AppColors.primary.withValues(alpha: 0.2), 280),
+            child: _buildGlowOrb(Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), 280),
           ),
           Positioned(
             bottom: -120,
@@ -428,7 +428,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 Icon(
                       Icons.phonelink,
                       size: isTV ? 80 : 64,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     )
                     .animate(
                       onPlay: (controller) => controller.repeat(reverse: true),
@@ -461,14 +461,14 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     horizontal: isTV ? 48 : 32,
                     vertical: isTV ? 24 : 16,
                   ),
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: AppTheme.radiusLg,
                   child: Text(
                     _quickConnectCode ?? '------',
                     style: TextStyle(
                       fontSize: isTV ? 56 : 42,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       letterSpacing: 8,
                       fontFamily: 'monospace',
                     ),
@@ -483,7 +483,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                        valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -528,11 +528,18 @@ class _LoginPageState extends ConsumerState<LoginPage>
               width: 76 * scale,
               height: 76 * scale,
               decoration: BoxDecoration(
-                gradient: AppColors.primarySoftGradient,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(18 * scale),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.35),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
                     blurRadius: 24,
                     spreadRadius: 0,
                     offset: const Offset(0, 8),
@@ -563,10 +570,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 fontSize: 44 * scale,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -1,
-                foreground: Paint()
-                  ..shader = AppColors.primarySoftGradient.createShader(
-                    Rect.fromLTWH(0, 0, 180 * scale, 55 * scale),
-                  ),
+                color: Theme.of(context).colorScheme.primary,
               ),
             )
             .animate()
@@ -610,14 +614,14 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     width: 46,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
-                    child: Icon(feature.$1, color: AppColors.primary, size: 22),
+                    child: Icon(feature.$1, color: Theme.of(context).colorScheme.primary, size: 22),
                   ),
                   const SizedBox(width: 14),
                   Column(
@@ -864,7 +868,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(
-                color: hasFocus ? AppColors.primary : AppColors.glassBorder,
+                color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.glassBorder,
                 width: hasFocus ? 2 : 1,
               ),
               color: AppColors.surface.withValues(alpha: 0.5),
@@ -885,7 +889,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 labelText: label,
                 hintText: hint,
                 labelStyle: TextStyle(
-                  color: hasFocus ? AppColors.primary : AppColors.textSecondary,
+                  color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
                   fontSize: isTV ? 16 : 14,
                 ),
                 hintStyle: TextStyle(
@@ -894,7 +898,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 ),
                 prefixIcon: Icon(
                   icon,
-                  color: hasFocus ? AppColors.primary : AppColors.textSecondary,
+                  color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
                   size: isTV ? 28 : 24,
                 ),
                 suffixIcon: suffixIcon,
@@ -943,18 +947,27 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 child: Container(
                   height: isTV ? 64 : 56,
                   decoration: BoxDecoration(
-                    gradient: isOutlined ? null : AppColors.primaryGradient,
+                    gradient: isOutlined
+                        ? null
+                        : LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                            ],
+                          ),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     border: isOutlined
                         ? Border.all(
                             color: hasFocus
-                                ? AppColors.primary
+                                ? Theme.of(context).colorScheme.primary
                                 : AppColors.glassBorder,
                             width: hasFocus ? 2 : 1,
                           )
                         : null,
                     boxShadow: !isOutlined && hasFocus
-                        ? AppTheme.shadowGlow(AppColors.primary)
+                        ? AppTheme.shadowGlow(Theme.of(context).colorScheme.primary)
                         : null,
                   ),
                   child: Center(
@@ -965,7 +978,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(
-                                isOutlined ? AppColors.primary : Colors.white,
+                                isOutlined ? Theme.of(context).colorScheme.primary : Colors.white,
                               ),
                             ),
                           )
@@ -976,7 +989,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                 Icon(
                                   icon,
                                   color: isOutlined
-                                      ? AppColors.primary
+                                      ? Theme.of(context).colorScheme.primary
                                       : Colors.white,
                                   size: isTV ? 24 : 20,
                                 ),
@@ -989,7 +1002,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                   fontWeight: FontWeight.w600,
                                   color: isOutlined
                                       ? (hasFocus
-                                            ? AppColors.primary
+                                            ? Theme.of(context).colorScheme.primary
                                             : AppColors.textPrimary)
                                       : Colors.white,
                                 ),

@@ -126,12 +126,12 @@ class _SettingsDesktopState extends ConsumerState<_SettingsDesktop> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary.withValues(alpha: 0.12)
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                           border: isSelected
                               ? Border.all(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                                   width: 1,
                                 )
                               : null,
@@ -140,7 +140,7 @@ class _SettingsDesktopState extends ConsumerState<_SettingsDesktop> {
                           children: [
                             Icon(
                               section.$2,
-                              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                              color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
                               size: 22,
                             ),
                             const SizedBox(width: 14),
@@ -222,25 +222,25 @@ class _SettingsDesktopState extends ConsumerState<_SettingsDesktop> {
     Widget content;
     switch (_selectedSection) {
       case 0:
-        content = _SettingsContentDesktop.buildGeneral(ref, settings, _showResetConfirmation);
+        content = _SettingsContentDesktop.buildGeneral(context, ref, settings, _showResetConfirmation);
         break;
       case 1:
-        content = _SettingsContentDesktop.buildPlayback(ref, settings);
+        content = _SettingsContentDesktop.buildPlayback(context, ref, settings);
         break;
       case 2:
-        content = _SettingsContentDesktop.buildSubtitles(ref, settings);
+        content = _SettingsContentDesktop.buildSubtitles(context, ref, settings);
         break;
       case 3:
-        content = _SettingsContentDesktop.buildAudio(ref, settings);
+        content = _SettingsContentDesktop.buildAudio(context, ref, settings);
         break;
       case 4:
-        content = _SettingsContentDesktop.buildNetwork(ref, settings);
+        content = _SettingsContentDesktop.buildNetwork(context, ref, settings);
         break;
       case 5:
-        content = _SettingsContentDesktop.buildAbout(ref);
+        content = _SettingsContentDesktop.buildAbout(context, ref);
         break;
       default:
-        content = _SettingsContentDesktop.buildGeneral(ref, settings, _showResetConfirmation);
+        content = _SettingsContentDesktop.buildGeneral(context, ref, settings, _showResetConfirmation);
     }
 
     return SingleChildScrollView(
@@ -328,13 +328,14 @@ class _SettingsDesktopState extends ConsumerState<_SettingsDesktop> {
 
 // Static helpers for desktop settings content (shared structure)
 class _SettingsContentDesktop {
-  static Widget buildGeneral(WidgetRef ref, AppSettings settings, VoidCallback onReset) {
+  static Widget buildGeneral(BuildContext context, WidgetRef ref, AppSettings settings, VoidCallback onReset) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('General', 'Customize your app experience'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Interface Mode',
           icon: Icons.devices,
           children: [
@@ -343,11 +344,12 @@ class _SettingsContentDesktop {
               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            _uiModeSelector(ref, settings),
+            _uiModeSelector(context, ref, settings),
           ],
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Appearance',
           icon: Icons.palette_outlined,
           children: [
@@ -371,11 +373,12 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Use system accent',
               subtitle: 'Use device accent color when available',
               value: settings.useSystemAccent,
-              onChanged: (v) => ref.read(settingsProvider.notifier).updateSettings((s) => s.copyWith(useSystemAccent: v)),
+              onChanged: (v) => ref.read(settingsProvider.notifier).setUseSystemAccent(v),
             ),
             const Divider(color: AppColors.glassBorder),
             _dropdownTile<int>(
@@ -394,6 +397,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Enable Animations',
               subtitle: 'Show smooth transitions and effects',
@@ -402,6 +406,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Reduced Motion',
               subtitle: 'Minimize animations for accessibility',
@@ -412,6 +417,7 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Reset',
           icon: Icons.restore,
           children: [
@@ -435,7 +441,8 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget _uiModeSelector(WidgetRef ref, AppSettings settings) {
+  static Widget _uiModeSelector(BuildContext context, WidgetRef ref, AppSettings settings) {
+    final primary = Theme.of(context).colorScheme.primary;
     final modes = [
       (UiMode.auto, 'Auto', Icons.auto_awesome, _autoModeDescription()),
       (UiMode.desktop, 'Desktop', Icons.desktop_windows, 'Wide layout with sidebar navigation'),
@@ -454,11 +461,11 @@ class _SettingsContentDesktop {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.15)
+                  ? primary.withValues(alpha: 0.15)
                   : AppColors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.glassBorder,
+                color: isSelected ? primary : AppColors.glassBorder,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -469,12 +476,12 @@ class _SettingsContentDesktop {
                   children: [
                     Icon(
                       mode.$3,
-                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                      color: isSelected ? primary : AppColors.textSecondary,
                       size: 24,
                     ),
                     const Spacer(),
                     if (isSelected)
-                      const Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+                      Icon(Icons.check_circle, color: primary, size: 20),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -521,11 +528,13 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget _settingsCard({
+  static Widget _settingsCard(
+    BuildContext context, {
     required String title,
     required IconData icon,
     required List<Widget> children,
   }) {
+    final primary = Theme.of(context).colorScheme.primary;
     return GlassContainer(
       blur: AppTheme.blurLight,
       opacity: 0.05,
@@ -535,7 +544,7 @@ class _SettingsContentDesktop {
         children: [
           Row(
             children: [
-              Icon(icon, color: AppColors.primary, size: 22),
+              Icon(icon, color: primary, size: 22),
               const SizedBox(width: 12),
               Text(
                 title,
@@ -551,6 +560,7 @@ class _SettingsContentDesktop {
   }
 
   static Widget _switchTile(
+    BuildContext context,
     WidgetRef ref, {
     required String title,
     required String subtitle,
@@ -567,7 +577,7 @@ class _SettingsContentDesktop {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeThumbColor: AppColors.primary,
+        activeThumbColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -599,6 +609,7 @@ class _SettingsContentDesktop {
   }
 
   static Widget _sliderTile(
+    BuildContext context,
     WidgetRef ref, {
     required String title,
     required String subtitle,
@@ -624,7 +635,7 @@ class _SettingsContentDesktop {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: AppColors.primary,
+          activeColor: Theme.of(context).colorScheme.primary,
           inactiveColor: AppColors.glassBorder,
           onChanged: onChanged,
         ),
@@ -632,13 +643,14 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget buildPlayback(WidgetRef ref, AppSettings settings) {
+  static Widget buildPlayback(BuildContext context, WidgetRef ref, AppSettings settings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('Playback', 'Configure video playback preferences'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Quality',
           icon: Icons.high_quality,
           children: [
@@ -658,10 +670,12 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Auto Play',
           icon: Icons.play_arrow,
           children: [
             _switchTile(
+              context,
               ref,
               title: 'Auto Play Next Episode',
               subtitle: 'Automatically play the next episode when one ends',
@@ -670,6 +684,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Skip Intros',
               subtitle: 'Automatically skip intro sequences',
@@ -678,6 +693,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Skip Credits',
               subtitle: 'Automatically skip end credits',
@@ -688,10 +704,12 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Skip Duration',
           icon: Icons.fast_forward,
           children: [
             _sliderTile(
+              context,
               ref,
               title: 'Forward Skip',
               subtitle: '${settings.forwardSkipDuration} seconds',
@@ -703,6 +721,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _sliderTile(
+              context,
               ref,
               title: 'Rewind Skip',
               subtitle: '${settings.rewindSkipDuration} seconds',
@@ -716,6 +735,7 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Sleep Timer',
           icon: Icons.timer_outlined,
           children: [
@@ -739,17 +759,19 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget buildSubtitles(WidgetRef ref, AppSettings settings) {
+  static Widget buildSubtitles(BuildContext context, WidgetRef ref, AppSettings settings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('Subtitles', 'Customize subtitle appearance'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Subtitle Options',
           icon: Icons.subtitles,
           children: [
             _switchTile(
+              context,
               ref,
               title: 'Enable Subtitles',
               subtitle: 'Show subtitles when available',
@@ -773,10 +795,12 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Appearance',
           icon: Icons.text_fields,
           children: [
             _sliderTile(
+              context,
               ref,
               title: 'Subtitle Size',
               subtitle: '${(settings.subtitleSize * 100).toInt()}%',
@@ -792,13 +816,14 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget buildAudio(WidgetRef ref, AppSettings settings) {
+  static Widget buildAudio(BuildContext context, WidgetRef ref, AppSettings settings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('Audio', 'Configure audio preferences'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Audio Options',
           icon: Icons.audiotrack,
           children: [
@@ -816,6 +841,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Normalize Volume',
               subtitle: 'Maintain consistent volume levels',
@@ -828,13 +854,14 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget buildNetwork(WidgetRef ref, AppSettings settings) {
+  static Widget buildNetwork(BuildContext context, WidgetRef ref, AppSettings settings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('Network', 'Configure streaming and caching'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Streaming',
           icon: Icons.stream,
           children: [
@@ -855,6 +882,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Allow Cellular Streaming',
               subtitle: 'Stream over mobile data',
@@ -863,6 +891,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _switchTile(
+              context,
               ref,
               title: 'Preload Next Episode',
               subtitle: 'Buffer upcoming content for smooth playback',
@@ -873,10 +902,12 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Cache',
           icon: Icons.storage,
           children: [
             _switchTile(
+              context,
               ref,
               title: 'Cache Images',
               subtitle: 'Store images locally for faster loading',
@@ -885,6 +916,7 @@ class _SettingsContentDesktop {
             ),
             const Divider(color: AppColors.glassBorder),
             _sliderTile(
+              context,
               ref,
               title: 'Image Cache Size',
               subtitle: '${settings.imageCacheSize} MB',
@@ -900,13 +932,14 @@ class _SettingsContentDesktop {
     );
   }
 
-  static Widget buildAbout(WidgetRef ref) {
+  static Widget buildAbout(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader('About', 'App information'),
         const SizedBox(height: 24),
         _settingsCard(
+          context,
           title: 'Finar',
           icon: Icons.play_circle_fill,
           children: [
@@ -947,6 +980,7 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Server',
           icon: Icons.dns_outlined,
           children: [
@@ -981,12 +1015,13 @@ class _SettingsContentDesktop {
         ),
         const SizedBox(height: 16),
         _settingsCard(
+          context,
           title: 'Links',
           icon: Icons.link,
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.language, color: AppColors.primary),
+              leading: Icon(Icons.language, color: Theme.of(context).colorScheme.primary),
               title: Text('Website', style: AppTextStyles.bodyLarge),
               subtitle: Text(
                 'https://openlyst.ink/',
@@ -1010,7 +1045,7 @@ class _SettingsContentDesktop {
             const Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.primary),
+              leading: Icon(Icons.privacy_tip_outlined, color: Theme.of(context).colorScheme.primary),
               title: Text('Privacy Policy', style: AppTextStyles.bodyLarge),
               subtitle: Text(
                 'We do not collect any data',
@@ -1177,12 +1212,12 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.12)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
                   : AppColors.backgroundSecondary,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: isSelected
-                    ? AppColors.primary
+                    ? Theme.of(context).colorScheme.primary
                     : AppColors.divider.withValues(alpha: 0.5),
                 width: isSelected ? 2 : 1,
               ),
@@ -1194,13 +1229,13 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
                   height: 42,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.15)
+                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                         : AppColors.surface,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     mode.$3,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
                     size: 22,
                   ),
                 ),
@@ -1225,7 +1260,7 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
                   ),
                 ),
                 if (isSelected)
-                  const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 22),
+                  Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary, size: 22),
               ],
             ),
           ),
@@ -1355,7 +1390,7 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _switchTile('Use system accent', 'Use device accent', settings.useSystemAccent,
-              (v) => ref.read(settingsProvider.notifier).updateSettings((s) => s.copyWith(useSystemAccent: v))),
+              (v) => ref.read(settingsProvider.notifier).setUseSystemAccent(v)),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           _dropdownTile<int>(
             'Accent color',
@@ -1411,7 +1446,7 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
       child: Column(
         children: [
           ListTile(
-            leading: const Icon(Icons.swap_horiz_rounded, color: AppColors.primary),
+            leading: Icon(Icons.swap_horiz_rounded, color: Theme.of(context).colorScheme.primary),
             title: const Text('Switch profile'),
             subtitle: Text(
               'Choose a different account',
@@ -1530,7 +1565,7 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(
-            leading: const Icon(Icons.language_rounded, color: AppColors.primary),
+            leading: Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.primary),
             title: const Text('Website'),
             subtitle: Text(
               'https://openlyst.ink/',
@@ -1552,7 +1587,7 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
           ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.primary),
+            leading: Icon(Icons.privacy_tip_outlined, color: Theme.of(context).colorScheme.primary),
             title: const Text('Privacy Policy'),
             subtitle: Text(
               'We do not collect any data',
@@ -1587,8 +1622,8 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
       ),
       value: value,
       onChanged: onChanged,
-      activeThumbColor: AppColors.primary,
-      activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
+      activeThumbColor: Theme.of(context).colorScheme.primary,
+      activeTrackColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
       inactiveThumbColor: AppColors.textSecondary,
       inactiveTrackColor: AppColors.divider.withValues(alpha: 0.3),
     );

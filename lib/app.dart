@@ -190,8 +190,14 @@ class _AppRouter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settingsLoaded = ref.watch(settingsLoadedProvider);
     final authState = ref.watch(authProvider);
     final profiles = ref.watch(savedProfilesProvider);
+
+    // Show splash until settings are loaded so first frame uses stored theme/accent
+    if (settingsLoaded.isLoading || settingsLoaded.hasError) {
+      return const _SplashScreen();
+    }
 
     // Show loading while checking auth
     if (authState.isLoading) {

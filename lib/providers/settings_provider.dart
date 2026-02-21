@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -210,10 +211,17 @@ class AppSettings {
 class SettingsNotifier extends StateNotifier<AppSettings> {
   static const _prefsKey = 'app_settings';
   SharedPreferences? _prefs;
+  Completer<void>? _loadCompleter;
 
   SettingsNotifier() : super(const AppSettings()) {
-    _loadSettings();
+    _loadCompleter = Completer<void>();
+    _loadSettings().then((_) {
+      if (!_loadCompleter!.isCompleted) _loadCompleter!.complete();
+    });
   }
+
+  /// Completes when stored settings have been loaded (so first frame can use them).
+  Future<void> ensureSettingsLoaded() => _loadCompleter!.future;
 
   Future<void> _loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
@@ -322,6 +330,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     await updateSettings((s) => s.copyWith(accentColorIndex: index));
   }
 
+  Future<void> setUseSystemAccent(bool value) async {
+    await updateSettings((s) => s.copyWith(useSystemAccent: value));
+  }
+
   // Network settings
   Future<void> setMaxStreamingBitrate(int bitrate) async {
     await updateSettings((s) => s.copyWith(maxStreamingBitrate: bitrate));
@@ -359,6 +371,11 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 final settingsProvider =
     StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
   return SettingsNotifier();
+});
+
+/// Completes when settings have been loaded from disk (for correct initial theme).
+final settingsLoadedProvider = FutureProvider<void>((ref) async {
+  await ref.read(settingsProvider.notifier).ensureSettingsLoaded();
 });
 
 /// Theme mode provider

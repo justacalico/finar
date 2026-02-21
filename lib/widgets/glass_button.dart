@@ -90,12 +90,12 @@ class _GlassButtonState extends State<GlassButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.borderRadius),
             border: _isFocused
-                ? Border.all(color: AppColors.primary, width: 2)
+                ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                 : null,
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -203,12 +203,12 @@ class _GlassIconButtonState extends State<GlassIconButton> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: _isFocused
-                ? Border.all(color: AppColors.primary, width: 2)
+                ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                 : null,
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -231,7 +231,7 @@ class _GlassIconButtonState extends State<GlassIconButton> {
                 widget.icon,
                 size: widget.size * 0.5,
                 color: _isFocused
-                    ? AppColors.primary
+                    ? Theme.of(context).colorScheme.primary
                     : (widget.iconColor ?? AppColors.textPrimary),
               ),
             ),

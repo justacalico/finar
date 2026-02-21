@@ -55,7 +55,7 @@ class MobileMiniPlayer extends ConsumerWidget {
               LinearProgressIndicator(
                 value: playerState.progress,
                 backgroundColor: AppColors.surface,
-                valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                 minHeight: 2,
               ),
 
@@ -141,7 +141,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                                 : Icons.play_circle_filled,
                             size: 40,
                           ),
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           onPressed: () {
                             ref.read(playerProvider.notifier).playOrPause();
                           },
@@ -251,10 +251,10 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
               trackHeight: 4,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              activeTrackColor: AppColors.primary,
+              activeTrackColor: Theme.of(context).colorScheme.primary,
               inactiveTrackColor: AppColors.surface,
-              thumbColor: AppColors.primary,
-              overlayColor: AppColors.primary.withValues(alpha: 0.2),
+              thumbColor: Theme.of(context).colorScheme.primary,
+              overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
             ),
             child: Slider(
               value: playerState.progress.clamp(0.0, 1.0),
@@ -380,8 +380,8 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.primary,
-                          boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                          color: Theme.of(context).colorScheme.primary,
+                          boxShadow: AppTheme.shadowGlow(Theme.of(context).colorScheme.primary),
                         ),
                         child: IconButton(
                           icon: Icon(
@@ -426,7 +426,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                         ),
                         iconSize: 20,
                         color: playerState.repeatMode != RepeatMode.off
-                            ? AppColors.primary
+                            ? Theme.of(context).colorScheme.primary
                             : AppColors.textSecondary,
                         onPressed: () => ref
                             .read(playerProvider.notifier)
@@ -488,9 +488,9 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                             overlayShape: const RoundSliderOverlayShape(
                               overlayRadius: 12,
                             ),
-                            activeTrackColor: AppColors.primary,
+                            activeTrackColor: Theme.of(context).colorScheme.primary,
                             inactiveTrackColor: AppColors.surface,
-                            thumbColor: AppColors.primary,
+                            thumbColor: Theme.of(context).colorScheme.primary,
                           ),
                           child: Slider(
                             value: playerState.volume,
@@ -649,7 +649,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.primary.withValues(
+                                        color: Theme.of(context).colorScheme.primary.withValues(
                                           alpha: 0.3,
                                         ),
                                         blurRadius: 40,
@@ -757,10 +757,10 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                             overlayShape: const RoundSliderOverlayShape(
                               overlayRadius: 16,
                             ),
-                            activeTrackColor: AppColors.primary,
+                            activeTrackColor: Theme.of(context).colorScheme.primary,
                             inactiveTrackColor: AppColors.surface,
-                            thumbColor: AppColors.primary,
-                            overlayColor: AppColors.primary.withValues(
+                            thumbColor: Theme.of(context).colorScheme.primary,
+                            overlayColor: Theme.of(context).colorScheme.primary.withValues(
                               alpha: 0.2,
                             ),
                           ),
@@ -844,8 +844,15 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                           height: isCompact ? 56 : 72,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: AppColors.primaryGradient,
-                            boxShadow: AppTheme.shadowGlow(AppColors.primary),
+                            gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                            ],
+                          ),
+                            boxShadow: AppTheme.shadowGlow(Theme.of(context).colorScheme.primary),
                           ),
                           child: IconButton(
                             icon: Icon(
@@ -884,7 +891,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                           ),
                           iconSize: isCompact ? 24 : 28,
                           color: playerState.repeatMode != RepeatMode.off
-                              ? AppColors.primary
+                              ? Theme.of(context).colorScheme.primary
                               : AppColors.textSecondary,
                           onPressed: () => ref
                               .read(playerProvider.notifier)
