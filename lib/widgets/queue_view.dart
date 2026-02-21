@@ -179,10 +179,10 @@ class QueueView extends ConsumerWidget {
                         index: actualIndex,
                         isPlaying: false,
                         onTap: () {
-                          ref.read(playerProvider.notifier).playAtIndex(actualIndex);
+                          ref.read(playerProvider.notifier).playAtIndex(actualIndex.toInt());
                         },
                         onRemove: () {
-                          ref.read(playerProvider.notifier).removeFromQueue(actualIndex);
+                          ref.read(playerProvider.notifier).removeFromQueue(actualIndex.toInt());
                         },
                       );
                     },

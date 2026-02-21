@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import '../core/services/download_service.dart';
 import '../core/api/models/media_item.dart';
 import 'auth_provider.dart';

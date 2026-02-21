@@ -92,8 +92,12 @@ class _DesktopHomeState extends ConsumerState<DesktopHome> {
   }
 
   KeyEventResult _handleSidebarNavigation(ControllerAction? action) {
-    final libraries = ref.read(librariesProvider).valueOrNull ?? [];
-    final maxLibraryIndex = 4 + libraries.length - 1; // Last library item index
+    final libraries = ref.read(librariesProvider).when(
+          data: (d) => d,
+          loading: () => null,
+          error: (_, stackTrace) => null,
+        ) ?? [];
+    final int maxLibraryIndex = 4 + libraries.length - 1; // Last library item index
     const settingsIndex = 100;
 
     switch (action) {

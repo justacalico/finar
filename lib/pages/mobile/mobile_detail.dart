@@ -459,7 +459,11 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
       builder: (context) => _LiquidGlassMenu(
         item: item,
         downloadTask: downloadTask,
-        isInWatchlist: isInWatchlist.valueOrNull ?? false,
+        isInWatchlist: isInWatchlist.when(
+              data: (d) => d,
+              loading: () => null,
+              error: (_, stackTrace) => null,
+            ) ?? false,
         onFavorite: () => _toggleFavorite(item),
         onWatched: () => _toggleWatched(item),
         onWatchlist: () => _toggleWatchlist(item),
@@ -1502,7 +1506,10 @@ class _MobileDetailState extends ConsumerState<MobileDetail>
     // Add a note about Finar
     shareText.write('\n\nShared via Finar');
 
-    Share.share(shareText.toString(), subject: item.name);
+    SharePlus.instance.share(ShareParams(
+      text: shareText.toString(),
+      subject: item.name,
+    ));
   }
 }
 
