@@ -7,6 +7,17 @@ import '../core/theme/colors.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/glass_container.dart';
 
+/// Hides scrollbars on the login page scrollables.
+class _NoScrollbarScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) =>
+      child;
+}
+
 /// Adaptive login page for TV, Mobile, and Desktop
 class LoginPage extends ConsumerStatefulWidget {
   /// When true, after successful login navigate back to Who's watching (Add profile flow).
@@ -304,15 +315,18 @@ class _LoginPageState extends ConsumerState<LoginPage>
   // ==================== MOBILE LAYOUT ====================
   Widget _buildMobileLayout() {
     return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      child: ScrollConfiguration(
+        behavior: _NoScrollbarScrollBehavior(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildLogo(scale: 1.0),
             const SizedBox(height: 48),
             _buildLoginForm(maxWidth: 400),
           ],
+          ),
         ),
       ),
     );
@@ -345,9 +359,12 @@ class _LoginPageState extends ConsumerState<LoginPage>
         Expanded(
           flex: 4,
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(48),
-              child: _buildLoginForm(maxWidth: 420),
+            child: ScrollConfiguration(
+              behavior: _NoScrollbarScrollBehavior(),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(48),
+                child: _buildLoginForm(maxWidth: 420),
+              ),
             ),
           ),
         ),
@@ -360,9 +377,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
     return Focus(
       autofocus: true,
       child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 48),
-          child: Row(
+        child: ScrollConfiguration(
+          behavior: _NoScrollbarScrollBehavior(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 48),
+            child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -391,6 +410,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               Expanded(child: _buildLoginForm(maxWidth: 500, isTV: true)),
             ],
           ),
+        ),
         ),
       ),
     );
