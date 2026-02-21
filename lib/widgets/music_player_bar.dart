@@ -5,6 +5,7 @@ import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
 import '../core/api/models/media_item.dart';
+import '../providers/player_provider.dart' as finar;
 import '../providers/providers.dart';
 import 'glass_container.dart';
 import 'queue_view.dart';
@@ -420,12 +421,12 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       // Repeat
                       IconButton(
                         icon: Icon(
-                          playerState.repeatMode == RepeatMode.one
+                          playerState.repeatMode == finar.RepeatMode.one
                               ? Icons.repeat_one
                               : Icons.repeat,
                         ),
                         iconSize: 20,
-                        color: playerState.repeatMode != RepeatMode.off
+                        color: playerState.repeatMode != finar.RepeatMode.off
                             ? Theme.of(context).colorScheme.primary
                             : AppColors.textSecondary,
                         onPressed: () => ref
@@ -433,11 +434,11 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                             .cycleRepeatMode(),
                         tooltip: () {
                           switch (playerState.repeatMode) {
-                            case RepeatMode.off:
+                            case finar.RepeatMode.off:
                               return 'Repeat off';
-                            case RepeatMode.one:
+                            case finar.RepeatMode.one:
                               return 'Repeat one';
-                            case RepeatMode.all:
+                            case finar.RepeatMode.all:
                               return 'Repeat all';
                           }
                         }(),
@@ -885,12 +886,12 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                         // Repeat
                         IconButton(
                           icon: Icon(
-                            playerState.repeatMode == RepeatMode.one
+                            playerState.repeatMode == finar.RepeatMode.one
                                 ? Icons.repeat_one
                                 : Icons.repeat,
                           ),
                           iconSize: isCompact ? 24 : 28,
-                          color: playerState.repeatMode != RepeatMode.off
+                          color: playerState.repeatMode != finar.RepeatMode.off
                               ? Theme.of(context).colorScheme.primary
                               : AppColors.textSecondary,
                           onPressed: () => ref
