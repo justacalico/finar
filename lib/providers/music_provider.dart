@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/media_service.dart';
 import '../core/api/models/media_item.dart';
 import 'library_provider.dart';

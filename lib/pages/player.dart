@@ -1022,8 +1022,8 @@ class _SleepTimerOverlayState extends ConsumerState<_SleepTimerOverlay> {
   Widget build(BuildContext context) {
     ref.watch(playerProvider);
     ref.watch(settingsProvider);
-    ref.listen(playerProvider, (_, __) => _syncSleepTimer());
-    ref.listen(settingsProvider, (_, __) => _syncSleepTimer());
+    ref.listen(playerProvider, (_, _) => _syncSleepTimer());
+    ref.listen(settingsProvider, (_, _) => _syncSleepTimer());
 
     final playerState = ref.read(playerProvider);
     final settings = ref.read(settingsProvider);

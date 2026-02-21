@@ -859,6 +859,14 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     }
   }
 
+  /// For albums use album art (primary image); for other types use backdrop.
+  String _heroImageUrl(MediaItem item, String serverUrl) {
+    if (item.type == MediaType.album) {
+      return item.getPrimaryImageUrl(serverUrl, width: 1920);
+    }
+    return item.getBackdropUrl(serverUrl, width: 1920);
+  }
+
   Widget _buildHomeContent(HomeData data) {
     return CustomScrollView(
       slivers: [
@@ -866,9 +874,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
         SliverToBoxAdapter(
           child: data.recentlyAdded.isNotEmpty
               ? HeroCard(
-                  imageUrl: data.recentlyAdded.first.getBackdropUrl(
+                  imageUrl: _heroImageUrl(
+                    data.recentlyAdded.first,
                     ref.read(jellyfinApiProvider).serverUrl ?? '',
-                    width: 1920,
                   ),
                   title: data.recentlyAdded.first.heroTitle,
                   subtitle: data.recentlyAdded.first.typeString,

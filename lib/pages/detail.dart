@@ -241,13 +241,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
   }
 
   Widget _buildBackground(MediaItem item, String serverUrl) {
+    final imageUrl = item.type == MediaType.album
+        ? item.getPrimaryImageUrl(serverUrl, width: 1920)
+        : item.getBackdropImageUrl(serverUrl, width: 1920);
     return Positioned.fill(
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Backdrop image
+          // Backdrop image (album art for albums)
           Image.network(
-            item.getBackdropImageUrl(serverUrl, width: 1920),
+            imageUrl,
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => Container(color: AppColors.background),
           ),
@@ -1711,10 +1714,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
       shareText.write('\n🎬 ${item.genres!.take(3).join(', ')}');
     }
     shareText.write('\n\nShared via Finar');
-    SharePlus.instance.share(ShareParams(
-      text: shareText.toString(),
-      subject: item.name,
-    ));
+    Share.share(shareText.toString(), subject: item.name);
   }
 
   void _showMediaInfoDialog(MediaItem item) {
@@ -1730,11 +1730,11 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             children: [
               if (item.productionYear != null)
                 Text('Year: ${item.productionYear}', style: AppTextStyles.bodyMedium),
-              if (item.formattedRuntime != null) ...[
-                const SizedBox(height: 8),
-                Text('Runtime: ${item.formattedRuntime}', style: AppTextStyles.bodyMedium),
-              ],
-              if (item.overview != null && item.overview!.isNotEmpty) ...[
+              ...[
+              const SizedBox(height: 8),
+              Text('Runtime: ${item.formattedRuntime}', style: AppTextStyles.bodyMedium),
+            ],
+              if (item.overview?.isNotEmpty == true) ...[
                 const SizedBox(height: 12),
                 Text(item.overview!, style: AppTextStyles.bodySmall),
               ],
@@ -3591,10 +3591,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
     // Add a note about Finar
     shareText.write('\n\nShared via Finar');
 
-    SharePlus.instance.share(ShareParams(
-      text: shareText.toString(),
-      subject: item.name,
-    ));
+    Share.share(shareText.toString(), subject: item.name);
   }
 }
 
