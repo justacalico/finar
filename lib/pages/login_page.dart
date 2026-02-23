@@ -220,6 +220,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final width = size.width;
     final height = size.height;
     final isLandscape = width > height;
+    final authState = ref.watch(authProvider);
+    final displayedError = _error ?? authState.errorMessage;
 
     // Size-based layout breakpoints
     // Mobile: width < 600
@@ -241,10 +243,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             child: _showQuickConnect
                 ? _buildQuickConnectView(isLargeSize)
                 : isLargeSize
-                ? _buildTVLayout()
+                ? _buildTVLayout(displayedError)
                 : isDesktopSize
-                ? _buildDesktopLayout()
-                : _buildMobileLayout(),
+                ? _buildDesktopLayout(displayedError)
+                : _buildMobileLayout(displayedError),
           ),
         ],
       ),
@@ -313,7 +315,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   // ==================== MOBILE LAYOUT ====================
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(String? displayedError) {
     return Center(
       child: ScrollConfiguration(
         behavior: _NoScrollbarScrollBehavior(),
@@ -324,7 +326,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           children: [
             _buildLogo(scale: 1.0),
             const SizedBox(height: 48),
-            _buildLoginForm(maxWidth: 400),
+            _buildLoginForm(maxWidth: 400, displayedError: displayedError),
           ],
           ),
         ),
@@ -333,7 +335,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   // ==================== DESKTOP LAYOUT ====================
-  Widget _buildDesktopLayout() {
+  Widget _buildDesktopLayout(String? displayedError) {
     return Row(
       children: [
         // Left side - Branding
@@ -363,7 +365,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               behavior: _NoScrollbarScrollBehavior(),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(48),
-                child: _buildLoginForm(maxWidth: 420),
+                child: _buildLoginForm(maxWidth: 420, displayedError: displayedError),
               ),
             ),
           ),
@@ -373,7 +375,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   // ==================== TV LAYOUT ====================
-  Widget _buildTVLayout() {
+  Widget _buildTVLayout(String? displayedError) {
     return Focus(
       autofocus: true,
       child: Center(
@@ -407,7 +409,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               const SizedBox(width: 80),
 
               // Right - Form
-              Expanded(child: _buildLoginForm(maxWidth: 500, isTV: true)),
+              Expanded(child: _buildLoginForm(maxWidth: 500, isTV: true, displayedError: displayedError)),
             ],
           ),
         ),
@@ -655,7 +657,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     );
   }
 
-  Widget _buildLoginForm({required double maxWidth, bool isTV = false}) {
+  Widget _buildLoginForm({required double maxWidth, bool isTV = false, String? displayedError}) {
     return GlassContainer(
           width: maxWidth,
           padding: EdgeInsets.all(isTV ? 40 : 32),
@@ -768,7 +770,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 SizedBox(height: isTV ? 16 : 12),
 
                 // Error message
-                if (_error != null)
+                if (displayedError != null)
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -788,7 +790,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _error!,
+                            displayedError,
                             style: TextStyle(
                               color: AppColors.error,
                               fontSize: isTV ? 16 : 14,
