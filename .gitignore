@@ -50,3 +50,5 @@ android/key.properties
 android/app/keystore/
 *.jks
 *.keystore
+
+/.vscode/
