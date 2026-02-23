@@ -86,7 +86,7 @@ class _DetailSimilarSection extends ConsumerWidget {
                   vertical: isDesktop ? 8 : 0,
                 ),
                 itemCount: items.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     SizedBox(width: isDesktop ? 16 : 12),
                 itemBuilder: (context, index) {
                   final item = items[index];
@@ -113,7 +113,7 @@ class _DetailSimilarSection extends ConsumerWidget {
               loading: () => isDesktop
                   ? const _LoadingShimmer(height: 280)
                   : const ShimmerLoading(height: 200),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
           ),
         ],
