@@ -17,6 +17,19 @@ Finar is a Jellyfin client built with Flutter.
 - Local persistence and cache with Hive/shared preferences
 - Designed for media browsing with gamepad/remote-friendly input support
 
+
+## Contributing
+
+Pull requests are welcome. 
+
+## AI Contributing
+If you use AI please
+
+- Prompt over MR | If you are gonna vibecode a feature submit a new Issue with the prompt you want instead then a mearge request. However mearge requests are still allowed.
+
+- DO TESTING | We dont want vibe coded untested grabage. If you use AI test, test, and test.
+- Mark it | Please mark that it is AI code it wont be declinaed but we will need to do more testing.
+
 ## Requirements
 
 - Flutter SDK `^3.10.3`
@@ -38,33 +51,6 @@ If you are actively working on models/adapters, run this in a second terminal:
 dart run build_runner watch --delete-conflicting-outputs
 ```
 
-## Project Structure
-
-```text
-lib/
-├── main.dart
-├── app.dart
-├── core/
-│   ├── api/
-│   ├── services/
-│   ├── theme/
-│   └── utils/
-├── pages/
-│   ├── desktop/
-│   └── mobile/
-├── providers/
-└── widgets/
-```
-
-## Tech Stack
-
-- Flutter + Dart
-- Riverpod
-- media_kit
-- Dio/http
-- Hive + shared_preferences
-- flutter_animate + glassmorphism
-
 ## Build Releases
 
 ```bash
@@ -75,10 +61,6 @@ flutter build windows --release
 flutter build linux --release
 flutter build web --release
 ```
-
-## Contributing
-
-Pull requests are welcome.
 
 ## License
 
