@@ -2402,6 +2402,19 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
     );
   }
 
+  /// Scale factor for the main content header (1.0 at 600px width, up to ~1.35 on large screens).
+  static double _headerScaleFactor(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    if (w <= 600) return 1.0;
+    return 1.0 + ((w - 600) / 1200).clamp(0.0, 1.0) * 0.35;
+  }
+
+  static double _scale(BuildContext context, double base) =>
+      base * _headerScaleFactor(context);
+
+  static double _desktopHeaderToolbarHeight(BuildContext context) =>
+      64 * _headerScaleFactor(context);
+
   Widget _buildHomePage() {
     final libraryState = ref.watch(libraryProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
@@ -2453,26 +2466,26 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
           color: Theme.of(context).colorScheme.primary,
           child: CustomScrollView(
             slivers: [
-              // App bar - refined styling
+              // App bar - scaled for desktop (larger on big screens)
               SliverAppBar(
                 floating: true,
                 pinned: false,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                toolbarHeight: 64,
+                toolbarHeight: _desktopHeaderToolbarHeight(context),
                 title: Row(
                   children: [
                     // Logo with refined styling
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _scale(context, 14),
+                        vertical: _scale(context, 8),
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.backgroundSecondary.withValues(
                           alpha: 0.7,
                         ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(_scale(context, 16)),
                         border: Border.all(
                           color: AppColors.divider.withValues(alpha: 0.3),
                           width: 1,
@@ -2482,31 +2495,32 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 28,
-                            height: 28,
+                            width: _scale(context, 28),
+                            height: _scale(context, 28),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
-                        ],
-                      ),
-                              borderRadius: BorderRadius.circular(8),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Theme.of(context).colorScheme.primary,
+                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(_scale(context, 8)),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.play_circle_fill_rounded,
                               color: AppColors.textOnPrimary,
-                              size: 18,
+                              size: _scale(context, 18),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: _scale(context, 10)),
                           Text(
                             'Finar',
                             style: AppTextStyles.titleMedium.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w700,
+                              fontSize: _scale(context, 16),
                             ),
                           ),
                         ],
@@ -2519,14 +2533,14 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                         color: AppColors.backgroundSecondary.withValues(
                           alpha: 0.7,
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(_scale(context, 12)),
                         border: Border.all(
                           color: AppColors.divider.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.settings_outlined, size: 22),
+                        icon: Icon(Icons.settings_outlined, size: _scale(context, 22)),
                         onPressed: () {
                           Navigator.push(
                             context,
