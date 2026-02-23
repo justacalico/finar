@@ -225,8 +225,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         previousProfile = null;
       }
     }
-
-    state = const AuthState.loading();
+    // Do not set state = loading(); the root router would show splash and unmount WhosWatchingPage,
+    // so context.mounted becomes false and we never run the success branch (pop / navigate).
     try {
       await _authService.setActiveProfile(profile);
       final user = await _api.getCurrentUser();
