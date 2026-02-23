@@ -212,8 +212,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Get server URL
   String? get serverUrl => _api.serverUrl;
 
-  /// Select a saved profile and set as active session
+  /// Select a saved profile and set as active session.
+  /// On failure (e.g. expired token), reverts to previous session so the user is not logged out.
   Future<bool> selectProfile(SavedProfile profile) async {
+    final previousUser = state is _AuthAuthenticated ? (state as _AuthAuthenticated).user : null;
+    SavedProfile? previousProfile;
+    if (previousUser != null) {
+      try {
+        previousProfile = _authService.savedProfiles
+            .firstWhere((p) => p.userId == previousUser.id);
+      } catch (_) {
+        previousProfile = null;
+      }
+    }
+
     state = const AuthState.loading();
     try {
       await _authService.setActiveProfile(profile);
@@ -221,7 +233,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.authenticated(user: user);
       return true;
     } catch (e) {
-      state = AuthState.error(_getErrorMessage(e));
+      if (previousProfile != null) {
+        await _authService.setActiveProfile(previousProfile);
+        state = AuthState.authenticated(user: previousUser!);
+      } else {
+        state = AuthState.error(_getErrorMessage(e));
+      }
       return false;
     }
   }

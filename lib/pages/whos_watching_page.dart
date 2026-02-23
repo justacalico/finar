@@ -131,9 +131,13 @@ class WhosWatchingPage extends ConsumerWidget {
     } else {
       final message = ref.read(authProvider).errorMessage ?? 'Could not switch profile';
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(message);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
       }
     }
   }

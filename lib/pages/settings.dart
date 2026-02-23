@@ -168,13 +168,18 @@ class _SettingsDesktopState extends ConsumerState<_SettingsDesktop> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
+                      final message = await Navigator.of(context).push<String?>(
+                        MaterialPageRoute<String?>(
                           builder: (_) => const WhosWatchingPage(),
                         ),
                       );
+                      if (message != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(message)),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.swap_horiz_rounded, size: 20),
                     label: const Text('Switch profile'),
@@ -1453,10 +1458,15 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
               style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
             ),
             trailing: const Icon(Icons.chevron_right_rounded, size: 22),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const WhosWatchingPage()),
+            onTap: () async {
+              final message = await Navigator.of(context).push<String?>(
+                MaterialPageRoute<String?>(builder: (_) => const WhosWatchingPage()),
               );
+              if (message != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message)),
+                );
+              }
             },
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),

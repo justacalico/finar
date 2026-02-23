@@ -764,12 +764,17 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
           ),
           IconButton(
             icon: const Icon(Icons.swap_horiz_rounded, size: 20),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
+            onPressed: () async {
+              final message = await Navigator.of(context).push<String?>(
+                MaterialPageRoute<String?>(
                   builder: (_) => const WhosWatchingPage(),
                 ),
               );
+              if (message != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message)),
+                );
+              }
             },
             tooltip: 'Switch profile',
             style: IconButton.styleFrom(
