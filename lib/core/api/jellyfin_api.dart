@@ -5,6 +5,8 @@ import 'models/user.dart';
 import 'models/media_item.dart';
 import 'models/library.dart';
 import 'models/playback_info.dart';
+import 'models/items_result.dart';
+import 'parse_isolate.dart';
 import 'platform_stub.dart' if (dart.library.io) 'platform_native.dart';
 import 'dio_config_native.dart' if (dart.library.html) 'dio_config_web.dart';
 
@@ -267,7 +269,10 @@ class JellyfinApi {
       queryParameters: queryParams,
     );
 
-    return ItemsResult.fromJson(response.data as Map<String, dynamic>);
+    return compute(
+      parseItemsResult,
+      response.data as Map<String, dynamic>,
+    );
   }
 
   /// Get a single item by ID
@@ -278,7 +283,10 @@ class JellyfinApi {
         'Fields': 'Overview,People,Genres,MediaStreams,Chapters,Path,MediaSources,LocalTrailerCount,RemoteTrailers',
       },
     );
-    return MediaItem.fromJson(response.data as Map<String, dynamic>);
+    return compute(
+      parseMediaItem,
+      response.data as Map<String, dynamic>,
+    );
   }
 
   /// Get local trailers for an item
@@ -286,9 +294,10 @@ class JellyfinApi {
     final response = await _dio.get(
       '/Users/$_userId/Items/$itemId/LocalTrailers',
     );
-    return (response.data as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data as List<dynamic>,
+    );
   }
 
   /// Get similar items
@@ -301,9 +310,10 @@ class JellyfinApi {
         'Fields': 'Overview',
       },
     );
-    return (response.data['Items'] as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data['Items'] as List<dynamic>,
+    );
   }
 
   /// Get continue watching items
@@ -317,9 +327,10 @@ class JellyfinApi {
         'Fields': 'Overview',
       },
     );
-    return (response.data['Items'] as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data['Items'] as List<dynamic>,
+    );
   }
 
   /// Get recently added items
@@ -337,9 +348,10 @@ class JellyfinApi {
         if (includeItemTypes != null) 'IncludeItemTypes': includeItemTypes.join(','),
       },
     );
-    return (response.data as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data as List<dynamic>,
+    );
   }
 
   /// Get next up episodes
@@ -353,9 +365,10 @@ class JellyfinApi {
         if (seriesId != null) 'SeriesId': seriesId,
       },
     );
-    return (response.data['Items'] as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data['Items'] as List<dynamic>,
+    );
   }
 
   /// Get favorite items
@@ -416,18 +429,21 @@ class JellyfinApi {
         'Fields': 'Overview',
       },
     );
-    final items = (response.data['Items'] as List<dynamic>?)
-        ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [];
-    
+    final rawList = response.data['Items'] as List<dynamic>? ?? [];
+    final items = rawList.isEmpty
+        ? <MediaItem>[]
+        : await compute(parseMediaItemList, rawList);
+
     // Filter out items that shouldn't appear in recommendations
-    return items.where((item) => 
-      item.type != MediaType.collectionFolder && 
-      item.type != MediaType.season &&
-      item.type != MediaType.folder &&
-      item.type != MediaType.playlist &&
-      item.type != MediaType.boxSet
-    ).take(limit).toList();
+    return items
+        .where((item) =>
+            item.type != MediaType.collectionFolder &&
+            item.type != MediaType.season &&
+            item.type != MediaType.folder &&
+            item.type != MediaType.playlist &&
+            item.type != MediaType.boxSet)
+        .take(limit)
+        .toList();
   }
 
   /// Get items by genre
@@ -504,9 +520,10 @@ class JellyfinApi {
         'Fields': 'Overview',
       },
     );
-    return (response.data['Items'] as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data['Items'] as List<dynamic>,
+    );
   }
 
   /// Get episodes for a season
@@ -519,9 +536,10 @@ class JellyfinApi {
         'Fields': 'Overview,MediaSources',
       },
     );
-    return (response.data['Items'] as List<dynamic>)
-        .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return compute(
+      parseMediaItemList,
+      response.data['Items'] as List<dynamic>,
+    );
   }
 
   /// Get albums from a music library
@@ -825,9 +843,10 @@ class JellyfinApi {
         'Fields': 'Overview,MediaSources',
       },
     );
-    return (response.data['Items'] as List<dynamic>?)
-        ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [];
+    final rawList = response.data['Items'] as List<dynamic>? ?? [];
+    return rawList.isEmpty
+        ? <MediaItem>[]
+        : await compute(parseMediaItemList, rawList);
   }
 
   /// Add item to playlist
@@ -1004,28 +1023,5 @@ class JellyfinApi {
         {'Format': 'dvdsub', 'Method': 'Embed'},
       ],
     };
-  }
-}
-
-/// Result of items query
-class ItemsResult {
-  final List<MediaItem> items;
-  final int totalCount;
-  final int startIndex;
-
-  const ItemsResult({
-    required this.items,
-    required this.totalCount,
-    required this.startIndex,
-  });
-
-  factory ItemsResult.fromJson(Map<String, dynamic> json) {
-    return ItemsResult(
-      items: (json['Items'] as List<dynamic>)
-          .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      totalCount: json['TotalRecordCount'] as int? ?? 0,
-      startIndex: json['StartIndex'] as int? ?? 0,
-    );
   }
 }

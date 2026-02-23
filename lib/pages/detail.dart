@@ -45,6 +45,84 @@ class DetailPage extends ConsumerWidget {
   }
 }
 
+/// Section widget that watches only [similarItemsProvider] so only this rebuilds when similar items load.
+class _DetailSimilarSection extends ConsumerWidget {
+  const _DetailSimilarSection({
+    required this.itemId,
+    required this.serverUrl,
+    this.isDesktop = true,
+  });
+
+  final String itemId;
+  final String serverUrl;
+  final bool isDesktop;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final similarAsync = ref.watch(similarItemsProvider(itemId));
+    return RepaintBoundary(
+      child: Padding(
+        padding: isDesktop
+            ? const EdgeInsets.fromLTRB(64, 0, 64, 40)
+            : const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'More Like This',
+            style: isDesktop
+                ? AppTextStyles.titleLarge
+                : AppTextStyles.titleMedium,
+          ),
+          SizedBox(height: isDesktop ? 16 : 12),
+          SizedBox(
+            height: isDesktop ? 280 : 200,
+            child: similarAsync.when(
+              data: (items) => ListView.separated(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 6 : 0,
+                  vertical: isDesktop ? 8 : 0,
+                ),
+                itemCount: items.length,
+                separatorBuilder: (_, __) =>
+                    SizedBox(width: isDesktop ? 16 : 12),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return AnimatedCard(
+                    width: isDesktop ? 160 : 120,
+                    imageUrl: item.getDisplayImageUrl(
+                      serverUrl,
+                      width: isDesktop ? 300 : 200,
+                    ),
+                    title: item.name,
+                    subtitle: item.productionYear?.toString(),
+                    animationIndex: index,
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              AdaptiveDetailPage(itemId: item.id),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              loading: () => isDesktop
+                  ? const _LoadingShimmer(height: 280)
+                  : const ShimmerLoading(height: 200),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ),
+        ],
+      ).animate().fadeIn(delay: isDesktop ? 600.ms : 200.ms),
+      ),
+    );
+  }
+}
+
 class _DetailDesktop extends ConsumerStatefulWidget {
   final String itemId;
   final String? initialSeasonId;
@@ -202,19 +280,21 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                     child: _buildEpisodesSection(item, serverUrl),
                   ),
 
-                // Album Tracks (for Music Albums)
+                // Album Tracks (for Music Albums) — virtualized
                 if (item.type == MediaType.album)
-                  SliverToBoxAdapter(
-                    child: _buildAlbumTracksSection(item, serverUrl),
-                  ),
+                  ..._buildAlbumTracksSlivers(item, serverUrl),
 
                 // Cast & Crew
                 if (item.people?.isNotEmpty == true)
                   SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
 
-                // Similar Items
+                // Similar Items — section widget so only this rebuilds when similar loads
                 SliverToBoxAdapter(
-                  child: _buildSimilarSection(item.id, serverUrl),
+                  child: _DetailSimilarSection(
+                    itemId: item.id,
+                    serverUrl: serverUrl,
+                    isDesktop: true,
+                  ),
                 ),
 
                 // Bottom padding
@@ -1063,64 +1143,57 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
         .markEpisodeWatched(episode.id, seasonId, !(episode.isPlayed == true));
   }
 
-  Widget _buildAlbumTracksSection(MediaItem album, String serverUrl) {
+  /// Returns slivers for album tracks (virtualized list).
+  List<Widget> _buildAlbumTracksSlivers(MediaItem album, String serverUrl) {
     final tracksAsync = ref.watch(albumTracksProvider(album.id));
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section header
-          Row(
-            children: [
-              Text('Tracks', style: AppTextStyles.titleLarge),
-              const Spacer(),
-              tracksAsync
-                      .whenData(
-                        (tracks) => Text(
-                          '${tracks.length} songs',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      )
-                      .value ??
-                  const SizedBox.shrink(),
-            ],
+    return tracksAsync.when(
+      data: (tracks) => [
+        SliverToBoxAdapter(
+          child: RepaintBoundary(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(64, 0, 64, 16),
+              child: Row(
+                children: [
+                  Text('Tracks', style: AppTextStyles.titleLarge),
+                const Spacer(),
+                Text(
+                  '${tracks.length} songs',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            ),
           ),
-          const SizedBox(height: 16),
-
-          // Tracks list
-          tracksAsync.when(
-            data: (tracks) => _buildTracksList(tracks, album, serverUrl),
-            loading: () => const _LoadingShimmer(height: 300),
-            error: (error, _) => Text('Error loading tracks: $error'),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
+          sliver: SliverList.builder(
+            itemCount: tracks.length,
+            itemBuilder: (context, index) {
+              final track = tracks[index];
+              return _buildTrackTile(track, index + 1, album, serverUrl);
+            },
           ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 400.ms);
-  }
-
-  Widget _buildTracksList(
-    List<MediaItem> tracks,
-    MediaItem album,
-    String serverUrl,
-  ) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: AppTheme.radiusMd,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: tracks.length,
-        itemBuilder: (context, index) {
-          final track = tracks[index];
-          return _buildTrackTile(track, index + 1, album, serverUrl);
-        },
-      ),
+        ),
+      ],
+      loading: () => [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
+            child: const _LoadingShimmer(height: 300),
+          ),
+        ),
+      ],
+      error: (error, _) => [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
+            child: Text('Error loading tracks: $error'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1277,53 +1350,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
         ],
       ),
     );
-  }
-
-  Widget _buildSimilarSection(String itemId, String serverUrl) {
-    final similarAsync = ref.watch(similarItemsProvider(itemId));
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(64, 0, 64, 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('More Like This', style: AppTextStyles.titleLarge),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 280,
-            child: similarAsync.when(
-              data: (items) => ListView.separated(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                itemCount: items.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 16),
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return AnimatedCard(
-                    width: 160,
-                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
-                    title: item.name,
-                    subtitle: item.productionYear?.toString(),
-                    animationIndex: index,
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AdaptiveDetailPage(itemId: item.id),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              loading: () => const _LoadingShimmer(height: 280),
-              error: (_, _) => const SizedBox.shrink(),
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 600.ms);
   }
 
   Widget _buildDownloadButton(MediaItem item) {
@@ -2280,22 +2306,24 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
           ),
         ),
 
-        // Episodes section for TV shows
-        if (item.type == MediaType.series) ...[
-          SliverToBoxAdapter(child: _buildEpisodesSection(item, serverUrl)),
-        ],
+        // Episodes section for TV shows — virtualized
+        if (item.type == MediaType.series) ..._buildEpisodesSlivers(item, serverUrl),
 
-        // Album tracks section for music albums
-        if (item.type == MediaType.album) ...[
-          SliverToBoxAdapter(child: _buildAlbumTracksSection(item, serverUrl)),
-        ],
+        // Album tracks section for music albums — virtualized
+        if (item.type == MediaType.album) ..._buildAlbumTracksSlivers(item, serverUrl),
 
         // Cast section
         if (item.people?.isNotEmpty == true)
           SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
 
         // Similar items
-        SliverToBoxAdapter(child: _buildSimilarSection(item.id, serverUrl)),
+        SliverToBoxAdapter(
+          child: _DetailSimilarSection(
+            itemId: item.id,
+            serverUrl: serverUrl,
+            isDesktop: false,
+          ),
+        ),
 
         // Bottom padding
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -2579,51 +2607,98 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
     }
   }
 
-  Widget _buildEpisodesSection(MediaItem item, String serverUrl) {
+  /// Returns slivers for episodes section (virtualized list).
+  List<Widget> _buildEpisodesSlivers(MediaItem item, String serverUrl) {
     final seasonsAsync = ref.watch(seasonsProvider(item.id));
-
-    return Column(
-      key: _episodesSectionKey,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('Episodes', style: AppTextStyles.titleMedium),
+    return seasonsAsync.when(
+      loading: () => [
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: ShimmerLoading(height: 120),
+          ),
         ),
-        const SizedBox(height: 12),
-
-        // Season selector
-        seasonsAsync.when(
-          data: (seasons) => _buildSeasonTabs(seasons),
-          loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Episodes list
-        seasonsAsync.when(
-          data: (seasons) {
-            if (seasons.isEmpty) return const SizedBox.shrink();
-            _maybeApplyInitialEpisodeContext(seasons);
-
-            final selectedIndex = _selectedSeasonIndex.clamp(
-              0,
-              seasons.length - 1,
-            );
-            final seasonId = seasons[selectedIndex].id;
-            return _buildEpisodesList(seasonId, serverUrl);
-          },
-          loading: () => const ShimmerLoading(height: 120),
-          error: (error, _) => Padding(
+      ],
+      error: (error, _) => [
+        SliverToBoxAdapter(
+          child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text('Error loading seasons: $error'),
           ),
         ),
-
-        const SizedBox(height: 24),
       ],
-    ).animate().fadeIn(delay: 200.ms);
+      data: (seasons) {
+        if (seasons.isEmpty) return <Widget>[];
+        _maybeApplyInitialEpisodeContext(seasons);
+        final selectedIndex =
+            _selectedSeasonIndex.clamp(0, seasons.length - 1);
+        final seasonId = seasons[selectedIndex].id;
+        final episodesAsync = ref.watch(episodesProvider(seasonId));
+        return [
+          SliverToBoxAdapter(
+            key: _episodesSectionKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Episodes', style: AppTextStyles.titleMedium),
+                ),
+                const SizedBox(height: 12),
+                _buildSeasonTabs(seasons),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+          ...episodesAsync.when(
+            loading: () => <Widget>[
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: ShimmerLoading(height: 100),
+                ),
+              ),
+            ],
+            error: (error, _) => <Widget>[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text('Error: $error'),
+                ),
+              ),
+            ],
+            data: (episodes) {
+              _maybeScrollToInitialEpisode(episodes);
+              final totalCount =
+                  episodes.isEmpty ? 0 : episodes.length * 2 - 1;
+              return <Widget>[
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList.builder(
+                    itemCount: totalCount,
+                    itemBuilder: (context, index) {
+                      if (index.isOdd) {
+                        return const SizedBox(height: 12);
+                      }
+                      final i = index ~/ 2;
+                      final episode = episodes[i];
+                      final card =
+                          _buildEpisodeCard(episode, serverUrl, seasonId);
+                      if (widget.initialEpisodeId != null &&
+                          episode.id == widget.initialEpisodeId) {
+                        return KeyedSubtree(key: _initialEpisodeKey, child: card);
+                      }
+                      return card;
+                    },
+                  ),
+                ),
+              ];
+            },
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        ];
+      },
+    );
   }
 
   Widget _buildSeasonTabs(List<MediaItem> seasons) {
@@ -2655,41 +2730,6 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildEpisodesList(String seasonId, String serverUrl) {
-    final episodesAsync = ref.watch(episodesProvider(seasonId));
-
-    return episodesAsync.when(
-      data: (episodes) {
-        _maybeScrollToInitialEpisode(episodes);
-
-        return ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: episodes.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final episode = episodes[index];
-            final card = _buildEpisodeCard(episode, serverUrl, seasonId);
-            if (widget.initialEpisodeId != null &&
-                episode.id == widget.initialEpisodeId) {
-              return KeyedSubtree(key: _initialEpisodeKey, child: card);
-            }
-            return card;
-          },
-        );
-      },
-      loading: () => const Padding(
-        padding: EdgeInsets.all(16),
-        child: ShimmerLoading(height: 100),
-      ),
-      error: (error, _) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text('Error: $error'),
       ),
     );
   }
@@ -2977,64 +3017,55 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
     );
   }
 
-  Widget _buildAlbumTracksSection(MediaItem album, String serverUrl) {
+  /// Returns slivers for album tracks (virtualized list).
+  List<Widget> _buildAlbumTracksSlivers(MediaItem album, String serverUrl) {
     final tracksAsync = ref.watch(albumTracksProvider(album.id));
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section header
-          Row(
-            children: [
-              Text('Tracks', style: AppTextStyles.titleMedium),
-              const Spacer(),
-              tracksAsync
-                      .whenData(
-                        (tracks) => Text(
-                          '${tracks.length} songs',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      )
-                      .value ??
-                  const SizedBox.shrink(),
-            ],
+    return tracksAsync.when(
+      data: (tracks) => [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Text('Tracks', style: AppTextStyles.titleMedium),
+                const Spacer(),
+                Text(
+                  '${tracks.length} songs',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-
-          // Tracks list
-          tracksAsync.when(
-            data: (tracks) => _buildTracksList(tracks, album, serverUrl),
-            loading: () => const ShimmerLoading(height: 200),
-            error: (error, _) => Text('Error loading tracks: $error'),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverList.builder(
+            itemCount: tracks.length,
+            itemBuilder: (context, index) {
+              final track = tracks[index];
+              return _buildTrackTile(track, index + 1, album, serverUrl);
+            },
           ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 200.ms);
-  }
-
-  Widget _buildTracksList(
-    List<MediaItem> tracks,
-    MediaItem album,
-    String serverUrl,
-  ) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: AppTheme.radiusMd,
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: tracks.length,
-        itemBuilder: (context, index) {
-          final track = tracks[index];
-          return _buildTrackTile(track, index + 1, album, serverUrl);
-        },
-      ),
+        ),
+      ],
+      loading: () => [
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: ShimmerLoading(height: 200),
+          ),
+        ),
+      ],
+      error: (error, _) => [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Error loading tracks: $error'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -3053,7 +3084,6 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              // Track number
               SizedBox(
                 width: 32,
                 child: Text(
@@ -3064,10 +3094,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                   textAlign: TextAlign.center,
                 ),
               ),
-
               const SizedBox(width: 12),
-
-              // Track info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -3091,20 +3118,14 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                   ],
                 ),
               ),
-
               const SizedBox(width: 8),
-
-              // Duration
               Text(
                 track.formattedRuntime,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
-
               const SizedBox(width: 8),
-
-              // Play icon
               Icon(
                 Icons.play_circle_outline,
                 color: AppColors.textSecondary,
@@ -3115,50 +3136,6 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
         ),
       ),
     );
-  }
-
-  Widget _buildSimilarSection(String itemId, String serverUrl) {
-    final similarAsync = ref.watch(similarItemsProvider(itemId));
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('More Like This', style: AppTextStyles.titleMedium),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 200,
-            child: similarAsync.when(
-              data: (items) => ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: items.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return AnimatedCard(
-                    width: 120,
-                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
-                    title: item.name,
-                    subtitle: item.productionYear?.toString(),
-                    animationIndex: index,
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => AdaptiveDetailPage(itemId: item.id),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              loading: () => const ShimmerLoading(height: 200),
-              error: (_, _) => const SizedBox.shrink(),
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 400.ms);
   }
 
   void _playItem(MediaItem item) {
