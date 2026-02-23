@@ -120,10 +120,21 @@ class WhosWatchingPage extends ConsumerWidget {
   }
 
   Future<void> _selectProfile(BuildContext context, WidgetRef ref, SavedProfile profile) async {
-    final success = await ref.read(authProvider.notifier).selectProfile(profile);
+    final notifier = ref.read(authProvider.notifier);
+    final success = await notifier.selectProfile(profile);
     if (!context.mounted) return;
-    if (success && Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
+    if (success) {
+      // When Who's watching is the root (app start), router will rebuild to show home; no pop.
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    } else {
+      final message = ref.read(authProvider).errorMessage ?? 'Could not switch profile';
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     }
   }
 
@@ -164,36 +175,25 @@ class _ProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: SizedBox(
           width: size,
+          height: size + 12 + 24,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.divider.withValues(alpha: 0.5),
-                    width: 2,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
                   ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: profile.avatarUrl.isEmpty
-                      ? Center(
-                          child: Text(
-                            profile.displayLetter,
-                            style: AppTextStyles.headlineMedium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        )
-                      : Image.network(
-                          profile.avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, error, stackTrace) => Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: profile.avatarUrl.isEmpty
+                        ? Center(
                             child: Text(
                               profile.displayLetter,
                               style: AppTextStyles.headlineMedium.copyWith(
@@ -201,26 +201,38 @@ class _ProfileCard extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                          )
+                        : Image.network(
+                            profile.avatarUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, error, stackTrace) => Center(
+                              child: Text(
+                                profile.displayLetter,
+                                style: AppTextStyles.headlineMedium.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                profile.userName,
-                style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 12),
+                Text(
+                  profile.userName,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
