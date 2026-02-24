@@ -64,4 +64,4 @@ flutter build web --release
 
 ## License
 
-This project is licensed under [GPL](LICENSE).
+This project is licensed under [AGPL V3](LICENSE).
