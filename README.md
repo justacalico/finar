@@ -1,6 +1,6 @@
 # Finar
 
-Finar is a Jellyfin client built with Flutter.
+Finar is a Jellyfin client built to just work.
 
 ![desktop.png](desktop.png)
 
@@ -10,12 +10,13 @@ Finar is a Jellyfin client built with Flutter.
 
 ## Features
 
-- Video playback powered by `media_kit`
+- Video playback
 - Android, iOS, macOS, Windows, Linux, and Web support
-- Shared core with separate page layouts for desktop and mobile
-- Riverpod-based state management
-- Local persistence and cache with Hive/shared preferences
-- Designed for media browsing with gamepad/remote-friendly input support
+- Desktop and Mobile UI.
+- Downloads
+- Multiple accounts (eg. The who's watching screen)
+- Controller support
+- Music playback
 
 
 ## Contributing
@@ -43,12 +44,6 @@ cd finar
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 flutter run
-```
-
-If you are actively working on models/adapters, run this in a second terminal:
-
-```bash
-dart run build_runner watch --delete-conflicting-outputs
 ```
 
 ## Build Releases
