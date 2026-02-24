@@ -57,10 +57,6 @@ flutter build linux --release
 flutter build web --release
 ```
 
-## License
-
-This project is licensed under [AGPL V3](LICENSE).
-
 ## Privacy
 
 See [PRIVACY.md](PRIVACY.md) for how Finar handles data (no collection; data stays on your device and your Jellyfin server).
