@@ -6,7 +6,7 @@ Finar is a Jellyfin client built with Flutter.
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![License](https://img.shields.io/badge/License-AGPL%20v3-green?style=for-the-badge)
 
 ## Features
 
@@ -38,7 +38,7 @@ If you use AI please
 ## Getting Started
 
 ```bash
-git clone https://github.com/openlyst/finar.git
+git clone https://gitlab.com/Openlyst/finar.git
 cd finar
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
@@ -65,3 +65,7 @@ flutter build web --release
 ## License
 
 This project is licensed under [AGPL V3](LICENSE).
+
+## Privacy
+
+See [PRIVACY.md](PRIVACY.md) for how Finar handles data (no collection; data stays on your device and your Jellyfin server).
