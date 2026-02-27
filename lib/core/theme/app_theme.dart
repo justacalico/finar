@@ -640,6 +640,26 @@ class AppTheme {
     );
   }
 
+  /// OLED-optimized dark theme with pure black backgrounds
+  static ThemeData oledDarkThemeWithPrimary(Color primary) {
+    final base = darkThemeWithPrimary(primary);
+    final black = Colors.black;
+    final scheme = base.colorScheme.copyWith(
+      background: black,
+      surface: black,
+    );
+    return base.copyWith(
+      colorScheme: scheme,
+      scaffoldBackgroundColor: black,
+      bottomSheetTheme: base.bottomSheetTheme.copyWith(
+        backgroundColor: black,
+      ),
+      snackBarTheme: base.snackBarTheme.copyWith(
+        backgroundColor: black,
+      ),
+    );
+  }
+
   /// Light theme with custom primary (accent) color
   static ThemeData lightThemeWithPrimary(Color primary) {
     final t = lightTheme;

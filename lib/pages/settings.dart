@@ -363,6 +363,25 @@ class _SettingsContentDesktop {
               },
             ),
             const Divider(color: AppColors.glassBorder),
+            _dropdownTile<ThemeStyle>(
+              ref,
+              title: 'Theme style',
+              subtitle: switch (settings.themeStyle) {
+                ThemeStyle.standard => 'Glass dark',
+                ThemeStyle.oled => 'Pure black for OLED displays',
+                ThemeStyle.coloured => 'Use accent color across the UI',
+              },
+              value: settings.themeStyle,
+              items: const [
+                DropdownMenuItem(value: ThemeStyle.standard, child: Text('Default')),
+                DropdownMenuItem(value: ThemeStyle.oled, child: Text('OLED')),
+                DropdownMenuItem(value: ThemeStyle.coloured, child: Text('Coloured')),
+              ],
+              onChanged: (v) {
+                if (v != null) ref.read(settingsProvider.notifier).setThemeStyle(v);
+              },
+            ),
+            const Divider(color: AppColors.glassBorder),
             _switchTile(
               context,
               ref,
@@ -1204,6 +1223,19 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
             ],
             (v) {
               if (v != null) ref.read(settingsProvider.notifier).setThemeMode(v);
+            },
+          ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          _dropdownTile<ThemeStyle>(
+            'Theme style',
+            settings.themeStyle,
+            const [
+              DropdownMenuItem(value: ThemeStyle.standard, child: Text('Default')),
+              DropdownMenuItem(value: ThemeStyle.oled, child: Text('OLED')),
+              DropdownMenuItem(value: ThemeStyle.coloured, child: Text('Coloured')),
+            ],
+            (v) {
+              if (v != null) ref.read(settingsProvider.notifier).setThemeStyle(v);
             },
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),

@@ -5,9 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// UI mode options for forcing a specific UI engine
 enum UiMode {
-  auto,   // Use platform detection
+  auto, // Use platform detection
   desktop,
   mobile,
+}
+
+/// Visual theme style applied on top of light/dark mode
+enum ThemeStyle {
+  standard,
+  oled,
+  coloured,
 }
 
 /// App settings model
@@ -52,6 +59,7 @@ class AppSettings {
 
   // UI Mode
   final UiMode forcedUiMode;
+  final ThemeStyle themeStyle;
 
   const AppSettings({
     this.defaultVideoQuality = 1080,
@@ -79,6 +87,7 @@ class AppSettings {
     this.imageCacheSize = 500,
     this.cacheImages = true,
     this.forcedUiMode = UiMode.auto,
+    this.themeStyle = ThemeStyle.standard,
   });
 
   AppSettings copyWith({
@@ -107,6 +116,7 @@ class AppSettings {
     int? imageCacheSize,
     bool? cacheImages,
     UiMode? forcedUiMode,
+    ThemeStyle? themeStyle,
   }) {
     return AppSettings(
       defaultVideoQuality: defaultVideoQuality ?? this.defaultVideoQuality,
@@ -134,6 +144,7 @@ class AppSettings {
       imageCacheSize: imageCacheSize ?? this.imageCacheSize,
       cacheImages: cacheImages ?? this.cacheImages,
       forcedUiMode: forcedUiMode ?? this.forcedUiMode,
+      themeStyle: themeStyle ?? this.themeStyle,
     );
   }
 
@@ -164,6 +175,7 @@ class AppSettings {
       'imageCacheSize': imageCacheSize,
       'cacheImages': cacheImages,
       'forcedUiMode': forcedUiMode.index,
+      'themeStyle': themeStyle.index,
     };
   }
 
@@ -202,6 +214,9 @@ class AppSettings {
       forcedUiMode: json['forcedUiMode'] != null
           ? UiMode.values[json['forcedUiMode'] as int]
           : UiMode.auto,
+      themeStyle: json['themeStyle'] != null
+          ? ThemeStyle.values[json['themeStyle'] as int]
+          : ThemeStyle.standard,
     );
   }
 }
@@ -315,6 +330,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   // Appearance settings
   Future<void> setThemeMode(ThemeMode mode) async {
     await updateSettings((s) => s.copyWith(themeMode: mode));
+  }
+
+  Future<void> setThemeStyle(ThemeStyle style) async {
+    await updateSettings((s) => s.copyWith(themeStyle: style));
   }
 
   Future<void> setEnableAnimations(bool value) async {
