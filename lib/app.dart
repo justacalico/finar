@@ -166,21 +166,25 @@ class _FinarAppState extends ConsumerState<FinarApp> {
       child: Consumer(
         builder: (context, ref, _) {
           final settings = ref.watch(settingsProvider);
-          final accent = accentColorOptions[
-            settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
-          ].$3;
-          final primary = switch (settings.themeStyle) {
-            ThemeStyle.coloured => accent,
-            _ => settings.useSystemAccent ? AppColors.primary : accent,
+          final accent = settings.useSystemAccent
+              ? AppColors.primary
+              : accentColorOptions[
+                  settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
+                ].$3;
+          final themeColor = switch (settings.themeStyle) {
+            ThemeStyle.coloured => accentColorOptions[
+                settings.themeColorIndex.clamp(0, accentColorOptions.length - 1)
+              ].$3,
+            _ => accent,
           };
           final darkTheme = switch (settings.themeStyle) {
-            ThemeStyle.oled => AppTheme.oledDarkThemeWithPrimary(primary),
-            _ => AppTheme.darkThemeWithPrimary(primary),
+            ThemeStyle.oled => AppTheme.oledDarkThemeWithPrimary(themeColor),
+            _ => AppTheme.darkThemeWithPrimary(themeColor),
           };
           return MaterialApp(
             title: 'Finar',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightThemeWithPrimary(primary),
+            theme: AppTheme.lightThemeWithPrimary(themeColor),
             darkTheme: darkTheme,
             themeMode: settings.themeMode,
             home: const _AppRouter(),

@@ -369,7 +369,7 @@ class _SettingsContentDesktop {
               subtitle: switch (settings.themeStyle) {
                 ThemeStyle.standard => 'Glass dark',
                 ThemeStyle.oled => 'Pure black for OLED displays',
-                ThemeStyle.coloured => 'Use accent color across the UI',
+                ThemeStyle.coloured => 'Use a separate theme color across the UI',
               },
               value: settings.themeStyle,
               items: const [
@@ -379,6 +379,21 @@ class _SettingsContentDesktop {
               ],
               onChanged: (v) {
                 if (v != null) ref.read(settingsProvider.notifier).setThemeStyle(v);
+              },
+            ),
+            const Divider(color: AppColors.glassBorder),
+            _dropdownTile<int>(
+              ref,
+              title: 'Theme color',
+              subtitle: accentColorOptions[
+                settings.themeColorIndex.clamp(0, accentColorOptions.length - 1)
+              ].$2,
+              value: settings.themeColorIndex,
+              items: accentColorOptions
+                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) ref.read(settingsProvider.notifier).setThemeColorIndex(v);
               },
             ),
             const Divider(color: AppColors.glassBorder),
@@ -1236,6 +1251,17 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
             ],
             (v) {
               if (v != null) ref.read(settingsProvider.notifier).setThemeStyle(v);
+            },
+          ),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
+          _dropdownTile<int>(
+            'Theme color',
+            settings.themeColorIndex,
+            accentColorOptions
+                .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
+                .toList(),
+            (v) {
+              if (v != null) ref.read(settingsProvider.notifier).setThemeColorIndex(v);
             },
           ),
           Divider(color: AppColors.divider.withValues(alpha: 0.5), height: 1),
