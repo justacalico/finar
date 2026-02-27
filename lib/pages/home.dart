@@ -762,34 +762,41 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz_rounded, size: 20),
-            onPressed: () async {
-              final message = await Navigator.of(context).push<String?>(
-                MaterialPageRoute<String?>(
-                  builder: (_) => const WhosWatchingPage(),
+          const SizedBox(width: 8),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.swap_horiz_rounded, size: 20),
+                onPressed: () async {
+                  final message = await Navigator.of(context).push<String?>(
+                    MaterialPageRoute<String?>(
+                      builder: (_) => const WhosWatchingPage(),
+                    ),
+                  );
+                  if (message != null && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(message)),
+                    );
+                  }
+                },
+                tooltip: 'Switch profile',
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
+                  backgroundColor: AppColors.glassWhite,
                 ),
-              );
-              if (message != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(message)),
-                );
-              }
-            },
-            tooltip: 'Switch profile',
-            style: IconButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              backgroundColor: AppColors.glassWhite,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, size: 20),
-            onPressed: () => _showSignOutDialog(),
-            tooltip: 'Sign out',
-            style: IconButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              backgroundColor: AppColors.glassWhite,
-            ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.logout_rounded, size: 20),
+                onPressed: () => _showSignOutDialog(),
+                tooltip: 'Sign out',
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
+                  backgroundColor: AppColors.glassWhite,
+                ),
+              ),
+            ],
           ),
         ],
       ),
