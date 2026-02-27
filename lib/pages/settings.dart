@@ -341,20 +341,6 @@ class _SettingsContentDesktop {
         const SizedBox(height: 24),
         _settingsCard(
           context,
-          title: 'Interface Mode',
-          icon: Icons.devices,
-          children: [
-            Text(
-              'Force a specific UI layout regardless of your current device. Useful for testing or personal preference.',
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 16),
-            _uiModeSelector(context, ref, settings),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _settingsCard(
-          context,
           title: 'Appearance',
           icon: Icons.palette_outlined,
           children: [
@@ -444,76 +430,6 @@ class _SettingsContentDesktop {
         ),
       ],
     );
-  }
-
-  static Widget _uiModeSelector(BuildContext context, WidgetRef ref, AppSettings settings) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final modes = [
-      (UiMode.auto, 'Auto', Icons.auto_awesome, _autoModeDescription()),
-      (UiMode.desktop, 'Desktop', Icons.desktop_windows, 'Wide layout with sidebar navigation'),
-      (UiMode.mobile, 'Mobile', Icons.phone_android, 'Compact layout optimized for touch'),
-    ];
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: modes.map((mode) {
-        final isSelected = settings.forcedUiMode == mode.$1;
-        return GestureDetector(
-          onTap: () => ref.read(settingsProvider.notifier).setForcedUiMode(mode.$1),
-          child: AnimatedContainer(
-            duration: AppTheme.durationFast,
-            width: 180,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? primary.withValues(alpha: 0.15)
-                  : AppColors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(
-                color: isSelected ? primary : AppColors.glassBorder,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      mode.$3,
-                      color: isSelected ? primary : AppColors.textSecondary,
-                      size: 24,
-                    ),
-                    const Spacer(),
-                    if (isSelected)
-                      Icon(Icons.check_circle, color: primary, size: 20),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  mode.$2,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  mode.$4,
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  static String _autoModeDescription() {
-    return PlatformDetector.isDesktop ? 'Currently: Desktop (detected)' : 'Currently: Mobile (detected)';
   }
 
   static Widget _sectionHeader(String title, String subtitle) {
@@ -1116,10 +1032,6 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSectionHeader('Interface Mode'),
-          const SizedBox(height: 10),
-          _buildUiModeCard(settings),
-          const SizedBox(height: 28),
           _buildSectionHeader('Playback'),
           const SizedBox(height: 10),
           _buildPlaybackCard(settings),
@@ -1173,105 +1085,6 @@ class _SettingsMobileState extends ConsumerState<_SettingsMobile> {
         letterSpacing: -0.2,
       ),
     );
-  }
-
-  Widget _buildUiModeCard(AppSettings settings) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.divider.withValues(alpha: 0.5),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Force a specific UI layout',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-          ),
-          const SizedBox(height: 18),
-          ..._buildUiModeOptions(settings),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildUiModeOptions(AppSettings settings) {
-    final modes = [
-      (UiMode.auto, 'Auto', Icons.auto_awesome_rounded, _SettingsContentDesktop._autoModeDescription()),
-      (UiMode.desktop, 'Desktop', Icons.desktop_windows_rounded, 'Wide layout with sidebar'),
-      (UiMode.mobile, 'Mobile', Icons.phone_android_rounded, 'Compact touch layout'),
-    ];
-    return modes.map((mode) {
-      final isSelected = settings.forcedUiMode == mode.$1;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: InkWell(
-          onTap: () => ref.read(settingsProvider.notifier).setForcedUiMode(mode.$1),
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-                  : AppColors.backgroundSecondary,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : AppColors.divider.withValues(alpha: 0.5),
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-                        : AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    mode.$3,
-                    color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        mode.$2,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        mode.$4,
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary, size: 22),
-              ],
-            ),
-          ),
-        ),
-      );
-    }).toList();
   }
 
   Widget _buildPlaybackCard(AppSettings settings) {

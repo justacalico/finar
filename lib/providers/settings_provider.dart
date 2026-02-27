@@ -389,10 +389,9 @@ final animationsEnabledProvider = Provider<bool>((ref) {
   return settings.enableAnimations && !settings.reducedMotion;
 });
 
-/// Forced UI mode provider
+/// Forced UI mode provider (deprecated, always auto)
 final forcedUiModeProvider = Provider<UiMode>((ref) {
-  final settings = ref.watch(settingsProvider);
-  return settings.forcedUiMode;
+  return UiMode.auto;
 });
 
 /// Accent color options for theme (index, label, color)
