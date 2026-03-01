@@ -645,7 +645,6 @@ class AppTheme {
     final base = darkThemeWithPrimary(primary);
     final black = Colors.black;
     final scheme = base.colorScheme.copyWith(
-      background: black,
       surface: black,
     );
     return base.copyWith(
