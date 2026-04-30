@@ -23,13 +23,9 @@ Finar is a Jellyfin client built to just work.
 
 Pull requests are welcome. 
 
-## AI Contributing
-If you use AI please
+## AI
 
-- Prompt over MR | If you are gonna vibecode a feature submit a new Issue with the prompt you want instead. However mearge requests are still allowed.
-
-- DO TESTING | We dont want vibe coded untested grabage. If you use AI test, test, and test.
-- Mark it | Please mark that it is AI code it wont be declinaed but we will need to do more testing.
+- All AI made code is allowed however you are responsible for testing and verifying the code.
 
 ## Requirements
 

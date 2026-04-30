@@ -859,6 +859,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     bool isTV = false,
   }) {
     return Focus(
+      focusNode: focusNode,
       onFocusChange: (hasFocus) {
         setState(() {}); // Rebuild to show focus state
       },
