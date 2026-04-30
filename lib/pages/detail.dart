@@ -98,6 +98,7 @@ class _DetailSimilarSection extends ConsumerWidget {
                     ),
                     title: item.name,
                     subtitle: item.productionYear?.toString(),
+                    isWatched: item.isPlayed == true,
                     animationIndex: index,
                     onTap: () {
                       Navigator.of(context).pushReplacement(

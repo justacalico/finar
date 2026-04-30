@@ -3210,6 +3210,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
             imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
             title: item.name,
             subtitle: item.productionYear?.toString(),
+            isWatched: item.isPlayed == true,
             animationIndex: index,
             onTap: () => _navigateToDetail(item.id),
           );
@@ -3471,6 +3472,7 @@ class _MobileSeeAllPage extends StatelessWidget {
             imageUrl: item.getDisplayImageUrl(serverUrl, width: 240),
             title: item.name,
             subtitle: item.productionYear?.toString(),
+            isWatched: item.isPlayed == true,
             animationIndex: index,
             onTap: () {
               Navigator.push(
@@ -3560,6 +3562,7 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                         ),
                         title: item.name,
                         subtitle: item.productionYear?.toString(),
+                        isWatched: item.isPlayed == true,
                         animationIndex: index,
                         onTap: () => Navigator.push(
                           context,

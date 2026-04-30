@@ -268,6 +268,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
           imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
           title: item.name,
           subtitle: item.productionYear?.toString(),
+          isWatched: item.isPlayed == true,
           animationIndex: index % 20,
           onTap: () => _navigateToDetail(item.id),
         );
@@ -637,6 +638,7 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
             imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
             title: item.name,
             subtitle: item.productionYear?.toString(),
+            isWatched: item.isPlayed == true,
             animationIndex: index % 15,
             onTap: () => _navigateToDetail(item.id),
           );
