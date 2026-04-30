@@ -349,8 +349,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLogo(scale: 1.5, alignment: CrossAxisAlignment.start),
-                  const SizedBox(height: 48),
-                  _buildFeatureList(),
                 ],
               ),
             ),
@@ -592,68 +590,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
           ),
         ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
       ],
-    );
-  }
-
-  Widget _buildFeatureList() {
-    final features = [
-      (Icons.devices_rounded, 'Multi-Platform', 'Watch on any device'),
-      (Icons.download_rounded, 'Offline Mode', 'Download for later'),
-      (Icons.high_quality_rounded, 'High Quality', 'Stream in full resolution'),
-      (Icons.sync_rounded, 'Sync Progress', 'Continue where you left off'),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: features.asMap().entries.map((entry) {
-        final index = entry.key;
-        final feature = entry.value;
-        return Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Icon(feature.$1, color: Theme.of(context).colorScheme.primary, size: 22),
-                  ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        feature.$2,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        feature.$3,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-            .animate()
-            .fadeIn(delay: Duration(milliseconds: 600 + (index * 100)))
-            .slideX(begin: -0.2, end: 0);
-      }).toList(),
     );
   }
 
