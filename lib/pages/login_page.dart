@@ -858,67 +858,64 @@ class _LoginPageState extends ConsumerState<LoginPage>
     Widget? suffixIcon,
     bool isTV = false,
   }) {
-    return Focus(
-      focusNode: focusNode,
-      onFocusChange: (hasFocus) {
-        setState(() {}); // Rebuild to show focus state
+    return StatefulBuilder(
+      builder: (context, setLocalState) {
+        final hasFocus = focusNode.hasFocus;
+        focusNode.addListener(() {
+          setLocalState(() {});
+        });
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(
+              color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.glassBorder,
+              width: hasFocus ? 2 : 1,
+            ),
+            color: AppColors.surface.withValues(alpha: 0.5),
+          ),
+          child: TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            textInputAction: textInputAction,
+            onFieldSubmitted: onSubmitted,
+            validator: validator,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: isTV ? 18 : 16,
+            ),
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: hint,
+              labelStyle: TextStyle(
+                color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
+                fontSize: isTV ? 16 : 14,
+              ),
+              hintStyle: TextStyle(
+                color: AppColors.textTertiary,
+                fontSize: isTV ? 16 : 14,
+              ),
+              prefixIcon: Icon(
+                icon,
+                color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
+                size: isTV ? 28 : 24,
+              ),
+              suffixIcon: suffixIcon,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: isTV ? 20 : 16,
+              ),
+              errorStyle: TextStyle(
+                color: AppColors.error,
+                fontSize: isTV ? 14 : 12,
+              ),
+            ),
+          ),
+        );
       },
-      child: Builder(
-        builder: (context) {
-          final hasFocus = Focus.of(context).hasFocus;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(
-                color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.glassBorder,
-                width: hasFocus ? 2 : 1,
-              ),
-              color: AppColors.surface.withValues(alpha: 0.5),
-            ),
-            child: TextFormField(
-              controller: controller,
-              focusNode: focusNode,
-              obscureText: obscureText,
-              keyboardType: keyboardType,
-              textInputAction: textInputAction,
-              onFieldSubmitted: onSubmitted,
-              validator: validator,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: isTV ? 18 : 16,
-              ),
-              decoration: InputDecoration(
-                labelText: label,
-                hintText: hint,
-                labelStyle: TextStyle(
-                  color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
-                  fontSize: isTV ? 16 : 14,
-                ),
-                hintStyle: TextStyle(
-                  color: AppColors.textTertiary,
-                  fontSize: isTV ? 16 : 14,
-                ),
-                prefixIcon: Icon(
-                  icon,
-                  color: hasFocus ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
-                  size: isTV ? 28 : 24,
-                ),
-                suffixIcon: suffixIcon,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: isTV ? 20 : 16,
-                ),
-                errorStyle: TextStyle(
-                  color: AppColors.error,
-                  fontSize: isTV ? 14 : 12,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 
