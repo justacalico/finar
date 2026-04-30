@@ -1063,6 +1063,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                     subtitle: item.productionYear?.toString(),
                     progress: showProgress ? item.playbackProgress : null,
                     showProgress: showProgress,
+                    isWatched: item.isPlayed == true,
                     animationIndex: index,
                     onTap: () => _navigateToDetail(item),
                   ),
