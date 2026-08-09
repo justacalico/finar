@@ -361,9 +361,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     final sidebarWidth =
         collapsed ? _sidebarWidthCollapsed : _sidebarWidthExpanded;
 
-    return AnimatedContainer(
-          duration: AppTheme.durationNormal,
-          curve: Curves.easeOutCubic,
+    return Container(
           width: sidebarWidth,
           decoration: BoxDecoration(
             color: AppColors.backgroundSecondary,
@@ -384,7 +382,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                     // App logo as part of sidebar content
                     Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: collapsed ? 14 : 24,
+                        horizontal: collapsed ? 12 : 24,
                         vertical: 16,
                       ),
                       child: Row(
@@ -393,8 +391,8 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                             : MainAxisAlignment.start,
                         children: [
                           Container(
-                            width: 44,
-                            height: 44,
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -550,8 +548,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               : () => setState(() => _sidebarCollapsed = !collapsed),
           child: Tooltip(
             message: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
-            child: AnimatedContainer(
-              duration: AppTheme.durationFast,
+            child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: collapsed ? 14 : 16,
                 vertical: 12,
@@ -623,8 +620,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               },
           child: Tooltip(
             message: collapsed ? label : '',
-            child: AnimatedContainer(
-              duration: AppTheme.durationFast,
+            child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: collapsed ? 14 : 16,
                 vertical: 14,
@@ -699,8 +695,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
           },
           child: Tooltip(
             message: collapsed ? library.name : '',
-            child: AnimatedContainer(
-              duration: AppTheme.durationFast,
+            child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: collapsed ? 14 : 16,
                 vertical: 14,
