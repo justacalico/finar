@@ -623,55 +623,43 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
             onTap: () => _navigateToDetail(artist.id),
             child: Column(
               children: [
-                // Artist image (circular) with glow effect
+                // Artist image (circular)
                 Expanded(
                   child: AspectRatio(
                     aspectRatio: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 6),
+                    child: ClipOval(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 300),
+                            memCacheWidth: 360,
+                            fadeInDuration: const Duration(milliseconds: 150),
+                            fit: BoxFit.cover,
+                            placeholder: (_, _) => Container(
+                              color: AppColors.surface,
+                            ),
+                            errorWidget: (_, _, _) => Container(
+                              color: AppColors.surface,
+                              child: const Icon(
+                                Icons.person,
+                                size: 64,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          // Hover overlay
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _navigateToDetail(artist.id),
+                              customBorder: const CircleBorder(),
+                              hoverColor: Theme.of(context).colorScheme.primary.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                      child: ClipOval(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CachedNetworkImage(
-                              imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 300),
-                              memCacheWidth: 360,
-                              fadeInDuration: const Duration(milliseconds: 150),
-                              fit: BoxFit.cover,
-                              placeholder: (_, _) => Container(
-                                color: AppColors.surface,
-                              ),
-                              errorWidget: (_, _, _) => Container(
-                                color: AppColors.surface,
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 64,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                            // Hover overlay
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _navigateToDetail(artist.id),
-                                customBorder: const CircleBorder(),
-                                hoverColor: Theme.of(context).colorScheme.primary.withValues(
-                                  alpha: 0.2,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ),
@@ -1297,33 +1285,21 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
               Expanded(
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
-                        memCacheWidth: 240,
-                        fadeInDuration: const Duration(milliseconds: 150),
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          color: AppColors.surface,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          color: AppColors.surface,
-                          child: const Icon(
-                            Icons.person,
-                            size: 48,
-                            color: AppColors.textSecondary,
-                          ),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
+                      memCacheWidth: 240,
+                      fadeInDuration: const Duration(milliseconds: 150),
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
+                        color: AppColors.surface,
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        color: AppColors.surface,
+                        child: const Icon(
+                          Icons.person,
+                          size: 48,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
