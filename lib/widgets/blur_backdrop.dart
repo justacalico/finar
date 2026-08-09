@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/app_theme.dart';
 
@@ -106,10 +107,13 @@ class GradientBlurBackdrop extends StatelessWidget {
                 sigmaY: blur,
                 tileMode: TileMode.clamp,
               ),
-              child: Image.network(
-                imageUrl!,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl!,
+                memCacheWidth: (MediaQuery.sizeOf(context).width * 2).round(),
+                fadeInDuration: const Duration(milliseconds: 150),
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+                placeholder: (_, _) => Container(color: AppColors.surface),
+                errorWidget: (_, _, _) => Container(
                   color: AppColors.background,
                 ),
               ),

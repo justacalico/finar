@@ -38,9 +38,9 @@ class AppTheme {
   static const Curve curveSmooth = Curves.easeOutQuart;
 
   /// Glass blur values
-  static const double blurLight = 20.0;
-  static const double blurMedium = 40.0;
-  static const double blurHeavy = 60.0;
+  static const double blurLight = 10.0;
+  static const double blurMedium = 15.0;
+  static const double blurHeavy = 30.0;
 
   /// Shadows
   static List<BoxShadow> shadowSmall = [

@@ -81,6 +81,9 @@ class _DetailSimilarSection extends ConsumerWidget {
               data: (items) => ListView.separated(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
+                addRepaintBoundaries: true,
+                addAutomaticKeepAlives: false,
+                cacheExtent: 500,
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 6 : 0,
                   vertical: isDesktop ? 8 : 0,
@@ -330,10 +333,13 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
         fit: StackFit.expand,
         children: [
           // Backdrop image (album art for albums)
-          Image.network(
-            imageUrl,
+          CachedNetworkImage(
+            imageUrl: imageUrl,
+            memCacheWidth: 1000,
+            fadeInDuration: const Duration(milliseconds: 150),
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(color: AppColors.background),
+            placeholder: (_, _) => Container(color: AppColors.surface),
+            errorWidget: (_, _, _) => Container(color: AppColors.background),
           ),
 
           // Gradient overlay
@@ -384,11 +390,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
               tag: 'poster_${item.id}',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                child: Image.network(
-                  item.getDisplayImageUrl(serverUrl, width: 400),
+                child: CachedNetworkImage(
+                  imageUrl: item.getDisplayImageUrl(serverUrl, width: 400),
+                  memCacheWidth: 500,
+                  memCacheHeight: 750,
+                  fadeInDuration: const Duration(milliseconds: 150),
                   width: 250,
                   height: 375,
                   fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(color: AppColors.surface),
+                  errorWidget: (_, _, _) => Container(color: AppColors.surface),
                 ),
               ),
             ).animate().fadeIn().scale(
@@ -406,12 +417,15 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 children: [
                   // Logo or title
                   if (item.logoImageTag != null)
-                    Image.network(
-                      '$serverUrl/Items/${item.id}/Images/Logo?maxWidth=500&tag=${item.logoImageTag}',
+                    CachedNetworkImage(
+                      imageUrl: '$serverUrl/Items/${item.id}/Images/Logo?maxWidth=500&tag=${item.logoImageTag}',
+                      memCacheWidth: 1000,
+                      fadeInDuration: const Duration(milliseconds: 150),
                       height: 80,
                       fit: BoxFit.contain,
                       alignment: Alignment.centerLeft,
-                      errorBuilder: (_, _, _) =>
+                      placeholder: (_, _) => Container(color: AppColors.surface),
+                      errorWidget: (_, _, _) =>
                           Text(item.name, style: AppTextStyles.displayMedium),
                     )
                   else
@@ -824,6 +838,9 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
           height: 180,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            addRepaintBoundaries: true,
+            addAutomaticKeepAlives: false,
+            cacheExtent: 500,
             itemCount: seasons.length,
             separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
@@ -864,12 +881,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
               borderRadius: BorderRadius.circular(AppTheme.radiusMd - 2),
               child: Stack(
                 children: [
-                  Image.network(
-                    season.getPrimaryImageUrl(serverUrl, width: 200),
+                  CachedNetworkImage(
+                    imageUrl: season.getPrimaryImageUrl(serverUrl, width: 200),
+                    memCacheWidth: 248,
+                    memCacheHeight: 248,
+                    fadeInDuration: const Duration(milliseconds: 150),
                     width: 124,
                     height: 124,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                    placeholder: (_, _) => Container(color: AppColors.surface),
+                    errorWidget: (_, _, _) => Container(
                       width: 124,
                       height: 124,
                       color: AppColors.surface,
@@ -925,6 +946,9 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             controller: _episodesScrollController,
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
+            addRepaintBoundaries: true,
+            addAutomaticKeepAlives: false,
+            cacheExtent: 500,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             itemCount: episodes.length,
             separatorBuilder: (_, _) => const SizedBox(width: 16),
@@ -1031,11 +1055,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                           Colors.transparent,
                           BlendMode.multiply,
                         ),
-                  child: Image.network(
-                    episode.getPrimaryImageUrl(serverUrl, width: 500),
+                  child: CachedNetworkImage(
+                    imageUrl: episode.getPrimaryImageUrl(serverUrl, width: 500),
+                    memCacheWidth: 640,
+                    memCacheHeight: 240,
+                    fadeInDuration: const Duration(milliseconds: 150),
                     width: 320,
                     height: 120,
                     fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: AppColors.surface),
+                    errorWidget: (_, _, _) => Container(color: AppColors.surface),
                   ),
                 ),
               ),
@@ -1300,12 +1329,19 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ],
           ),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: displayPeople.map((person) {
-              return _buildPersonCard(person, serverUrl);
-            }).toList(),
+          SizedBox(
+            height: 150,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              addRepaintBoundaries: true,
+              addAutomaticKeepAlives: false,
+              cacheExtent: 500,
+              itemCount: displayPeople.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                return _buildPersonCard(displayPeople[index], serverUrl);
+              },
+            ),
           ),
         ],
       ),
@@ -2248,6 +2284,9 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                 // Backdrop image
                 CachedNetworkImage(
                   imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
+                  memCacheWidth: 800,
+                  memCacheHeight: 600,
+                  fadeInDuration: const Duration(milliseconds: 150),
                   fit: BoxFit.cover,
                   placeholder: (_, _) => Container(color: AppColors.surface),
                   errorWidget: (_, _, _) => Container(color: AppColors.surface),
@@ -2354,9 +2393,14 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
               borderRadius: BorderRadius.circular(14),
               child: CachedNetworkImage(
                 imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
+                memCacheWidth: 230,
+                memCacheHeight: 344,
+                fadeInDuration: const Duration(milliseconds: 150),
                 width: 115,
                 height: 172,
                 fit: BoxFit.cover,
+                placeholder: (_, _) => Container(color: AppColors.surface),
+                errorWidget: (_, _, _) => Container(color: AppColors.surface),
               ),
             ),
           ),
@@ -2708,6 +2752,9 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemCount: seasons.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
@@ -2823,9 +2870,14 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                         ),
                   child: CachedNetworkImage(
                     imageUrl: episode.getPrimaryImageUrl(serverUrl, width: 250),
+                    memCacheWidth: 260,
+                    memCacheHeight: 150,
+                    fadeInDuration: const Duration(milliseconds: 150),
                     width: 130,
                     height: 75,
                     fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: AppColors.surface),
+                    errorWidget: (_, _, _) => Container(color: AppColors.surface),
                   ),
                 ),
                 // Watched indicator
@@ -2959,6 +3011,9 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
             height: 140,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
+              addRepaintBoundaries: true,
+              addAutomaticKeepAlives: false,
+              cacheExtent: 500,
               itemCount: people.length.clamp(0, 10),
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../core/api/auth_service.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
@@ -113,12 +114,15 @@ class _ProfileTile extends StatelessWidget {
                     ),
                   ),
                 )
-              : Image.network(
-                  profile.avatarUrl,
+              : CachedNetworkImage(
+                  imageUrl: profile.avatarUrl,
+                  memCacheWidth: 96,
+                  fadeInDuration: const Duration(milliseconds: 150),
                   width: 48,
                   height: 48,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, error, stackTrace) => Container(
+                  placeholder: (_, _) => Container(color: AppColors.surface),
+                  errorWidget: (_, error, stackTrace) => Container(
                     width: 48,
                     height: 48,
                     color: AppColors.backgroundTertiary,

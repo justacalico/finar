@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../core/api/auth_service.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
@@ -206,10 +207,13 @@ class _ProfileCard extends StatelessWidget {
                               ),
                             ),
                           )
-                        : Image.network(
-                            profile.avatarUrl,
+                        : CachedNetworkImage(
+                            imageUrl: profile.avatarUrl,
+                            memCacheWidth: (size * 2).round(),
+                            fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, error, stackTrace) => Center(
+                            placeholder: (_, _) => Container(color: AppColors.surface),
+                            errorWidget: (_, error, stackTrace) => Center(
                               child: Text(
                                 profile.displayLetter,
                                 style: AppTextStyles.headlineMedium.copyWith(

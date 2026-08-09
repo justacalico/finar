@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import '../core/theme/app_theme.dart';
@@ -71,10 +72,13 @@ class MobileMiniPlayer extends ConsumerWidget {
                       child: SizedBox(
                         width: 48,
                         height: 48,
-                        child: Image.network(
-                          item.getDisplayImageUrl(serverUrl, width: 100),
+                        child: CachedNetworkImage(
+                          imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
+                          memCacheWidth: 96,
+                          fadeInDuration: const Duration(milliseconds: 150),
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Container(
+                          placeholder: (_, _) => Container(color: AppColors.surface),
+                          errorWidget: (_, _, _) => Container(
                             color: AppColors.surface,
                             child: const Icon(
                               Icons.music_note,
@@ -279,10 +283,13 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                   child: SizedBox(
                     width: 56,
                     height: 56,
-                    child: Image.network(
-                      item.getDisplayImageUrl(serverUrl, width: 150),
+                    child: CachedNetworkImage(
+                      imageUrl: item.getDisplayImageUrl(serverUrl, width: 150),
+                      memCacheWidth: 112,
+                      fadeInDuration: const Duration(milliseconds: 150),
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
+                      placeholder: (_, _) => Container(color: AppColors.surface),
+                      errorWidget: (_, _, _) => Container(
                         color: AppColors.surface,
                         child: const Icon(
                           Icons.music_note,
@@ -662,13 +669,17 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(
                                       AppTheme.radiusLg,
                                     ),
-                                    child: Image.network(
-                                      item.getDisplayImageUrl(
+                                    child: CachedNetworkImage(
+                                      imageUrl: item.getDisplayImageUrl(
                                         serverUrl,
                                         width: 600,
                                       ),
+                                      memCacheWidth:
+                                          ((constraints.maxWidth - artPadding * 2) * 2).round(),
+                                      fadeInDuration: const Duration(milliseconds: 150),
                                       fit: BoxFit.cover,
-                                      errorBuilder:
+                                      placeholder: (_, _) => Container(color: AppColors.surface),
+                                      errorWidget:
                                           (context, error, stackTrace) =>
                                               Container(
                                                 color: AppColors.surface,
