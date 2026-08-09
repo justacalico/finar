@@ -118,7 +118,14 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                       size: 28,
                     ),
                     const SizedBox(width: 12),
-                    Text('Music Library', style: AppTextStyles.headlineMedium),
+                    Flexible(
+                      child: Text(
+                        'Music Library',
+                        style: AppTextStyles.headlineMedium,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -136,7 +143,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
 
           // Search field
           SizedBox(
-            width: 300,
+            width: 240,
             child: TextField(
               controller: _searchController,
               decoration: const InputDecoration(
