@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
@@ -275,7 +274,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
           title: item.name,
           subtitle: item.productionYear?.toString(),
           isWatched: item.isPlayed == true,
-          animationIndex: index % 20,
+          enableEntranceAnimation: false,
           onTap: () => _navigateToDetail(item.id),
         );
       },
@@ -320,6 +319,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
               child: CachedNetworkImage(
                 imageUrl: item.getDisplayImageUrl(serverUrl, width: 150),
                 memCacheWidth: 160,
+                memCacheHeight: 240,
                 fadeInDuration: const Duration(milliseconds: 150),
                 width: 80,
                 height: 120,
@@ -403,9 +403,6 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
           ],
         ),
       ),
-    ).animate().fadeIn(
-      delay: Duration(milliseconds: (index % 10) * 30),
-      duration: AppTheme.durationNormal,
     );
   }
 
@@ -661,7 +658,7 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
             title: item.name,
             subtitle: item.productionYear?.toString(),
             isWatched: item.isPlayed == true,
-            animationIndex: index % 15,
+            enableEntranceAnimation: false,
             onTap: () => _navigateToDetail(item.id),
           );
         },
@@ -715,6 +712,7 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
                   child: CachedNetworkImage(
                     imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
                     memCacheWidth: 120,
+                    memCacheHeight: 180,
                     fadeInDuration: const Duration(milliseconds: 150),
                     width: 60,
                     height: 90,
@@ -787,10 +785,7 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
               ],
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 10) * 30))
-        .slideX(begin: 0.05);
+        );
   }
 
   Widget _buildLoadingGrid() {

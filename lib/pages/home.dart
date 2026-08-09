@@ -946,6 +946,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             : CachedNetworkImage(
                 imageUrl: avatarUrl,
                 memCacheWidth: 84,
+                memCacheHeight: 84,
                 fadeInDuration: const Duration(milliseconds: 150),
                 placeholder: (_, _) => Container(color: AppColors.surface),
                 errorWidget: (_, _, _) => Center(
@@ -1176,7 +1177,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                     progress: showProgress ? item.playbackProgress : null,
                     showProgress: showProgress,
                     isWatched: item.isPlayed == true,
-                    animationIndex: index,
+                    enableEntranceAnimation: false,
                     onTap: () => _navigateToDetail(item),
                   ),
                 );
@@ -1466,7 +1467,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                         ),
                         title: item.name,
                         subtitle: _getItemSubtitle(item),
-                        animationIndex: index,
+                        enableEntranceAnimation: false,
                         isWatched: item.isPlayed == true,
                         onTap: () => _navigateToDetail(item),
                       ),
@@ -1549,7 +1550,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   imageUrl: item.getDisplayImageUrl(serverUrl, width: 300),
                   title: item.name,
                   subtitle: _getItemSubtitle(item),
-                  animationIndex: index,
+                  enableEntranceAnimation: false,
                   isWatched: item.isPlayed == true,
                   onTap: () => _navigateToDetail(item),
                 );
@@ -1936,6 +1937,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       child: CachedNetworkImage(
                         imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
                         memCacheWidth: 160,
+                        memCacheHeight: 90,
                         fadeInDuration: const Duration(milliseconds: 150),
                         placeholder: (_, _) => Container(color: AppColors.surface),
                         errorWidget: (_, _, _) => Container(
@@ -3332,7 +3334,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
             title: item.name,
             subtitle: item.productionYear?.toString(),
             isWatched: item.isPlayed == true,
-            animationIndex: index,
+            enableEntranceAnimation: false,
             onTap: () => _navigateToDetail(item.id),
           );
         },
@@ -3597,7 +3599,7 @@ class _MobileSeeAllPage extends StatelessWidget {
             title: item.name,
             subtitle: item.productionYear?.toString(),
             isWatched: item.isPlayed == true,
-            animationIndex: index,
+            enableEntranceAnimation: false,
             onTap: () {
               Navigator.push(
                 context,
@@ -3690,7 +3692,7 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                         title: item.name,
                         subtitle: item.productionYear?.toString(),
                         isWatched: item.isPlayed == true,
-                        animationIndex: index,
+                        enableEntranceAnimation: false,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
