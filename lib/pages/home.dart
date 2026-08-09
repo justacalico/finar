@@ -537,7 +537,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
 
   Widget _buildSidebarToggle(bool collapsed, bool autoCollapsed) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: collapsed ? 8 : 12,
+        vertical: 4,
+      ),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
@@ -550,7 +553,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             message: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: collapsed ? 14 : 16,
+                horizontal: collapsed ? 0 : 16,
                 vertical: 12,
               ),
               child: Row(
@@ -600,7 +603,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
         _sidebarFocused && _focusedNavIndex == (focusIndex ?? index);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      padding: EdgeInsets.symmetric(
+        horizontal: collapsed ? 8 : 12,
+        vertical: 2,
+      ),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
@@ -622,7 +628,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             message: collapsed ? label : '',
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: collapsed ? 14 : 16,
+                horizontal: collapsed ? 0 : 16,
                 vertical: 14,
               ),
               decoration: BoxDecoration(
@@ -680,7 +686,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     final icon = _getLibraryIcon(library.icon);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      padding: EdgeInsets.symmetric(
+        horizontal: collapsed ? 8 : 12,
+        vertical: 2,
+      ),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
@@ -697,7 +706,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             message: collapsed ? library.name : '',
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: collapsed ? 14 : 16,
+                horizontal: collapsed ? 0 : 16,
                 vertical: 14,
               ),
               decoration: BoxDecoration(
