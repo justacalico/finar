@@ -114,7 +114,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                   children: [
                     Icon(
                       Icons.library_music,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 28,
                     ),
                     const SizedBox(width: 12),
@@ -188,8 +188,8 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       showBorder: false,
       child: TabBar(
         controller: _tabController,
-        indicatorColor: AppColors.primary,
-        labelColor: AppColors.primary,
+        indicatorColor: Theme.of(context).colorScheme.primary,
+        labelColor: Theme.of(context).colorScheme.primary,
         unselectedLabelColor: AppColors.textSecondary,
         indicatorWeight: 3,
         tabs: [
@@ -316,8 +316,8 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.albums.length) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          return Center(
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
         return _buildAlbumCard(state.albums[index], serverUrl, index);
@@ -427,10 +427,10 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.tracks.length) {
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(color: AppColors.primary),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             ),
           );
         }
@@ -457,7 +457,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               child: InkWell(
                 onTap: () => _playTrack(track),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                hoverColor: AppColors.primary.withValues(alpha: 0.1),
+                hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
@@ -607,8 +607,8 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.artists.length) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          return Center(
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
         return _buildArtistCard(state.artists[index], serverUrl, index);
@@ -632,7 +632,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 6),
                           ),
@@ -665,7 +665,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                               child: InkWell(
                                 onTap: () => _navigateToDetail(artist.id),
                                 customBorder: const CircleBorder(),
-                                hoverColor: AppColors.primary.withValues(
+                                hoverColor: Theme.of(context).colorScheme.primary.withValues(
                                   alpha: 0.2,
                                 ),
                               ),
@@ -948,8 +948,8 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
             ],
             bottom: TabBar(
               controller: _tabController,
-              indicatorColor: AppColors.primary,
-              labelColor: AppColors.primary,
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: AppColors.textSecondary,
               tabs: [
                 Tab(
@@ -1001,7 +1001,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
             .read(musicLibraryProvider(widget.libraryId).notifier)
             .refresh();
       },
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1016,8 +1016,8 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.albums.length) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
           return _buildAlbumCard(state.albums[index], serverUrl, index);
@@ -1120,7 +1120,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
             .read(musicLibraryProvider(widget.libraryId).notifier)
             .refresh();
       },
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: state.tracks.length + (state.tracksHasMore ? 1 : 0),
@@ -1129,10 +1129,10 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.tracks.length) {
-            return const Center(
+            return Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: AppColors.primary),
+                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
               ),
             );
           }
@@ -1232,7 +1232,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                   // Play button
                   IconButton(
                     icon: const Icon(Icons.play_circle_outline),
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     onPressed: () => _playTrack(track),
                   ),
                 ],
@@ -1263,7 +1263,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
             .read(musicLibraryProvider(widget.libraryId).notifier)
             .refresh();
       },
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1278,8 +1278,8 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.artists.length) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
           return _buildArtistCard(state.artists[index], serverUrl, index);
@@ -1302,7 +1302,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -1489,7 +1489,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
       contentPadding: EdgeInsets.zero,
       title: Text(label),
       trailing: isSelected
-          ? const Icon(Icons.check, color: AppColors.primary)
+          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
           : null,
       onTap: () {
         ref
