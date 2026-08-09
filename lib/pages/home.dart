@@ -362,7 +362,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
         collapsed ? _sidebarWidthCollapsed : _sidebarWidthExpanded;
 
     return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutCubic,
           width: sidebarWidth,
           decoration: BoxDecoration(
