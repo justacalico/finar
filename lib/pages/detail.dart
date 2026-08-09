@@ -512,6 +512,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Logo or title
                   if (item.logoImageTag != null)
@@ -608,7 +609,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
       policy: OrderedTraversalPolicy(),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -642,10 +642,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 ),
               ),
             ),
-            const SizedBox(width: 14),
 
             // Trailer button
-            if (item.hasTrailer)
+            if (item.hasTrailer) ...[
+              const SizedBox(width: 14),
               FocusTraversalOrder(
                 order: const NumericFocusOrder(1),
                 child: _FocusableActionButton(
@@ -665,9 +665,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   ),
                 ),
               ),
-            if (item.hasTrailer) const SizedBox(width: 14),
+            ],
 
             // Favorite button
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(item.hasTrailer ? 2 : 1),
               child: Consumer(
@@ -686,9 +687,9 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 },
               ),
             ),
-            const SizedBox(width: 10),
 
             // Mark watched button
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(item.hasTrailer ? 3 : 2),
               child: GlassIconButton(
@@ -702,17 +703,18 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 onPressed: () => _toggleWatched(item),
               ),
             ),
-            const SizedBox(width: 10),
 
             // Download button (hide on web)
-            if (!kIsWeb)
+            if (!kIsWeb) ...[
+              const SizedBox(width: 10),
               FocusTraversalOrder(
                 order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
                 child: _buildDownloadButton(item),
               ),
-            if (!kIsWeb) const SizedBox(width: 10),
+            ],
 
             // More options
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(
                 item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4),
