@@ -361,7 +361,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     final sidebarWidth =
         collapsed ? _sidebarWidthCollapsed : _sidebarWidthExpanded;
 
-    return Container(
+    return AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
           width: sidebarWidth,
           decoration: BoxDecoration(
             color: AppColors.backgroundSecondary,
@@ -372,7 +374,8 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               ),
             ),
           ),
-          child: Column(
+          child: ClipRect(
+            child: Column(
             children: [
               // Navigation items
               Expanded(
@@ -528,6 +531,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               // User profile
               _buildUserProfile(collapsed: collapsed),
             ],
+          ),
           ),
         )
         .animate()
