@@ -377,7 +377,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
             ),
           ),
           child: ClipRect(
-            child: Column(
+            child: OverflowBox(
+              alignment: Alignment.centerLeft,
+              maxWidth: double.infinity,
+              child: Column(
             children: [
               // Navigation items
               Expanded(
@@ -533,6 +536,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               // User profile
               _buildUserProfile(collapsed: collapsed),
             ],
+          ),
           ),
           ),
         )

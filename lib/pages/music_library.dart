@@ -127,6 +127,8 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),
@@ -190,7 +192,11 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               children: [
                 const Icon(Icons.album, size: 20),
                 const SizedBox(width: 8),
-                Text('Albums (${state.albumsTotal})'),
+                Text(
+                  'Albums (${state.albumsTotal})',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ],
             ),
           ),
@@ -200,7 +206,11 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               children: [
                 const Icon(Icons.music_note, size: 20),
                 const SizedBox(width: 8),
-                Text('Tracks (${state.tracksTotal})'),
+                Text(
+                  'Tracks (${state.tracksTotal})',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ],
             ),
           ),
@@ -210,7 +220,11 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               children: [
                 const Icon(Icons.person, size: 20),
                 const SizedBox(width: 8),
-                Text('Artists (${state.artistsTotal})'),
+                Text(
+                  'Artists (${state.artistsTotal})',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ],
             ),
           ),
@@ -241,7 +255,13 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
           children: [
             const Icon(Icons.sort, size: 18),
             const SizedBox(width: 8),
-            Text(_getSortLabel(state.sortBy)),
+            Flexible(
+              child: Text(
+                _getSortLabel(state.sortBy),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
             const SizedBox(width: 4),
             const Icon(Icons.arrow_drop_down, size: 18),
           ],
@@ -794,6 +814,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
+              tileColor: Colors.transparent,
               leading: const Icon(Icons.play_arrow),
               title: const Text('Play'),
               onTap: () {
@@ -802,6 +823,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               },
             ),
             ListTile(
+              tileColor: Colors.transparent,
               leading: const Icon(Icons.playlist_add),
               title: const Text('Add to Queue'),
               onTap: () {
@@ -809,6 +831,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               },
             ),
             ListTile(
+              tileColor: Colors.transparent,
               leading: const Icon(Icons.album),
               title: const Text('Go to Album'),
               onTap: () {
@@ -819,6 +842,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               },
             ),
             ListTile(
+              tileColor: Colors.transparent,
               leading: Icon(
                 track.isFavorite == true ? Icons.favorite : Icons.favorite_border,
               ),
@@ -1208,10 +1232,15 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                     ),
                   ),
                   // Duration
-                  Text(
-                    durationStr,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textSecondary,
+                  SizedBox(
+                    width: 50,
+                    child: Text(
+                      durationStr,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1471,6 +1500,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
   Widget _buildSortOption(String label, String value, String currentSort) {
     final isSelected = currentSort == value;
     return ListTile(
+      tileColor: Colors.transparent,
       contentPadding: EdgeInsets.zero,
       title: Text(label),
       trailing: isSelected
