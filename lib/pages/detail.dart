@@ -606,12 +606,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
   Widget _buildActionButtons(MediaItem item) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
             // Play button with controller focus support
             if (item.type != MediaType.artist)
             FocusTraversalOrder(
@@ -642,7 +640,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 ),
               ),
             ),
-            const SizedBox(width: 14),
 
             // Trailer button
             if (item.hasTrailer)
@@ -665,7 +662,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   ),
                 ),
               ),
-            if (item.hasTrailer) const SizedBox(width: 14),
 
             // Favorite button
             FocusTraversalOrder(
@@ -686,7 +682,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 },
               ),
             ),
-            const SizedBox(width: 10),
 
             // Mark watched button
             FocusTraversalOrder(
@@ -702,7 +697,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 onPressed: () => _toggleWatched(item),
               ),
             ),
-            const SizedBox(width: 10),
 
             // Download button (hide on web)
             if (!kIsWeb)
@@ -710,7 +704,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
                 child: _buildDownloadButton(item),
               ),
-            if (!kIsWeb) const SizedBox(width: 10),
 
             // More options
             FocusTraversalOrder(
@@ -725,7 +718,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ),
           ],
         ),
-      ),
     );
   }
 
