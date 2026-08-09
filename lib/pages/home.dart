@@ -362,47 +362,44 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
           ),
           child: Column(
             children: [
-              // App logo with refined styling
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 28,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SvgPicture.asset(
-                        'icon.svg',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Text(
-                      'Finar',
-                      style: AppTextStyles.headlineMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Divider(
-                color: AppColors.divider.withValues(alpha: 0.5),
-                height: 1,
-              ),
-
               // Navigation items
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   children: [
+                    // App logo as part of sidebar content
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: SvgPicture.asset(
+                              'icon.svg',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Text(
+                            'Finar',
+                            style: AppTextStyles.headlineMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
                     _buildNavItem(
                       icon: Icons.home_outlined,
                       activeIcon: Icons.home_rounded,
