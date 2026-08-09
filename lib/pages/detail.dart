@@ -484,7 +484,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star, size: 18, color: AppColors.accentYellow),
+              Icon(Icons.star, size: 18, color: AppColors.accentYellow),
               const SizedBox(width: 4),
               Text(
                 item.communityRating!.toStringAsFixed(1),
@@ -496,7 +496,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.reviews, size: 16, color: AppColors.accentRed),
+              Icon(Icons.reviews, size: 16, color: AppColors.accentRed),
               const SizedBox(width: 4),
               Text('${item.criticRating}%', style: AppTextStyles.bodyMedium),
             ],
@@ -522,11 +522,11 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 height: 54,
                 autofocus: true,
                 onPressed: () => _playItem(item),
-                backgroundColor: AppColors.primary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.play_arrow_rounded,
                       size: 26,
                       color: AppColors.textOnPrimary,
@@ -597,7 +597,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                     ? Icons.check_circle_rounded
                     : Icons.check_circle_outline_rounded,
                 iconColor: (item.isPlayed == true)
-                    ? AppColors.primary
+                    ? Theme.of(context).colorScheme.primary
                     : AppColors.textSecondary,
                 size: 54,
                 onPressed: () => _toggleWatched(item),
@@ -662,10 +662,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -673,7 +673,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                       '"${item.taglines!.first}"',
                       style: AppTextStyles.bodyLarge.copyWith(
                         fontStyle: FontStyle.italic,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -869,7 +869,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: 3,
           ),
         ),
@@ -894,17 +894,17 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                       width: 124,
                       height: 124,
                       color: AppColors.surface,
-                      child: const Icon(Icons.tv, size: 32),
+                      child: Icon(Icons.tv, size: 32),
                     ),
                   ),
                   if (isSelected)
                     Positioned.fill(
                       child: Container(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                        child: const Center(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                        child: Center(
                           child: Icon(
                             Icons.check_circle,
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 32,
                           ),
                         ),
@@ -920,7 +920,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
               child: Text(
                 season.name,
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textPrimary,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
                 maxLines: 2,
@@ -1076,10 +1076,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
                       size: 16,
                       color: AppColors.white,
@@ -1095,7 +1095,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   child: LinearProgressIndicator(
                     value: episode.progressPercent,
                     backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                     minHeight: 3,
                   ),
                 ),
@@ -1143,10 +1143,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                       ),
                     ),
                     if (isWatched)
-                      const Icon(
+                      Icon(
                         Icons.check_circle,
                         size: 16,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                   ],
                 ),
@@ -1362,7 +1362,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   )
                 : null,
             child: person.primaryImageTag == null
-                ? const Icon(Icons.person, size: 32)
+                ? Icon(Icons.person, size: 32)
                 : null,
           ),
           const SizedBox(height: 8),
@@ -1820,8 +1820,8 @@ class _DetailLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(color: AppColors.primary),
+    return Center(
+      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
     );
   }
 }
@@ -1838,7 +1838,7 @@ class _DetailErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+          Icon(Icons.error_outline, size: 64, color: AppColors.error),
           const SizedBox(height: 16),
           Text('Failed to load details', style: AppTextStyles.headlineSmall),
           const SizedBox(height: 8),
@@ -2010,7 +2010,7 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       spreadRadius: 2,
                     ),
@@ -2027,7 +2027,7 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
                     borderRadius: borderRadius,
                     border: Border.all(
                       color: _isFocused
-                          ? AppColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.transparent,
                       width: _isFocused ? 2 : 1,
                     ),
@@ -2039,7 +2039,7 @@ class _FocusableActionButtonState extends State<_FocusableActionButton> {
                   opacity: _isFocused ? 0.16 : 0.1,
                   borderRadius: 14,
                   borderColor: _isFocused
-                      ? AppColors.primary.withValues(alpha: 0.9)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.9)
                       : AppColors.glassBorder.withValues(alpha: 0.9),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SizedBox(
@@ -2125,14 +2125,14 @@ class _FocusableDownloadProgressState
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: _isFocused
-                  ? AppColors.primary
+                  ? Theme.of(context).colorScheme.primary
                   : AppColors.divider.withValues(alpha: 0.5),
               width: _isFocused ? 2 : 1,
             ),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       spreadRadius: 2,
                     ),
@@ -2148,14 +2148,14 @@ class _FocusableDownloadProgressState
                 child: CircularProgressIndicator(
                   value: widget.progress,
                   strokeWidth: 2,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   backgroundColor: AppColors.divider,
                 ),
               ),
               Icon(
                 Icons.pause_rounded,
                 size: 18,
-                color: _isFocused ? AppColors.primary : AppColors.textSecondary,
+                color: _isFocused ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
               ),
             ],
           ),
@@ -2220,8 +2220,8 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                 ),
               );
             });
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
 
@@ -2238,21 +2238,21 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                 ),
               );
             });
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
 
           return _buildContent(item, serverUrl);
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
         ),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+              Icon(Icons.error_outline, size: 48, color: AppColors.error),
               const SizedBox(height: 16),
               Text('Failed to load', style: AppTextStyles.titleMedium),
               const SizedBox(height: 24),
@@ -2451,7 +2451,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.star_rounded,
                             size: 16,
                             color: AppColors.accentYellow,
@@ -2481,7 +2481,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.reviews_rounded,
                               size: 14,
                               color: AppColors.accentRed,
@@ -2565,7 +2565,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
             height: 52,
             child: ElevatedButton.icon(
               onPressed: () => _playItem(item),
-              icon: const Icon(Icons.play_arrow, size: 24),
+              icon: Icon(Icons.play_arrow, size: 24),
               label: Text(
                 item.hasProgress ? 'Resume' : 'Play',
                 style: AppTextStyles.buttonLarge,
@@ -2765,7 +2765,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
               duration: AppTheme.durationFast,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surface,
+                color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               alignment: Alignment.center,
@@ -2888,10 +2888,10 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check,
                         size: 12,
                         color: AppColors.white,
@@ -2907,8 +2907,8 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                     child: LinearProgressIndicator(
                       value: episode.progressPercent,
                       backgroundColor: AppColors.black.withValues(alpha: 0.5),
-                      valueColor: const AlwaysStoppedAnimation(
-                        AppColors.primary,
+                      valueColor: AlwaysStoppedAnimation(
+                        Theme.of(context).colorScheme.primary,
                       ),
                       minHeight: 3,
                     ),
@@ -2949,10 +2949,10 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                       ),
                     ),
                     if (isWatched)
-                      const Icon(
+                      Icon(
                         Icons.check_circle,
                         size: 14,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                   ],
                 ),
@@ -2982,7 +2982,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
           IconButton(
             icon: Icon(
               isWatched ? Icons.visibility_off : Icons.visibility,
-              color: isWatched ? AppColors.primary : AppColors.textSecondary,
+              color: isWatched ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
             ),
             onPressed: () => _toggleEpisodeWatched(episode, seasonId),
           ),
@@ -3042,7 +3042,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                   )
                 : null,
             child: person.primaryImageTag == null
-                ? const Icon(Icons.person, size: 22)
+                ? Icon(Icons.person, size: 22)
                 : null,
           ),
           const SizedBox(height: 6),
@@ -3515,8 +3515,8 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                     LinearProgressIndicator(
                       value: task.progress,
                       backgroundColor: AppColors.divider,
-                      valueColor: const AlwaysStoppedAnimation(
-                        AppColors.primary,
+                      valueColor: AlwaysStoppedAnimation(
+                        Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -3530,7 +3530,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
             const SizedBox(height: 16),
             if (task.status == DownloadStatus.downloading)
               ListTile(
-                leading: const Icon(Icons.pause),
+                leading: Icon(Icons.pause),
                 title: const Text('Pause Download'),
                 onTap: () {
                   ref.read(downloadProvider.notifier).pauseDownload(task.id);
@@ -3539,7 +3539,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
               ),
             if (task.canResume)
               ListTile(
-                leading: const Icon(Icons.play_arrow),
+                leading: Icon(Icons.play_arrow),
                 title: const Text('Resume Download'),
                 onTap: () {
                   ref.read(downloadProvider.notifier).resumeDownload(task.id);
@@ -3548,7 +3548,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
               ),
             if (task.status == DownloadStatus.completed)
               ListTile(
-                leading: const Icon(Icons.play_circle_outline),
+                leading: Icon(Icons.play_circle_outline),
                 title: const Text('Play Downloaded'),
                 onTap: () {
                   Navigator.pop(context);
@@ -3556,7 +3556,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.error),
+              leading: Icon(Icons.delete_outline, color: AppColors.error),
               title: const Text(
                 'Delete Download',
                 style: TextStyle(color: AppColors.error),
@@ -3728,7 +3728,7 @@ class _LiquidGlassMenu extends StatelessWidget {
                           ? Icons.check_circle
                           : Icons.check_circle_outline,
                       iconColor: (item.isPlayed == true)
-                          ? AppColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : AppColors.white,
                       label: (item.isPlayed == true)
                           ? 'Mark as Unwatched'
@@ -3743,7 +3743,7 @@ class _LiquidGlassMenu extends StatelessWidget {
                     if (!kIsWeb) ...[
                       _LiquidGlassMenuItem(
                         icon: _getDownloadIcon(),
-                        iconColor: _getDownloadIconColor(),
+                        iconColor: _getDownloadIconColor(context),
                         label: _getDownloadText(),
                         onTap: () {
                           Navigator.pop(context);
@@ -3850,11 +3850,11 @@ class _LiquidGlassMenu extends StatelessWidget {
     }
   }
 
-  Color _getDownloadIconColor() {
+  Color _getDownloadIconColor(BuildContext context) {
     if (downloadTask == null) return AppColors.white;
     switch (downloadTask!.status) {
       case DownloadStatus.downloading:
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
       case DownloadStatus.paused:
         return AppColors.accentYellow;
       case DownloadStatus.completed:
