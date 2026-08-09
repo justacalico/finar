@@ -121,7 +121,7 @@ class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
       // Check for music library - Jellyfin uses "music" as the collection type
       _isMusicLibrary = library.collectionType?.toLowerCase() == 'music';
       if (kDebugMode) {
-        print(
+        debugPrint(
           'Library: ${library.name}, collectionType: ${library.collectionType}, isMusicLibrary: $_isMusicLibrary',
         );
       }

@@ -300,11 +300,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         await (nativePlayer as dynamic).setProperty('demuxer-thread', 'yes');
 
         if (kDebugMode) {
-          print('PlayerNotifier: Performance optimizations applied');
+          debugPrint('PlayerNotifier: Performance optimizations applied');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('PlayerNotifier: Failed to apply some optimizations: $e');
+          debugPrint('PlayerNotifier: Failed to apply some optimizations: $e');
         }
       }
     }
@@ -338,7 +338,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       final hasLocalFile = localFile != null && await localFile.exists();
 
       if (kDebugMode) {
-        print(
+        debugPrint(
           'PlayerNotifier.play: itemId=${item.id}, localPath=$localPath, hasLocalFile=$hasLocalFile',
         );
       }
@@ -348,7 +348,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         _isPlayingLocal = true;
 
         if (kDebugMode) {
-          print('Playing from local file: $localPath');
+          debugPrint('Playing from local file: $localPath');
         }
         await _player.open(Media(localPath));
 
@@ -398,7 +398,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
           await Future.delayed(const Duration(milliseconds: 300));
           await _player.seek(startPosition);
           if (kDebugMode) {
-            print('Seeking to resume position: $startPosition');
+            debugPrint('Seeking to resume position: $startPosition');
           }
         }
 
@@ -446,7 +446,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       } catch (e) {
         // Silently ignore - we're playing locally, server reporting is optional
         if (kDebugMode) {
-          print('Local playback: Server reporting skipped (offline or error)');
+          debugPrint('Local playback: Server reporting skipped (offline or error)');
         }
       }
     });
@@ -476,7 +476,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
       _isPlayingLocal = true;
       if (kDebugMode) {
-        print('Playing from local file (direct): $localPath');
+        debugPrint('Playing from local file (direct): $localPath');
       }
       await _player.open(Media(localPath));
 
@@ -557,8 +557,6 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   /// Set audio track
   Future<void> setAudioTrack(int index) async {
     state = state.copyWith(audioTrackIndex: index);
-    // In a real implementation, you'd need to reload the stream with new audio track
-    // or use native audio track selection if supported
   }
 
   /// Set subtitle track
@@ -567,13 +565,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       subtitleTrackIndex: index,
       currentSubtitleTrack: index,
     );
-    // In a real implementation, you'd need to handle subtitle loading
   }
 
   /// Set quality
   Future<void> setQuality(String quality) async {
     state = state.copyWith(currentQuality: quality);
-    // In a real implementation, you'd reload the stream with different bitrate/resolution
   }
 
   /// Set playback speed
@@ -671,13 +667,13 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       insertNext(nextEpisode);
       
       if (kDebugMode) {
-        print('Queued next episode: ${nextEpisode.name}');
+        debugPrint('Queued next episode: ${nextEpisode.name}');
       }
       
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to queue next episode: $e');
+        debugPrint('Failed to queue next episode: $e');
       }
       return false;
     }

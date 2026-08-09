@@ -342,7 +342,7 @@ class DownloadService {
       _downloadImages(task);
       
       if (kDebugMode) {
-        print('Download completed: ${task.itemName}');
+        debugPrint('Download completed: ${task.itemName}');
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
@@ -395,11 +395,11 @@ class DownloadService {
         _notifyProgress(task);
         
         if (kDebugMode) {
-          print('Downloaded primary image for: ${task.itemName}');
+          debugPrint('Downloaded primary image for: ${task.itemName}');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('Failed to download primary image: $e');
+          debugPrint('Failed to download primary image: $e');
         }
       }
     }
@@ -425,11 +425,11 @@ class DownloadService {
         _notifyProgress(task);
         
         if (kDebugMode) {
-          print('Downloaded backdrop image for: ${task.itemName}');
+          debugPrint('Downloaded backdrop image for: ${task.itemName}');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('Failed to download backdrop image: $e');
+          debugPrint('Failed to download backdrop image: $e');
         }
       }
     }

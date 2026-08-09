@@ -59,7 +59,7 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
     // Listen for connectivity changes
     _subscription = _connectivity.onConnectivityChanged.listen((results) {
       if (kDebugMode) {
-        print('Connectivity changed: $results');
+        debugPrint('Connectivity changed: $results');
       }
       state = state.copyWith(connectivityResults: results);
       // Verify actual internet access when connectivity changes
@@ -85,7 +85,7 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
       await _verifyInternetAccess();
     } catch (e) {
       if (kDebugMode) {
-        print('Error checking connectivity: $e');
+        debugPrint('Error checking connectivity: $e');
       }
       state = state.copyWith(isOnline: false, isChecking: false);
     }
