@@ -62,20 +62,21 @@ class _AnimatedCardState extends State<AnimatedCard> {
   bool _isFocused = false;
   late FocusNode _focusNode;
   Color _outlineColor = AppColors.primary;
+  bool _outlineColorResolved = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
-    _resolveOutlineColor();
   }
 
   @override
   void didUpdateWidget(covariant AnimatedCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrl != widget.imageUrl) {
-      _resolveOutlineColor();
+      _outlineColorResolved = false;
+      _outlineColor = AppColors.primary;
     }
   }
 
@@ -93,8 +94,10 @@ class _AnimatedCardState extends State<AnimatedCard> {
       setState(() {
         _isFocused = _focusNode.hasFocus;
       });
-      // Ensure the focused item is visible in scrollable containers
       if (_isFocused) {
+        if (!_outlineColorResolved) {
+          _resolveOutlineColor();
+        }
         Scrollable.ensureVisible(
           context,
           alignment: 0.5,
@@ -128,14 +131,13 @@ class _AnimatedCardState extends State<AnimatedCard> {
   Future<void> _resolveOutlineColor() async {
     final imageUrl = widget.imageUrl;
     if (imageUrl == null || imageUrl.isEmpty) {
-      if (mounted) {
-        setState(() => _outlineColor = AppColors.primary);
-      }
+      _outlineColorResolved = true;
       return;
     }
 
     final cached = _outlineColorCache[imageUrl];
     if (cached != null) {
+      _outlineColorResolved = true;
       if (mounted) {
         setState(() => _outlineColor = cached);
       }
@@ -161,13 +163,12 @@ class _AnimatedCardState extends State<AnimatedCard> {
         _outlineColorCache.remove(_outlineColorCache.keys.first);
       }
 
+      _outlineColorResolved = true;
       if (mounted) {
         setState(() => _outlineColor = tuned);
       }
     } catch (_) {
-      if (mounted) {
-        setState(() => _outlineColor = AppColors.primary);
-      }
+      _outlineColorResolved = true;
     }
   }
 
@@ -277,7 +278,12 @@ class _AnimatedCardState extends State<AnimatedCard> {
           autofocus: widget.autofocus,
           onKeyEvent: _handleKeyEvent,
           child: MouseRegion(
-            onEnter: (_) => setState(() => _isHovered = true),
+            onEnter: (_) {
+              setState(() => _isHovered = true);
+              if (!_outlineColorResolved) {
+                _resolveOutlineColor();
+              }
+            },
             onExit: (_) => setState(() => _isHovered = false),
             child: GestureDetector(
               onTapDown: (_) => setState(() => _isPressed = true),

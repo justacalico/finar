@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -283,6 +284,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
         mainAxisSpacing: 16,
       ),
       itemCount: state.albums.length + (state.albumsHasMore ? 1 : 0),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.albums.length) {
           return const Center(
@@ -312,10 +316,15 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.network(
-                            album.getPrimaryImageUrl(serverUrl, width: 400),
+                          CachedNetworkImage(
+                            imageUrl: album.getPrimaryImageUrl(serverUrl, width: 400),
+                            memCacheWidth: 440,
+                            fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Container(
+                            placeholder: (_, _) => Container(
+                              color: AppColors.surface,
+                            ),
+                            errorWidget: (_, _, _) => Container(
                               color: AppColors.surface,
                               child: const Icon(
                                 Icons.album,
@@ -408,6 +417,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       controller: _scrollController,
       padding: const EdgeInsets.all(24),
       itemCount: state.tracks.length + (state.tracksHasMore ? 1 : 0),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.tracks.length) {
           return const Center(
@@ -463,10 +475,15 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                         child: SizedBox(
                           width: 48,
                           height: 48,
-                          child: Image.network(
-                            track.getPrimaryImageUrl(serverUrl, width: 100),
+                          child: CachedNetworkImage(
+                            imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
+                            memCacheWidth: 96,
+                            fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Container(
+                            placeholder: (_, _) => Container(
+                              color: AppColors.surface,
+                            ),
+                            errorWidget: (_, _, _) => Container(
                               color: AppColors.surface,
                               child: const Icon(
                                 Icons.music_note,
@@ -580,6 +597,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
         mainAxisSpacing: 24,
       ),
       itemCount: state.artists.length + (state.artistsHasMore ? 1 : 0),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.artists.length) {
           return const Center(
@@ -617,10 +637,15 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.network(
-                              artist.getPrimaryImageUrl(serverUrl, width: 300),
+                            CachedNetworkImage(
+                              imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 300),
+                              memCacheWidth: 360,
+                              fadeInDuration: const Duration(milliseconds: 150),
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => Container(
+                              placeholder: (_, _) => Container(
+                                color: AppColors.surface,
+                              ),
+                              errorWidget: (_, _, _) => Container(
                                 color: AppColors.surface,
                                 child: const Icon(
                                   Icons.person,
@@ -674,6 +699,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
         mainAxisSpacing: isCircle ? 24 : 16,
       ),
       itemCount: 12,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return ShimmerLoading(borderRadius: isCircle ? 100 : AppTheme.radiusMd);
       },
@@ -684,6 +712,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
     return ListView.builder(
       padding: const EdgeInsets.all(24),
       itemCount: 15,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -971,6 +1002,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
           mainAxisSpacing: 12,
         ),
         itemCount: state.albums.length + (state.albumsHasMore ? 1 : 0),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.albums.length) {
             return const Center(
@@ -999,10 +1033,15 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                     child: AspectRatio(
                       aspectRatio: 1,
-                      child: Image.network(
-                        album.getPrimaryImageUrl(serverUrl, width: 300),
+                      child: CachedNetworkImage(
+                        imageUrl: album.getPrimaryImageUrl(serverUrl, width: 300),
+                        memCacheWidth: 360,
+                        fadeInDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
+                        placeholder: (_, _) => Container(
+                          color: AppColors.surface,
+                        ),
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.album,
@@ -1076,6 +1115,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: state.tracks.length + (state.tracksHasMore ? 1 : 0),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.tracks.length) {
             return const Center(
@@ -1115,10 +1157,15 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                     child: SizedBox(
                       width: 48,
                       height: 48,
-                      child: Image.network(
-                        track.getPrimaryImageUrl(serverUrl, width: 100),
+                      child: CachedNetworkImage(
+                        imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
+                        memCacheWidth: 96,
+                        fadeInDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
+                        placeholder: (_, _) => Container(
+                          color: AppColors.surface,
+                        ),
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: Center(
                             child: Text(
@@ -1212,6 +1259,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
           mainAxisSpacing: 12,
         ),
         itemCount: state.artists.length + (state.artistsHasMore ? 1 : 0),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.artists.length) {
             return const Center(
@@ -1245,10 +1295,15 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                       ],
                     ),
                     child: ClipOval(
-                      child: Image.network(
-                        artist.getPrimaryImageUrl(serverUrl, width: 200),
+                      child: CachedNetworkImage(
+                        imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
+                        memCacheWidth: 240,
+                        fadeInDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
+                        placeholder: (_, _) => Container(
+                          color: AppColors.surface,
+                        ),
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.person,
@@ -1292,6 +1347,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         mainAxisSpacing: 12,
       ),
       itemCount: 6,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return ShimmerLoading(borderRadius: isCircle ? 100 : AppTheme.radiusMd);
       },
@@ -1302,6 +1360,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: 10,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),

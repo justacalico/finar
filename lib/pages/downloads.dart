@@ -421,6 +421,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
         mainAxisSpacing: 16,
       ),
       itemCount: downloads.length,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         final download = downloads[index];
         return _DownloadGridCard(
@@ -443,6 +446,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     return ListView.builder(
       padding: const EdgeInsets.all(24),
       itemCount: downloads.length,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         final download = downloads[index];
         return _DownloadListItem(
@@ -1007,6 +1013,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
       return CachedNetworkImage(
         imageUrl:
             '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
+        memCacheWidth: 400,
+        fadeInDuration: const Duration(milliseconds: 150),
         fit: BoxFit.cover,
         placeholder: (context, url) => _buildPlaceholder(),
         errorWidget: (_, e, st) => _buildPlaceholder(),
@@ -1407,6 +1415,8 @@ class _DownloadListItemState extends State<_DownloadListItem> {
         '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90';
     return CachedNetworkImage(
       imageUrl: imageUrl,
+      memCacheWidth: 160,
+      fadeInDuration: const Duration(milliseconds: 150),
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
         color: AppColors.glassBorder,

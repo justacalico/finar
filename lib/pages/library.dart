@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
 import '../../core/theme/app_theme.dart';
@@ -281,6 +282,9 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
       controller: _scrollController,
       padding: const EdgeInsets.all(32),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.items.length) {
           return const Center(
@@ -308,12 +312,19 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
             // Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              child: Image.network(
-                item.getDisplayImageUrl(serverUrl, width: 150),
+              child: CachedNetworkImage(
+                imageUrl: item.getDisplayImageUrl(serverUrl, width: 150),
+                memCacheWidth: 160,
+                fadeInDuration: const Duration(milliseconds: 150),
                 width: 80,
                 height: 120,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+                placeholder: (_, _) => Container(
+                  width: 80,
+                  height: 120,
+                  color: AppColors.surface,
+                ),
+                errorWidget: (_, _, _) => Container(
                   width: 80,
                   height: 120,
                   color: AppColors.surface,
@@ -403,6 +414,9 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
         mainAxisSpacing: 20,
       ),
       itemCount: 12,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return const ShimmerLoading(borderRadius: AppTheme.radiusMd);
       },
@@ -626,6 +640,9 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
           mainAxisSpacing: 12,
         ),
         itemCount: state.items.length + (state.hasMore ? 1 : 0),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
             return const Center(
@@ -659,6 +676,9 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: state.items.length + (state.hasMore ? 1 : 0),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
             return const Center(
@@ -687,12 +707,19 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
                 // Thumbnail
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  child: Image.network(
-                    item.getDisplayImageUrl(serverUrl, width: 100),
+                  child: CachedNetworkImage(
+                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
+                    memCacheWidth: 120,
+                    fadeInDuration: const Duration(milliseconds: 150),
                     width: 60,
                     height: 90,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                    placeholder: (_, _) => Container(
+                      width: 60,
+                      height: 90,
+                      color: AppColors.surface,
+                    ),
+                    errorWidget: (_, _, _) => Container(
                       width: 60,
                       height: 90,
                       color: AppColors.surface,
@@ -771,6 +798,9 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
         mainAxisSpacing: 12,
       ),
       itemCount: 9,
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         return const ShimmerLoading(borderRadius: AppTheme.radiusMd);
       },

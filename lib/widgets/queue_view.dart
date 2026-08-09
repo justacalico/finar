@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
 import '../core/api/models/media_item.dart';
+import '../core/theme/colors.dart';
 
 class QueueView extends ConsumerWidget {
   const QueueView({super.key});
@@ -244,12 +246,15 @@ class _QueueItem extends ConsumerWidget {
               // Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  item.getDisplayImageUrl(serverUrl, width: 100),
+                child: CachedNetworkImage(
+                  imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
+                  memCacheWidth: 96,
+                  fadeInDuration: const Duration(milliseconds: 150),
                   width: 48,
                   height: 48,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, e, s) => _buildPlaceholder(),
+                  placeholder: (_, _) => Container(color: AppColors.surface),
+                  errorWidget: (_, e, s) => _buildPlaceholder(),
                 ),
               ),
               const SizedBox(width: 12),

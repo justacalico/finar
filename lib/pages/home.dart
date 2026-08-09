@@ -819,10 +819,12 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   ),
                 ),
               )
-            : Image.network(
-                avatarUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Center(
+            : CachedNetworkImage(
+                imageUrl: avatarUrl,
+                memCacheWidth: 84,
+                fadeInDuration: const Duration(milliseconds: 150),
+                placeholder: (_, _) => Container(color: AppColors.surface),
+                errorWidget: (_, _, _) => Center(
                   child: Text(
                     fallbackLetter,
                     style: AppTextStyles.titleMedium.copyWith(
@@ -831,6 +833,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                     ),
                   ),
                 ),
+                fit: BoxFit.cover,
               ),
       ),
     );
@@ -1243,6 +1246,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
       });
 
     return ListView.builder(
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: false,
+      cacheExtent: 500,
       itemCount: sortedCategories.length,
       itemBuilder: (context, sectionIndex) {
         final category = sortedCategories[sectionIndex];
@@ -1321,6 +1327,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   clipBehavior: Clip.none,
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: items.length,
+                  addRepaintBoundaries: true,
+                  addAutomaticKeepAlives: false,
+                  cacheExtent: 500,
                   separatorBuilder: (_, _) => const SizedBox(width: 16),
                   itemBuilder: (context, index) {
                     final item = items[index];
@@ -1406,6 +1415,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
+              addRepaintBoundaries: true,
+              addAutomaticKeepAlives: false,
+              cacheExtent: 1000,
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -1797,10 +1809,12 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                     child: SizedBox(
                       width: 80,
                       height: 45,
-                      child: Image.network(
-                        item.getDisplayImageUrl(serverUrl, width: 200),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
+                      child: CachedNetworkImage(
+                        imageUrl: item.getDisplayImageUrl(serverUrl, width: 200),
+                        memCacheWidth: 160,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        placeholder: (_, _) => Container(color: AppColors.surface),
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.movie,
@@ -1808,6 +1822,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                             size: 24,
                           ),
                         ),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -2225,7 +2240,7 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutCubic,
@@ -2543,7 +2558,9 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
               // Hero carousel
               if (heroItems.isNotEmpty)
                 SliverToBoxAdapter(
-                  child: _buildHeroCarousel(heroItems, serverUrl),
+                  child: RepaintBoundary(
+                    child: _buildHeroCarousel(heroItems, serverUrl),
+                  ),
                 ),
 
               // Continue watching
@@ -2814,6 +2831,8 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
               // Background image
               CachedNetworkImage(
                 imageUrl: item.getBackdropImageUrl(serverUrl, width: 800),
+                memCacheWidth: 800,
+                memCacheHeight: 1000,
                 fit: BoxFit.cover,
                 placeholder: (_, _) => Container(
                   color: _dominantColor.withValues(alpha: 0.3),
@@ -3081,6 +3100,8 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                   // Background image
                   CachedNetworkImage(
                     imageUrl: item.getDisplayImageUrl(serverUrl, width: 400),
+                    memCacheWidth: 440,
+                    memCacheHeight: 320,
                     fit: BoxFit.cover,
                   ),
 
@@ -3441,6 +3462,9 @@ class _MobileSeeAllPage extends StatelessWidget {
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
+        addRepaintBoundaries: true,
+        addAutomaticKeepAlives: false,
+        cacheExtent: 1000,
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
@@ -3528,6 +3552,9 @@ class _MobileSearchPageState extends ConsumerState<_MobileSearchPage> {
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
                         ),
+                    addRepaintBoundaries: true,
+                    addAutomaticKeepAlives: false,
+                    cacheExtent: 1000,
                     itemCount: searchResults.length,
                     itemBuilder: (context, index) {
                       final item = searchResults[index];
@@ -3910,6 +3937,9 @@ class _MobileDownloadsPage extends ConsumerWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              addRepaintBoundaries: true,
+              addAutomaticKeepAlives: false,
+              cacheExtent: 500,
               itemCount: downloads.length,
               itemBuilder: (context, index) {
                 final download = downloads[index];
@@ -4138,6 +4168,8 @@ class _DownloadListTile extends StatelessWidget {
             '$serverUrl/Items/${download.itemId}/Images/Primary?fillHeight=120&fillWidth=80&tag=${download.primaryImageTag}',
         width: 56,
         height: 80,
+        memCacheWidth: 112,
+        memCacheHeight: 160,
         fit: BoxFit.cover,
         placeholder: (_, _) => _buildPlaceholder(),
         errorWidget: (_, _, _) => _buildPlaceholder(),
