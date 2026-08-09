@@ -141,29 +141,27 @@ class _DetailArtistAlbumsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final albumsAsync = ref.watch(artistAlbumsProvider(artistId));
-    return RepaintBoundary(
-      child: Padding(
-        padding: isDesktop
-            ? const EdgeInsets.fromLTRB(64, 0, 64, 40)
-            : const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Albums',
-              style: isDesktop
-                  ? AppTextStyles.titleLarge
-                  : AppTextStyles.titleMedium,
-            ),
-            SizedBox(height: isDesktop ? 16 : 12),
-            SizedBox(
-              height: isDesktop ? 280 : 200,
-              child: albumsAsync.when(
-                data: (albums) {
-                  if (albums.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return ListView.separated(
+    return albumsAsync.when(
+      data: (albums) {
+        if (albums.isEmpty) return const SizedBox.shrink();
+        return RepaintBoundary(
+          child: Padding(
+            padding: isDesktop
+                ? const EdgeInsets.fromLTRB(64, 0, 64, 40)
+                : const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Albums',
+                  style: isDesktop
+                      ? AppTextStyles.titleLarge
+                      : AppTextStyles.titleMedium,
+                ),
+                SizedBox(height: isDesktop ? 16 : 12),
+                SizedBox(
+                  height: isDesktop ? 280 : 200,
+                  child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     clipBehavior: Clip.none,
                     addRepaintBoundaries: true,
@@ -197,17 +195,17 @@ class _DetailArtistAlbumsSection extends ConsumerWidget {
                         },
                       );
                     },
-                  );
-                },
-                loading: () => isDesktop
-                    ? const _LoadingShimmer(height: 280)
-                    : const ShimmerLoading(height: 200),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-            ),
-          ],
-        ).animate().fadeIn(delay: isDesktop ? 400.ms : 200.ms),
-      ),
+                  ),
+                ),
+              ],
+            ).animate().fadeIn(delay: isDesktop ? 400.ms : 200.ms),
+          ),
+        );
+      },
+      loading: () => isDesktop
+          ? const _LoadingShimmer(height: 280)
+          : const ShimmerLoading(height: 200),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
