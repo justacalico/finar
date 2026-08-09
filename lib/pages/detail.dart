@@ -127,6 +127,98 @@ class _DetailSimilarSection extends ConsumerWidget {
   }
 }
 
+class _DetailArtistAlbumsSection extends ConsumerWidget {
+  const _DetailArtistAlbumsSection({
+    required this.artistId,
+    required this.serverUrl,
+    this.isDesktop = true,
+  });
+
+  final String artistId;
+  final String serverUrl;
+  final bool isDesktop;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final albumsAsync = ref.watch(artistAlbumsProvider(artistId));
+    return RepaintBoundary(
+      child: Padding(
+        padding: isDesktop
+            ? const EdgeInsets.fromLTRB(64, 0, 64, 40)
+            : const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Albums',
+              style: isDesktop
+                  ? AppTextStyles.titleLarge
+                  : AppTextStyles.titleMedium,
+            ),
+            SizedBox(height: isDesktop ? 16 : 12),
+            SizedBox(
+              height: isDesktop ? 280 : 200,
+              child: albumsAsync.when(
+                data: (albums) {
+                  if (albums.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No albums found',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    addRepaintBoundaries: true,
+                    addAutomaticKeepAlives: false,
+                    cacheExtent: 500,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isDesktop ? 6 : 0,
+                      vertical: isDesktop ? 8 : 0,
+                    ),
+                    itemCount: albums.length,
+                    separatorBuilder: (_, _) =>
+                        SizedBox(width: isDesktop ? 16 : 12),
+                    itemBuilder: (context, index) {
+                      final album = albums[index];
+                      return AnimatedCard(
+                        width: isDesktop ? 160 : 120,
+                        imageUrl: album.getDisplayImageUrl(
+                          serverUrl,
+                          width: isDesktop ? 300 : 200,
+                        ),
+                        title: album.name,
+                        subtitle: album.productionYear?.toString(),
+                        animationIndex: index,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AdaptiveDetailPage(itemId: album.id),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+                loading: () => isDesktop
+                    ? const _LoadingShimmer(height: 280)
+                    : const ShimmerLoading(height: 200),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
+        ).animate().fadeIn(delay: isDesktop ? 400.ms : 200.ms),
+      ),
+    );
+  }
+}
+
 class _DetailDesktop extends ConsumerStatefulWidget {
   final String itemId;
   final String? initialSeasonId;
@@ -287,6 +379,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 // Album Tracks (for Music Albums) — virtualized
                 if (item.type == MediaType.album)
                   ..._buildAlbumTracksSlivers(item, serverUrl),
+
+                // Artist Albums (for Music Artists)
+                if (item.type == MediaType.artist)
+                  SliverToBoxAdapter(
+                    child: _DetailArtistAlbumsSection(
+                      artistId: item.id,
+                      serverUrl: serverUrl,
+                      isDesktop: true,
+                    ),
+                  ),
 
                 // Cast & Crew
                 if (item.people?.isNotEmpty == true)
@@ -515,6 +617,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Play button with controller focus support
+            if (item.type != MediaType.artist)
             FocusTraversalOrder(
               order: const NumericFocusOrder(0),
               child: _FocusableActionButton(
@@ -657,6 +760,15 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                     decoration: TextDecoration.none,
                   ),
                 ),
+                if (item.overview == null && item.type == MediaType.artist) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '${item.name} is a music artist in your library.',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
                 if (item.taglines?.isNotEmpty == true) ...[
                   const SizedBox(height: 20),
                   Container(
@@ -2352,6 +2464,16 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
         // Album tracks section for music albums — virtualized
         if (item.type == MediaType.album) ..._buildAlbumTracksSlivers(item, serverUrl),
 
+        // Artist albums section
+        if (item.type == MediaType.artist)
+          SliverToBoxAdapter(
+            child: _DetailArtistAlbumsSection(
+              artistId: item.id,
+              serverUrl: serverUrl,
+              isDesktop: false,
+            ),
+          ),
+
         // Cast section
         if (item.people?.isNotEmpty == true)
           SliverToBoxAdapter(child: _buildCastSection(item, serverUrl)),
@@ -2560,6 +2682,7 @@ class _DetailMobileState extends ConsumerState<_DetailMobile>
     return Row(
       children: [
         // Primary play button
+        if (item.type != MediaType.artist)
         Expanded(
           child: SizedBox(
             height: 52,

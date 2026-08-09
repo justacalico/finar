@@ -454,6 +454,11 @@ class MediaService {
     return await _api.getAlbumTracks(albumId);
   }
 
+  /// Get albums by artist
+  Future<List<MediaItem>> getArtistAlbums(String artistId) async {
+    return await _api.getArtistAlbums(artistId);
+  }
+
   /// Get library content (albums for music, regular items otherwise)
   Future<LibraryContent> getMusicLibraryContent(
     String libraryId, {

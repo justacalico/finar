@@ -33,6 +33,17 @@ final albumTracksProvider = FutureProvider.family<List<MediaItem>, String>((
   return mediaService.getAlbumTracks(albumId);
 });
 
+final artistAlbumsProvider = FutureProvider.family<List<MediaItem>, String>((
+  ref,
+  artistId,
+) async {
+  final link = ref.keepAlive();
+  Future.delayed(const Duration(minutes: 5), () => link.close());
+
+  final mediaService = ref.watch(mediaServiceProvider);
+  return mediaService.getArtistAlbums(artistId);
+});
+
 /// Provider for library content with pagination
 final libraryContentProvider =
     StateNotifierProvider.family<
