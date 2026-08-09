@@ -73,6 +73,8 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
   double _volume = 1.0;
   double _seekPosition = 0;
 
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void initState() {
     super.initState();
@@ -81,41 +83,53 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
   }
 
   void _setupListeners() {
-    widget.player.stream.position.listen((position) {
-      if (!_isSeeking && mounted) {
-        setState(() => _position = position);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.position.listen((position) {
+        if (!_isSeeking && mounted) {
+          setState(() => _position = position);
+        }
+      }),
+    );
 
-    widget.player.stream.duration.listen((duration) {
-      if (mounted) {
-        setState(() => _duration = duration);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.duration.listen((duration) {
+        if (mounted) {
+          setState(() => _duration = duration);
+        }
+      }),
+    );
 
-    widget.player.stream.buffer.listen((buffer) {
-      if (mounted) {
-        setState(() => _bufferedPosition = buffer);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.buffer.listen((buffer) {
+        if (mounted) {
+          setState(() => _bufferedPosition = buffer);
+        }
+      }),
+    );
 
-    widget.player.stream.playing.listen((playing) {
-      if (mounted) {
-        setState(() => _isPlaying = playing);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.playing.listen((playing) {
+        if (mounted) {
+          setState(() => _isPlaying = playing);
+        }
+      }),
+    );
 
-    widget.player.stream.buffering.listen((buffering) {
-      if (mounted) {
-        setState(() => _isBuffering = buffering);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.buffering.listen((buffering) {
+        if (mounted) {
+          setState(() => _isBuffering = buffering);
+        }
+      }),
+    );
 
-    widget.player.stream.volume.listen((volume) {
-      if (mounted) {
-        setState(() => _volume = volume / 100);
-      }
-    });
+    _subscriptions.add(
+      widget.player.stream.volume.listen((volume) {
+        if (mounted) {
+          setState(() => _volume = volume / 100);
+        }
+      }),
+    );
   }
 
   void _startHideTimer() {
@@ -182,6 +196,9 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
   @override
   void dispose() {
     _hideTimer?.cancel();
+    for (final sub in _subscriptions) {
+      sub.cancel();
+    }
     super.dispose();
   }
 

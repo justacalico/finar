@@ -19,7 +19,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 /// Helper to convert exceptions to user-friendly messages
 String _getErrorMessage(dynamic error) {
   if (kDebugMode) {
-    print('Auth error: $error');
+    debugPrint('Auth error: $error');
   }
   
   if (error is DioException) {
@@ -128,11 +128,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.error(_getErrorMessage(e));
       return false;
     }
-  }
-
-  /// Restore session from storage (alias for initialize)
-  Future<void> restoreSession() async {
-    await initialize();
   }
 
   /// Login with credentials

@@ -41,7 +41,7 @@ class _FinarAppState extends ConsumerState<FinarApp> {
 
     // Defer auth restoration and gamepad setup to after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authProvider.notifier).restoreSession();
+      ref.read(authProvider.notifier).initialize();
       _setupGamepadListener();
     });
   }

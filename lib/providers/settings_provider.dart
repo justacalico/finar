@@ -419,11 +419,6 @@ final animationsEnabledProvider = Provider<bool>((ref) {
   return settings.enableAnimations && !settings.reducedMotion;
 });
 
-/// Forced UI mode provider (deprecated, always auto)
-final forcedUiModeProvider = Provider<UiMode>((ref) {
-  return UiMode.auto;
-});
-
 /// Accent color options for theme (index, label, color)
 const accentColorOptions = [
   (0, 'Teal', Color(0xFF00E5B8)),

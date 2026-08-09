@@ -47,11 +47,8 @@ class JellyfinApi {
         return handler.next(options);
       },
       onError: (error, handler) {
-        // Only log non-401 errors in debug mode (401 is expected for auth checks)
         if (kDebugMode && error.response?.statusCode != 401) {
-          if (kDebugMode) {
-            print('Jellyfin API Error: ${error.response?.statusCode} - ${error.message}');
-          }
+          debugPrint('Jellyfin API Error: ${error.response?.statusCode} - ${error.message}');
         }
         return handler.next(error);
       },

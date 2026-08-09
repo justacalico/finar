@@ -180,14 +180,14 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
       );
       
       if (kDebugMode) {
-        print('GamepadNotifier: Initialized with ${gamepads.length} gamepad(s)');
+        debugPrint('GamepadNotifier: Initialized with ${gamepads.length} gamepad(s)');
         for (final gp in gamepads) {
-          print('  - ${gp.name} (ID: ${gp.id})');
+          debugPrint('  - ${gp.name} (ID: ${gp.id})');
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('GamepadNotifier: Failed to initialize gamepads: $e');
+        debugPrint('GamepadNotifier: Failed to initialize gamepads: $e');
       }
     }
   }
@@ -214,7 +214,7 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     final key = event.key.toLowerCase();
     
     if (kDebugMode) {
-      print('GamepadNotifier: Button event - key: $key, value: ${event.value}');
+      debugPrint('GamepadNotifier: Button event - key: $key, value: ${event.value}');
     }
     
     // Only handle button press (value == 1.0), not release (value == 0.0)
@@ -374,7 +374,7 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
     final value = event.value;
     
     if (kDebugMode) {
-      print('GamepadNotifier: Analog event - key: $axisKey, value: $value');
+      debugPrint('GamepadNotifier: Analog event - key: $axisKey, value: $value');
     }
     
     // Store the current axis value
@@ -461,7 +461,7 @@ class GamepadNotifier extends StateNotifier<GamepadState> {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('GamepadNotifier: Failed to refresh gamepads: $e');
+        debugPrint('GamepadNotifier: Failed to refresh gamepads: $e');
       }
     }
   }
