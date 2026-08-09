@@ -509,7 +509,9 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
 
             // Info
             Expanded(
-              child: Column(
+              child: SingleChildScrollView(
+                reverse: true,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -552,6 +554,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   _buildActionButtons(item),
                 ],
               ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.1),
+              ),
             ),
           ],
         ),
