@@ -530,14 +530,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
               height: 76 * scale,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
-                    blurRadius: 24,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: SvgPicture.asset(
                 'icon.svg',
