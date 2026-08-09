@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dpad/dpad.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/colors.dart';
@@ -234,20 +235,11 @@ class _SplashScreen extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
-              child: Icon(
-                Icons.play_circle_fill_rounded,
-                color: AppColors.textOnPrimary,
-                size: 48,
+              child: SvgPicture.asset(
+                'icon.svg',
+                fit: BoxFit.contain,
               ),
             ),
             const SizedBox(height: 24),
