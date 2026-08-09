@@ -62,6 +62,12 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
   bool _sidebarFocused = false;
   int _focusedNavIndex = 0;
 
+  // Sidebar collapse state (user toggle; auto-collapse also applies on narrow widths)
+  bool _sidebarCollapsed = false;
+  static const double _sidebarWidthExpanded = 260;
+  static const double _sidebarWidthCollapsed = 72;
+  static const double _sidebarAutoCollapseThreshold = 900;
+
   @override
   void initState() {
     super.initState();
@@ -349,8 +355,16 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
   }
 
   Widget _buildSidebar(AsyncValue<List<Library>> librariesAsync) {
-    return Container(
-          width: 260,
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final autoCollapsed = screenWidth < _sidebarAutoCollapseThreshold;
+    final collapsed = _sidebarCollapsed || autoCollapsed;
+    final sidebarWidth =
+        collapsed ? _sidebarWidthCollapsed : _sidebarWidthExpanded;
+
+    return AnimatedContainer(
+          duration: AppTheme.durationNormal,
+          curve: Curves.easeOutCubic,
+          width: sidebarWidth,
           decoration: BoxDecoration(
             color: AppColors.backgroundSecondary,
             border: Border(
@@ -369,11 +383,14 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   children: [
                     // App logo as part of sidebar content
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: collapsed ? 14 : 24,
                         vertical: 16,
                       ),
                       child: Row(
+                        mainAxisAlignment: collapsed
+                            ? MainAxisAlignment.center
+                            : MainAxisAlignment.start,
                         children: [
                           Container(
                             width: 44,
@@ -386,14 +403,16 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                               fit: BoxFit.contain,
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Text(
-                            'Finar',
-                            style: AppTextStyles.headlineMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
+                          if (!collapsed) ...[
+                            const SizedBox(width: 14),
+                            Text(
+                              'Finar',
+                              style: AppTextStyles.headlineMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -406,6 +425,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       label: 'Home',
                       index: 0,
                       focusIndex: 0,
+                      collapsed: collapsed,
                     ),
                     _buildNavItem(
                       icon: Icons.search_outlined,
@@ -413,6 +433,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       label: 'Search',
                       index: 1,
                       focusIndex: 1,
+                      collapsed: collapsed,
                     ),
                     _buildNavItem(
                       icon: Icons.favorite_outline_rounded,
@@ -420,6 +441,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       label: 'Favorites',
                       index: 2,
                       focusIndex: 2,
+                      collapsed: collapsed,
                     ),
                     if (!kIsWeb)
                       _buildNavItem(
@@ -428,6 +450,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                         label: 'Downloads',
                         index: 3,
                         focusIndex: 3,
+                        collapsed: collapsed,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -438,17 +461,18 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                         },
                       ),
 
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
-                      child: Text(
-                        'LIBRARIES',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textTertiary,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.2,
+                    if (!collapsed)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
+                        child: Text(
+                          'LIBRARIES',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textTertiary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
                         ),
                       ),
-                    ),
 
                     librariesAsync.when(
                       data: (libraries) => Column(
@@ -456,8 +480,11 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                             .asMap()
                             .entries
                             .map(
-                              (entry) =>
-                                  _buildLibraryItem(entry.value, entry.key + 4),
+                              (entry) => _buildLibraryItem(
+                                entry.value,
+                                entry.key + 4,
+                                collapsed: collapsed,
+                              ),
                             )
                             .toList(),
                       ),
@@ -468,19 +495,22 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       error: (_, _) => const SizedBox(),
                     ),
 
-                    const SizedBox(height: 20),
-                    Divider(
-                      color: AppColors.divider.withValues(alpha: 0.5),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
+                    if (!collapsed) ...[
+                      const SizedBox(height: 20),
+                      Divider(
+                        color: AppColors.divider.withValues(alpha: 0.5),
+                        indent: 16,
+                        endIndent: 16,
+                      ),
+                    ],
 
                     _buildNavItem(
                       icon: Icons.settings_outlined,
                       activeIcon: Icons.settings_rounded,
                       label: 'Settings',
                       index: 100,
-                      focusIndex: 100, // Settings always at high index
+                      focusIndex: 100,
+                      collapsed: collapsed,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -494,14 +524,69 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                 ),
               ),
 
+              // Collapse/expand toggle
+              _buildSidebarToggle(collapsed, autoCollapsed),
+
               // User profile
-              _buildUserProfile(),
+              _buildUserProfile(collapsed: collapsed),
             ],
           ),
         )
         .animate()
         .fadeIn(duration: AppTheme.durationNormal)
         .slideX(begin: -0.05, end: 0, duration: AppTheme.durationNormal);
+  }
+
+  Widget _buildSidebarToggle(bool collapsed, bool autoCollapsed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: autoCollapsed
+              ? null
+              : () => setState(() => _sidebarCollapsed = !collapsed),
+          child: Tooltip(
+            message: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
+            child: AnimatedContainer(
+              duration: AppTheme.durationFast,
+              padding: EdgeInsets.symmetric(
+                horizontal: collapsed ? 14 : 16,
+                vertical: 12,
+              ),
+              child: Row(
+                mainAxisAlignment: collapsed
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    collapsed
+                        ? Icons.keyboard_double_arrow_right_rounded
+                        : Icons.keyboard_double_arrow_left_rounded,
+                    size: 20,
+                    color: autoCollapsed
+                        ? AppColors.textTertiary
+                        : AppColors.textSecondary,
+                  ),
+                  if (!collapsed) ...[
+                    const SizedBox(width: 14),
+                    Text(
+                      'Collapse',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildNavItem({
@@ -511,6 +596,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     required int index,
     int? focusIndex,
     VoidCallback? onTap,
+    bool collapsed = false,
   }) {
     final isSelected = _selectedIndex == index && _selectedLibraryId == null;
     final isFocused =
@@ -535,45 +621,56 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                   _expandedCategoryItems = null;
                 });
               },
-          child: AnimatedContainer(
-            duration: AppTheme.durationFast,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-                  : isFocused
-                  ? AppColors.glassActive
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isFocused
-                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
-                  : isSelected
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                      width: 1,
-                    )
-                  : null,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  isSelected ? activeIcon : icon,
-                  size: 22,
-                  color: isSelected || isFocused
-                      ? Theme.of(context).colorScheme.primary
-                      : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 14),
-                Text(
-                  label,
-                  style: AppTextStyles.bodyMedium.copyWith(
+          child: Tooltip(
+            message: collapsed ? label : '',
+            child: AnimatedContainer(
+              duration: AppTheme.durationFast,
+              padding: EdgeInsets.symmetric(
+                horizontal: collapsed ? 14 : 16,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+                    : isFocused
+                    ? AppColors.glassActive
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: isFocused
+                    ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                    : isSelected
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      )
+                    : null,
+              ),
+              child: Row(
+                mainAxisAlignment: collapsed
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    isSelected ? activeIcon : icon,
+                    size: 22,
                     color: isSelected || isFocused
-                        ? AppColors.textPrimary
+                        ? Theme.of(context).colorScheme.primary
                         : AppColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
-                ),
-              ],
+                  if (!collapsed) ...[
+                    const SizedBox(width: 14),
+                    Text(
+                      label,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: isSelected || isFocused
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -581,7 +678,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     );
   }
 
-  Widget _buildLibraryItem(Library library, int focusIndex) {
+  Widget _buildLibraryItem(Library library, int focusIndex, {bool collapsed = false}) {
     final isSelected = _selectedLibraryId == library.id;
     final isFocused = _sidebarFocused && _focusedNavIndex == focusIndex;
     final icon = _getLibraryIcon(library.icon);
@@ -600,72 +697,83 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
               _selectedIndex = -1;
             });
           },
-          child: AnimatedContainer(
-            duration: AppTheme.durationFast,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-                  : isFocused
-                  ? AppColors.glassActive
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isFocused
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                      width: 2,
-                    )
-                  : isSelected
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                      width: 1,
-                    )
-                  : null,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 22,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    library.name,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: isSelected
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          child: Tooltip(
+            message: collapsed ? library.name : '',
+            child: AnimatedContainer(
+              duration: AppTheme.durationFast,
+              padding: EdgeInsets.symmetric(
+                horizontal: collapsed ? 14 : 16,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+                    : isFocused
+                    ? AppColors.glassActive
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: isFocused
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                        width: 2,
+                      )
+                    : isSelected
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      )
+                    : null,
+              ),
+              child: Row(
+                mainAxisAlignment: collapsed
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.textSecondary,
                   ),
-                ),
-                if (library.childCount != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      library.childCount.toString(),
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
-                        fontWeight: FontWeight.w500,
+                  if (!collapsed) ...[
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        library.name,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: isSelected
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
-              ],
+                    if (library.childCount != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          library.childCount.toString(),
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textTertiary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -698,12 +806,22 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
     }
   }
 
-  Widget _buildUserProfile() {
+  Widget _buildUserProfile({bool collapsed = false}) {
     final user = ref.watch(currentUserProvider);
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     final userName = user?.name.trim();
     final hasUserName = userName != null && userName.isNotEmpty;
     final avatarLetter = hasUserName ? userName[0].toUpperCase() : '?';
+
+    if (collapsed) {
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: Tooltip(
+          message: hasUserName ? userName : 'Guest',
+          child: _buildUserAvatar(user, serverUrl, avatarLetter),
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.all(16),
