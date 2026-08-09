@@ -28,7 +28,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _useHttps = true;
   String? _error;
+
+  String _getServerUrl() {
+    final host = _serverController.text.trim();
+    final prefix = _useHttps ? 'https://' : 'http://';
+    if (host.startsWith('http://') || host.startsWith('https://')) {
+      return host;
+    }
+    return '$prefix$host';
+  }
 
   bool _showQuickConnect = false;
   String? _quickConnectCode;
@@ -61,7 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final success = await ref
           .read(authProvider.notifier)
           .login(
-            serverUrl: _serverController.text.trim(),
+            serverUrl: _getServerUrl(),
             username: _usernameController.text.trim(),
             password: _passwordController.text,
           );
@@ -109,7 +119,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     try {
       final connected = await ref
           .read(authProvider.notifier)
-          .connectToServer(_serverController.text.trim());
+          .connectToServer(_getServerUrl());
 
       if (!connected) {
         setState(() {
@@ -218,22 +228,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   SizedBox(height: isTV ? 48 : 40),
 
-                  _buildField(
-                    controller: _serverController,
-                    focusNode: _serverFocusNode,
-                    label: 'Server URL',
-                    hint: 'https://jellyfin.example.com',
-                    keyboardType: TextInputType.url,
-                    textInputAction: TextInputAction.next,
-                    onSubmitted: (_) => _usernameFocusNode.requestFocus(),
-                    isTV: isTV,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Enter your server URL';
-                      if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                        return 'URL must start with http:// or https://';
-                      }
-                      return null;
-                    },
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProtocolSelector(isTV),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildField(
+                          controller: _serverController,
+                          focusNode: _serverFocusNode,
+                          label: 'Server URL',
+                          hint: 'jellyfin.example.com',
+                          keyboardType: TextInputType.url,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) => _usernameFocusNode.requestFocus(),
+                          isTV: isTV,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Enter your server URL';
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: isTV ? 20 : 16),
 
@@ -387,6 +403,49 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProtocolSelector(bool isTV) {
+    return SizedBox(
+      width: 110,
+      child: DropdownButtonFormField<String>(
+        initialValue: _useHttps ? 'https://' : 'http://',
+        decoration: InputDecoration(
+          labelText: 'Protocol',
+          labelStyle: TextStyle(color: AppColors.textSecondary, fontSize: isTV ? 16 : 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.divider),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.divider),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: isTV ? 20 : 16,
+          ),
+        ),
+        items: const [
+          DropdownMenuItem(value: 'https://', child: Text('https://')),
+          DropdownMenuItem(value: 'http://', child: Text('http://')),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _useHttps = value == 'https://');
+          }
+        },
+        style: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: isTV ? 18 : 16,
+        ),
+        dropdownColor: AppColors.surfaceElevated,
       ),
     );
   }
