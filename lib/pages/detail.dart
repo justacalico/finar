@@ -161,14 +161,7 @@ class _DetailArtistAlbumsSection extends ConsumerWidget {
               child: albumsAsync.when(
                 data: (albums) {
                   if (albums.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No albums found',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    );
+                    return const SizedBox.shrink();
                   }
                   return ListView.separated(
                     scrollDirection: Axis.horizontal,
@@ -368,7 +361,12 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                 SliverToBoxAdapter(child: _buildHeroSection(item, serverUrl)),
 
                 // Info section
-                SliverToBoxAdapter(child: _buildInfoSection(item, serverUrl)),
+                if (item.overview != null ||
+                    item.studios?.isNotEmpty == true ||
+                    item.productionYear != null ||
+                    item.container != null ||
+                    item.mediaStreams?.isNotEmpty == true)
+                  SliverToBoxAdapter(child: _buildInfoSection(item, serverUrl)),
 
                 // Episodes (for TV Shows)
                 if (item.type == MediaType.series)
@@ -734,70 +732,71 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
   }
 
   Widget _buildInfoSection(MediaItem item, String serverUrl) {
+    final hasOverview = item.overview != null;
+    final hasDetails = item.studios?.isNotEmpty == true ||
+        item.productionYear != null ||
+        item.container != null ||
+        (item.mediaStreams?.isNotEmpty == true);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(64, 0, 64, 48),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Overview
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Overview',
-                  style: AppTextStyles.titleLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  item.overview ?? 'No overview available.',
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    height: 1.7,
-                    color: AppColors.textSecondary,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-                if (item.overview == null && item.type == MediaType.artist) ...[
-                  const SizedBox(height: 8),
+          if (hasOverview) ...[
+            // Overview
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    '${item.name} is a music artist in your library.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                    'Overview',
+                    style: AppTextStyles.titleLarge.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-                if (item.taglines?.isNotEmpty == true) ...[
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
+                  const SizedBox(height: 14),
+                  Text(
+                    item.overview!,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      height: 1.7,
+                      color: AppColors.textSecondary,
+                      decoration: TextDecoration.none,
                     ),
-                    child: Text(
-                      '"${item.taglines!.first}"',
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: Theme.of(context).colorScheme.primary,
+                  ),
+                  if (item.taglines?.isNotEmpty == true) ...[
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
                       ),
+                      child: Text(
+                        '"${item.taglines!.first}"',
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                     ),
                   ),
                 ],
               ],
             ),
           ),
+          ],
 
-          const SizedBox(width: 64),
+          if (hasOverview && hasDetails)
+            const SizedBox(width: 64),
 
           // Additional info
-          Expanded(child: _buildAdditionalInfo(item)),
+          if (hasDetails)
+            Expanded(child: _buildAdditionalInfo(item)),
         ],
       ),
     ).animate().fadeIn(delay: 300.ms);
