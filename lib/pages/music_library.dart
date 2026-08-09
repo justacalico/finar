@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/text_styles.dart';
@@ -346,6 +345,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                           CachedNetworkImage(
                             imageUrl: album.getPrimaryImageUrl(serverUrl, width: 400),
                             memCacheWidth: 440,
+                            memCacheHeight: 440,
                             fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
                             placeholder: (_, _) => Container(
@@ -403,10 +403,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               ),
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 15) * 30))
-        .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1));
+        );
   }
 
   Widget _buildTracksList(MusicLibraryState state, String serverUrl) {
@@ -483,6 +480,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                           child: CachedNetworkImage(
                             imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
                             memCacheWidth: 96,
+                            memCacheHeight: 96,
                             fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
                             placeholder: (_, _) => Container(
@@ -577,10 +575,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               ),
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 20) * 20))
-        .slideX(begin: 0.02, end: 0);
+        );
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -634,6 +629,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                           CachedNetworkImage(
                             imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 300),
                             memCacheWidth: 360,
+                            memCacheHeight: 360,
                             fadeInDuration: const Duration(milliseconds: 150),
                             fit: BoxFit.cover,
                             placeholder: (_, _) => Container(
@@ -676,10 +672,7 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
               ],
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 15) * 40))
-        .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1));
+        );
   }
 
   Widget _buildLoadingGrid({bool isCircle = false}) {
@@ -1033,6 +1026,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                       child: CachedNetworkImage(
                         imageUrl: album.getPrimaryImageUrl(serverUrl, width: 300),
                         memCacheWidth: 360,
+                        memCacheHeight: 360,
                         fadeInDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
@@ -1080,13 +1074,6 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
               ],
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 10) * 50))
-        .scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1, 1),
-          curve: Curves.easeOut,
         );
   }
 
@@ -1157,6 +1144,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                       child: CachedNetworkImage(
                         imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
                         memCacheWidth: 96,
+                        memCacheHeight: 96,
                         fadeInDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
@@ -1227,10 +1215,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
               ),
             ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 15) * 30))
-        .slideX(begin: 0.05, end: 0);
+        );
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -1289,6 +1274,7 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
                     child: CachedNetworkImage(
                       imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
                       memCacheWidth: 240,
+                      memCacheHeight: 240,
                       fadeInDuration: const Duration(milliseconds: 150),
                       fit: BoxFit.cover,
                       placeholder: (_, _) => Container(
@@ -1317,13 +1303,6 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
               ),
             ],
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: (index % 10) * 50))
-        .scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1, 1),
-          curve: Curves.easeOut,
         );
   }
 

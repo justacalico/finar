@@ -22,6 +22,7 @@ class AnimatedCard extends StatefulWidget {
   final Widget? badge;
   final Widget? overlay;
   final int animationIndex;
+  final bool enableEntranceAnimation;
   final double? width;
   final double? height;
   final bool autofocus;
@@ -42,6 +43,7 @@ class AnimatedCard extends StatefulWidget {
     this.badge,
     this.overlay,
     this.animationIndex = 0,
+    this.enableEntranceAnimation = true,
     this.width,
     this.height,
     this.autofocus = false,
@@ -273,7 +275,7 @@ class _AnimatedCardState extends State<AnimatedCard> {
           : AspectRatio(aspectRatio: effectiveAspectRatio, child: cardContent),
     );
 
-    return Focus(
+    Widget result = Focus(
           focusNode: _focusNode,
           autofocus: widget.autofocus,
           onKeyEvent: _handleKeyEvent,
@@ -308,19 +310,25 @@ class _AnimatedCardState extends State<AnimatedCard> {
               ),
             ),
           ),
-        )
-        .animate()
-        .fadeIn(
-          delay: Duration(milliseconds: widget.animationIndex * 50),
-          duration: AppTheme.durationNormal,
-        )
-        .slideY(
-          begin: 0.1,
-          end: 0,
-          delay: Duration(milliseconds: widget.animationIndex * 50),
-          duration: AppTheme.durationNormal,
-          curve: AppTheme.curveSmooth,
         );
+
+    if (widget.enableEntranceAnimation) {
+      result = result
+          .animate()
+          .fadeIn(
+            delay: Duration(milliseconds: widget.animationIndex * 50),
+            duration: AppTheme.durationNormal,
+          )
+          .slideY(
+            begin: 0.1,
+            end: 0,
+            delay: Duration(milliseconds: widget.animationIndex * 50),
+            duration: AppTheme.durationNormal,
+            curve: AppTheme.curveSmooth,
+          );
+    }
+
+    return result;
   }
 
   Widget _buildImage() {
@@ -332,7 +340,8 @@ class _AnimatedCardState extends State<AnimatedCard> {
       child: CachedNetworkImage(
         imageUrl: widget.imageUrl!,
         fit: BoxFit.cover,
-        memCacheWidth: 400, // Limit memory cache size for better performance
+        memCacheWidth: 400,
+        memCacheHeight: 600,
         fadeInDuration: const Duration(milliseconds: 150),
         fadeOutDuration: const Duration(milliseconds: 150),
         placeholder: (context, url) => const ShimmerLoading(),
@@ -551,6 +560,8 @@ class _HeroCardState extends State<HeroCard> {
                     CachedNetworkImage(
                       imageUrl: widget.imageUrl!,
                       fit: BoxFit.cover,
+                      memCacheWidth: 1280,
+                      memCacheHeight: 720,
                       placeholder: (context, url) =>
                           Container(color: AppColors.surface),
                       errorWidget: (context, url, error) =>
