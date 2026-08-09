@@ -509,11 +509,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
 
             // Info
             Expanded(
-              child: SingleChildScrollView(
-                reverse: true,
-                child: Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Logo or title
                   if (item.logoImageTag != null)
@@ -554,7 +553,6 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   _buildActionButtons(item),
                 ],
               ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.1),
-              ),
             ),
           ],
         ),
@@ -609,10 +607,11 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
   Widget _buildActionButtons(MediaItem item) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             // Play button with controller focus support
             if (item.type != MediaType.artist)
             FocusTraversalOrder(
@@ -645,7 +644,8 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ),
 
             // Trailer button
-            if (item.hasTrailer)
+            if (item.hasTrailer) ...[
+              const SizedBox(width: 14),
               FocusTraversalOrder(
                 order: const NumericFocusOrder(1),
                 child: _FocusableActionButton(
@@ -665,8 +665,10 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
                   ),
                 ),
               ),
+            ],
 
             // Favorite button
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(item.hasTrailer ? 2 : 1),
               child: Consumer(
@@ -687,6 +689,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ),
 
             // Mark watched button
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(item.hasTrailer ? 3 : 2),
               child: GlassIconButton(
@@ -702,13 +705,16 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ),
 
             // Download button (hide on web)
-            if (!kIsWeb)
+            if (!kIsWeb) ...[
+              const SizedBox(width: 10),
               FocusTraversalOrder(
                 order: NumericFocusOrder(item.hasTrailer ? 4 : 3),
                 child: _buildDownloadButton(item),
               ),
+            ],
 
             // More options
+            const SizedBox(width: 10),
             FocusTraversalOrder(
               order: NumericFocusOrder(
                 item.hasTrailer ? (kIsWeb ? 4 : 5) : (kIsWeb ? 3 : 4),
@@ -721,6 +727,7 @@ class _DetailDesktopState extends ConsumerState<_DetailDesktop> {
             ),
           ],
         ),
+      ),
     );
   }
 
