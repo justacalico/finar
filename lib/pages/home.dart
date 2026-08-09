@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:ui';
@@ -373,14 +374,6 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
-                        ],
-                      ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -390,10 +383,9 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.play_circle_fill_rounded,
-                        color: AppColors.textOnPrimary,
-                        size: 26,
+                      child: SvgPicture.asset(
+                        'icon.svg',
+                        fit: BoxFit.contain,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -2506,20 +2498,11 @@ class _HomeMobileState extends ConsumerState<_HomeMobile>
                             width: _scale(context, 28),
                             height: _scale(context, 28),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Theme.of(context).colorScheme.primary,
-                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
-                                ],
-                              ),
                               borderRadius: BorderRadius.circular(_scale(context, 8)),
                             ),
-                            child: Icon(
-                              Icons.play_circle_fill_rounded,
-                              color: AppColors.textOnPrimary,
-                              size: _scale(context, 18),
+                            child: SvgPicture.asset(
+                              'icon.svg',
+                              fit: BoxFit.contain,
                             ),
                           ),
                           SizedBox(width: _scale(context, 10)),

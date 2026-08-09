@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/colors.dart';
 import '../providers/auth_provider.dart';
@@ -528,14 +529,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
               width: 76 * scale,
               height: 76 * scale,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                ),
                 borderRadius: BorderRadius.circular(18 * scale),
                 boxShadow: [
                   BoxShadow(
@@ -546,10 +539,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.play_circle_fill_rounded,
-                size: 44 * scale,
-                color: AppColors.textOnPrimary,
+              child: SvgPicture.asset(
+                'icon.svg',
+                fit: BoxFit.contain,
               ),
             )
             .animate()
