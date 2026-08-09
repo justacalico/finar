@@ -495,7 +495,7 @@ class MediaItem {
 
   /// Get runtime in human readable format
   String get formattedRuntime {
-    if (runtimeTicks == null) return '';
+    if (runtimeTicks == null || runtimeTicks == 0) return '';
     final minutes = (runtimeTicks! / 600000000).round();
     if (minutes < 60) return '${minutes}m';
     final hours = minutes ~/ 60;
