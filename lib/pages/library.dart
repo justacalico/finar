@@ -161,7 +161,12 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
           children: [
             const Icon(Icons.sort, size: 18),
             const SizedBox(width: 8),
-            Text(_getSortLabel(_sortBy)),
+            Flexible(
+              child: Text(
+                _getSortLabel(_sortBy),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             const SizedBox(width: 4),
             IconButton(
               icon: Icon(
@@ -963,6 +968,7 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
     final isSelected = _sortBy == value;
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      tileColor: Colors.transparent,
       title: Text(label),
       trailing: isSelected
           ? const Icon(Icons.check, color: AppColors.primary)

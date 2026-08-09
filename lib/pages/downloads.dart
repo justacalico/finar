@@ -941,6 +941,7 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -960,10 +961,13 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                           color: AppColors.textTertiary,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          download.itemType ?? 'Unknown',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textTertiary,
+                        Expanded(
+                          child: Text(
+                            download.itemType ?? 'Unknown',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textTertiary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (download.totalBytes > 0) ...[
@@ -1194,10 +1198,13 @@ class _DownloadListItemState extends State<_DownloadListItem> {
                           color: AppColors.textTertiary,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          download.itemType ?? 'Unknown',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
+                        Expanded(
+                          child: Text(
+                            download.itemType ?? 'Unknown',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textTertiary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 16),
