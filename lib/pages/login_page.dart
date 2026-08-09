@@ -743,18 +743,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   focusNode: _quickConnectFocusNode,
                   isTV: isTV,
                 ),
-
-                if (isTV) ...[
-                  const SizedBox(height: 24),
-                  Text(
-                    'Tip: Quick Connect is easier on TV! Enter the code on any device.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
