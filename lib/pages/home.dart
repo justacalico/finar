@@ -64,6 +64,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
 
   // Sidebar collapse state (user toggle; auto-collapse also applies on narrow widths)
   bool _sidebarCollapsed = false;
+  bool _sidebarUserToggled = false;
   static const double _sidebarWidthExpanded = 260;
   static const double _sidebarWidthCollapsed = 72;
   static const double _sidebarAutoCollapseThreshold = 900;
@@ -357,7 +358,8 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
   Widget _buildSidebar(AsyncValue<List<Library>> librariesAsync) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final autoCollapsed = screenWidth < _sidebarAutoCollapseThreshold;
-    final collapsed = _sidebarCollapsed || autoCollapsed;
+    final collapsed =
+        _sidebarUserToggled ? _sidebarCollapsed : (autoCollapsed || _sidebarCollapsed);
     final sidebarWidth =
         collapsed ? _sidebarWidthCollapsed : _sidebarWidthExpanded;
 
@@ -550,9 +552,10 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: autoCollapsed
-              ? null
-              : () => setState(() => _sidebarCollapsed = !collapsed),
+          onTap: () => setState(() {
+            _sidebarUserToggled = true;
+            _sidebarCollapsed = !collapsed;
+          }),
           child: Tooltip(
             message: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
             child: Container(
@@ -570,9 +573,7 @@ class _HomeDesktopState extends ConsumerState<_HomeDesktop> {
                         ? Icons.keyboard_double_arrow_right_rounded
                         : Icons.keyboard_double_arrow_left_rounded,
                     size: 20,
-                    color: autoCollapsed
-                        ? AppColors.textTertiary
-                        : AppColors.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                   if (!collapsed) ...[
                     const SizedBox(width: 14),
