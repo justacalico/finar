@@ -360,36 +360,14 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
                               ),
                             ),
                           ),
-                          // Play overlay
                           Positioned.fill(
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () => _playAlbum(album),
-                                child: Container(
-                                  color: Colors.black.withValues(alpha: 0),
-                                  child: Center(
-                                    child: Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        shape: BoxShape.circle,
-                                        boxShadow: AppTheme.shadowGlow(
-                                          AppColors.primary,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.play_arrow,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               ),
                             ),
-                          ).animate().fadeIn(duration: 200.ms),
+                          ),
                         ],
                       ),
                     ),
