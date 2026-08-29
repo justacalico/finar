@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:media_kit/media_kit.dart';
+import 'core/api/jellyfin_api.dart';
 import 'core/api/models/user.dart';
 import 'core/api/models/media_item.dart';
 import 'core/api/models/library.dart';
@@ -34,6 +35,9 @@ void main() async {
 
   // Initialize media_kit
   MediaKit.ensureInitialized();
+
+  // Load the real app version for Jellyfin API headers
+  await JellyfinApi.initialize();
 
   runApp(
     const ProviderScope(
