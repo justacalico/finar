@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:uuid/uuid.dart';
 import 'models/user.dart';
 import 'models/media_item.dart';
@@ -14,7 +15,7 @@ import 'dio_config_native.dart' if (dart.library.html) 'dio_config_web.dart';
 class JellyfinApi {
   late final Dio _dio;
   final String _clientName = 'Finar';
-  final String _clientVersion = '1.0.0';
+  static String _clientVersion = '';
   final String _deviceName;
   final String _deviceId;
 
@@ -66,12 +67,26 @@ class JellyfinApi {
     }
   }
 
+  /// Loads the real app version from package_info_plus.
+  /// Call this once before creating a [JellyfinApi] instance.
+  static Future<void> initialize() async {
+    if (_clientVersion.isNotEmpty) return;
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      _clientVersion = packageInfo.version;
+    } catch (_) {
+      _clientVersion = '1.0.0';
+    }
+  }
+
   String _buildAuthHeader() {
+    final version = _clientVersion.isEmpty ? '1.0.0' : _clientVersion;
     final parts = [
       'MediaBrowser Client="$_clientName"',
       'Device="$_deviceName"',
       'DeviceId="$_deviceId"',
-      'Version="$_clientVersion"',
+      'Version="$version"',
     ];
 
     if (_accessToken != null) {
