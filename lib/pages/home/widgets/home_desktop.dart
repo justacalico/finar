@@ -774,24 +774,6 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (library.childCount != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          library.childCount.toString(),
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textTertiary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
                   ],
                 ],
               ),
