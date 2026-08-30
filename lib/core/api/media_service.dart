@@ -109,22 +109,13 @@ class MediaService {
       _api.getItem(seriesId),
       _api.getSeasons(seriesId),
       _api.getSimilarItems(seriesId, limit: 12),
-      _api.getNextUp(limit: 1),
+      getNextUpForSeries(seriesId),
     ]);
 
     final series = results[0] as MediaItem;
     final seasons = results[1] as List<MediaItem>;
     final similar = results[2] as List<MediaItem>;
-    final nextUpList = results[3] as List<MediaItem>;
-
-    // Find the next up episode for this series
-    MediaItem? nextUp;
-    for (final item in nextUpList) {
-      if (item.seriesId == seriesId) {
-        nextUp = item;
-        break;
-      }
-    }
+    final nextUp = results[3] as MediaItem?;
 
     return SeriesDetails(
       series: series,
