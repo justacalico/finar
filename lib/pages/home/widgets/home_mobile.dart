@@ -118,6 +118,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
     }
 
     return Scaffold(
+      extendBody: true,
       body: Stack(
         children: [
           // Main page content
@@ -250,10 +251,10 @@ class HomeMobileState extends ConsumerState<HomeMobile>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               // Refined glass effect
-              color: AppColors.backgroundSecondary.withValues(alpha: 0.85),
+              color: AppColors.backgroundSecondary.withValues(alpha: 0.2),
               border: Border.all(
                 width: 1,
-                color: AppColors.divider.withValues(alpha: 0.3),
+                color: AppColors.glassBorder,
               ),
               boxShadow: [
                 // Soft ambient shadow
@@ -756,8 +757,12 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                 ),
               ],
 
-              // Bottom padding
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              // Bottom padding to clear the floating navbar
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.of(context).padding.bottom + 24,
+                ),
+              ),
             ],
           ),
         ),
