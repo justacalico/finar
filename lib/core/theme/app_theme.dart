@@ -130,7 +130,7 @@ class AppTheme {
       
       // Navigation bar (Material 3)
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface.withValues(alpha: 0.8),
+        backgroundColor: AppColors.surface,
         elevation: 0,
         indicatorColor: AppColors.primary.withValues(alpha: 0.2),
         iconTheme: WidgetStateProperty.resolveWith((states) {
@@ -434,7 +434,7 @@ class AppTheme {
         unselectedLabelStyle: AppTextStyles.labelSmall,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFFF5F5F7).withValues(alpha: 0.9),
+        backgroundColor: const Color(0xFFF5F5F7),
         elevation: 0,
         indicatorColor: AppColors.primary.withValues(alpha: 0.2),
         iconTheme: WidgetStateProperty.resolveWith((states) {
