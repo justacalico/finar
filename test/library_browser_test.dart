@@ -35,7 +35,7 @@ void main() {
     );
   });
 
-  testWidgets('MobileLibraryBrowser shows themed header and glass cards', (
+  testWidgets('LibraryBrowser shows themed header and glass cards', (
     tester,
   ) async {
     final container = ProviderContainer(
@@ -57,7 +57,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      _pump(container, const Scaffold(body: MobileLibraryBrowser())),
+      _pump(container, const Scaffold(body: LibraryBrowser())),
     );
     await tester.pumpAndSettle();
 

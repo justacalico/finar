@@ -153,6 +153,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   Timer? _progressTimer;
   final List<StreamSubscription> _subscriptions = [];
   bool _isPlayingLocal = false;
+  bool _playerInitialized = false;
   DateTime _lastPositionUpdate = DateTime.now();
   static const _positionUpdateThreshold = Duration(milliseconds: 200);
 
@@ -160,6 +161,12 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     : super(const PlayerState()) {
     _initPlayer();
   }
+
+  /// Used by tests: skips creating the media_kit player, which needs
+  /// MediaKit.ensureInitialized and a real display.
+  @visibleForTesting
+  PlayerNotifier.uninitialized(this._mediaService, this._downloadService)
+    : super(const PlayerState());
 
   void _initPlayer() {
     // Initialize player with optimized configuration for performance
@@ -184,6 +191,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         hwdec: 'auto-safe',
       ),
     );
+    _playerInitialized = true;
 
     _subscriptions.add(
       _player.stream.playing.listen((playing) {
@@ -829,7 +837,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     for (final sub in _subscriptions) {
       sub.cancel();
     }
-    _player.dispose();
+    if (_playerInitialized) _player.dispose();
     super.dispose();
   }
 }

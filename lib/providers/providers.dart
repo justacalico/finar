@@ -3,6 +3,7 @@ export 'connectivity_provider.dart';
 export 'library_provider.dart';
 export 'player_provider.dart';
 export 'settings_provider.dart';
+export 'shell_navigation_provider.dart';
 export 'download_provider.dart';
 export 'media_providers.dart';
 export 'music_provider.dart';

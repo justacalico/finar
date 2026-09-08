@@ -13,7 +13,11 @@ import '../music_library.dart';
 class LibraryPage extends ConsumerWidget {
   final String libraryId;
 
-  const LibraryPage({super.key, required this.libraryId});
+  /// Back handler used when the page is embedded in the shell rather than
+  /// pushed as a route, so the header still offers a way out.
+  final VoidCallback? onBack;
+
+  const LibraryPage({super.key, required this.libraryId, this.onBack});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,10 +56,12 @@ class LibraryPage extends ConsumerWidget {
                       ? MusicLibraryMobile(
                         libraryId: libraryId,
                         libraryName: library.name,
+                        onBack: onBack,
                       )
                       : LibraryMobile(
                         libraryId: libraryId,
                         libraryName: library.name,
+                        onBack: onBack,
                       ),
             ),
           ),

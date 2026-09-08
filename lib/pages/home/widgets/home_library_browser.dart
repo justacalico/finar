@@ -7,8 +7,13 @@ import '../../../providers/providers.dart';
 import '../../library/library_page.dart';
 import 'home_library_list_card.dart';
 
-class MobileLibraryBrowser extends ConsumerWidget {
-  const MobileLibraryBrowser({super.key});
+class LibraryBrowser extends ConsumerWidget {
+  /// Called when a library card is tapped. When null the library opens as a
+  /// pushed route; the shells pass this to select the library in place so the
+  /// selection survives layout changes.
+  final ValueChanged<String>? onLibraryTap;
+
+  const LibraryBrowser({super.key, this.onLibraryTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -120,13 +125,20 @@ class MobileLibraryBrowser extends ConsumerWidget {
                           typeLabel: _getLibraryTypeLabel(
                             library.collectionType,
                           ),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  LibraryPage(libraryId: library.id),
-                            ),
-                          ),
+                          onTap: () {
+                            final openInShell = onLibraryTap;
+                            if (openInShell != null) {
+                              openInShell(library.id);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      LibraryPage(libraryId: library.id),
+                                ),
+                              );
+                            }
+                          },
                         ),
                       )
                       .animate()

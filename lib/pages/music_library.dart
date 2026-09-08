@@ -826,11 +826,13 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
 class MusicLibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
   final String libraryName;
+  final VoidCallback? onBack;
 
   const MusicLibraryMobile({
     super.key,
     required this.libraryId,
     required this.libraryName,
+    this.onBack,
   });
 
   @override
@@ -879,6 +881,7 @@ class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
       children: [
         LibraryHeader(
           title: widget.libraryName,
+          onBack: widget.onBack,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
