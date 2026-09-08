@@ -55,11 +55,13 @@ class SettingsAboutSection extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text('OS Version', style: AppTextStyles.bodyLarge),
-              trailing: Text(
+              subtitle: Text(
                 PlatformDetector.osVersion,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
+                softWrap: true,
+                maxLines: null,
               ),
             ),
           ],
