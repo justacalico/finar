@@ -181,10 +181,12 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
       });
     } else if (index == 3) {
       // Downloads
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const DownloadsPage()),
-      );
+      setState(() {
+        _selectedIndex = 3;
+        _selectedLibraryId = null;
+        _selectedLibraryType = null;
+        _sidebarFocused = false;
+      });
     } else if (index == 100) {
       // Settings
       setState(() {
@@ -240,10 +242,11 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                   Expanded(
                     child: FocusTraversalGroup(
                       policy: OrderedTraversalPolicy(),
-                      // Settings is local state, so it stays reachable even
-                      // when home data is still loading or failed to load.
-                      child: _selectedIndex == 100 && _selectedLibraryId == null
-                          ? _buildSettingsView()
+                      // Home is the only view that actually needs homeData.
+                      // All other sections (search, favorites, downloads,
+                      // settings, libraries) load their own state.
+                      child: _selectedIndex != 0 || _selectedLibraryId != null
+                          ? _buildContent(null)
                           : homeData.when(
                               data: (data) => _buildContent(data),
                               loading: () => Center(
@@ -454,14 +457,6 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                           index: 3,
                           focusIndex: 3,
                           collapsed: collapsed,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const DownloadsPage(),
-                              ),
-                            );
-                          },
                         ),
 
                       if (!collapsed)
@@ -957,7 +952,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
     );
   }
 
-  Widget _buildContent(HomeData data) {
+  Widget _buildContent(HomeData? data) {
     if (_selectedLibraryId != null) {
       if (_selectedLibraryType?.toLowerCase() == 'music') {
         return MusicLibraryPage(libraryId: _selectedLibraryId!);
@@ -970,9 +965,12 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
         return _buildSearchView();
       case 2:
         return _buildFavoritesView();
+      case 3:
+        return const DownloadsPage();
       case 100:
         return _buildSettingsView();
       default:
+        if (data == null) return const SizedBox.shrink();
         return _buildHomeContent(data);
     }
   }
