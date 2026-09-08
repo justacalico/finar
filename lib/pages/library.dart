@@ -1,37 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../core/theme/colors.dart';
-import '../../core/theme/text_styles.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/api/models/media_item.dart';
-import '../../providers/providers.dart';
-import '../../widgets/widgets.dart';
+import '../core/theme/colors.dart';
+import '../core/theme/text_styles.dart';
+import '../core/theme/app_theme.dart';
+import '../core/api/models/media_item.dart';
+import '../providers/providers.dart';
+import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
 
-class LibraryPage extends ConsumerWidget {
-  final String libraryId;
-  const LibraryPage({super.key, required this.libraryId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return AdaptiveLayout(
-      desktopBuilder: () => _LibraryDesktop(libraryId: libraryId),
-      mobileBuilder: () => _LibraryMobile(libraryId: libraryId),
-    );
-  }
-}
-
-class _LibraryDesktop extends ConsumerStatefulWidget {
+class LibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const _LibraryDesktop({required this.libraryId});
+  const LibraryDesktop({super.key, required this.libraryId});
 
   @override
-  ConsumerState<_LibraryDesktop> createState() => _LibraryDesktopState();
+  ConsumerState<LibraryDesktop> createState() => LibraryDesktopState();
 }
 
-class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
+class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
   final ScrollController _scrollController = ScrollController();
   String _sortBy = 'SortName';
   String _sortOrder = 'Ascending';
@@ -64,7 +51,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
     return Column(
       children: [
         // Header
-        _buildHeader(libraryContent),
+        _buildHeader(),
 
         // Content
         Expanded(
@@ -80,7 +67,7 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
     );
   }
 
-  Widget _buildHeader(LibraryContentState state) {
+  Widget _buildHeader() {
     return GlassContainer(
       blur: AppTheme.blurLight,
       opacity: 0.05,
@@ -88,24 +75,8 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
       showBorder: false,
       padding: const EdgeInsets.all(24),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Title and count
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Library', style: AppTextStyles.headlineMedium),
-                const SizedBox(height: 4),
-                Text(
-                  '${state.totalCount} items',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Search field
           SizedBox(
             width: 300,
@@ -324,11 +295,8 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
                 width: 80,
                 height: 120,
                 fit: BoxFit.cover,
-                placeholder: (_, _) => Container(
-                  width: 80,
-                  height: 120,
-                  color: AppColors.surface,
-                ),
+                placeholder: (_, _) =>
+                    Container(width: 80, height: 120, color: AppColors.surface),
                 errorWidget: (_, _, _) => Container(
                   width: 80,
                   height: 120,
@@ -548,16 +516,16 @@ class _LibraryDesktopState extends ConsumerState<_LibraryDesktop> {
 
 enum ViewMode { grid, list }
 
-class _LibraryMobile extends ConsumerStatefulWidget {
+class LibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const _LibraryMobile({required this.libraryId});
+  const LibraryMobile({super.key, required this.libraryId});
 
   @override
-  ConsumerState<_LibraryMobile> createState() => _LibraryMobileState();
+  ConsumerState<LibraryMobile> createState() => LibraryMobileState();
 }
 
-class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
+class LibraryMobileState extends ConsumerState<LibraryMobile> {
   final ScrollController _scrollController = ScrollController();
   String _sortBy = 'SortName';
   String _sortOrder = 'Ascending';
@@ -587,40 +555,37 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
     final libraryContent = ref.watch(libraryContentProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            floating: true,
-            snap: true,
-            title: Text('Library', style: AppTextStyles.headlineMedium),
-            backgroundColor: Colors.transparent,
-            flexibleSpace: BlurBackdrop(
-              blur: AppTheme.blurLight,
-              child: const SizedBox.expand(),
-            ),
-            actions: [
-              // Sort button
-              IconButton(
-                icon: const Icon(Icons.sort),
-                onPressed: _showSortOptions,
-              ),
-              // View mode toggle
-              IconButton(
-                icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
-                onPressed: () => setState(() => _isGridView = !_isGridView),
-              ),
-            ],
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: BlurBackdrop(
+            blur: AppTheme.blurLight,
+            child: const SizedBox.expand(),
           ),
-        ],
-        body: libraryContent.items.isEmpty && libraryContent.isLoading
-            ? _buildLoadingGrid()
-            : libraryContent.error != null
-            ? _buildError(libraryContent.error!)
-            : _isGridView
-            ? _buildGrid(libraryContent, serverUrl)
-            : _buildList(libraryContent, serverUrl),
-      ),
+          actions: [
+            // Sort button
+            IconButton(
+              icon: const Icon(Icons.sort),
+              onPressed: _showSortOptions,
+            ),
+            // View mode toggle
+            IconButton(
+              icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+              onPressed: () => setState(() => _isGridView = !_isGridView),
+            ),
+          ],
+        ),
+      ],
+      body: libraryContent.items.isEmpty && libraryContent.isLoading
+          ? _buildLoadingGrid()
+          : libraryContent.error != null
+          ? _buildError(libraryContent.error!)
+          : _isGridView
+          ? _buildGrid(libraryContent, serverUrl)
+          : _buildList(libraryContent, serverUrl),
     );
   }
 
@@ -700,92 +665,88 @@ class _LibraryMobileState extends ConsumerState<_LibraryMobile> {
 
   Widget _buildListItem(dynamic item, String serverUrl, int index) {
     return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: GlassCard(
-            onTap: () => _navigateToDetail(item.id),
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // Thumbnail
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  child: CachedNetworkImage(
-                    imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
-                    memCacheWidth: 120,
-                    memCacheHeight: 180,
-                    fadeInDuration: const Duration(milliseconds: 150),
-                    width: 60,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      width: 60,
-                      height: 90,
-                      color: AppColors.surface,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      width: 60,
-                      height: 90,
-                      color: AppColors.surface,
-                      child: const Icon(Icons.movie_outlined, size: 24),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        onTap: () => _navigateToDetail(item.id),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            // Thumbnail
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              child: CachedNetworkImage(
+                imageUrl: item.getDisplayImageUrl(serverUrl, width: 100),
+                memCacheWidth: 120,
+                memCacheHeight: 180,
+                fadeInDuration: const Duration(milliseconds: 150),
+                width: 60,
+                height: 90,
+                fit: BoxFit.cover,
+                placeholder: (_, _) =>
+                    Container(width: 60, height: 90, color: AppColors.surface),
+                errorWidget: (_, _, _) => Container(
+                  width: 60,
+                  height: 90,
+                  color: AppColors.surface,
+                  child: const Icon(Icons.movie_outlined, size: 24),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: AppTextStyles.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    [
+                      if (item.productionYear != null)
+                        item.productionYear.toString(),
+                      if (item.formattedRuntime != null) item.formattedRuntime,
+                    ].join(' • '),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                ),
-
-                const SizedBox(width: 12),
-
-                // Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        style: AppTextStyles.titleSmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        [
-                          if (item.productionYear != null)
-                            item.productionYear.toString(),
-                          if (item.formattedRuntime != null)
-                            item.formattedRuntime,
-                        ].join(' • '),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                  if (item.communityRating != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          size: 14,
+                          color: AppColors.accentYellow,
                         ),
-                      ),
-                      if (item.communityRating != null) ...[
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              size: 14,
-                              color: AppColors.accentYellow,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              item.communityRating.toStringAsFixed(1),
-                              style: AppTextStyles.labelSmall,
-                            ),
-                          ],
+                        const SizedBox(width: 4),
+                        Text(
+                          item.communityRating.toStringAsFixed(1),
+                          style: AppTextStyles.labelSmall,
                         ),
                       ],
-                    ],
-                  ),
-                ),
-
-                // Play button
-                IconButton(
-                  icon: const Icon(Icons.play_circle_outline),
-                  onPressed: () => _playItem(item),
-                ),
-              ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        );
+
+            // Play button
+            IconButton(
+              icon: const Icon(Icons.play_circle_outline),
+              onPressed: () => _playItem(item),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildLoadingGrid() {

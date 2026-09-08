@@ -14,8 +14,7 @@ import 'package:finar/widgets/widgets.dart';
 import '../../detail.dart';
 import '../../player.dart';
 import '../../settings/widgets/settings_mobile.dart';
-import '../../library.dart';
-import '../../music_library.dart';
+import '../../library/library_page.dart';
 import '../../downloads.dart';
 import 'home_search_page.dart';
 import 'home_library_browser.dart';
@@ -1127,9 +1126,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => library.collectionType?.toLowerCase() == 'music'
-                  ? MusicLibraryPage(libraryId: library.id)
-                  : LibraryPage(libraryId: library.id),
+              builder: (_) => LibraryPage(libraryId: library.id),
             ),
           ),
           child: SizedBox(

@@ -1,38 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../core/theme/colors.dart';
-import '../../core/theme/text_styles.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/api/models/media_item.dart';
-import '../../providers/providers.dart';
-import '../../widgets/widgets.dart';
+import '../core/theme/colors.dart';
+import '../core/theme/text_styles.dart';
+import '../core/theme/app_theme.dart';
+import '../core/api/models/media_item.dart';
+import '../providers/providers.dart';
+import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
 
-class MusicLibraryPage extends ConsumerWidget {
-  final String libraryId;
-  const MusicLibraryPage({super.key, required this.libraryId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return AdaptiveLayout(
-      desktopBuilder: () => _MusicLibraryDesktop(libraryId: libraryId),
-      mobileBuilder: () => _MusicLibraryMobile(libraryId: libraryId),
-    );
-  }
-}
-
-class _MusicLibraryDesktop extends ConsumerStatefulWidget {
+class MusicLibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const _MusicLibraryDesktop({required this.libraryId});
+  const MusicLibraryDesktop({super.key, required this.libraryId});
 
   @override
-  ConsumerState<_MusicLibraryDesktop> createState() =>
-      _MusicLibraryDesktopState();
+  ConsumerState<MusicLibraryDesktop> createState() =>
+      MusicLibraryDesktopState();
 }
 
-class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
+class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
@@ -103,43 +90,8 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       showBorder: false,
       padding: const EdgeInsets.all(24),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Title
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.library_music,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(
-                        'Music Library',
-                        style: AppTextStyles.headlineMedium,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${state.albumsTotal} albums • ${state.tracksTotal} tracks • ${state.artistsTotal} artists',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
-            ),
-          ),
-
           // Search field
           SizedBox(
             width: 240,
@@ -316,7 +268,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       itemBuilder: (context, index) {
         if (index >= state.albums.length) {
           return Center(
-            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           );
         }
         return _buildAlbumCard(state.albums[index], serverUrl, index);
@@ -326,84 +280,84 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
 
   Widget _buildAlbumCard(MediaItem album, String serverUrl, int index) {
     return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => _navigateToDetail(album.id),
-            child: GlassContainer(
-              borderRadius: AppTheme.radiusMd,
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Album art with hover effect
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          CachedNetworkImage(
-                            imageUrl: album.getPrimaryImageUrl(serverUrl, width: 400),
-                            memCacheWidth: 440,
-                            memCacheHeight: 440,
-                            fadeInDuration: const Duration(milliseconds: 150),
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => Container(
-                              color: AppColors.surface,
-                            ),
-                            errorWidget: (_, _, _) => Container(
-                              color: AppColors.surface,
-                              child: const Icon(
-                                Icons.album,
-                                size: 64,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _navigateToDetail(album.id),
+        child: GlassContainer(
+          borderRadius: AppTheme.radiusMd,
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Album art with hover effect
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: album.getPrimaryImageUrl(
+                          serverUrl,
+                          width: 400,
+                        ),
+                        memCacheWidth: 440,
+                        memCacheHeight: 440,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) =>
+                            Container(color: AppColors.surface),
+                        errorWidget: (_, _, _) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.album,
+                            size: 64,
+                            color: AppColors.textSecondary,
                           ),
-                          Positioned.fill(
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _playAlbum(album),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(onTap: () => _playAlbum(album)),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  // Album name
-                  Text(
-                    album.name,
-                    style: AppTextStyles.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // Artist name
-                  if (album.albumArtist != null ||
-                      album.artists?.isNotEmpty == true)
-                    Text(
-                      album.albumArtist ?? album.artists?.first ?? '',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  // Year
-                  if (album.productionYear != null)
-                    Text(
-                      album.productionYear.toString(),
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              // Album name
+              Text(
+                album.name,
+                style: AppTextStyles.titleSmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              // Artist name
+              if (album.albumArtist != null ||
+                  album.artists?.isNotEmpty == true)
+                Text(
+                  album.albumArtist ?? album.artists?.first ?? '',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              // Year
+              if (album.productionYear != null)
+                Text(
+                  album.productionYear.toString(),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 
   Widget _buildTracksList(MusicLibraryState state, String serverUrl) {
@@ -427,7 +381,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
           return Center(
             child: Padding(
               padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           );
         }
@@ -445,137 +401,141 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
         : '';
 
     return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: GlassContainer(
-            borderRadius: AppTheme.radiusMd,
-            padding: EdgeInsets.zero,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _playTrack(track),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      // Track number
-                      SizedBox(
-                        width: 40,
-                        child: Text(
-                          track.indexNumber?.toString() ?? '#',
-                          style: AppTextStyles.bodyMedium.copyWith(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GlassContainer(
+        borderRadius: AppTheme.radiusMd,
+        padding: EdgeInsets.zero,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _playTrack(track),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            hoverColor: Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: 0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  // Track number
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                      track.indexNumber?.toString() ?? '#',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Album art
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: CachedNetworkImage(
+                        imageUrl: track.getPrimaryImageUrl(
+                          serverUrl,
+                          width: 100,
+                        ),
+                        memCacheWidth: 96,
+                        memCacheHeight: 96,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) =>
+                            Container(color: AppColors.surface),
+                        errorWidget: (_, _, _) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.music_note,
+                            size: 24,
                             color: AppColors.textSecondary,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      // Album art
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                        child: SizedBox(
-                          width: 48,
-                          height: 48,
-                          child: CachedNetworkImage(
-                            imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
-                            memCacheWidth: 96,
-                            memCacheHeight: 96,
-                            fadeInDuration: const Duration(milliseconds: 150),
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => Container(
-                              color: AppColors.surface,
-                            ),
-                            errorWidget: (_, _, _) => Container(
-                              color: AppColors.surface,
-                              child: const Icon(
-                                Icons.music_note,
-                                size: 24,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Track info
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          track.name,
+                          style: AppTextStyles.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Track info
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              track.name,
-                              style: AppTextStyles.titleSmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (track.artists?.isNotEmpty == true)
-                              Text(
-                                track.artists!.join(', '),
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Album
-                      if (track.album != null)
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            track.album!,
+                        if (track.artists?.isNotEmpty == true)
+                          Text(
+                            track.artists!.join(', '),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      // Duration
-                      SizedBox(
-                        width: 60,
-                        child: Text(
-                          durationStr,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Actions
-                      IconButton(
-                        icon: Icon(
-                          track.isFavorite == true
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 20,
-                        ),
-                        color: track.isFavorite == true
-                            ? Colors.redAccent
-                            : AppColors.textSecondary,
-                        onPressed: () => _toggleTrackFavorite(track),
-                        tooltip: track.isFavorite == true
-                            ? 'Remove from favorites'
-                            : 'Add to favorites',
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.more_vert, size: 20),
-                        color: AppColors.textSecondary,
-                        onPressed: () => _showTrackOptions(track),
-                        tooltip: 'More options',
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  // Album
+                  if (track.album != null)
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        track.album!,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  // Duration
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                      durationStr,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Actions
+                  IconButton(
+                    icon: Icon(
+                      track.isFavorite == true
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      size: 20,
+                    ),
+                    color: track.isFavorite == true
+                        ? Colors.redAccent
+                        : AppColors.textSecondary,
+                    onPressed: () => _toggleTrackFavorite(track),
+                    tooltip: track.isFavorite == true
+                        ? 'Remove from favorites'
+                        : 'Add to favorites',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 20),
+                    color: AppColors.textSecondary,
+                    onPressed: () => _showTrackOptions(track),
+                    tooltip: 'More options',
+                  ),
+                ],
               ),
             ),
           ),
-        );
+        ),
+      ),
+    );
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -603,7 +563,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
       itemBuilder: (context, index) {
         if (index >= state.artists.length) {
           return Center(
-            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           );
         }
         return _buildArtistCard(state.artists[index], serverUrl, index);
@@ -613,66 +575,68 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
 
   Widget _buildArtistCard(MediaItem artist, String serverUrl, int index) {
     return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => _navigateToDetail(artist.id),
-            child: Column(
-              children: [
-                // Artist image (circular)
-                Expanded(
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: ClipOval(
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          CachedNetworkImage(
-                            imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 300),
-                            memCacheWidth: 360,
-                            memCacheHeight: 360,
-                            fadeInDuration: const Duration(milliseconds: 150),
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => Container(
-                              color: AppColors.surface,
-                            ),
-                            errorWidget: (_, _, _) => Container(
-                              color: AppColors.surface,
-                              child: const Icon(
-                                Icons.person,
-                                size: 64,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _navigateToDetail(artist.id),
+        child: Column(
+          children: [
+            // Artist image (circular)
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: ClipOval(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: artist.getPrimaryImageUrl(
+                          serverUrl,
+                          width: 300,
+                        ),
+                        memCacheWidth: 360,
+                        memCacheHeight: 360,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) =>
+                            Container(color: AppColors.surface),
+                        errorWidget: (_, _, _) => Container(
+                          color: AppColors.surface,
+                          child: const Icon(
+                            Icons.person,
+                            size: 64,
+                            color: AppColors.textSecondary,
                           ),
-                          // Hover overlay
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => _navigateToDetail(artist.id),
-                              customBorder: const CircleBorder(),
-                              hoverColor: Theme.of(context).colorScheme.primary.withValues(
-                                alpha: 0.2,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      // Hover overlay
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _navigateToDetail(artist.id),
+                          customBorder: const CircleBorder(),
+                          hoverColor: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.2),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Artist name
-                Text(
-                  artist.name,
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
-          ),
-        );
+            const SizedBox(height: 12),
+            // Artist name
+            Text(
+              artist.name,
+              style: AppTextStyles.titleSmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildLoadingGrid({bool isCircle = false}) {
@@ -737,10 +701,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
 
   Future<void> _toggleTrackFavorite(MediaItem track) async {
     try {
-      await ref.read(mediaActionsProvider).toggleFavorite(
-            track.id,
-            !(track.isFavorite == true),
-          );
+      await ref
+          .read(mediaActionsProvider)
+          .toggleFavorite(track.id, !(track.isFavorite == true));
       ref.invalidate(musicLibraryProvider(widget.libraryId));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -810,7 +773,9 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
             ListTile(
               tileColor: Colors.transparent,
               leading: Icon(
-                track.isFavorite == true ? Icons.favorite : Icons.favorite_border,
+                track.isFavorite == true
+                    ? Icons.favorite
+                    : Icons.favorite_border,
               ),
               title: Text(
                 track.isFavorite == true
@@ -856,16 +821,16 @@ class _MusicLibraryDesktopState extends ConsumerState<_MusicLibraryDesktop>
   }
 }
 
-class _MusicLibraryMobile extends ConsumerStatefulWidget {
+class MusicLibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
 
-  const _MusicLibraryMobile({required this.libraryId});
+  const MusicLibraryMobile({super.key, required this.libraryId});
 
   @override
-  ConsumerState<_MusicLibraryMobile> createState() => _MusicLibraryMobileState();
+  ConsumerState<MusicLibraryMobile> createState() => MusicLibraryMobileState();
 }
 
-class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
+class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
@@ -903,63 +868,59 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
     final musicState = ref.watch(musicLibraryProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
-    return Scaffold(
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            expandedHeight: 120,
-            backgroundColor: Colors.transparent,
-            flexibleSpace: BlurBackdrop(
-              blur: AppTheme.blurLight,
-              child: const SizedBox.expand(),
+    return NestedScrollView(
+      controller: _scrollController,
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverAppBar(
+          floating: true,
+          pinned: true,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: BlurBackdrop(
+            blur: AppTheme.blurLight,
+            child: const SizedBox.expand(),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () => _showSearch(context),
             ),
-            title: Text('Music', style: AppTextStyles.headlineMedium),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () => _showSearch(context),
+            IconButton(
+              icon: const Icon(Icons.sort),
+              onPressed: () => _showSortOptions(context),
+            ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: AppColors.textSecondary,
+            tabs: [
+              Tab(
+                icon: const Icon(Icons.album),
+                text: 'Albums (${musicState.albumsTotal})',
               ),
-              IconButton(
-                icon: const Icon(Icons.sort),
-                onPressed: () => _showSortOptions(context),
+              Tab(
+                icon: const Icon(Icons.music_note),
+                text: 'Tracks (${musicState.tracksTotal})',
+              ),
+              Tab(
+                icon: const Icon(Icons.person),
+                text: 'Artists (${musicState.artistsTotal})',
               ),
             ],
-            bottom: TabBar(
-              controller: _tabController,
-              indicatorColor: Theme.of(context).colorScheme.primary,
-              labelColor: Theme.of(context).colorScheme.primary,
-              unselectedLabelColor: AppColors.textSecondary,
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.album),
-                  text: 'Albums (${musicState.albumsTotal})',
-                ),
-                Tab(
-                  icon: const Icon(Icons.music_note),
-                  text: 'Tracks (${musicState.tracksTotal})',
-                ),
-                Tab(
-                  icon: const Icon(Icons.person),
-                  text: 'Artists (${musicState.artistsTotal})',
-                ),
-              ],
-            ),
           ),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            // Albums Tab
-            _buildAlbumsGrid(musicState, serverUrl),
-            // Tracks Tab
-            _buildTracksList(musicState, serverUrl),
-            // Artists Tab
-            _buildArtistsGrid(musicState, serverUrl),
-          ],
         ),
+      ],
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Albums Tab
+          _buildAlbumsGrid(musicState, serverUrl),
+          // Tracks Tab
+          _buildTracksList(musicState, serverUrl),
+          // Artists Tab
+          _buildArtistsGrid(musicState, serverUrl),
+        ],
       ),
     );
   }
@@ -998,7 +959,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         itemBuilder: (context, index) {
           if (index >= state.albums.length) {
             return Center(
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             );
           }
           return _buildAlbumCard(state.albums[index], serverUrl, index);
@@ -1009,72 +972,69 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
 
   Widget _buildAlbumCard(MediaItem album, String serverUrl, int index) {
     return GestureDetector(
-          onTap: () => _playAlbum(album),
-          onLongPress: () => _navigateToDetail(album.id),
-          child: GlassContainer(
-            borderRadius: AppTheme.radiusMd,
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Album art
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: CachedNetworkImage(
-                        imageUrl: album.getPrimaryImageUrl(serverUrl, width: 300),
-                        memCacheWidth: 360,
-                        memCacheHeight: 360,
-                        fadeInDuration: const Duration(milliseconds: 150),
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          color: AppColors.surface,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          color: AppColors.surface,
-                          child: const Icon(
-                            Icons.album,
-                            size: 48,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+      onTap: () => _playAlbum(album),
+      onLongPress: () => _navigateToDetail(album.id),
+      child: GlassContainer(
+        borderRadius: AppTheme.radiusMd,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Album art
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: CachedNetworkImage(
+                    imageUrl: album.getPrimaryImageUrl(serverUrl, width: 300),
+                    memCacheWidth: 360,
+                    memCacheHeight: 360,
+                    fadeInDuration: const Duration(milliseconds: 150),
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: AppColors.surface),
+                    errorWidget: (_, _, _) => Container(
+                      color: AppColors.surface,
+                      child: const Icon(
+                        Icons.album,
+                        size: 48,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                // Album name
-                Text(
-                  album.name,
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                // Artist name
-                if (album.albumArtist != null ||
-                    album.artists?.isNotEmpty == true)
-                  Text(
-                    album.albumArtist ?? album.artists?.first ?? '',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                // Year
-                if (album.productionYear != null)
-                  Text(
-                    album.productionYear.toString(),
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ),
-        );
+            const SizedBox(height: 8),
+            // Album name
+            Text(
+              album.name,
+              style: AppTextStyles.titleSmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            // Artist name
+            if (album.albumArtist != null || album.artists?.isNotEmpty == true)
+              Text(
+                album.albumArtist ?? album.artists?.first ?? '',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            // Year
+            if (album.productionYear != null)
+              Text(
+                album.productionYear.toString(),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTracksList(MusicLibraryState state, String serverUrl) {
@@ -1107,7 +1067,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
             return Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             );
           }
@@ -1126,96 +1088,94 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         : '';
 
     return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: GlassContainer(
-            borderRadius: AppTheme.radiusMd,
-            padding: const EdgeInsets.all(12),
-            child: InkWell(
-              onTap: () => _playTrack(track),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              child: Row(
-                children: [
-                  // Track number or album art
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: CachedNetworkImage(
-                        imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
-                        memCacheWidth: 96,
-                        memCacheHeight: 96,
-                        fadeInDuration: const Duration(milliseconds: 150),
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          color: AppColors.surface,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          color: AppColors.surface,
-                          child: Center(
-                            child: Text(
-                              track.indexNumber?.toString() ?? '#',
-                              style: AppTextStyles.titleMedium.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Track info
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          track.name,
-                          style: AppTextStyles.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          [
-                            if (track.artists?.isNotEmpty == true)
-                              track.artists!.first,
-                            if (track.album != null) track.album,
-                          ].join(' • '),
-                          style: AppTextStyles.bodySmall.copyWith(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GlassContainer(
+        borderRadius: AppTheme.radiusMd,
+        padding: const EdgeInsets.all(12),
+        child: InkWell(
+          onTap: () => _playTrack(track),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          child: Row(
+            children: [
+              // Track number or album art
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: CachedNetworkImage(
+                    imageUrl: track.getPrimaryImageUrl(serverUrl, width: 100),
+                    memCacheWidth: 96,
+                    memCacheHeight: 96,
+                    fadeInDuration: const Duration(milliseconds: 150),
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: AppColors.surface),
+                    errorWidget: (_, _, _) => Container(
+                      color: AppColors.surface,
+                      child: Center(
+                        child: Text(
+                          track.indexNumber?.toString() ?? '#',
+                          style: AppTextStyles.titleMedium.copyWith(
                             color: AppColors.textSecondary,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  // Duration
-                  SizedBox(
-                    width: 50,
-                    child: Text(
-                      durationStr,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.right,
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Track info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      track.name,
+                      style: AppTextStyles.titleSmall,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Play button
-                  IconButton(
-                    icon: const Icon(Icons.play_circle_outline),
-                    color: Theme.of(context).colorScheme.primary,
-                    onPressed: () => _playTrack(track),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      [
+                        if (track.artists?.isNotEmpty == true)
+                          track.artists!.first,
+                        if (track.album != null) track.album,
+                      ].join(' • '),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
+              // Duration
+              SizedBox(
+                width: 50,
+                child: Text(
+                  durationStr,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Play button
+              IconButton(
+                icon: const Icon(Icons.play_circle_outline),
+                color: Theme.of(context).colorScheme.primary,
+                onPressed: () => _playTrack(track),
+              ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 
   Widget _buildArtistsGrid(MusicLibraryState state, String serverUrl) {
@@ -1252,7 +1212,9 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
         itemBuilder: (context, index) {
           if (index >= state.artists.length) {
             return Center(
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             );
           }
           return _buildArtistCard(state.artists[index], serverUrl, index);
@@ -1263,47 +1225,45 @@ class _MusicLibraryMobileState extends ConsumerState<_MusicLibraryMobile>
 
   Widget _buildArtistCard(MediaItem artist, String serverUrl, int index) {
     return GestureDetector(
-          onTap: () => _navigateToDetail(artist.id),
-          child: Column(
-            children: [
-              // Artist image (circular)
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
-                      memCacheWidth: 240,
-                      memCacheHeight: 240,
-                      fadeInDuration: const Duration(milliseconds: 150),
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        color: AppColors.surface,
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        color: AppColors.surface,
-                        child: const Icon(
-                          Icons.person,
-                          size: 48,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
+      onTap: () => _navigateToDetail(artist.id),
+      child: Column(
+        children: [
+          // Artist image (circular)
+          Expanded(
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: artist.getPrimaryImageUrl(serverUrl, width: 200),
+                  memCacheWidth: 240,
+                  memCacheHeight: 240,
+                  fadeInDuration: const Duration(milliseconds: 150),
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(color: AppColors.surface),
+                  errorWidget: (_, _, _) => Container(
+                    color: AppColors.surface,
+                    child: const Icon(
+                      Icons.person,
+                      size: 48,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              // Artist name
-              Text(
-                artist.name,
-                style: AppTextStyles.titleSmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        );
+          const SizedBox(height: 8),
+          // Artist name
+          Text(
+            artist.name,
+            style: AppTextStyles.titleSmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildLoadingGrid({bool isCircle = false}) {

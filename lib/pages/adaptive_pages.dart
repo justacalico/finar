@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'detail.dart';
 import 'downloads.dart';
 import 'home.dart';
-import 'library.dart';
-import 'music_library.dart';
+import 'library/library_page.dart';
 import 'player.dart';
 import 'settings.dart';
 
@@ -70,7 +69,7 @@ class AdaptiveMusicLibraryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MusicLibraryPage(libraryId: libraryId);
+    return LibraryPage(libraryId: libraryId);
   }
 }
 

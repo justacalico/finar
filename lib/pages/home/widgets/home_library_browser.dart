@@ -4,8 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
 import '../../../providers/providers.dart';
-import '../../library.dart';
-import '../../music_library.dart';
+import '../../library/library_page.dart';
 import 'home_library_list_card.dart';
 
 class MobileLibraryBrowser extends ConsumerWidget {
@@ -107,10 +106,7 @@ class MobileLibraryBrowser extends ConsumerWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
-                                  library.collectionType?.toLowerCase() ==
-                                      'music'
-                                  ? MusicLibraryPage(libraryId: library.id)
-                                  : LibraryPage(libraryId: library.id),
+                                  LibraryPage(libraryId: library.id),
                             ),
                           ),
                         ),
