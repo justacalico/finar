@@ -7,6 +7,7 @@ import 'package:finar/pages/home/widgets/home_library_browser.dart';
 import 'package:finar/pages/home/widgets/home_library_list_card.dart';
 import 'package:finar/providers/library_provider.dart';
 import 'package:finar/widgets/glass_container.dart';
+import 'package:finar/widgets/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,13 +63,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Library'), findsOneWidget);
-    expect(find.text('Your collections'), findsOneWidget);
     expect(find.text('Movies · 8 items'), findsOneWidget);
     expect(find.byType(LibraryListCard), findsOneWidget);
-    expect(find.byType(GlassContainer), findsOneWidget);
-
-    final headerIcon = tester.widget<Icon>(find.byIcon(Icons.folder_outlined));
-    expect(headerIcon.color, primary);
+    expect(find.byType(PageHeader), findsOneWidget);
+    expect(find.byType(GlassContainer), findsWidgets);
 
     final cardIcon = tester.widget<Icon>(find.byIcon(Icons.movie_outlined));
     expect(cardIcon.color, primary);

@@ -231,7 +231,8 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                       // Home is the only view that actually needs homeData.
                       // All other sections (search, favorites, downloads,
                       // settings, libraries) load their own state.
-                      child: nav.section != ShellSection.home ||
+                      child:
+                          nav.section != ShellSection.home ||
                               nav.libraryId != null
                           ? _buildContent(null)
                           : homeData.when(
@@ -591,8 +592,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap:
-              onTap ?? () => _selectSection(_sectionForIndex(index)),
+          onTap: onTap ?? () => _selectSection(_sectionForIndex(index)),
           child: Tooltip(
             message: collapsed ? label : '',
             child: Container(
@@ -1190,63 +1190,68 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
     // Group results by type
     final groupedResults = _groupMediaByType(searchResults);
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Text('Search', style: AppTextStyles.headlineLarge),
-          const SizedBox(height: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const PageHeader(title: 'Search'),
 
-          // Search bar
-          SizedBox(
-            width: double.infinity,
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search movies, shows, music...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: AppColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              onChanged: (value) {
-                if (value.length >= 2) {
-                  ref.read(libraryProvider.notifier).search(value);
-                } else if (value.isEmpty) {
-                  ref.read(libraryProvider.notifier).clearSearch();
-                }
-              },
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Results
-          Expanded(
-            child: isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
+        // Search bar
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search movies, shows, music...',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
-                  )
-                : searchResults.isEmpty
-                ? _buildEmptySearch()
-                : _buildGroupedMediaGrid(groupedResults, serverUrl),
+                    onChanged: (value) {
+                      if (value.length >= 2) {
+                        ref.read(libraryProvider.notifier).search(value);
+                      } else if (value.isEmpty) {
+                        ref.read(libraryProvider.notifier).clearSearch();
+                      }
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Results
+                Expanded(
+                  child: isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        )
+                      : searchResults.isEmpty
+                      ? _buildEmptySearch()
+                      : _buildGroupedMediaGrid(groupedResults, serverUrl),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1603,27 +1608,15 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.favorite,
-                color: Theme.of(context).colorScheme.primary,
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              Text('Favorites', style: AppTextStyles.headlineLarge),
-            ],
-          ),
-          const SizedBox(height: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const PageHeader(title: 'Favorites'),
 
-          // Content
-          Expanded(
+        // Content
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
             child: favorites.when(
               data: (items) {
                 if (items.isEmpty) {
@@ -1666,8 +1659,8 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

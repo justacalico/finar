@@ -23,50 +23,7 @@ class MobileFavoritesView extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.favorite_outline_rounded,
-                      size: 22,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Favorites',
-                          style: AppTextStyles.titleLarge.copyWith(
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Your saved items',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const PageHeader(title: 'Favorites'),
             Expanded(
               child: favorites.when(
                 data: (items) {

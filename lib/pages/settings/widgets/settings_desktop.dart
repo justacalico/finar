@@ -6,6 +6,7 @@ import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/core/theme/app_theme.dart';
 import 'package:finar/providers/providers.dart';
+import 'package:finar/widgets/widgets.dart';
 import '../../whos_watching_page.dart';
 import 'settings_general_section.dart';
 import 'settings_playback_section.dart';
@@ -41,11 +42,20 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Row(
-        children: [
-          _buildSidebar(),
-          Expanded(child: _buildContent()),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            const PageHeader(title: 'Settings'),
+            Expanded(
+              child: Row(
+                children: [
+                  _buildSidebar(),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -65,52 +75,6 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  children: [
-                    if (widget.embedded)
-                      Icon(
-                        Icons.settings_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 26,
-                      )
-                    else
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.divider.withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: Icon(
-                            Icons.arrow_back_rounded,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        'Settings',
-                        style: AppTextStyles.headlineMedium.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Divider(
-                color: AppColors.divider.withValues(alpha: 0.5),
-                height: 1,
-              ),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 12),

@@ -5,6 +5,7 @@ import 'package:finar/core/api/models/media_item.dart';
 import 'package:finar/core/services/download_service.dart';
 import 'package:finar/pages/home.dart';
 import 'package:finar/pages/home/widgets/home_desktop.dart';
+import 'package:finar/pages/home/widgets/home_library_browser.dart';
 import 'package:finar/pages/home/widgets/home_mobile.dart';
 import 'package:finar/pages/library.dart';
 import 'package:finar/pages/settings/widgets/settings_desktop.dart';
@@ -194,20 +195,14 @@ void main() {
       await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
       expect(find.byType(SettingsMobile), findsOneWidget);
-      expect(
-        container.read(shellNavProvider).section,
-        ShellSection.settings,
-      );
+      expect(container.read(shellNavProvider).section, ShellSection.settings);
 
       _setSurfaceSize(tester, const Size(1400, 900));
       await tester.pumpAndSettle();
 
       expect(find.byType(HomeDesktop), findsOneWidget);
       expect(find.byType(SettingsDesktop), findsOneWidget);
-      expect(
-        container.read(shellNavProvider).section,
-        ShellSection.settings,
-      );
+      expect(container.read(shellNavProvider).section, ShellSection.settings);
 
       _setSurfaceSize(tester, const Size(500, 900));
       await tester.pumpAndSettle();
@@ -288,7 +283,7 @@ void main() {
       final nav = container.read(shellNavProvider);
       expect(nav.section, ShellSection.library);
       expect(nav.libraryId, isNull);
-      expect(find.text('Your collections'), findsOneWidget);
+      expect(find.byType(LibraryBrowser), findsOneWidget);
     });
   });
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/providers/providers.dart';
+import 'package:finar/widgets/widgets.dart';
 import 'settings_playback_mobile_section.dart';
 import 'settings_subtitles_mobile_section.dart';
 import 'settings_audio_mobile_section.dart';
@@ -12,11 +13,7 @@ import 'settings_account_mobile_section.dart';
 import 'settings_about_mobile_section.dart';
 
 class SettingsMobile extends ConsumerStatefulWidget {
-  /// When true, renders as a home tab: the app bar has no back button since
-  /// the bottom navigation handles moving between sections.
-  final bool embedded;
-
-  const SettingsMobile({super.key, this.embedded = false});
+  const SettingsMobile({super.key});
 
   @override
   ConsumerState<SettingsMobile> createState() => _SettingsMobileState();
@@ -27,63 +24,47 @@ class _SettingsMobileState extends ConsumerState<SettingsMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundSecondary,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Settings',
-          style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w600),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const PageHeader(title: 'Settings'),
+            Expanded(child: _buildSections()),
+          ],
         ),
-        leading: widget.embedded
-            ? null
-            : Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: AppColors.divider.withValues(alpha: 0.5),
-                    width: 1,
-                  ),
-                ),
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_rounded, size: 22),
-                  color: AppColors.textPrimary,
-                ),
-              ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const SettingsPlaybackMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsSubtitlesMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsAudioMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsAppearanceMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsNetworkMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsAccountMobileSection(),
-          const SizedBox(height: 28),
-          const SettingsAboutMobileSection(),
-          const SizedBox(height: 28),
-          Center(
-            child: TextButton.icon(
-              onPressed: _showResetConfirmation,
-              icon: const Icon(Icons.restore_rounded, color: AppColors.warning),
-              label: const Text(
-                'Reset to Defaults',
-                style: TextStyle(color: AppColors.warning),
-              ),
+    );
+  }
+
+  Widget _buildSections() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const SettingsPlaybackMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsSubtitlesMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsAudioMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsAppearanceMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsNetworkMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsAccountMobileSection(),
+        const SizedBox(height: 28),
+        const SettingsAboutMobileSection(),
+        const SizedBox(height: 28),
+        Center(
+          child: TextButton.icon(
+            onPressed: _showResetConfirmation,
+            icon: const Icon(Icons.restore_rounded, color: AppColors.warning),
+            label: const Text(
+              'Reset to Defaults',
+              style: TextStyle(color: AppColors.warning),
             ),
           ),
-          const SizedBox(height: 40),
-        ],
-      ),
+        ),
+        const SizedBox(height: 40),
+      ],
     );
   }
 
