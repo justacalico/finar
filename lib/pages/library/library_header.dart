@@ -9,13 +9,22 @@ class LibraryHeader extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
-  const LibraryHeader({super.key, required this.title, this.trailing});
+  /// Explicit back handler for libraries opened inside the shell, where the
+  /// route itself cannot be popped.
+  final VoidCallback? onBack;
+
+  const LibraryHeader({
+    super.key,
+    required this.title,
+    this.trailing,
+    this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Pushed library routes (mobile) need a way back; the embedded desktop
     // shell is the root route so canPop stays false there.
-    final canPop = Navigator.canPop(context);
+    final canPop = onBack != null || Navigator.canPop(context);
 
     return GlassContainer(
       blur: AppTheme.blurLight,
@@ -28,7 +37,7 @@ class LibraryHeader extends StatelessWidget {
           if (canPop)
             IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => Navigator.pop(context),
+              onPressed: onBack ?? () => Navigator.pop(context),
               tooltip: 'Back',
             ),
           Expanded(

@@ -16,6 +16,12 @@ bool useMobileLayout(BuildContext context) {
 
 /// Builds either [desktop] or [mobile] based on [useMobileLayout].
 /// Use for responsive pages that replace the old desktop/mobile split.
+///
+/// The swap is a direct child swap, not an AnimatedSwitcher: while a
+/// transition runs the outgoing layout is re-laid out at the new window
+/// size, which made the desktop layout overflow and flash during a resize.
+/// Persistent navigation state lives in shellNavProvider, so nothing is lost
+/// when the widget for the other layout replaces this one.
 class AdaptiveLayout extends ConsumerWidget {
   final Widget Function() desktopBuilder;
   final Widget Function() mobileBuilder;
@@ -29,14 +35,6 @@ class AdaptiveLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final useMobile = useMobileLayout(context);
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      child: KeyedSubtree(
-        key: ValueKey<bool>(useMobile),
-        child: useMobile ? mobileBuilder() : desktopBuilder(),
-      ),
-    );
+    return useMobile ? mobileBuilder() : desktopBuilder();
   }
 }

@@ -22,6 +22,7 @@ import '../../settings/widgets/settings_desktop.dart';
 import '../../whos_watching_page.dart';
 import '../../library/library_page.dart';
 import '../../downloads.dart';
+import 'home_library_browser.dart';
 import 'home_video_mini_player.dart';
 
 class HomeDesktop extends ConsumerStatefulWidget {
@@ -32,9 +33,37 @@ class HomeDesktop extends ConsumerStatefulWidget {
 }
 
 class HomeDesktopState extends ConsumerState<HomeDesktop> {
-  int _selectedIndex = 0;
-  String? _selectedLibraryId;
-  String? _selectedLibraryType;
+  // Navigation state lives in shellNavProvider so switching between the
+  // desktop and mobile layouts keeps the user on the same section.
+  ShellNavState get _nav => ref.read(shellNavProvider);
+
+  String? get _selectedLibraryId => _nav.libraryId;
+
+  int get _selectedIndex => switch (_nav.section) {
+    ShellSection.home => 0,
+    ShellSection.search => 1,
+    ShellSection.favorites => 2,
+    ShellSection.downloads => 3,
+    ShellSection.library => -1,
+    ShellSection.settings => 100,
+  };
+
+  static ShellSection _sectionForIndex(int index) => switch (index) {
+    1 => ShellSection.search,
+    2 => ShellSection.favorites,
+    3 => ShellSection.downloads,
+    100 => ShellSection.settings,
+    _ => ShellSection.home,
+  };
+
+  void _selectSection(ShellSection section) {
+    ref.read(shellNavProvider.notifier).goTo(section);
+    setState(() {
+      // Clear expanded category when navigating
+      _expandedCategory = null;
+      _expandedCategoryItems = null;
+    });
+  }
 
   // Expanded category for "See All" functionality
   String? _expandedCategory;
@@ -77,12 +106,8 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
 
     // Handle back button to navigate back or toggle sidebar
     if (action == ControllerAction.back) {
-      if (_selectedLibraryId != null) {
-        setState(() {
-          _selectedLibraryId = null;
-          _selectedLibraryType = null;
-          _selectedIndex = 0;
-        });
+      if (_nav.libraryId != null) {
+        ref.read(shellNavProvider.notifier).closeLibrary();
         return KeyEventResult.handled;
       }
       if (!_sidebarFocused) {
@@ -154,56 +179,17 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
   }
 
   void _activateNavItem(int index, List<Library> libraries) {
-    if (index == 0) {
-      // Home
-      setState(() {
-        _selectedIndex = 0;
-        _selectedLibraryId = null;
-        _selectedLibraryType = null;
-        _sidebarFocused = false;
-      });
-    } else if (index == 1) {
-      // Search
-      setState(() {
-        _selectedIndex = 1;
-        _selectedLibraryId = null;
-        _selectedLibraryType = null;
-        _sidebarFocused = false;
-      });
-    } else if (index == 2) {
-      // Favorites
-      setState(() {
-        _selectedIndex = 2;
-        _selectedLibraryId = null;
-        _selectedLibraryType = null;
-        _sidebarFocused = false;
-      });
-    } else if (index == 3) {
-      // Downloads
-      setState(() {
-        _selectedIndex = 3;
-        _selectedLibraryId = null;
-        _selectedLibraryType = null;
-        _sidebarFocused = false;
-      });
-    } else if (index == 100) {
-      // Settings
-      setState(() {
-        _selectedIndex = 100;
-        _selectedLibraryId = null;
-        _selectedLibraryType = null;
-        _sidebarFocused = false;
-      });
-    } else if (index >= 4 && index < 4 + libraries.length) {
-      // Library
-      final library = libraries[index - 4];
-      setState(() {
-        _selectedLibraryId = library.id;
-        _selectedLibraryType = library.collectionType;
-        _selectedIndex = -1;
-        _sidebarFocused = false;
-      });
+    final notifier = ref.read(shellNavProvider.notifier);
+    if (index >= 4 && index < 4 + libraries.length) {
+      notifier.openLibrary(libraries[index - 4].id);
+    } else {
+      notifier.goTo(_sectionForIndex(index));
     }
+    setState(() {
+      _sidebarFocused = false;
+      _expandedCategory = null;
+      _expandedCategoryItems = null;
+    });
   }
 
   @override
@@ -213,6 +199,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
     final isOnline = ref.watch(isOnlineProvider);
+    final nav = ref.watch(shellNavProvider);
     final isMusic =
         playerState.currentItem?.type.name == 'audio' ||
         playerState.currentItem?.type.name == 'album';
@@ -244,7 +231,8 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                       // Home is the only view that actually needs homeData.
                       // All other sections (search, favorites, downloads,
                       // settings, libraries) load their own state.
-                      child: _selectedIndex != 0 || _selectedLibraryId != null
+                      child: nav.section != ShellSection.home ||
+                              nav.libraryId != null
                           ? _buildContent(null)
                           : homeData.when(
                               data: (data) => _buildContent(data),
@@ -604,17 +592,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap:
-              onTap ??
-              () {
-                setState(() {
-                  _selectedIndex = index;
-                  _selectedLibraryId = null;
-                  _selectedLibraryType = null;
-                  // Clear expanded category when navigating
-                  _expandedCategory = null;
-                  _expandedCategoryItems = null;
-                });
-              },
+              onTap ?? () => _selectSection(_sectionForIndex(index)),
           child: Tooltip(
             message: collapsed ? label : '',
             child: Container(
@@ -700,11 +678,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            setState(() {
-              _selectedLibraryId = library.id;
-              _selectedLibraryType = library.collectionType;
-              _selectedIndex = -1;
-            });
+            ref.read(shellNavProvider.notifier).openLibrary(library.id);
           },
           child: Tooltip(
             message: collapsed ? library.name : '',
@@ -952,20 +926,27 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
   }
 
   Widget _buildContent(HomeData? data) {
-    if (_selectedLibraryId != null) {
-      return LibraryPage(libraryId: _selectedLibraryId!);
+    final nav = ref.read(shellNavProvider);
+    final libraryId = nav.libraryId;
+    if (libraryId != null) {
+      return LibraryPage(libraryId: libraryId);
     }
 
-    switch (_selectedIndex) {
-      case 1:
+    switch (nav.section) {
+      case ShellSection.search:
         return _buildSearchView();
-      case 2:
+      case ShellSection.favorites:
         return _buildFavoritesView();
-      case 3:
+      case ShellSection.downloads:
         return const DownloadsPage();
-      case 100:
+      case ShellSection.settings:
         return _buildSettingsView();
-      default:
+      case ShellSection.library:
+        return LibraryBrowser(
+          onLibraryTap: (id) =>
+              ref.read(shellNavProvider.notifier).openLibrary(id),
+        );
+      case ShellSection.home:
         if (data == null) return const SizedBox.shrink();
         return _buildHomeContent(data);
     }

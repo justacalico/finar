@@ -17,6 +17,7 @@ import '../../settings/widgets/settings_mobile.dart';
 import '../../library/library_page.dart';
 import '../../downloads.dart';
 import 'home_search_page.dart';
+import 'home_favorites_view.dart';
 import 'home_library_browser.dart';
 import 'home_see_all_page.dart';
 import 'home_widgets.dart';
@@ -32,7 +33,6 @@ class HomeMobile extends ConsumerStatefulWidget {
 
 class HomeMobileState extends ConsumerState<HomeMobile>
     with SingleTickerProviderStateMixin {
-  late int _currentIndex;
   late final PageController _pageController;
   final PageController _heroPageController = PageController(
     viewportFraction: 0.92,
@@ -49,21 +49,68 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   static const int _downloadsIndex = 3;
   static int get _settingsIndex => kIsWeb ? 3 : 4;
 
+  // Bottom nav order: Home, Search, Library, Downloads (not on web), Settings.
+  static int _sectionToIndex(ShellSection section) => switch (section) {
+    ShellSection.home => 0,
+    ShellSection.search => 1,
+    ShellSection.library => 2,
+    ShellSection.downloads => _downloadsIndex,
+    ShellSection.settings => _settingsIndex,
+    // Favorites has no mobile tab; it renders as an overlay and the nav
+    // keeps Home highlighted underneath.
+    ShellSection.favorites => 0,
+  };
+
+  static ShellSection _indexToSection(int index) {
+    if (kIsWeb) {
+      return switch (index) {
+        1 => ShellSection.search,
+        2 => ShellSection.library,
+        3 => ShellSection.settings,
+        _ => ShellSection.home,
+      };
+    }
+    return switch (index) {
+      1 => ShellSection.search,
+      2 => ShellSection.library,
+      3 => ShellSection.downloads,
+      4 => ShellSection.settings,
+      _ => ShellSection.home,
+    };
+  }
+
   @override
   void initState() {
     super.initState();
-    final maxIndex = kIsWeb ? 3 : 4;
-    _currentIndex = widget.initialIndex.clamp(0, maxIndex);
-    _pageController = PageController(initialPage: _currentIndex);
+    _pageController = PageController(
+      initialPage: _sectionToIndex(ref.read(shellNavProvider).section),
+    );
     // Delay provider modification until after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = ref.read(shellNavProvider);
+      if (widget.initialIndex != 0 &&
+          nav.section == ShellSection.home &&
+          nav.libraryId == null) {
+        final maxIndex = kIsWeb ? 3 : 4;
+        ref
+            .read(shellNavProvider.notifier)
+            .goTo(_indexToSection(widget.initialIndex.clamp(0, maxIndex)));
+      }
       _loadData();
     });
   }
 
   void _loadData() {
-    ref.read(libraryProvider.notifier).loadLibraries();
-    ref.read(libraryProvider.notifier).loadHomeData();
+    final libraryState = ref.read(libraryProvider);
+    final notifier = ref.read(libraryProvider.notifier);
+    // Skip reloads on remount (e.g. after a layout switch) so the home tab
+    // does not flash a spinner every time the window crosses the breakpoint.
+    if (libraryState.libraries.isEmpty) {
+      notifier.loadLibraries();
+    }
+    if (libraryState.homeData == null && !libraryState.isLoading) {
+      notifier.loadHomeData();
+    }
   }
 
   Future<void> _extractColorsFromItem(dynamic item, String serverUrl) async {
@@ -105,20 +152,31 @@ class HomeMobileState extends ConsumerState<HomeMobile>
     final showMiniPlayer = ref.watch(showMiniPlayerProvider);
     final playerState = ref.watch(playerProvider);
     final isOnline = ref.watch(isOnlineProvider);
+    final nav = ref.watch(shellNavProvider);
     final isMusic =
         playerState.currentItem?.type.name == 'audio' ||
         playerState.currentItem?.type.name == 'album';
+
+    // Keep the PageView in sync with the shared navigation state.
+    ref.listen<ShellNavState>(shellNavProvider, (previous, next) {
+      final index = _sectionToIndex(next.section);
+      if (_pageController.hasClients &&
+          _pageController.page?.round() != index) {
+        _pageController.jumpToPage(index);
+      }
+    });
 
     // If offline, force navigation to downloads. Settings stays reachable
     // since it only touches local state.
     if (!isOnline &&
         !kIsWeb &&
-        _currentIndex != _downloadsIndex &&
-        _currentIndex != _settingsIndex) {
+        nav.section != ShellSection.downloads &&
+        nav.section != ShellSection.settings) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          setState(() => _currentIndex = _downloadsIndex);
-          _pageController.jumpToPage(_downloadsIndex);
+          ref
+              .read(shellNavProvider.notifier)
+              .goTo(ShellSection.downloads);
         }
       });
     }
@@ -138,7 +196,16 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                 _pageController.jumpToPage(_downloadsIndex);
                 return;
               }
-              setState(() => _currentIndex = index);
+              // Skip the programmatic jump fired by the provider listener so
+              // an open library (same tab index) is not closed.
+              final current = _sectionToIndex(
+                ref.read(shellNavProvider).section,
+              );
+              if (index != current) {
+                ref
+                    .read(shellNavProvider.notifier)
+                    .goTo(_indexToSection(index));
+              }
             },
             physics: const NeverScrollableScrollPhysics(),
             children: [
@@ -149,6 +216,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
               _buildSettingsPage(),
             ],
           ),
+
+          // Favorites has no bottom-nav tab; it covers the content when it is
+          // the active section (reached by resizing down from desktop).
+          if (nav.section == ShellSection.favorites)
+            const Positioned.fill(child: MobileFavoritesView()),
 
           // Offline banner
           if (!isOnline)
@@ -240,11 +312,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   Widget _buildBottomNav({bool isOnline = true}) {
+    final nav = ref.watch(shellNavProvider);
     return NavigationBar(
-      selectedIndex: _currentIndex,
+      selectedIndex: _sectionToIndex(nav.section),
       onDestinationSelected: (index) {
-        setState(() => _currentIndex = index);
-        _pageController.jumpToPage(index);
+        ref.read(shellNavProvider.notifier).goTo(_indexToSection(index));
       },
       destinations: [
         NavigationDestination(
@@ -1128,12 +1200,8 @@ class HomeMobileState extends ConsumerState<HomeMobile>
 
   Widget _buildLibraryCard(dynamic library, String serverUrl, int index) {
     return GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => LibraryPage(libraryId: library.id),
-            ),
-          ),
+          onTap: () =>
+              ref.read(shellNavProvider.notifier).openLibrary(library.id),
           child: SizedBox(
             width: 160,
             child: GlassContainer(
@@ -1187,7 +1255,19 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   Widget _buildLibraryPage() {
-    return const MobileLibraryBrowser();
+    final nav = ref.watch(shellNavProvider);
+    final libraryId = nav.libraryId;
+    if (libraryId != null) {
+      return LibraryPage(
+        libraryId: libraryId,
+        onBack: () =>
+            ref.read(shellNavProvider.notifier).closeLibrary(),
+      );
+    }
+    return LibraryBrowser(
+      onLibraryTap: (id) =>
+          ref.read(shellNavProvider.notifier).openLibrary(id),
+    );
   }
 
   Widget _buildDownloadsPage() {
@@ -1213,13 +1293,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   void _goToLibraryTab() {
-    setState(() => _currentIndex = 2);
-    _pageController.jumpToPage(2);
+    ref.read(shellNavProvider.notifier).goTo(ShellSection.library);
   }
 
   void _goToSettingsTab() {
-    setState(() => _currentIndex = _settingsIndex);
-    _pageController.jumpToPage(_settingsIndex);
+    ref.read(shellNavProvider.notifier).goTo(ShellSection.settings);
   }
 
   void _navigateToDetail(String itemId) {

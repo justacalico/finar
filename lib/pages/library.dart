@@ -518,11 +518,13 @@ enum ViewMode { grid, list }
 class LibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
   final String libraryName;
+  final VoidCallback? onBack;
 
   const LibraryMobile({
     super.key,
     required this.libraryId,
     required this.libraryName,
+    this.onBack,
   });
 
   @override
@@ -563,6 +565,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
       children: [
         LibraryHeader(
           title: widget.libraryName,
+          onBack: widget.onBack,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

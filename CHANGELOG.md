@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed unreadable card and hero text in light mode: text drawn over poster artwork now stays white instead of following the light theme's dark text color, and the mobile hero scrim is blended toward black so pale posters keep enough contrast.
 - Fixed library pages on mobile having no way back: the shared library header now shows a back button whenever the route was pushed, while it stays hidden inside the desktop shell.
 - Fixed mobile settings dropdowns (Sleep Timer and others) showing the selected value left-aligned inside a wide button instead of next to the arrow like the other rows.
+- Fixed resizing the window across the mobile/desktop breakpoint resetting the app to home. The selected section and the open library now live in a shared `shellNavProvider`, so switching layouts keeps you exactly where you were. Desktop Favorites falls back to an in-shell mobile favorites view, and leaving a library returns to the library browser instead of home.
+- Fixed the desktop layout briefly overflowing during the mobile/desktop swap: `AdaptiveLayout` no longer runs an `AnimatedSwitcher` transition, which forced the outgoing layout to be re-laid out at the new window size.
+- Fixed the home feed refetching every time the mobile shell remounted (e.g. after a resize); it now only loads when there is no cached data.
 - Fixed build issues for macOS
 
 ## [4.1.0]
