@@ -8,7 +8,7 @@ import '../../library/library_page.dart';
 import 'home_library_list_card.dart';
 
 class MobileLibraryBrowser extends ConsumerWidget {
-  const MobileLibraryBrowser();
+  const MobileLibraryBrowser({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,21 +21,43 @@ class MobileLibraryBrowser extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Library',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.folder_outlined,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Your collections',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textTertiary,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Library',
+                          style: AppTextStyles.titleLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Your collections',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -90,14 +112,10 @@ class MobileLibraryBrowser extends ConsumerWidget {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final library = libraries[index];
-                  final accentColor = _getLibraryAccentColor(
-                    library.collectionType,
-                  );
                   return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: LibraryListCard(
                           library: library,
-                          accentColor: accentColor,
                           icon: _getLibraryIcon(library.collectionType),
                           typeLabel: _getLibraryTypeLabel(
                             library.collectionType,
@@ -120,21 +138,6 @@ class MobileLibraryBrowser extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Color _getLibraryAccentColor(String? collectionType) {
-    switch (collectionType) {
-      case 'movies':
-        return const Color(0xFFE53935);
-      case 'tvshows':
-        return const Color(0xFF1E88E5);
-      case 'music':
-        return const Color(0xFF43A047);
-      case 'photos':
-        return const Color(0xFFFF9800);
-      default:
-        return AppColors.secondary;
-    }
   }
 
   String _getLibraryTypeLabel(String? collectionType) {

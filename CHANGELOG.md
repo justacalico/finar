@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Non-home sections (search, favorites, downloads, settings, libraries) no longer wait for home data to load before rendering.
 - Fixed ListTile ink splashes being invisible inside settings cards
 - Removed the separate Theme style setting. OLED is now an option inside the Theme dropdown (System / Light / Dark / OLED) and the Coloured style was removed. Saved settings are migrated, so an OLED selection survives the update.
+- Updated the mobile Library list to use the same glass card and primary accent styling as the rest of the app. Library list cards and the header now use the active theme's primary colour instead of per-library pastel colours.
 
 ### Fixed
 - Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.
