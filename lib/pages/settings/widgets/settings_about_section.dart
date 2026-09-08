@@ -131,7 +131,10 @@ class SettingsAboutSection extends ConsumerWidget {
             Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.code, color: AppColors.accentOrange),
+              leading: Icon(
+                Icons.code,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               title: Text('Source Code', style: AppTextStyles.bodyLarge),
               subtitle: Text(
                 'GitLab Repository',

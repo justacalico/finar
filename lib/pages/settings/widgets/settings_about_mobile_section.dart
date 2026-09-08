@@ -79,9 +79,9 @@ class SettingsAboutMobileSection extends ConsumerWidget {
             ),
             mobileDivider(),
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.code_rounded,
-                color: AppColors.accentOrange,
+                color: Theme.of(context).colorScheme.primary,
               ),
               title: const Text('Source Code'),
               subtitle: Text(
