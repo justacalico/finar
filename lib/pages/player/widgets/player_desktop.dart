@@ -202,7 +202,7 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
     final videoController = ref.watch(videoControllerProvider);
 
     if (playerState.isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.black,
         body: Center(
           child: CircularProgressIndicator(color: AppColors.primary),
@@ -316,7 +316,7 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
                     onClose: () => setState(() => _showSettings = false),
                   ),
                   if (playerState.isBuffering)
-                    const Center(
+                    Center(
                       child: CircularProgressIndicator(
                         color: AppColors.primary,
                       ),

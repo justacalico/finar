@@ -121,7 +121,7 @@ class _SleepTimerOverlayState extends ConsumerState<SleepTimerOverlay> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.timer_outlined,
                 size: 18,
                 color: AppColors.textSecondary,

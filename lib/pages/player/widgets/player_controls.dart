@@ -42,7 +42,7 @@ class PlayerCenterButton extends StatelessWidget {
   final Color? borderColor;
   final bool shimmer;
 
-  const PlayerCenterButton({
+  PlayerCenterButton({
     super.key,
     required this.icon,
     required this.onPressed,
@@ -50,7 +50,7 @@ class PlayerCenterButton extends StatelessWidget {
     this.isPrimary = false,
     this.iconScale = 0.5,
     this.backgroundColor,
-    this.borderColor = AppColors.glassBorder,
+    this.borderColor,
     this.shimmer = false,
   });
 
@@ -71,9 +71,10 @@ class PlayerCenterButton extends StatelessWidget {
                 (isPrimary
                     ? AppColors.glassBackground
                     : AppColors.glassBackground.withValues(alpha: 0.3)),
-            border: borderColor != null
-                ? Border.all(color: borderColor!, width: 1)
-                : null,
+            border: Border.all(
+              color: borderColor ?? AppColors.glassBorder,
+              width: 1,
+            ),
           ),
           child: Icon(icon, size: size * iconScale, color: AppColors.white),
         ),

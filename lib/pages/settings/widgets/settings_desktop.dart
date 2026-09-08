@@ -87,7 +87,7 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
                         ),
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_back_rounded,
                             color: AppColors.textPrimary,
                           ),

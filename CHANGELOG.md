@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.1.1] - 2025-07-24
 
 ### Changed
+- Made the entire colour palette reactive: `AppColors` now derives background, surface, text, glass and primary colours from the active theme mode, theme style, theme colour and accent colour. Light mode, OLED and Coloured styles now actually change the UI.
+- `AppTextStyles` and `AppTheme` now use the reactive `AppColors` so switching theme mode or style updates text and Material theme data.
+- `FinarApp` now reads the full appearance settings and syncs `AppColors` before building `MaterialApp`. Theme colour, accent colour, theme style, theme mode and `useSystemAccent` are all wired into the rendered theme.
 - Unified LibraryPage so movies, TV shows, music and all other libraries share the same page shell. The header now shows the actual library name with the same style on every topic; only the content body below changes based on collectionType. Music keeps its Albums/Tracks/Artists tabs.
 - Library pages now use a single unified top bar: the shared `LibraryHeader` contains the library name and that topic's controls (search, sort, view or refresh). There is no longer a separate second header row.
 - Settings is now a proper section of the main navigation instead of a separate pushed page. On desktop it opens in the sidebar content area like Home, Search and Favorites, and on mobile it is a bottom navigation tab. The app bar gear icon now jumps to that tab.
@@ -16,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed ListTile ink splashes being invisible inside settings cards
 
 ### Fixed
+- Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.
 - Fixed build issues for macOS
 
 ## [4.1.0]

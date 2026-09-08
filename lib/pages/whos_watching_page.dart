@@ -35,7 +35,7 @@ class WhosWatchingPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 40),
                 if (authState.isLoading)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(32),
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
@@ -100,7 +100,7 @@ class WhosWatchingPage extends ConsumerWidget {
                     onPressed: () => _openManageProfiles(context),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
-                      side: const BorderSide(color: AppColors.divider),
+                      side: BorderSide(color: AppColors.divider),
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                     ),
                     child: Text(

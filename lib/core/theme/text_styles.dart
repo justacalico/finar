@@ -12,7 +12,7 @@ class AppTextStyles {
   static const String textFontFamily = 'Inter';
 
   // Display styles - Large headlines for hero sections
-  static const TextStyle displayLarge = TextStyle(
+  static TextStyle displayLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 56,
     fontWeight: FontWeight.w700,
@@ -22,7 +22,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle displayMedium = TextStyle(
+  static TextStyle displayMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 44,
     fontWeight: FontWeight.w700,
@@ -32,7 +32,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle displaySmall = TextStyle(
+  static TextStyle displaySmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 36,
     fontWeight: FontWeight.w600,
@@ -43,7 +43,7 @@ class AppTextStyles {
   );
 
   // Headline styles
-  static const TextStyle headlineLarge = TextStyle(
+  static TextStyle headlineLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w600,
@@ -53,7 +53,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle headlineMedium = TextStyle(
+  static TextStyle headlineMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w600,
@@ -63,7 +63,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle headlineSmall = TextStyle(
+  static TextStyle headlineSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w600,
@@ -74,7 +74,7 @@ class AppTextStyles {
   );
 
   // Title styles
-  static const TextStyle titleLarge = TextStyle(
+  static TextStyle titleLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 22,
     fontWeight: FontWeight.w600,
@@ -84,7 +84,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle titleMedium = TextStyle(
+  static TextStyle titleMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -94,7 +94,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle titleSmall = TextStyle(
+  static TextStyle titleSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -105,7 +105,7 @@ class AppTextStyles {
   );
 
   // Body styles
-  static const TextStyle bodyLarge = TextStyle(
+  static TextStyle bodyLarge = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 16,
     fontWeight: FontWeight.normal,
@@ -115,7 +115,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  static TextStyle bodyMedium = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 14,
     fontWeight: FontWeight.normal,
@@ -125,7 +125,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static TextStyle bodySmall = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 12,
     fontWeight: FontWeight.normal,
@@ -136,7 +136,7 @@ class AppTextStyles {
   );
 
   // Label styles
-  static const TextStyle labelLarge = TextStyle(
+  static TextStyle labelLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -146,7 +146,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle labelMedium = TextStyle(
+  static TextStyle labelMedium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
@@ -156,7 +156,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle labelSmall = TextStyle(
+  static TextStyle labelSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -167,7 +167,7 @@ class AppTextStyles {
   );
 
   // Custom styles for Finar
-  static const TextStyle hero = TextStyle(
+  static TextStyle hero = TextStyle(
     fontFamily: fontFamily,
     fontSize: 48,
     fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle subtitle = TextStyle(
+  static TextStyle subtitle = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w400,
@@ -187,7 +187,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle caption = TextStyle(
+  static TextStyle caption = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w400,
@@ -197,7 +197,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle button = TextStyle(
+  static TextStyle button = TextStyle(
     fontFamily: fontFamily,
     fontSize: 17,
     fontWeight: FontWeight.w600,
@@ -207,7 +207,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle buttonSmall = TextStyle(
+  static TextStyle buttonSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w600,
@@ -217,7 +217,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle buttonLarge = TextStyle(
+  static TextStyle buttonLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -227,7 +227,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle badge = TextStyle(
+  static TextStyle badge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 10,
     fontWeight: FontWeight.w700,
@@ -237,7 +237,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle rating = TextStyle(
+  static TextStyle rating = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w600,
@@ -247,7 +247,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle metadata = TextStyle(
+  static TextStyle metadata = TextStyle(
     fontFamily: textFontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w400,
@@ -257,7 +257,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static const TextStyle playerTime = TextStyle(
+  static TextStyle playerTime = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w500,

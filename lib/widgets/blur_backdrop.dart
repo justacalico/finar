@@ -286,14 +286,14 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
 /// Particle effect for special moments
 class ParticleEffect extends StatefulWidget {
   final int particleCount;
-  final Color particleColor;
+  final Color? particleColor;
   final double maxSize;
   final Duration duration;
 
   const ParticleEffect({
     super.key,
     this.particleCount = 20,
-    this.particleColor = AppColors.primary,
+    this.particleColor,
     this.maxSize = 8,
     this.duration = const Duration(seconds: 2),
   });
@@ -330,7 +330,7 @@ class _ParticleEffectState extends State<ParticleEffect>
           painter: _ParticlePainter(
             progress: _controller.value,
             particleCount: widget.particleCount,
-            particleColor: widget.particleColor,
+            particleColor: widget.particleColor ?? AppColors.primary,
             maxSize: widget.maxSize,
           ),
           size: Size.infinite,

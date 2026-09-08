@@ -66,7 +66,7 @@ Widget mobileDropdownTile<T>(
       dropdownColor: AppColors.surfaceElevated,
       underline: const SizedBox(),
       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
         color: AppColors.textSecondary,
       ),

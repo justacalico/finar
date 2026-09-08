@@ -80,7 +80,7 @@ class MobileMiniPlayer extends ConsumerWidget {
                           placeholder: (_, _) => Container(color: AppColors.surface),
                           errorWidget: (_, _, _) => Container(
                             color: AppColors.surface,
-                            child: const Icon(
+                            child: Icon(
                               Icons.music_note,
                               color: AppColors.textSecondary,
                             ),
@@ -291,7 +291,7 @@ class DesktopMusicPlayerBar extends ConsumerWidget {
                       placeholder: (_, _) => Container(color: AppColors.surface),
                       errorWidget: (_, _, _) => Container(
                         color: AppColors.surface,
-                        child: const Icon(
+                        child: Icon(
                           Icons.music_note,
                           color: AppColors.textSecondary,
                           size: 28,
@@ -683,7 +683,7 @@ class ExpandedMusicPlayer extends ConsumerWidget {
                                           (context, error, stackTrace) =>
                                               Container(
                                                 color: AppColors.surface,
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.music_note,
                                                   size: 100,
                                                   color:

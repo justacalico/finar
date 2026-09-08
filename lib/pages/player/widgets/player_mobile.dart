@@ -256,7 +256,7 @@ class _PlayerMobileState extends ConsumerState<PlayerMobile> {
     final videoController = ref.watch(videoControllerProvider);
 
     if (playerState.isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.black,
         body: Center(
           child: CircularProgressIndicator(color: AppColors.primary),
@@ -329,7 +329,7 @@ class _PlayerMobileState extends ConsumerState<PlayerMobile> {
               PlayerMobileBrightnessIndicator(brightness: _brightness),
             if (_showVolume) const PlayerMobileVolumeIndicator(),
             if (playerState.isBuffering)
-              const Center(
+              Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
             PlayerMobileSeekIndicator(

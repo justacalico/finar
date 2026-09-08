@@ -36,7 +36,7 @@ class SettingsAudioSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setAudioLanguage(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Normalize Volume',

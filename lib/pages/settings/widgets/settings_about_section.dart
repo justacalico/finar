@@ -40,7 +40,7 @@ class SettingsAboutSection extends ConsumerWidget {
                 );
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text('Platform', style: AppTextStyles.bodyLarge),
@@ -51,7 +51,7 @@ class SettingsAboutSection extends ConsumerWidget {
                 ),
               ),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text('OS Version', style: AppTextStyles.bodyLarge),
@@ -89,7 +89,7 @@ class SettingsAboutSection extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const Divider(color: AppColors.glassBorder),
+                    Divider(color: AppColors.glassBorder),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text('User', style: AppTextStyles.bodyLarge),
@@ -128,7 +128,7 @@ class SettingsAboutSection extends ConsumerWidget {
               trailing: const Icon(Icons.open_in_new, size: 20),
               onTap: () => _launchUrl('https://openlyst.ink/'),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.code, color: AppColors.accentOrange),
@@ -142,7 +142,7 @@ class SettingsAboutSection extends ConsumerWidget {
               trailing: const Icon(Icons.open_in_new, size: 20),
               onTap: () => _launchUrl('https://gitlab.com/Openlyst/finar'),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(

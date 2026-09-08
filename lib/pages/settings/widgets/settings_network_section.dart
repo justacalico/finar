@@ -41,7 +41,7 @@ class SettingsNetworkSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setMaxStreamingBitrate(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Allow Cellular Streaming',
@@ -51,7 +51,7 @@ class SettingsNetworkSection extends ConsumerWidget {
                   .read(settingsProvider.notifier)
                   .setAllowCellularStreaming(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Preload Next Episode',
@@ -76,7 +76,7 @@ class SettingsNetworkSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setCacheImages(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             sliderTile(
               context,
               title: 'Image Cache Size',
