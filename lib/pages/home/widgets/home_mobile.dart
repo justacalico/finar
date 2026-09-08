@@ -685,6 +685,9 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   Widget _buildHeroCard(dynamic item, String serverUrl, bool isActive) {
+    // Blend the poster's dominant color toward black so the scrim stays dark
+    // enough for white text even on pale artwork.
+    final scrim = Color.lerp(_dominantColor, Colors.black, 0.55)!;
     return GestureDetector(
       onTap: () => _navigateToDetail(item.id),
       child: Container(
@@ -722,7 +725,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                 ),
               ),
 
-              // Gradient overlay
+              // Gradient overlay tinted by the poster but kept dark for contrast
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -731,8 +734,8 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      _dominantColor.withValues(alpha: 0.7),
-                      _dominantColor.withValues(alpha: 0.95),
+                      scrim.withValues(alpha: 0.75),
+                      scrim.withValues(alpha: 0.95),
                     ],
                     stops: const [0.0, 0.4, 0.7, 1.0],
                   ),
@@ -774,6 +777,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                           : (item.name?.toString() ?? ''),
                       style: AppTextStyles.headlineSmall.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: AppColors.white,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -786,7 +790,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                           Text(
                             item.productionYear.toString(),
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.white.withValues(alpha: 0.85),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -797,7 +801,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                           Text(
                             item.communityRating.toStringAsFixed(1),
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.white.withValues(alpha: 0.85),
                             ),
                           ),
                         ],
@@ -1049,6 +1053,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                             item.name,
                             style: AppTextStyles.labelMedium.copyWith(
                               fontWeight: FontWeight.w600,
+                              color: AppColors.white,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1058,7 +1063,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                           Text(
                             '${remainingMinutes}m left',
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.white.withValues(alpha: 0.85),
                             ),
                           ),
                       ],

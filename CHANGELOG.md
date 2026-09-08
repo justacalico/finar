@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed theme changes not repainting the whole app: `AppTextStyles` are now evaluated lazily so they pick up the active palette, and `FinarApp` forces a full tree rebuild when the appearance settings change so pages that read `AppColors` directly repaint too.
 - Fixed `ThemeMode.system` not following OS brightness changes while the app is running.
 - Fixed desktop settings content being vertically centered in the pane instead of starting at the top.
+- Fixed unreadable card and hero text in light mode: text drawn over poster artwork now stays white instead of following the light theme's dark text color, and the mobile hero scrim is blended toward black so pale posters keep enough contrast.
 - Fixed build issues for macOS
 
 ## [4.1.0]
