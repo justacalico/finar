@@ -9,7 +9,7 @@ class AppColors {
   AppColors._();
 
   static Brightness _brightness = Brightness.dark;
-  static ThemeStyle _themeStyle = ThemeStyle.standard;
+  static bool _oled = false;
   static Color _themeColor = accentColorOptions[0].$3;
   static Color _accentColor = accentColorOptions[0].$3;
   static bool _useSystemAccent = false;
@@ -17,13 +17,13 @@ class AppColors {
   /// Called once per build to sync the static palette with the user's settings.
   static void set({
     Brightness? brightness,
-    ThemeStyle? themeStyle,
+    bool? oled,
     Color? themeColor,
     Color? accentColor,
     bool? useSystemAccent,
   }) {
     if (brightness != null) _brightness = brightness;
-    if (themeStyle != null) _themeStyle = themeStyle;
+    if (oled != null) _oled = oled;
     if (themeColor != null) _themeColor = themeColor;
     if (accentColor != null) _accentColor = accentColor;
     if (useSystemAccent != null) _useSystemAccent = useSystemAccent;
@@ -41,56 +41,32 @@ class AppColors {
   // Background colors
   static Color get background {
     if (_isLight) return const Color(0xFFF2F2F7);
-    switch (_themeStyle) {
-      case ThemeStyle.oled:
-        return Colors.black;
-      case ThemeStyle.coloured:
-        return Color.alphaBlend(
-          _themeColor.withValues(alpha: 0.08),
-          const Color(0xFF0D0D0F),
-        );
-      case ThemeStyle.standard:
-        return const Color(0xFF0D0D0F);
-    }
+    return _oled ? Colors.black : const Color(0xFF0D0D0F);
   }
 
   static Color get backgroundSecondary {
     if (_isLight) return const Color(0xFFFFFFFF);
-    if (_themeStyle == ThemeStyle.oled) return Colors.black;
-    return const Color(0xFF141416);
+    return _oled ? Colors.black : const Color(0xFF141416);
   }
 
   static Color get backgroundTertiary {
     if (_isLight) return const Color(0xFFE5E5EA);
-    if (_themeStyle == ThemeStyle.oled) return Colors.black;
-    return const Color(0xFF1A1A1E);
+    return _oled ? Colors.black : const Color(0xFF1A1A1E);
   }
 
   static Color get surface {
     if (_isLight) return const Color(0xFFF5F5F7);
-    switch (_themeStyle) {
-      case ThemeStyle.oled:
-        return Colors.black;
-      case ThemeStyle.coloured:
-        return Color.alphaBlend(
-          _themeColor.withValues(alpha: 0.06),
-          const Color(0xFF1A1A1E),
-        );
-      case ThemeStyle.standard:
-        return const Color(0xFF1A1A1E);
-    }
+    return _oled ? Colors.black : const Color(0xFF1A1A1E);
   }
 
   static Color get surfaceElevated {
     if (_isLight) return const Color(0xFFFFFFFF);
-    if (_themeStyle == ThemeStyle.oled) return const Color(0xFF0A0A0A);
-    return const Color(0xFF242428);
+    return _oled ? const Color(0xFF0A0A0A) : const Color(0xFF242428);
   }
 
   static Color get surfaceHighlight {
     if (_isLight) return const Color(0xFFF2F2F7);
-    if (_themeStyle == ThemeStyle.oled) return const Color(0xFF141414);
-    return const Color(0xFF2E2E34);
+    return _oled ? const Color(0xFF141414) : const Color(0xFF2E2E34);
   }
 
   // Glass colors - white on dark UI, black on light UI
@@ -137,17 +113,8 @@ class AppColors {
     );
   }
 
-  // Secondary - kept as purple but tints with the accent color when coloured
-  static Color get secondary {
-    const base = Color(0xFF9D7EF7);
-    if (_themeStyle == ThemeStyle.coloured) {
-      return Color.alphaBlend(
-        _accentColor.withValues(alpha: 0.25),
-        base,
-      );
-    }
-    return base;
-  }
+  // Secondary - kept as purple
+  static const Color secondary = Color(0xFF9D7EF7);
 
   static Color get secondaryLight {
     return Color.alphaBlend(

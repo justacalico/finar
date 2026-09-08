@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Downloads is now an in-shell section on desktop: the sidebar Downloads item swaps the main content area instead of pushing a separate route. DownloadsPage still shows a back button when pushed from elsewhere.
 - Non-home sections (search, favorites, downloads, settings, libraries) no longer wait for home data to load before rendering.
 - Fixed ListTile ink splashes being invisible inside settings cards
+- Removed the separate Theme style setting. OLED is now an option inside the Theme dropdown (System / Light / Dark / OLED) and the Coloured style was removed. Saved settings are migrated, so an OLED selection survives the update.
 
 ### Fixed
 - Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.

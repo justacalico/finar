@@ -10,11 +10,33 @@ enum UiMode {
   mobile,
 }
 
-/// Visual theme style applied on top of light/dark mode
-enum ThemeStyle {
-  standard,
-  oled,
-  coloured,
+/// Theme choice shown in the settings dropdown.
+/// OLED is a dark variant with pure black surfaces.
+enum AppThemeMode { system, light, dark, oled }
+
+extension AppThemeModeX on AppThemeMode {
+  /// What MaterialApp.themeMode gets. OLED renders through the dark theme.
+  ThemeMode get materialThemeMode => switch (this) {
+    AppThemeMode.system => ThemeMode.system,
+    AppThemeMode.light => ThemeMode.light,
+    AppThemeMode.dark || AppThemeMode.oled => ThemeMode.dark,
+  };
+
+  /// Forced brightness, or null when following the OS.
+  Brightness? get forcedBrightness => switch (this) {
+    AppThemeMode.system => null,
+    AppThemeMode.light => Brightness.light,
+    AppThemeMode.dark || AppThemeMode.oled => Brightness.dark,
+  };
+
+  bool get isOled => this == AppThemeMode.oled;
+
+  String get label => switch (this) {
+    AppThemeMode.system => 'System',
+    AppThemeMode.light => 'Light',
+    AppThemeMode.dark => 'Dark',
+    AppThemeMode.oled => 'OLED',
+  };
 }
 
 /// App settings model
@@ -41,7 +63,7 @@ class AppSettings {
   final bool normalizeVolume;
 
   // Appearance
-  final ThemeMode themeMode;
+  final AppThemeMode appThemeMode;
   final bool useSystemAccent;
   /// Index into accentColorOptions (0 = teal default)
   final int accentColorIndex;
@@ -61,7 +83,6 @@ class AppSettings {
 
   // UI Mode
   final UiMode forcedUiMode;
-  final ThemeStyle themeStyle;
 
   const AppSettings({
     this.defaultVideoQuality = 1080,
@@ -78,7 +99,7 @@ class AppSettings {
     this.subtitleBackgroundColor = Colors.black54,
     this.audioLanguage = 'eng',
     this.normalizeVolume = false,
-    this.themeMode = ThemeMode.dark,
+    this.appThemeMode = AppThemeMode.dark,
     this.useSystemAccent = false,
     this.accentColorIndex = 0,
     this.themeColorIndex = 0,
@@ -90,7 +111,6 @@ class AppSettings {
     this.imageCacheSize = 500,
     this.cacheImages = true,
     this.forcedUiMode = UiMode.auto,
-    this.themeStyle = ThemeStyle.standard,
   });
 
   AppSettings copyWith({
@@ -108,7 +128,7 @@ class AppSettings {
     Color? subtitleBackgroundColor,
     String? audioLanguage,
     bool? normalizeVolume,
-    ThemeMode? themeMode,
+    AppThemeMode? appThemeMode,
     bool? useSystemAccent,
     int? accentColorIndex,
     bool? enableAnimations,
@@ -119,7 +139,6 @@ class AppSettings {
     int? imageCacheSize,
     bool? cacheImages,
     UiMode? forcedUiMode,
-    ThemeStyle? themeStyle,
     int? themeColorIndex,
   }) {
     return AppSettings(
@@ -137,7 +156,7 @@ class AppSettings {
       subtitleBackgroundColor: subtitleBackgroundColor ?? this.subtitleBackgroundColor,
       audioLanguage: audioLanguage ?? this.audioLanguage,
       normalizeVolume: normalizeVolume ?? this.normalizeVolume,
-      themeMode: themeMode ?? this.themeMode,
+      appThemeMode: appThemeMode ?? this.appThemeMode,
       useSystemAccent: useSystemAccent ?? this.useSystemAccent,
       accentColorIndex: accentColorIndex ?? this.accentColorIndex,
       themeColorIndex: themeColorIndex ?? this.themeColorIndex,
@@ -149,7 +168,6 @@ class AppSettings {
       imageCacheSize: imageCacheSize ?? this.imageCacheSize,
       cacheImages: cacheImages ?? this.cacheImages,
       forcedUiMode: forcedUiMode ?? this.forcedUiMode,
-      themeStyle: themeStyle ?? this.themeStyle,
     );
   }
 
@@ -169,7 +187,7 @@ class AppSettings {
       'subtitleBackgroundColor': subtitleBackgroundColor.toARGB32(),
       'audioLanguage': audioLanguage,
       'normalizeVolume': normalizeVolume,
-      'themeMode': themeMode.index,
+      'appThemeMode': appThemeMode.index,
       'useSystemAccent': useSystemAccent,
       'accentColorIndex': accentColorIndex,
       'themeColorIndex': themeColorIndex,
@@ -181,8 +199,18 @@ class AppSettings {
       'imageCacheSize': imageCacheSize,
       'cacheImages': cacheImages,
       'forcedUiMode': forcedUiMode.index,
-      'themeStyle': themeStyle.index,
     };
+  }
+
+  // Old saves kept themeMode (system/light/dark) and themeStyle
+  // (standard/oled/coloured) as separate keys.
+  static AppThemeMode _migrateThemeMode(Map<String, dynamic> json) {
+    if (json['themeStyle'] == 1) return AppThemeMode.oled;
+    final oldMode = json['themeMode'] as int?;
+    if (oldMode == null || oldMode < 0 || oldMode > 2) {
+      return AppThemeMode.dark;
+    }
+    return AppThemeMode.values[oldMode];
   }
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -205,9 +233,9 @@ class AppSettings {
           : Colors.black54,
       audioLanguage: json['audioLanguage'] as String? ?? 'eng',
       normalizeVolume: json['normalizeVolume'] as bool? ?? false,
-      themeMode: json['themeMode'] != null
-          ? ThemeMode.values[json['themeMode'] as int]
-          : ThemeMode.dark,
+      appThemeMode: json['appThemeMode'] != null
+          ? AppThemeMode.values[json['appThemeMode'] as int]
+          : _migrateThemeMode(json),
       useSystemAccent: json['useSystemAccent'] as bool? ?? false,
       accentColorIndex: json['accentColorIndex'] as int? ?? 0,
       themeColorIndex: json['themeColorIndex'] as int? ?? 0,
@@ -221,9 +249,6 @@ class AppSettings {
       forcedUiMode: json['forcedUiMode'] != null
           ? UiMode.values[json['forcedUiMode'] as int]
           : UiMode.auto,
-      themeStyle: json['themeStyle'] != null
-          ? ThemeStyle.values[json['themeStyle'] as int]
-          : ThemeStyle.standard,
     );
   }
 }
@@ -335,12 +360,8 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 
   // Appearance settings
-  Future<void> setThemeMode(ThemeMode mode) async {
-    await updateSettings((s) => s.copyWith(themeMode: mode));
-  }
-
-  Future<void> setThemeStyle(ThemeStyle style) async {
-    await updateSettings((s) => s.copyWith(themeStyle: style));
+  Future<void> setAppThemeMode(AppThemeMode mode) async {
+    await updateSettings((s) => s.copyWith(appThemeMode: mode));
   }
 
   Future<void> setEnableAnimations(bool value) async {
@@ -405,12 +426,6 @@ final settingsProvider =
 /// Completes when settings have been loaded from disk (for correct initial theme).
 final settingsLoadedProvider = FutureProvider<void>((ref) async {
   await ref.read(settingsProvider.notifier).ensureSettingsLoaded();
-});
-
-/// Theme mode provider
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  final settings = ref.watch(settingsProvider);
-  return settings.themeMode;
 });
 
 /// Animations enabled provider
