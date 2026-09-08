@@ -276,10 +276,15 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
         break;
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32),
-      child: content,
-    ).animate().fadeIn(duration: AppTheme.durationNormal);
+    // SizedBox.expand forces the viewport to fill the pane. Newer Flutter
+    // sizes SingleChildScrollView to its child, which left the section
+    // vertically centered by the surrounding Row instead of top aligned.
+    return SizedBox.expand(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: content,
+      ).animate().fadeIn(duration: AppTheme.durationNormal),
+    );
   }
 
   void _showSignOutDialog(BuildContext context) {

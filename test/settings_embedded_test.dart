@@ -57,4 +57,26 @@ void main() {
 
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
+
+  testWidgets('desktop settings content fills the pane and starts at top', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(_wrap(const SettingsDesktop(embedded: true)));
+    await tester.pumpAndSettle();
+
+    // The scroll view must fill the content pane instead of shrink wrapping
+    // its section, which would leave the section centered in the Row.
+    final scrollView = find.byType(SingleChildScrollView);
+    expect(scrollView, findsOneWidget);
+    expect(tester.getRect(scrollView).height, greaterThan(800));
+
+    final subtitle = find.text('Customize your app experience');
+    expect(subtitle, findsOneWidget);
+    expect(tester.getTopLeft(subtitle).dy, lessThan(200));
+  });
 }
