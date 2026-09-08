@@ -40,21 +40,9 @@ class SettingsAppearanceMobileSection extends ConsumerWidget {
                 ),
               ],
               (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setAppThemeMode(v);
-              },
-            ),
-            mobileDivider(),
-            mobileDropdownTile<int>(
-              context,
-              'Theme color',
-              settings.themeColorIndex,
-              accentColorOptions
-                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
-                  .toList(),
-              (v) {
-                if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeColorIndex(v);
+                }
               },
             ),
             mobileDivider(),
@@ -74,8 +62,9 @@ class SettingsAppearanceMobileSection extends ConsumerWidget {
                   .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
                   .toList(),
               (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+                }
               },
             ),
             mobileDivider(),

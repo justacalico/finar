@@ -52,27 +52,9 @@ class SettingsGeneralSection extends ConsumerWidget {
                 ),
               ],
               onChanged: (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setAppThemeMode(v);
-              },
-            ),
-            Divider(color: AppColors.glassBorder),
-            dropdownTile<int>(
-              context,
-              title: 'Theme color',
-              subtitle:
-                  accentColorOptions[settings.themeColorIndex.clamp(
-                        0,
-                        accentColorOptions.length - 1,
-                      )]
-                      .$2,
-              value: settings.themeColorIndex,
-              items: accentColorOptions
-                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
-                  .toList(),
-              onChanged: (v) {
-                if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeColorIndex(v);
+                }
               },
             ),
             Divider(color: AppColors.glassBorder),
@@ -100,8 +82,9 @@ class SettingsGeneralSection extends ConsumerWidget {
                   .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
                   .toList(),
               onChanged: (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+                }
               },
             ),
             Divider(color: AppColors.glassBorder),

@@ -67,8 +67,6 @@ class AppSettings {
   final bool useSystemAccent;
   /// Index into accentColorOptions (0 = teal default)
   final int accentColorIndex;
-  /// Index into accentColorOptions for the global theme color
-  final int themeColorIndex;
   final bool enableAnimations;
   final bool reducedMotion;
 
@@ -102,7 +100,6 @@ class AppSettings {
     this.appThemeMode = AppThemeMode.dark,
     this.useSystemAccent = false,
     this.accentColorIndex = 0,
-    this.themeColorIndex = 0,
     this.enableAnimations = true,
     this.reducedMotion = false,
     this.maxStreamingBitrate = 40000000,
@@ -139,7 +136,6 @@ class AppSettings {
     int? imageCacheSize,
     bool? cacheImages,
     UiMode? forcedUiMode,
-    int? themeColorIndex,
   }) {
     return AppSettings(
       defaultVideoQuality: defaultVideoQuality ?? this.defaultVideoQuality,
@@ -159,7 +155,6 @@ class AppSettings {
       appThemeMode: appThemeMode ?? this.appThemeMode,
       useSystemAccent: useSystemAccent ?? this.useSystemAccent,
       accentColorIndex: accentColorIndex ?? this.accentColorIndex,
-      themeColorIndex: themeColorIndex ?? this.themeColorIndex,
       enableAnimations: enableAnimations ?? this.enableAnimations,
       reducedMotion: reducedMotion ?? this.reducedMotion,
       maxStreamingBitrate: maxStreamingBitrate ?? this.maxStreamingBitrate,
@@ -190,7 +185,6 @@ class AppSettings {
       'appThemeMode': appThemeMode.index,
       'useSystemAccent': useSystemAccent,
       'accentColorIndex': accentColorIndex,
-      'themeColorIndex': themeColorIndex,
       'enableAnimations': enableAnimations,
       'reducedMotion': reducedMotion,
       'maxStreamingBitrate': maxStreamingBitrate,
@@ -237,8 +231,12 @@ class AppSettings {
           ? AppThemeMode.values[json['appThemeMode'] as int]
           : _migrateThemeMode(json),
       useSystemAccent: json['useSystemAccent'] as bool? ?? false,
-      accentColorIndex: json['accentColorIndex'] as int? ?? 0,
-      themeColorIndex: json['themeColorIndex'] as int? ?? 0,
+      // Old saves had a separate themeColorIndex; reuse it if accentColorIndex
+      // is missing so the user's previous primary colour is preserved.
+      accentColorIndex:
+          json['accentColorIndex'] as int? ??
+          json['themeColorIndex'] as int? ??
+          0,
       enableAnimations: json['enableAnimations'] as bool? ?? true,
       reducedMotion: json['reducedMotion'] as bool? ?? false,
       maxStreamingBitrate: json['maxStreamingBitrate'] as int? ?? 40000000,
@@ -374,10 +372,6 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
   Future<void> setAccentColorIndex(int index) async {
     await updateSettings((s) => s.copyWith(accentColorIndex: index));
-  }
-
-  Future<void> setThemeColorIndex(int index) async {
-    await updateSettings((s) => s.copyWith(themeColorIndex: index));
   }
 
   Future<void> setUseSystemAccent(bool value) async {
