@@ -17,42 +17,31 @@ class SettingsAppearanceMobileSection extends ConsumerWidget {
         const SizedBox(height: 10),
         mobileCard(
           children: [
-            mobileDropdownTile<ThemeMode>(
+            mobileDropdownTile<AppThemeMode>(
               context,
               'Theme',
-              settings.themeMode,
+              settings.appThemeMode,
               const [
                 DropdownMenuItem(
-                  value: ThemeMode.system,
+                  value: AppThemeMode.system,
                   child: Text('System'),
                 ),
-                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-              ],
-              (v) {
-                if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeMode(v);
-              },
-            ),
-            mobileDivider(),
-            mobileDropdownTile<ThemeStyle>(
-              context,
-              'Theme style',
-              settings.themeStyle,
-              const [
                 DropdownMenuItem(
-                  value: ThemeStyle.standard,
-                  child: Text('Default'),
+                  value: AppThemeMode.light,
+                  child: Text('Light'),
                 ),
-                DropdownMenuItem(value: ThemeStyle.oled, child: Text('OLED')),
                 DropdownMenuItem(
-                  value: ThemeStyle.coloured,
-                  child: Text('Coloured'),
+                  value: AppThemeMode.dark,
+                  child: Text('Dark'),
+                ),
+                DropdownMenuItem(
+                  value: AppThemeMode.oled,
+                  child: Text('OLED'),
                 ),
               ],
               (v) {
                 if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeStyle(v);
+                  ref.read(settingsProvider.notifier).setAppThemeMode(v);
               },
             ),
             mobileDivider(),

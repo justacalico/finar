@@ -179,11 +179,8 @@ class _FinarAppState extends ConsumerState<FinarApp>
           final settings = ref.watch(settingsProvider);
           final view = View.of(context);
           final platformBrightness = view.platformDispatcher.platformBrightness;
-          final brightness = switch (settings.themeMode) {
-            ThemeMode.light => Brightness.light,
-            ThemeMode.dark => Brightness.dark,
-            ThemeMode.system => platformBrightness,
-          };
+          final brightness =
+              settings.appThemeMode.forcedBrightness ?? platformBrightness;
           final accentColor = accentColorOptions[
             settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
           ].$3;
@@ -195,7 +192,7 @@ class _FinarAppState extends ConsumerState<FinarApp>
 
           AppColors.set(
             brightness: brightness,
-            themeStyle: settings.themeStyle,
+            oled: settings.appThemeMode.isOled,
             themeColor: themeColor,
             accentColor: accentColor,
             useSystemAccent: settings.useSystemAccent,
@@ -206,7 +203,7 @@ class _FinarAppState extends ConsumerState<FinarApp>
           // Widgets read AppColors directly so they have no Theme dependency
           // to rebuild from. Repaint the whole tree when appearance changes.
           final appearanceKey =
-              '${settings.themeMode}|${settings.themeStyle}|'
+              '${settings.appThemeMode}|'
               '${settings.themeColorIndex}|${settings.accentColorIndex}|'
               '${settings.useSystemAccent}|$platformBrightness';
           if (appearanceKey != _appearanceKey) {
@@ -219,7 +216,7 @@ class _FinarAppState extends ConsumerState<FinarApp>
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightThemeWithPrimary(effectivePrimary),
             darkTheme: AppTheme.darkThemeWithPrimary(effectivePrimary),
-            themeMode: settings.themeMode,
+            themeMode: settings.appThemeMode.materialThemeMode,
             home: const _AppRouter(),
           );
         },

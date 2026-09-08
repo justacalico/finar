@@ -24,53 +24,36 @@ class SettingsGeneralSection extends ConsumerWidget {
           title: 'Appearance',
           icon: Icons.palette_outlined,
           children: [
-            dropdownTile<ThemeMode>(
+            dropdownTile<AppThemeMode>(
               context,
               title: 'Theme',
-              subtitle: settings.themeMode == ThemeMode.system
+              subtitle: settings.appThemeMode == AppThemeMode.system
                   ? 'Follow system'
-                  : settings.themeMode == ThemeMode.light
-                  ? 'Light'
-                  : 'Dark',
-              value: settings.themeMode,
+                  : settings.appThemeMode == AppThemeMode.oled
+                  ? 'OLED, pure black'
+                  : settings.appThemeMode.label,
+              value: settings.appThemeMode,
               items: const [
                 DropdownMenuItem(
-                  value: ThemeMode.system,
+                  value: AppThemeMode.system,
                   child: Text('System'),
                 ),
-                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-              ],
-              onChanged: (v) {
-                if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeMode(v);
-              },
-            ),
-            Divider(color: AppColors.glassBorder),
-            dropdownTile<ThemeStyle>(
-              context,
-              title: 'Theme style',
-              subtitle: switch (settings.themeStyle) {
-                ThemeStyle.standard => 'Glass dark',
-                ThemeStyle.oled => 'Pure black for OLED displays',
-                ThemeStyle.coloured =>
-                  'Use a separate theme color across the UI',
-              },
-              value: settings.themeStyle,
-              items: const [
                 DropdownMenuItem(
-                  value: ThemeStyle.standard,
-                  child: Text('Default'),
+                  value: AppThemeMode.light,
+                  child: Text('Light'),
                 ),
-                DropdownMenuItem(value: ThemeStyle.oled, child: Text('OLED')),
                 DropdownMenuItem(
-                  value: ThemeStyle.coloured,
-                  child: Text('Coloured'),
+                  value: AppThemeMode.dark,
+                  child: Text('Dark'),
+                ),
+                DropdownMenuItem(
+                  value: AppThemeMode.oled,
+                  child: Text('OLED'),
                 ),
               ],
               onChanged: (v) {
                 if (v != null)
-                  ref.read(settingsProvider.notifier).setThemeStyle(v);
+                  ref.read(settingsProvider.notifier).setAppThemeMode(v);
               },
             ),
             Divider(color: AppColors.glassBorder),

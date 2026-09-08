@@ -10,7 +10,7 @@ void main() {
     test('follows light mode', () {
       AppColors.set(
         brightness: Brightness.light,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -21,10 +21,10 @@ void main() {
       expect(AppColors.textPrimary, const Color(0xFF1C1C1E));
     });
 
-    test('OLED style uses pure black', () {
+    test('OLED mode uses pure black', () {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.oled,
+        oled: true,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -34,23 +34,10 @@ void main() {
       expect(AppColors.surface, Colors.black);
     });
 
-    test('coloured style tints background with theme color', () {
-      AppColors.set(
-        brightness: Brightness.dark,
-        themeStyle: ThemeStyle.coloured,
-        themeColor: const Color(0xFFFF0000),
-        accentColor: const Color(0xFF00B8D9),
-        useSystemAccent: false,
-      );
-
-      expect(AppColors.background, isNot(Colors.black));
-      expect(AppColors.background, isNot(const Color(0xFF0D0D0F)));
-    });
-
     test('primary follows theme color', () {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFFFF0000),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -63,7 +50,7 @@ void main() {
     test('useSystemAccent uses accent color for primary', () {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFFFF0000),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: true,
@@ -75,7 +62,7 @@ void main() {
     test('light mode glass colors switch to dark tints', () {
       AppColors.set(
         brightness: Brightness.light,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -85,11 +72,55 @@ void main() {
     });
   });
 
+  group('AppThemeMode', () {
+    test('maps to MaterialApp theme mode', () {
+      expect(AppThemeMode.system.materialThemeMode, ThemeMode.system);
+      expect(AppThemeMode.light.materialThemeMode, ThemeMode.light);
+      expect(AppThemeMode.dark.materialThemeMode, ThemeMode.dark);
+      expect(AppThemeMode.oled.materialThemeMode, ThemeMode.dark);
+    });
+
+    test('forced brightness follows the selection', () {
+      expect(AppThemeMode.system.forcedBrightness, isNull);
+      expect(AppThemeMode.light.forcedBrightness, Brightness.light);
+      expect(AppThemeMode.dark.forcedBrightness, Brightness.dark);
+      expect(AppThemeMode.oled.forcedBrightness, Brightness.dark);
+      expect(AppThemeMode.oled.isOled, isTrue);
+      expect(AppThemeMode.dark.isOled, isFalse);
+    });
+
+    test('migrates old themeMode/themeStyle saves', () {
+      expect(
+        AppSettings.fromJson({'themeMode': 1, 'themeStyle': 0}).appThemeMode,
+        AppThemeMode.light,
+      );
+      // Old oled style wins over the old dark mode value.
+      expect(
+        AppSettings.fromJson({'themeMode': 2, 'themeStyle': 1}).appThemeMode,
+        AppThemeMode.oled,
+      );
+      // Coloured has no replacement, falls back to the old mode.
+      expect(
+        AppSettings.fromJson({'themeMode': 0, 'themeStyle': 2}).appThemeMode,
+        AppThemeMode.system,
+      );
+      expect(AppSettings.fromJson(const {}).appThemeMode, AppThemeMode.dark);
+    });
+
+    test('round trips through json', () {
+      const settings = AppSettings(appThemeMode: AppThemeMode.oled);
+      expect(
+        AppSettings.fromJson(settings.toJson()).appThemeMode,
+        AppThemeMode.oled,
+      );
+    });
+  });
+
   group('AppTheme', () {
     test('dark theme uses AppColors', () {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -104,7 +135,7 @@ void main() {
     test('light theme uses AppColors', () {
       AppColors.set(
         brightness: Brightness.light,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -121,7 +152,7 @@ void main() {
     test('text colors follow palette changes', () {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
@@ -142,7 +173,7 @@ void main() {
     ) async {
       AppColors.set(
         brightness: Brightness.dark,
-        themeStyle: ThemeStyle.standard,
+        oled: false,
         themeColor: const Color(0xFF00E5B8),
         accentColor: const Color(0xFF00B8D9),
         useSystemAccent: false,
