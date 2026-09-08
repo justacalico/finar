@@ -7,8 +7,9 @@ import '../../widgets/widgets.dart';
 /// The only thing that changes between libraries is the title (the library name).
 class LibraryHeader extends StatelessWidget {
   final String title;
+  final Widget? trailing;
 
-  const LibraryHeader({super.key, required this.title});
+  const LibraryHeader({super.key, required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class LibraryHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (trailing != null) trailing!,
         ],
       ),
     );

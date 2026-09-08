@@ -8,11 +8,17 @@ import '../core/api/models/media_item.dart';
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
+import 'library/library_header.dart';
 
 class MusicLibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
+  final String libraryName;
 
-  const MusicLibraryDesktop({super.key, required this.libraryId});
+  const MusicLibraryDesktop({
+    super.key,
+    required this.libraryId,
+    required this.libraryName,
+  });
 
   @override
   ConsumerState<MusicLibraryDesktop> createState() =>
@@ -62,7 +68,10 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
     return Column(
       children: [
         // Header
-        _buildHeader(musicState),
+        LibraryHeader(
+          title: widget.libraryName,
+          trailing: _buildHeaderControls(musicState),
+        ),
 
         // Tab Bar
         _buildTabBar(musicState),
@@ -82,52 +91,45 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
     );
   }
 
-  Widget _buildHeader(MusicLibraryState state) {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: 0,
-      showBorder: false,
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Search field
-          SizedBox(
-            width: 240,
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search music...',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                ref
-                    .read(musicLibraryProvider(widget.libraryId).notifier)
-                    .setSearch(value);
-              },
+  Widget _buildHeaderControls(MusicLibraryState state) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Search field
+        SizedBox(
+          width: 240,
+          child: TextField(
+            controller: _searchController,
+            decoration: const InputDecoration(
+              hintText: 'Search music...',
+              prefixIcon: Icon(Icons.search),
             ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Sort dropdown
-          _buildSortDropdown(state),
-
-          const SizedBox(width: 16),
-
-          // Refresh button
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
+            onChanged: (value) {
               ref
                   .read(musicLibraryProvider(widget.libraryId).notifier)
-                  .refreshAll();
+                  .setSearch(value);
             },
-            tooltip: 'Refresh',
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(width: 16),
+
+        // Sort dropdown
+        _buildSortDropdown(state),
+
+        const SizedBox(width: 16),
+
+        // Refresh button
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: () {
+            ref
+                .read(musicLibraryProvider(widget.libraryId).notifier)
+                .refreshAll();
+          },
+          tooltip: 'Refresh',
+        ),
+      ],
     );
   }
 
@@ -823,8 +825,13 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
 
 class MusicLibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
+  final String libraryName;
 
-  const MusicLibraryMobile({super.key, required this.libraryId});
+  const MusicLibraryMobile({
+    super.key,
+    required this.libraryId,
+    required this.libraryName,
+  });
 
   @override
   ConsumerState<MusicLibraryMobile> createState() => MusicLibraryMobileState();
@@ -868,60 +875,58 @@ class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
     final musicState = ref.watch(musicLibraryProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
-    return NestedScrollView(
-      controller: _scrollController,
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverAppBar(
-          floating: true,
-          pinned: true,
-          backgroundColor: Colors.transparent,
-          flexibleSpace: BlurBackdrop(
-            blur: AppTheme.blurLight,
-            child: const SizedBox.expand(),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () => _showSearch(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.sort),
-              onPressed: () => _showSortOptions(context),
-            ),
-          ],
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: Theme.of(context).colorScheme.primary,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            tabs: [
-              Tab(
-                icon: const Icon(Icons.album),
-                text: 'Albums (${musicState.albumsTotal})',
+    return Column(
+      children: [
+        LibraryHeader(
+          title: widget.libraryName,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () => _showSearch(context),
               ),
-              Tab(
-                icon: const Icon(Icons.music_note),
-                text: 'Tracks (${musicState.tracksTotal})',
-              ),
-              Tab(
-                icon: const Icon(Icons.person),
-                text: 'Artists (${musicState.artistsTotal})',
+              IconButton(
+                icon: const Icon(Icons.sort),
+                onPressed: () => _showSortOptions(context),
               ),
             ],
           ),
         ),
+        TabBar(
+          controller: _tabController,
+          indicatorColor: Theme.of(context).colorScheme.primary,
+          labelColor: Theme.of(context).colorScheme.primary,
+          unselectedLabelColor: AppColors.textSecondary,
+          tabs: [
+            Tab(
+              icon: const Icon(Icons.album),
+              text: 'Albums (${musicState.albumsTotal})',
+            ),
+            Tab(
+              icon: const Icon(Icons.music_note),
+              text: 'Tracks (${musicState.tracksTotal})',
+            ),
+            Tab(
+              icon: const Icon(Icons.person),
+              text: 'Artists (${musicState.artistsTotal})',
+            ),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // Albums Tab
+              _buildAlbumsGrid(musicState, serverUrl),
+              // Tracks Tab
+              _buildTracksList(musicState, serverUrl),
+              // Artists Tab
+              _buildArtistsGrid(musicState, serverUrl),
+            ],
+          ),
+        ),
       ],
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Albums Tab
-          _buildAlbumsGrid(musicState, serverUrl),
-          // Tracks Tab
-          _buildTracksList(musicState, serverUrl),
-          // Artists Tab
-          _buildArtistsGrid(musicState, serverUrl),
-        ],
-      ),
     );
   }
 

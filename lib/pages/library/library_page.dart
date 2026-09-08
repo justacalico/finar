@@ -5,7 +5,6 @@ import '../../providers/providers.dart';
 import '../../widgets/adaptive_layout.dart';
 import '../library.dart';
 import '../music_library.dart';
-import 'library_header.dart';
 
 /// The single library page used for every Jellyfin library.
 /// Movies, TV shows, music, photos etc. all route through here.
@@ -31,33 +30,35 @@ class LibraryPage extends ConsumerWidget {
     final isMusic = library.collectionType?.toLowerCase() == 'music';
 
     return AdaptiveLayout(
-      desktopBuilder: () => Material(
-        type: MaterialType.transparency,
-        child: Column(
-          children: [
-            LibraryHeader(title: library.name),
-            Expanded(
-              child: isMusic
-                  ? MusicLibraryDesktop(libraryId: libraryId)
-                  : LibraryDesktop(libraryId: libraryId),
-            ),
-          ],
-        ),
-      ),
-      mobileBuilder: () => Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              LibraryHeader(title: library.name),
-              Expanded(
-                child: isMusic
-                    ? MusicLibraryMobile(libraryId: libraryId)
-                    : LibraryMobile(libraryId: libraryId),
-              ),
-            ],
+      desktopBuilder:
+          () => Material(
+            type: MaterialType.transparency,
+            child:
+                isMusic
+                    ? MusicLibraryDesktop(
+                      libraryId: libraryId,
+                      libraryName: library.name,
+                    )
+                    : LibraryDesktop(
+                      libraryId: libraryId,
+                      libraryName: library.name,
+                    ),
           ),
-        ),
-      ),
+      mobileBuilder:
+          () => Scaffold(
+            body: SafeArea(
+              child:
+                  isMusic
+                      ? MusicLibraryMobile(
+                        libraryId: libraryId,
+                        libraryName: library.name,
+                      )
+                      : LibraryMobile(
+                        libraryId: libraryId,
+                        libraryName: library.name,
+                      ),
+            ),
+          ),
     );
   }
 }

@@ -8,11 +8,17 @@ import '../core/api/models/media_item.dart';
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
+import 'library/library_header.dart';
 
 class LibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
+  final String libraryName;
 
-  const LibraryDesktop({super.key, required this.libraryId});
+  const LibraryDesktop({
+    super.key,
+    required this.libraryId,
+    required this.libraryName,
+  });
 
   @override
   ConsumerState<LibraryDesktop> createState() => LibraryDesktopState();
@@ -51,7 +57,7 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
     return Column(
       children: [
         // Header
-        _buildHeader(),
+        LibraryHeader(title: widget.libraryName, trailing: _buildHeaderControls()),
 
         // Content
         Expanded(
@@ -67,43 +73,36 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
     );
   }
 
-  Widget _buildHeader() {
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: 0,
-      showBorder: false,
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Search field
-          SizedBox(
-            width: 300,
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Search in library...',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                ref
-                    .read(libraryContentProvider(widget.libraryId).notifier)
-                    .setSearch(value);
-              },
+  Widget _buildHeaderControls() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Search field
+        SizedBox(
+          width: 300,
+          child: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Search in library...',
+              prefixIcon: Icon(Icons.search),
             ),
+            onChanged: (value) {
+              ref
+                  .read(libraryContentProvider(widget.libraryId).notifier)
+                  .setSearch(value);
+            },
           ),
+        ),
 
-          const SizedBox(width: 16),
+        const SizedBox(width: 16),
 
-          // Sort dropdown
-          _buildSortDropdown(),
+        // Sort dropdown
+        _buildSortDropdown(),
 
-          const SizedBox(width: 16),
+        const SizedBox(width: 16),
 
-          // View mode toggle
-          _buildViewModeToggle(),
-        ],
-      ),
+        // View mode toggle
+        _buildViewModeToggle(),
+      ],
     );
   }
 
@@ -518,8 +517,13 @@ enum ViewMode { grid, list }
 
 class LibraryMobile extends ConsumerStatefulWidget {
   final String libraryId;
+  final String libraryName;
 
-  const LibraryMobile({super.key, required this.libraryId});
+  const LibraryMobile({
+    super.key,
+    required this.libraryId,
+    required this.libraryName,
+  });
 
   @override
   ConsumerState<LibraryMobile> createState() => LibraryMobileState();
@@ -555,37 +559,34 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
     final libraryContent = ref.watch(libraryContentProvider(widget.libraryId));
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
 
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverAppBar(
-          floating: true,
-          snap: true,
-          backgroundColor: Colors.transparent,
-          flexibleSpace: BlurBackdrop(
-            blur: AppTheme.blurLight,
-            child: const SizedBox.expand(),
+    return Column(
+      children: [
+        LibraryHeader(
+          title: widget.libraryName,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.sort),
+                onPressed: _showSortOptions,
+              ),
+              IconButton(
+                icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+                onPressed: () => setState(() => _isGridView = !_isGridView),
+              ),
+            ],
           ),
-          actions: [
-            // Sort button
-            IconButton(
-              icon: const Icon(Icons.sort),
-              onPressed: _showSortOptions,
-            ),
-            // View mode toggle
-            IconButton(
-              icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
-              onPressed: () => setState(() => _isGridView = !_isGridView),
-            ),
-          ],
+        ),
+        Expanded(
+          child: libraryContent.items.isEmpty && libraryContent.isLoading
+              ? _buildLoadingGrid()
+              : libraryContent.error != null
+              ? _buildError(libraryContent.error!)
+              : _isGridView
+              ? _buildGrid(libraryContent, serverUrl)
+              : _buildList(libraryContent, serverUrl),
         ),
       ],
-      body: libraryContent.items.isEmpty && libraryContent.isLoading
-          ? _buildLoadingGrid()
-          : libraryContent.error != null
-          ? _buildError(libraryContent.error!)
-          : _isGridView
-          ? _buildGrid(libraryContent, serverUrl)
-          : _buildList(libraryContent, serverUrl),
     );
   }
 
