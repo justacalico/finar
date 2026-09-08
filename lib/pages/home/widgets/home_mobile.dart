@@ -5,7 +5,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'dart:ui';
 import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/core/theme/app_theme.dart';
@@ -118,7 +117,6 @@ class HomeMobileState extends ConsumerState<HomeMobile>
     }
 
     return Scaffold(
-      extendBody: true,
       body: Stack(
         children: [
           // Main page content
@@ -231,191 +229,38 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   Widget _buildBottomNav({bool isOnline = true}) {
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-
-    return Container(
-      margin: EdgeInsets.fromLTRB(
-        16,
-        0,
-        16,
-        bottomPadding > 0 ? bottomPadding : 12,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOutCubic,
-            height: 64,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              // Refined glass effect
-              color: AppColors.backgroundSecondary.withValues(alpha: 0.2),
-              border: Border.all(
-                width: 1,
-                color: AppColors.glassBorder,
-              ),
-              boxShadow: [
-                // Soft ambient shadow
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  blurRadius: 16,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                // Animated pill indicator
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  left: _getIndicatorPosition(context),
-                  top: 4,
-                  child: Container(
-                    width: 52,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: RadialGradient(
-                        center: Alignment.topCenter,
-                        radius: 1.2,
-                        colors: [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.4),
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.15),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Navigation items
-                Row(
-                  children: [
-                    _buildNavItem(
-                      0,
-                      Icons.home_outlined,
-                      Icons.home_rounded,
-                      'Home',
-                      isOnline: isOnline,
-                    ),
-                    _buildNavItem(
-                      1,
-                      Icons.search_outlined,
-                      Icons.search_rounded,
-                      'Search',
-                      isOnline: isOnline,
-                    ),
-                    _buildNavItem(
-                      2,
-                      Icons.video_library_outlined,
-                      Icons.video_library_rounded,
-                      'Library',
-                      isOnline: isOnline,
-                    ),
-                    if (!kIsWeb)
-                      _buildNavItem(
-                        3,
-                        Icons.download_outlined,
-                        Icons.download_rounded,
-                        'Downloads',
-                        isOnline: isOnline,
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+    return NavigationBar(
+      selectedIndex: _currentIndex,
+      onDestinationSelected: (index) {
+        setState(() => _currentIndex = index);
+        _pageController.jumpToPage(index);
+      },
+      destinations: [
+        NavigationDestination(
+          icon: const Icon(Icons.home_outlined),
+          selectedIcon: const Icon(Icons.home_rounded),
+          label: 'Home',
+          enabled: isOnline,
         ),
-      ),
-    );
-  }
-
-  double _getIndicatorPosition(BuildContext context) {
-    final screenWidth =
-        MediaQuery.of(context).size.width - 32; // Account for margin
-    final navItemCount = kIsWeb ? 3 : 4;
-    final itemWidth = screenWidth / navItemCount;
-    return (itemWidth * _currentIndex) + (itemWidth / 2) - 26;
-  }
-
-  Widget _buildNavItem(
-    int index,
-    IconData icon,
-    IconData selectedIcon,
-    String label, {
-    bool isOnline = true,
-  }) {
-    final isSelected = _currentIndex == index;
-    // Disable non-downloads items when offline
-    final isDisabled = !isOnline && index != 3;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: isDisabled
-            ? null
-            : () {
-                setState(() => _currentIndex = index);
-                _pageController.jumpToPage(index);
-              },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                transform: Matrix4.diagonal3Values(
-                  isSelected ? 1.05 : 1.0,
-                  isSelected ? 1.05 : 1.0,
-                  1.0,
-                ),
-                transformAlignment: Alignment.center,
-                child: Icon(
-                  isSelected ? selectedIcon : icon,
-                  size: 24,
-                  color: isDisabled
-                      ? AppColors.textDisabled
-                      : isSelected
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 250),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isDisabled
-                      ? AppColors.textDisabled
-                      : isSelected
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
-                ),
-                child: Text(label),
-              ),
-            ],
-          ),
+        NavigationDestination(
+          icon: const Icon(Icons.search_outlined),
+          selectedIcon: const Icon(Icons.search_rounded),
+          label: 'Search',
+          enabled: isOnline,
         ),
-      ),
+        NavigationDestination(
+          icon: const Icon(Icons.video_library_outlined),
+          selectedIcon: const Icon(Icons.video_library_rounded),
+          label: 'Library',
+          enabled: isOnline,
+        ),
+        if (!kIsWeb)
+          const NavigationDestination(
+            icon: Icon(Icons.download_outlined),
+            selectedIcon: Icon(Icons.download_rounded),
+            label: 'Downloads',
+          ),
+      ],
     );
   }
 
