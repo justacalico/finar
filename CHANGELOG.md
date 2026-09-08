@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Settings is now a proper section of the main navigation instead of a separate pushed page. On desktop it opens in the sidebar content area like Home, Search and Favorites, and on mobile it is a bottom navigation tab. The app bar gear icon now jumps to that tab.
+- Downloads is now an in-shell section on desktop: the sidebar Downloads item swaps the main content area instead of pushing a separate route. DownloadsPage still shows a back button when pushed from elsewhere.
+- Non-home sections (search, favorites, downloads, settings, libraries) no longer wait for home data to load before rendering.
 - Fixed ListTile ink splashes being invisible inside settings cards
 
 ### Fixed
