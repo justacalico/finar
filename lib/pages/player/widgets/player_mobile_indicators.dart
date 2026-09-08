@@ -70,7 +70,7 @@ class PlayerMobileBrightnessIndicator extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: brightness,
                     backgroundColor: AppColors.divider,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
               ),
@@ -123,7 +123,7 @@ class PlayerMobileVolumeIndicator extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: state.volume,
                     backgroundColor: AppColors.divider,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
               ),

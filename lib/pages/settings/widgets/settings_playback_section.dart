@@ -53,7 +53,7 @@ class SettingsPlaybackSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setAutoPlayNext(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Skip Intros',
@@ -62,7 +62,7 @@ class SettingsPlaybackSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setSkipIntros(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Skip Credits',
@@ -91,7 +91,7 @@ class SettingsPlaybackSection extends ConsumerWidget {
                   .read(settingsProvider.notifier)
                   .setForwardSkipDuration(v.toInt()),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             sliderTile(
               context,
               title: 'Rewind Skip',

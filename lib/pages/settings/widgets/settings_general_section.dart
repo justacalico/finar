@@ -46,7 +46,7 @@ class SettingsGeneralSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setThemeMode(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             dropdownTile<ThemeStyle>(
               context,
               title: 'Theme style',
@@ -73,7 +73,7 @@ class SettingsGeneralSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setThemeStyle(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             dropdownTile<int>(
               context,
               title: 'Theme color',
@@ -92,7 +92,7 @@ class SettingsGeneralSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setThemeColorIndex(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Use system accent',
@@ -101,7 +101,7 @@ class SettingsGeneralSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setUseSystemAccent(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             dropdownTile<int>(
               context,
               title: 'Accent color',
@@ -121,7 +121,7 @@ class SettingsGeneralSection extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setAccentColorIndex(v);
               },
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Enable Animations',
@@ -130,7 +130,7 @@ class SettingsGeneralSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setEnableAnimations(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             switchTile(
               context,
               title: 'Reduced Motion',

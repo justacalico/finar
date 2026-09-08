@@ -420,7 +420,7 @@ class _AnimatedCardState extends State<AnimatedCard> {
         child: LinearProgressIndicator(
           value: widget.progress,
           backgroundColor: AppColors.black.withValues(alpha: 0.5),
-          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
           minHeight: 4,
         ),
       ),

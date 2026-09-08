@@ -311,7 +311,7 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
                             Container(color: AppColors.surface),
                         errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
-                          child: const Icon(
+                          child: Icon(
                             Icons.album,
                             size: 64,
                             color: AppColors.textSecondary,
@@ -450,7 +450,7 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
                             Container(color: AppColors.surface),
                         errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
-                          child: const Icon(
+                          child: Icon(
                             Icons.music_note,
                             size: 24,
                             color: AppColors.textSecondary,
@@ -603,7 +603,7 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
                             Container(color: AppColors.surface),
                         errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
-                          child: const Icon(
+                          child: Icon(
                             Icons.person,
                             size: 64,
                             color: AppColors.textSecondary,
@@ -1000,7 +1000,7 @@ class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
                     placeholder: (_, _) => Container(color: AppColors.surface),
                     errorWidget: (_, _, _) => Container(
                       color: AppColors.surface,
-                      child: const Icon(
+                      child: Icon(
                         Icons.album,
                         size: 48,
                         color: AppColors.textSecondary,
@@ -1247,7 +1247,7 @@ class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
                   placeholder: (_, _) => Container(color: AppColors.surface),
                   errorWidget: (_, _, _) => Container(
                     color: AppColors.surface,
-                    child: const Icon(
+                    child: Icon(
                       Icons.person,
                       size: 48,
                       color: AppColors.textSecondary,

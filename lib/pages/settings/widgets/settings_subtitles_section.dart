@@ -29,7 +29,7 @@ class SettingsSubtitlesSection extends ConsumerWidget {
               onChanged: (v) =>
                   ref.read(settingsProvider.notifier).setSubtitlesEnabled(v),
             ),
-            const Divider(color: AppColors.glassBorder),
+            Divider(color: AppColors.glassBorder),
             dropdownTile<String>(
               context,
               title: 'Preferred Language',

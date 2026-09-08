@@ -463,6 +463,9 @@ const languageOptions = [
 
 extension ColorExtension on Color {
   int toARGB32() {
-    return (a.toInt() << 24) | (r.toInt() << 16) | (g.toInt() << 8) | b.toInt();
+    return ((a * 255).round() << 24) |
+        ((r * 255).round() << 16) |
+        ((g * 255).round() << 8) |
+        (b * 255).round();
   }
 }

@@ -133,7 +133,7 @@ class _PlayerDesktopVolumeControl extends ConsumerWidget {
         SizedBox(
           width: 100,
           child: SliderTheme(
-            data: const SliderThemeData(
+            data: SliderThemeData(
               trackHeight: 2,
               thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
               activeTrackColor: AppColors.white,

@@ -233,7 +233,7 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
       cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.items.length) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
@@ -261,7 +261,7 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
       cacheExtent: 500,
       itemBuilder: (context, index) {
         if (index >= state.items.length) {
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: CircularProgressIndicator(color: AppColors.primary),
@@ -397,7 +397,7 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+          Icon(Icons.error_outline, size: 64, color: AppColors.error),
           const SizedBox(height: 16),
           Text('Failed to load library', style: AppTextStyles.headlineSmall),
           const SizedBox(height: 8),
@@ -613,7 +613,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
         cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
@@ -649,7 +649,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
         cacheExtent: 500,
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
-            return const Center(
+            return Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: CircularProgressIndicator(color: AppColors.primary),
@@ -776,7 +776,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             Text('Failed to load', style: AppTextStyles.titleMedium),
             const SizedBox(height: 8),
@@ -928,7 +928,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
       tileColor: Colors.transparent,
       title: Text(label),
       trailing: isSelected
-          ? const Icon(Icons.check, color: AppColors.primary)
+          ? Icon(Icons.check, color: AppColors.primary)
           : null,
       onTap: () {
         _updateSort(value, _sortOrder);

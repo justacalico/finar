@@ -83,7 +83,7 @@ class HomeVideoMiniPlayer extends ConsumerWidget {
                             Container(color: AppColors.surface),
                         errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
-                          child: const Icon(
+                          child: Icon(
                             Icons.movie,
                             color: AppColors.textSecondary,
                             size: 24,
