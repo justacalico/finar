@@ -665,9 +665,21 @@ jobs:
 
       - name: Trigger GitLab sync pipeline
         run: |
-          curl -fsSL --max-time 30 --retry 2 -X POST \
+          set -e
+          URL="https://gitlab.com/api/v4/projects/${{ secrets.GITLAB_PROJECT_ID }}/trigger/pipeline"
+          HTTP_CODE=$(curl -sS -o /tmp/gitlab-trigger.json -w "%{http_code}" --max-time 30 --retry 2 -X POST \
             -F token="${{ secrets.GITLAB_TRIGGER_TOKEN }}" \
             -F ref=main \
             -F "variables[GITHUB_RUN_ID]=${{ github.run_id }}" \
             -F "variables[RELEASE_TAG]=${{ steps.meta.outputs.release_tag }}" \
-            "https://gitlab.com/api/v4/projects/${{ secrets.GITLAB_PROJECT_ID }}/trigger/pipeline"
+            "$URL")
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "Trigger with variables failed (HTTP $HTTP_CODE), retrying without variables"
+            cat /tmp/gitlab-trigger.json || true
+            curl -fsSL --max-time 30 --retry 2 -X POST \
+              -F token="${{ secrets.GITLAB_TRIGGER_TOKEN }}" \
+              -F ref=main \
+              "$URL"
+          else
+            cat /tmp/gitlab-trigger.json
+          fi

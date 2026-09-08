@@ -11,7 +11,7 @@ cd "$PROJECT_DIR"
 
 # Determine which GitHub release to sync.
 if [ -z "$RELEASE_TAG" ]; then
-  RELEASE_TAG=$(gh release view -R justacalico/finar --json tagName -q .tagName)
+  RELEASE_TAG=$(gh api "repos/justacalico/finar/releases?per_page=1" --jq '.[0].tag_name')
 fi
 
 echo "Syncing GitHub release: $RELEASE_TAG"
