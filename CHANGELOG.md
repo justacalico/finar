@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.1.1] - 2025-07-24
 
+### Added
+- GitLab -> GitHub -> GitLab release CI: automated builds for Android, Linux, Windows, macOS and iOS, signed Android releases, nightly/versioned GitHub releases, and GitLab release mirroring.
+- Coverage filtering and script tests for the release pipeline.
+
 ### Changed
 - Made the entire colour palette reactive: `AppColors` now derives background, surface, text, glass and primary colours from the active theme mode, theme style, theme colour and accent colour. Light mode, OLED and Coloured styles now actually change the UI.
 - `AppTextStyles` and `AppTheme` now use the reactive `AppColors` so switching theme mode or style updates text and Material theme data.
