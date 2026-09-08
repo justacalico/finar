@@ -5,7 +5,6 @@ export 'adaptive_pages.dart';
 export 'detail.dart';
 export 'downloads.dart';
 export 'home.dart';
-export 'library.dart';
-export 'music_library.dart';
+export 'library/library_page.dart';
 export 'player.dart';
 export 'settings.dart';

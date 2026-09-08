@@ -20,8 +20,7 @@ import '../../detail.dart';
 import '../../player.dart';
 import '../../settings/widgets/settings_desktop.dart';
 import '../../whos_watching_page.dart';
-import '../../library.dart';
-import '../../music_library.dart';
+import '../../library/library_page.dart';
 import '../../downloads.dart';
 import 'home_video_mini_player.dart';
 
@@ -954,9 +953,6 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
 
   Widget _buildContent(HomeData? data) {
     if (_selectedLibraryId != null) {
-      if (_selectedLibraryType?.toLowerCase() == 'music') {
-        return MusicLibraryPage(libraryId: _selectedLibraryId!);
-      }
       return LibraryPage(libraryId: _selectedLibraryId!);
     }
 
