@@ -184,16 +184,11 @@ class _FinarAppState extends ConsumerState<FinarApp>
           final accentColor = accentColorOptions[
             settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
           ].$3;
-          final themeColor = accentColorOptions[
-            settings.themeColorIndex.clamp(0, accentColorOptions.length - 1)
-          ].$3;
-          final effectivePrimary =
-              settings.useSystemAccent ? accentColor : themeColor;
 
           AppColors.set(
             brightness: brightness,
             oled: settings.appThemeMode.isOled,
-            themeColor: themeColor,
+            themeColor: accentColor,
             accentColor: accentColor,
             useSystemAccent: settings.useSystemAccent,
           );
@@ -204,7 +199,7 @@ class _FinarAppState extends ConsumerState<FinarApp>
           // to rebuild from. Repaint the whole tree when appearance changes.
           final appearanceKey =
               '${settings.appThemeMode}|'
-              '${settings.themeColorIndex}|${settings.accentColorIndex}|'
+              '${settings.accentColorIndex}|'
               '${settings.useSystemAccent}|$platformBrightness';
           if (appearanceKey != _appearanceKey) {
             _appearanceKey = appearanceKey;
@@ -214,8 +209,8 @@ class _FinarAppState extends ConsumerState<FinarApp>
           return MaterialApp(
             title: 'Finar',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightThemeWithPrimary(effectivePrimary),
-            darkTheme: AppTheme.darkThemeWithPrimary(effectivePrimary),
+            theme: AppTheme.lightThemeWithPrimary(accentColor),
+            darkTheme: AppTheme.darkThemeWithPrimary(accentColor),
             themeMode: settings.appThemeMode.materialThemeMode,
             home: const _AppRouter(),
           );
