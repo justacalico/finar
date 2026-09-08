@@ -12,7 +12,7 @@ class AppTextStyles {
   static const String textFontFamily = 'Inter';
 
   // Display styles - Large headlines for hero sections
-  static TextStyle displayLarge = TextStyle(
+  static TextStyle get displayLarge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 56,
     fontWeight: FontWeight.w700,
@@ -22,7 +22,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle displayMedium = TextStyle(
+  static TextStyle get displayMedium => TextStyle(
     fontFamily: fontFamily,
     fontSize: 44,
     fontWeight: FontWeight.w700,
@@ -32,7 +32,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle displaySmall = TextStyle(
+  static TextStyle get displaySmall => TextStyle(
     fontFamily: fontFamily,
     fontSize: 36,
     fontWeight: FontWeight.w600,
@@ -43,7 +43,7 @@ class AppTextStyles {
   );
 
   // Headline styles
-  static TextStyle headlineLarge = TextStyle(
+  static TextStyle get headlineLarge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w600,
@@ -53,7 +53,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle headlineMedium = TextStyle(
+  static TextStyle get headlineMedium => TextStyle(
     fontFamily: fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w600,
@@ -63,7 +63,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle headlineSmall = TextStyle(
+  static TextStyle get headlineSmall => TextStyle(
     fontFamily: fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w600,
@@ -74,7 +74,7 @@ class AppTextStyles {
   );
 
   // Title styles
-  static TextStyle titleLarge = TextStyle(
+  static TextStyle get titleLarge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 22,
     fontWeight: FontWeight.w600,
@@ -84,7 +84,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle titleMedium = TextStyle(
+  static TextStyle get titleMedium => TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -94,7 +94,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle titleSmall = TextStyle(
+  static TextStyle get titleSmall => TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -105,7 +105,7 @@ class AppTextStyles {
   );
 
   // Body styles
-  static TextStyle bodyLarge = TextStyle(
+  static TextStyle get bodyLarge => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 16,
     fontWeight: FontWeight.normal,
@@ -115,7 +115,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle bodyMedium = TextStyle(
+  static TextStyle get bodyMedium => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 14,
     fontWeight: FontWeight.normal,
@@ -125,7 +125,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle bodySmall = TextStyle(
+  static TextStyle get bodySmall => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 12,
     fontWeight: FontWeight.normal,
@@ -136,7 +136,7 @@ class AppTextStyles {
   );
 
   // Label styles
-  static TextStyle labelLarge = TextStyle(
+  static TextStyle get labelLarge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -146,7 +146,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle labelMedium = TextStyle(
+  static TextStyle get labelMedium => TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
@@ -156,7 +156,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle labelSmall = TextStyle(
+  static TextStyle get labelSmall => TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -167,7 +167,7 @@ class AppTextStyles {
   );
 
   // Custom styles for Finar
-  static TextStyle hero = TextStyle(
+  static TextStyle get hero => TextStyle(
     fontFamily: fontFamily,
     fontSize: 48,
     fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle subtitle = TextStyle(
+  static TextStyle get subtitle => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w400,
@@ -187,7 +187,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle caption = TextStyle(
+  static TextStyle get caption => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w400,
@@ -197,7 +197,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle button = TextStyle(
+  static TextStyle get button => TextStyle(
     fontFamily: fontFamily,
     fontSize: 17,
     fontWeight: FontWeight.w600,
@@ -207,7 +207,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle buttonSmall = TextStyle(
+  static TextStyle get buttonSmall => TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w600,
@@ -217,7 +217,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle buttonLarge = TextStyle(
+  static TextStyle get buttonLarge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -227,7 +227,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle badge = TextStyle(
+  static TextStyle get badge => TextStyle(
     fontFamily: fontFamily,
     fontSize: 10,
     fontWeight: FontWeight.w700,
@@ -237,7 +237,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle rating = TextStyle(
+  static TextStyle get rating => TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w600,
@@ -247,7 +247,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle metadata = TextStyle(
+  static TextStyle get metadata => TextStyle(
     fontFamily: textFontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w400,
@@ -257,7 +257,7 @@ class AppTextStyles {
     decoration: TextDecoration.none,
   );
 
-  static TextStyle playerTime = TextStyle(
+  static TextStyle get playerTime => TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w500,

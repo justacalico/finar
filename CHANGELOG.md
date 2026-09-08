@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.
+- Fixed theme changes not repainting the whole app: `AppTextStyles` are now evaluated lazily so they pick up the active palette, and `FinarApp` forces a full tree rebuild when the appearance settings change so pages that read `AppColors` directly repaint too.
+- Fixed `ThemeMode.system` not following OS brightness changes while the app is running.
 - Fixed build issues for macOS
 
 ## [4.1.0]

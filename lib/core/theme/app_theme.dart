@@ -683,6 +683,22 @@ class AppTheme {
     );
   }
 
+  /// Repaint the whole app after a theme change.
+  ///
+  /// Widgets read [AppColors] directly instead of through [Theme.of], so
+  /// they cannot be repainted through normal inherited widget dependencies.
+  /// Walk the element tree and mark everything dirty so the next frame
+  /// picks up the new palette.
+  static void scheduleTreeRebuild() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      void markDirty(Element element) {
+        element.markNeedsBuild();
+        element.visitChildElements(markDirty);
+      }
+      WidgetsBinding.instance.rootElement?.visitChildElements(markDirty);
+    });
+  }
+
   /// Set preferred orientations
   static Future<void> setPreferredOrientations({
     bool allowLandscape = true,
