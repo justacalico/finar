@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merged "Use system accent" into the Accent colour dropdown. It is now the first option ("System") alongside the colour choices on both mobile and desktop, instead of a separate switch.
 
 ### Fixed
+- Fixed the Source Code icon in Settings > About ignoring the accent colour: it was hardcoded to `AppColors.accentOrange` on desktop and mobile while the neighbouring icons follow the theme. It now uses `colorScheme.primary` like the rest.
 - Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.
 - Fixed theme changes not repainting the whole app: `AppTextStyles` are now evaluated lazily so they pick up the active palette, and `FinarApp` forces a full tree rebuild when the appearance settings change so pages that read `AppColors` directly repaint too.
 - Fixed `ThemeMode.system` not following OS brightness changes while the app is running.
