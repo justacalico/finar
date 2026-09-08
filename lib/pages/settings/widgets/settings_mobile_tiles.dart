@@ -14,12 +14,14 @@ Widget mobileSectionHeader(String title) {
 }
 
 Widget mobileCard({required List<Widget> children}) {
-  return Container(
-    decoration: BoxDecoration(
-      color: AppColors.surface,
+  // Material gives the ListTiles inside something to paint splashes on.
+  return Material(
+    color: AppColors.surface,
+    shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+      side: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
     ),
+    clipBehavior: Clip.antiAlias,
     child: Column(children: children),
   );
 }

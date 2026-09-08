@@ -12,7 +12,11 @@ import 'settings_account_mobile_section.dart';
 import 'settings_about_mobile_section.dart';
 
 class SettingsMobile extends ConsumerStatefulWidget {
-  const SettingsMobile({super.key});
+  /// When true, renders as a home tab: the app bar has no back button since
+  /// the bottom navigation handles moving between sections.
+  final bool embedded;
+
+  const SettingsMobile({super.key, this.embedded = false});
 
   @override
   ConsumerState<SettingsMobile> createState() => _SettingsMobileState();
@@ -26,26 +30,29 @@ class _SettingsMobileState extends ConsumerState<SettingsMobile> {
       appBar: AppBar(
         backgroundColor: AppColors.backgroundSecondary,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Text(
           'Settings',
           style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w600),
         ),
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: AppColors.divider.withValues(alpha: 0.5),
-              width: 1,
-            ),
-          ),
-          child: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_rounded, size: 22),
-            color: AppColors.textPrimary,
-          ),
-        ),
+        leading: widget.embedded
+            ? null
+            : Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.divider.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back_rounded, size: 22),
+                  color: AppColors.textPrimary,
+                ),
+              ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

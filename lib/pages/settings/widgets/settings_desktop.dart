@@ -15,7 +15,11 @@ import 'settings_network_section.dart';
 import 'settings_about_section.dart';
 
 class SettingsDesktop extends ConsumerStatefulWidget {
-  const SettingsDesktop({super.key});
+  /// When true, renders inside the home shell: no back button or account
+  /// actions, since the app sidebar already provides them.
+  final bool embedded;
+
+  const SettingsDesktop({super.key, this.embedded = false});
 
   @override
   ConsumerState<SettingsDesktop> createState() => _SettingsDesktopState();
@@ -48,7 +52,7 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
 
   Widget _buildSidebar() {
     return Container(
-          width: 280,
+          width: widget.embedded ? 220 : 280,
           decoration: BoxDecoration(
             color: AppColors.backgroundSecondary,
             border: Border(
@@ -65,28 +69,39 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
                 padding: const EdgeInsets.all(24),
                 child: Row(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.divider.withValues(alpha: 0.5),
-                          width: 1,
+                    if (widget.embedded)
+                      Icon(
+                        Icons.settings_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 26,
+                      )
+                    else
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.divider.withValues(alpha: 0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
-                      child: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
                     const SizedBox(width: 16),
-                    Text(
-                      'Settings',
-                      style: AppTextStyles.headlineMedium.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        'Settings',
+                        style: AppTextStyles.headlineMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -146,15 +161,19 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
                                   size: 22,
                                 ),
                                 const SizedBox(width: 14),
-                                Text(
-                                  section.$1,
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: isSelected
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
+                                Expanded(
+                                  child: Text(
+                                    section.$1,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: isSelected
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -166,62 +185,63 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          final message = await Navigator.of(context)
-                              .push<String?>(
-                                MaterialPageRoute<String?>(
-                                  builder: (_) => const WhosWatchingPage(),
-                                ),
-                              );
-                          if (message != null && context.mounted) {
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(message)));
-                          }
-                        },
-                        icon: const Icon(Icons.swap_horiz_rounded, size: 20),
-                        label: const Text('Switch profile'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.textSecondary,
-                          side: BorderSide(color: AppColors.divider),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+              if (!widget.embedded)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final message = await Navigator.of(context)
+                                .push<String?>(
+                                  MaterialPageRoute<String?>(
+                                    builder: (_) => const WhosWatchingPage(),
+                                  ),
+                                );
+                            if (message != null && context.mounted) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(message)));
+                            }
+                          },
+                          icon: const Icon(Icons.swap_horiz_rounded, size: 20),
+                          label: const Text('Switch profile'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: BorderSide(color: AppColors.divider),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showSignOutDialog(context),
-                        icon: const Icon(Icons.logout_rounded, size: 20),
-                        label: const Text('Sign out'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.error.withValues(
-                            alpha: 0.12,
-                          ),
-                          foregroundColor: AppColors.error,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showSignOutDialog(context),
+                          icon: const Icon(Icons.logout_rounded, size: 20),
+                          label: const Text('Sign out'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error.withValues(
+                              alpha: 0.12,
+                            ),
+                            foregroundColor: AppColors.error,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         )

@@ -32,24 +32,28 @@ Widget settingsCard(
     blur: AppTheme.blurLight,
     opacity: 0.05,
     padding: const EdgeInsets.all(20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: primary, size: 22),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: AppTextStyles.titleMedium.copyWith(
-                fontWeight: FontWeight.w600,
+    // Transparent Material so the tiles inside still get ink splashes.
+    child: Material(
+      type: MaterialType.transparency,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: primary, size: 22),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: AppTextStyles.titleMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...children,
-      ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
     ),
   );
 }
