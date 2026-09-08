@@ -63,6 +63,9 @@ Widget mobileDropdownTile<T>(
       value: value,
       items: items,
       onChanged: onChanged,
+      // The button is as wide as the longest item; keep the selected label
+      // next to the arrow instead of left-aligned inside that space.
+      alignment: AlignmentDirectional.centerEnd,
       dropdownColor: AppColors.surfaceElevated,
       underline: const SizedBox(),
       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
