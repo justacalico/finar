@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/app_theme.dart';
+import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/providers/settings_provider.dart';
 
 void main() {
@@ -113,6 +114,65 @@ void main() {
       expect(theme.scaffoldBackgroundColor, AppColors.background);
       expect(theme.colorScheme.surface, AppColors.surface);
       expect(theme.colorScheme.primary, AppColors.primary);
+    });
+  });
+
+  group('AppTextStyles', () {
+    test('text colors follow palette changes', () {
+      AppColors.set(
+        brightness: Brightness.dark,
+        themeStyle: ThemeStyle.standard,
+        themeColor: const Color(0xFF00E5B8),
+        accentColor: const Color(0xFF00B8D9),
+        useSystemAccent: false,
+      );
+      final darkColor = AppTextStyles.bodyLarge.color;
+
+      AppColors.set(brightness: Brightness.light);
+
+      expect(darkColor, isNot(AppTextStyles.bodyLarge.color));
+      expect(AppTextStyles.bodyLarge.color, AppColors.textPrimary);
+      expect(AppTextStyles.bodySmall.color, AppColors.textSecondary);
+    });
+  });
+
+  group('scheduleTreeRebuild', () {
+    testWidgets('repaints widgets that read AppColors statically', (
+      tester,
+    ) async {
+      AppColors.set(
+        brightness: Brightness.dark,
+        themeStyle: ThemeStyle.standard,
+        themeColor: const Color(0xFF00E5B8),
+        accentColor: const Color(0xFF00B8D9),
+        useSystemAccent: false,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ColoredBox(
+              key: const Key('theme-test-box'),
+              color: AppColors.background,
+            ),
+          ),
+        ),
+      );
+      final box = find.byKey(const Key('theme-test-box'));
+      expect(
+        tester.widget<ColoredBox>(box).color,
+        const Color(0xFF0D0D0F),
+      );
+
+      AppColors.set(brightness: Brightness.light);
+      AppTheme.scheduleTreeRebuild();
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        tester.widget<ColoredBox>(box).color,
+        const Color(0xFFF2F2F7),
+      );
     });
   });
 

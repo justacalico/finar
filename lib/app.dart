@@ -20,12 +20,15 @@ class FinarApp extends ConsumerStatefulWidget {
   ConsumerState<FinarApp> createState() => _FinarAppState();
 }
 
-class _FinarAppState extends ConsumerState<FinarApp> {
+class _FinarAppState extends ConsumerState<FinarApp>
+    with WidgetsBindingObserver {
   StreamSubscription<ControllerAction>? _gamepadSubscription;
+  String _appearanceKey = '';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Set system UI overlay style
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -148,7 +151,14 @@ class _FinarAppState extends ConsumerState<FinarApp> {
   }
 
   @override
+  void didChangePlatformBrightness() {
+    // Rebuild so ThemeMode.system follows the OS brightness
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _gamepadSubscription?.cancel();
     HardwareKeyboard.instance.removeHandler(_handleKeyboardGamepadInput);
     super.dispose();
@@ -192,6 +202,17 @@ class _FinarAppState extends ConsumerState<FinarApp> {
           );
 
           AppTheme.setSystemUIStyle(brightness);
+
+          // Widgets read AppColors directly so they have no Theme dependency
+          // to rebuild from. Repaint the whole tree when appearance changes.
+          final appearanceKey =
+              '${settings.themeMode}|${settings.themeStyle}|'
+              '${settings.themeColorIndex}|${settings.accentColorIndex}|'
+              '${settings.useSystemAccent}|$platformBrightness';
+          if (appearanceKey != _appearanceKey) {
+            _appearanceKey = appearanceKey;
+            AppTheme.scheduleTreeRebuild();
+          }
 
           return MaterialApp(
             title: 'Finar',
