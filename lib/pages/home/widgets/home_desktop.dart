@@ -18,7 +18,7 @@ import 'package:finar/providers/providers.dart';
 import 'package:finar/widgets/widgets.dart';
 import '../../detail.dart';
 import '../../player.dart';
-import '../../settings.dart';
+import '../../settings/widgets/settings_desktop.dart';
 import '../../whos_watching_page.dart';
 import '../../library.dart';
 import '../../music_library.dart';
@@ -187,10 +187,12 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
       );
     } else if (index == 100) {
       // Settings
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SettingsPage()),
-      );
+      setState(() {
+        _selectedIndex = 100;
+        _selectedLibraryId = null;
+        _selectedLibraryType = null;
+        _sidebarFocused = false;
+      });
     } else if (index >= 4 && index < 4 + libraries.length) {
       // Library
       final library = libraries[index - 4];
@@ -238,17 +240,22 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                   Expanded(
                     child: FocusTraversalGroup(
                       policy: OrderedTraversalPolicy(),
-                      child: homeData.when(
-                        data: (data) => _buildContent(data),
-                        loading: () => Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).colorScheme.primary,
+                      // Settings is local state, so it stays reachable even
+                      // when home data is still loading or failed to load.
+                      child: _selectedIndex == 100 && _selectedLibraryId == null
+                          ? _buildSettingsView()
+                          : homeData.when(
+                              data: (data) => _buildContent(data),
+                              loading: () => Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              error: (error, stack) =>
+                                  _buildError(error.toString()),
                             ),
-                          ),
-                        ),
-                        error: (error, stack) => _buildError(error.toString()),
-                      ),
                     ),
                   ),
                 ],
@@ -507,14 +514,6 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                         index: 100,
                         focusIndex: 100,
                         collapsed: collapsed,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingsPage(),
-                            ),
-                          );
-                        },
                       ),
                     ],
                   ),
@@ -1727,7 +1726,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
   }
 
   Widget _buildSettingsView() {
-    return Center(child: Text('Settings', style: AppTextStyles.headlineLarge));
+    return const SettingsDesktop(embedded: true);
   }
 
   Widget _buildError(String error) {

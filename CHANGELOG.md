@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.1.1] - 2025-07-24
 
+### Changed
+- Settings is now a proper section of the main navigation instead of a separate pushed page. On desktop it opens in the sidebar content area like Home, Search and Favorites, and on mobile it is a bottom navigation tab. The app bar gear icon now jumps to that tab.
+- Fixed ListTile ink splashes being invisible inside settings cards
+
 ### Fixed
 - Fixed build issues for macOS
 

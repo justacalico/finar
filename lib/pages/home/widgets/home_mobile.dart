@@ -13,7 +13,7 @@ import 'package:finar/providers/providers.dart';
 import 'package:finar/widgets/widgets.dart';
 import '../../detail.dart';
 import '../../player.dart';
-import '../../settings.dart';
+import '../../settings/widgets/settings_mobile.dart';
 import '../../library.dart';
 import '../../music_library.dart';
 import '../../downloads.dart';
@@ -46,10 +46,14 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   Color _accentColor = AppColors.primary;
   String? _lastColorExtractedItemId;
 
+  // Downloads is hidden on web, so the settings tab index shifts.
+  static const int _downloadsIndex = 3;
+  static int get _settingsIndex => kIsWeb ? 3 : 4;
+
   @override
   void initState() {
     super.initState();
-    final maxIndex = kIsWeb ? 2 : 3;
+    final maxIndex = kIsWeb ? 3 : 4;
     _currentIndex = widget.initialIndex.clamp(0, maxIndex);
     _pageController = PageController(initialPage: _currentIndex);
     // Delay provider modification until after the widget tree is built
@@ -106,12 +110,16 @@ class HomeMobileState extends ConsumerState<HomeMobile>
         playerState.currentItem?.type.name == 'audio' ||
         playerState.currentItem?.type.name == 'album';
 
-    // If offline and not on downloads page, force navigation to downloads
-    if (!isOnline && _currentIndex != 3) {
+    // If offline, force navigation to downloads. Settings stays reachable
+    // since it only touches local state.
+    if (!isOnline &&
+        !kIsWeb &&
+        _currentIndex != _downloadsIndex &&
+        _currentIndex != _settingsIndex) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          setState(() => _currentIndex = 3);
-          _pageController.jumpToPage(3);
+          setState(() => _currentIndex = _downloadsIndex);
+          _pageController.jumpToPage(_downloadsIndex);
         }
       });
     }
@@ -124,8 +132,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
             controller: _pageController,
             onPageChanged: (index) {
               // Prevent navigation away from downloads when offline
-              if (!isOnline && index != 3) {
-                _pageController.jumpToPage(3);
+              if (!isOnline &&
+                  !kIsWeb &&
+                  index != _downloadsIndex &&
+                  index != _settingsIndex) {
+                _pageController.jumpToPage(_downloadsIndex);
                 return;
               }
               setState(() => _currentIndex = index);
@@ -136,6 +147,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
               _buildSearchPage(),
               _buildLibraryPage(),
               if (!kIsWeb) _buildDownloadsPage(),
+              _buildSettingsPage(),
             ],
           ),
 
@@ -260,6 +272,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
             selectedIcon: Icon(Icons.download_rounded),
             label: 'Downloads',
           ),
+        const NavigationDestination(
+          icon: Icon(Icons.settings_outlined),
+          selectedIcon: Icon(Icons.settings_rounded),
+          label: 'Settings',
+        ),
       ],
     );
   }
@@ -405,14 +422,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
                           Icons.settings_outlined,
                           size: _scale(context, 22),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingsPage(),
-                            ),
-                          );
-                        },
+                        onPressed: _goToSettingsTab,
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -1182,6 +1192,10 @@ class HomeMobileState extends ConsumerState<HomeMobile>
     return const DownloadsPage();
   }
 
+  Widget _buildSettingsPage() {
+    return const SettingsMobile(embedded: true);
+  }
+
   void _openSeeAllMedia({
     required String title,
     required List<MediaItem> items,
@@ -1199,6 +1213,11 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   void _goToLibraryTab() {
     setState(() => _currentIndex = 2);
     _pageController.jumpToPage(2);
+  }
+
+  void _goToSettingsTab() {
+    setState(() => _currentIndex = _settingsIndex);
+    _pageController.jumpToPage(_settingsIndex);
   }
 
   void _navigateToDetail(String itemId) {
