@@ -46,24 +46,26 @@ class SettingsAppearanceMobileSection extends ConsumerWidget {
               },
             ),
             mobileDivider(),
-            mobileSwitchTile(
-              context,
-              'Use system accent',
-              'Use device accent',
-              settings.useSystemAccent,
-              (v) => ref.read(settingsProvider.notifier).setUseSystemAccent(v),
-            ),
-            mobileDivider(),
             mobileDropdownTile<int>(
               context,
               'Accent color',
-              settings.accentColorIndex,
-              accentColorOptions
-                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
-                  .toList(),
+              settings.useSystemAccent ? -1 : settings.accentColorIndex,
+              [
+                const DropdownMenuItem(value: -1, child: Text('System')),
+                ...accentColorOptions.map(
+                  (o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)),
+                ),
+              ],
               (v) {
-                if (v != null) {
-                  ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+                if (v == null) {
+                  return;
+                }
+                final notifier = ref.read(settingsProvider.notifier);
+                if (v == -1) {
+                  notifier.setUseSystemAccent(true);
+                } else {
+                  notifier.setAccentColorIndex(v);
+                  notifier.setUseSystemAccent(false);
                 }
               },
             ),

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed ListTile ink splashes being invisible inside settings cards
 - Removed the separate Theme style setting. OLED is now an option inside the Theme dropdown (System / Light / Dark / OLED) and the Coloured style was removed. Saved settings are migrated, so an OLED selection survives the update.
 - Updated the mobile Library list to use the same glass card and primary accent styling as the rest of the app. Library list cards and the header now use the active theme's primary colour instead of per-library pastel colours.
+- Merged "Use system accent" into the Accent colour dropdown. It is now the first option ("System") alongside the colour choices on both mobile and desktop, instead of a separate switch.
 
 ### Fixed
 - Fixed `Color.toARGB32()` serialization so subtitle colours are stored and loaded correctly.

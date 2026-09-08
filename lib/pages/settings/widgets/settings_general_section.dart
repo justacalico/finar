@@ -58,32 +58,33 @@ class SettingsGeneralSection extends ConsumerWidget {
               },
             ),
             Divider(color: AppColors.glassBorder),
-            switchTile(
-              context,
-              title: 'Use system accent',
-              subtitle: 'Use device accent color when available',
-              value: settings.useSystemAccent,
-              onChanged: (v) =>
-                  ref.read(settingsProvider.notifier).setUseSystemAccent(v),
-            ),
-            Divider(color: AppColors.glassBorder),
             dropdownTile<int>(
               context,
               title: 'Accent color',
               subtitle: settings.useSystemAccent
-                  ? 'Using system'
+                  ? 'System'
                   : accentColorOptions[settings.accentColorIndex.clamp(
                           0,
                           accentColorOptions.length - 1,
                         )]
                         .$2,
-              value: settings.accentColorIndex,
-              items: accentColorOptions
-                  .map((o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)))
-                  .toList(),
+              value: settings.useSystemAccent ? -1 : settings.accentColorIndex,
+              items: [
+                const DropdownMenuItem(value: -1, child: Text('System')),
+                ...accentColorOptions.map(
+                  (o) => DropdownMenuItem(value: o.$1, child: Text(o.$2)),
+                ),
+              ],
               onChanged: (v) {
-                if (v != null) {
-                  ref.read(settingsProvider.notifier).setAccentColorIndex(v);
+                if (v == null) {
+                  return;
+                }
+                final notifier = ref.read(settingsProvider.notifier);
+                if (v == -1) {
+                  notifier.setUseSystemAccent(true);
+                } else {
+                  notifier.setAccentColorIndex(v);
+                  notifier.setUseSystemAccent(false);
                 }
               },
             ),
