@@ -82,6 +82,52 @@ void main() {
     await tester.pump();
 
     expect(find.text('Movies'), findsOneWidget);
+    // Embedded as the root route, so there is nothing to pop.
+    expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
+  });
+
+  testWidgets('pushed LibraryPage shows a back button that pops the route', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaServiceProvider.overrideWith((ref) => _FakeMediaService()),
+          librariesProvider.overrideWith(
+            (ref) => Future.value(const [
+              Library(id: 'lib1', name: 'Movies', collectionType: 'movies'),
+            ]),
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const LibraryPage(libraryId: 'lib1'),
+                ),
+              ),
+              child: const Text('open library'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('open library'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Movies'), findsOneWidget);
+    final backButton = find.byIcon(Icons.arrow_back_rounded);
+    expect(backButton, findsOneWidget);
+
+    await tester.tap(backButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('open library'), findsOneWidget);
+    expect(find.text('Movies'), findsNothing);
   });
 
   testWidgets('LibraryPage uses the library name for a non-music library', (
