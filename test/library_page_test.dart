@@ -1,7 +1,7 @@
 import 'package:finar/core/api/jellyfin_api.dart';
 import 'package:finar/core/api/media_service.dart';
 import 'package:finar/core/api/models/library.dart';
-import 'package:finar/pages/library/library_header.dart';
+import 'package:finar/widgets/page_header.dart';
 import 'package:finar/pages/library/library_page.dart';
 import 'package:finar/providers/library_provider.dart';
 import 'package:finar/providers/providers.dart';
@@ -73,10 +73,10 @@ Widget _wrap(Widget child, {List<Library> libraries = const []}) =>
     );
 
 void main() {
-  testWidgets('LibraryHeader displays the library name', (tester) async {
+  testWidgets('PageHeader displays the library name', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: LibraryHeader(title: 'Movies')),
+        home: Scaffold(body: PageHeader(title: 'Movies')),
       ),
     );
     await tester.pump();

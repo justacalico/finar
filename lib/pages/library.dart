@@ -8,7 +8,6 @@ import '../core/api/models/media_item.dart';
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
-import 'library/library_header.dart';
 
 class LibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
@@ -57,7 +56,7 @@ class LibraryDesktopState extends ConsumerState<LibraryDesktop> {
     return Column(
       children: [
         // Header
-        LibraryHeader(title: widget.libraryName, trailing: _buildHeaderControls()),
+        PageHeader(title: widget.libraryName, trailing: _buildHeaderControls()),
 
         // Content
         Expanded(
@@ -563,7 +562,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
 
     return Column(
       children: [
-        LibraryHeader(
+        PageHeader(
           title: widget.libraryName,
           onBack: widget.onBack,
           trailing: Row(
@@ -930,9 +929,7 @@ class LibraryMobileState extends ConsumerState<LibraryMobile> {
       contentPadding: EdgeInsets.zero,
       tileColor: Colors.transparent,
       title: Text(label),
-      trailing: isSelected
-          ? Icon(Icons.check, color: AppColors.primary)
-          : null,
+      trailing: isSelected ? Icon(Icons.check, color: AppColors.primary) : null,
       onTap: () {
         _updateSort(value, _sortOrder);
         Navigator.pop(context);

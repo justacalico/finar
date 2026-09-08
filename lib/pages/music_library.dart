@@ -8,7 +8,6 @@ import '../core/api/models/media_item.dart';
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 import 'adaptive_pages.dart';
-import 'library/library_header.dart';
 
 class MusicLibraryDesktop extends ConsumerStatefulWidget {
   final String libraryId;
@@ -68,7 +67,7 @@ class MusicLibraryDesktopState extends ConsumerState<MusicLibraryDesktop>
     return Column(
       children: [
         // Header
-        LibraryHeader(
+        PageHeader(
           title: widget.libraryName,
           trailing: _buildHeaderControls(musicState),
         ),
@@ -879,7 +878,7 @@ class MusicLibraryMobileState extends ConsumerState<MusicLibraryMobile>
 
     return Column(
       children: [
-        LibraryHeader(
+        PageHeader(
           title: widget.libraryName,
           onBack: widget.onBack,
           trailing: Row(

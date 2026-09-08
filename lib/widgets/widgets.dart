@@ -1,4 +1,5 @@
 export 'adaptive_layout.dart';
+export 'page_header.dart';
 export 'glass_container.dart';
 export 'blur_backdrop.dart';
 export 'animated_card.dart';

@@ -36,7 +36,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader(context, downloadState, accent, isNarrow)),
+            SliverToBoxAdapter(
+              child: _buildHeader(context, downloadState, accent),
+            ),
             SliverToBoxAdapter(child: _buildFilterChips(downloadState, accent)),
             SliverToBoxAdapter(child: _buildToolbar(context, accent, isNarrow)),
             _buildContent(downloadState, serverUrl, accent, isNarrow),
@@ -51,27 +53,17 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     BuildContext context,
     DownloadState downloadState,
     Color accent,
-    bool isNarrow,
   ) {
     final totalBytes = downloadState.completedDownloads.fold<int>(
       0,
       (sum, d) => sum + d.totalBytes,
     );
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(isNarrow ? 16 : 32, isNarrow ? 16 : 24, isNarrow ? 16 : 32, 16),
-      child: Wrap(
-        spacing: 16,
-        runSpacing: 12,
-        crossAxisAlignment: WrapCrossAlignment.center,
+    return PageHeader(
+      title: 'Downloads',
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (Navigator.canPop(context))
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),
-          Text('Downloads', style: AppTextStyles.headlineMedium),
-          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -96,8 +88,15 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
           if (downloadState.completedDownloads.isNotEmpty)
             TextButton.icon(
               onPressed: _showClearAllDialog,
-              icon: Icon(Icons.delete_outline, size: 18, color: AppColors.error),
-              label: Text('Clear All', style: TextStyle(color: AppColors.error)),
+              icon: Icon(
+                Icons.delete_outline,
+                size: 18,
+                color: AppColors.error,
+              ),
+              label: Text(
+                'Clear All',
+                style: TextStyle(color: AppColors.error),
+              ),
             ),
         ],
       ),
@@ -136,7 +135,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
               ),
               backgroundColor: AppColors.surface.withValues(alpha: 0.5),
               side: BorderSide(
-                color: isSelected ? accent.withValues(alpha: 0.4) : AppColors.divider.withValues(alpha: 0.3),
+                color: isSelected
+                    ? accent.withValues(alpha: 0.4)
+                    : AppColors.divider.withValues(alpha: 0.3),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -157,7 +158,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
         children: [
           Text(
             _getFilterTitle(),
-            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w600),
+            style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const Spacer(),
           PopupMenuButton<String>(
@@ -262,15 +265,21 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
           ),
           const SizedBox(height: 20),
           Text(
-            _selectedFilter == 'all' ? 'No Downloads Yet' : 'No ${_getFilterTitle()}',
-            style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textSecondary),
+            _selectedFilter == 'all'
+                ? 'No Downloads Yet'
+                : 'No ${_getFilterTitle()}',
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             _selectedFilter == 'all'
                 ? 'Download movies and shows to watch offline'
                 : 'Downloads matching this filter will appear here',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
           ),
         ],
       ),
@@ -303,8 +312,10 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
             onTap: () => _onDownloadTap(download),
             onPlay: () => _playDownload(download),
             onDelete: () => _deleteDownload(download),
-            onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
-            onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
+            onPause: () =>
+                ref.read(downloadProvider.notifier).pauseDownload(download.id),
+            onResume: () =>
+                ref.read(downloadProvider.notifier).resumeDownload(download.id),
             onRetry: () => _retryDownload(download),
           );
         },
@@ -315,7 +326,11 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     );
   }
 
-  Widget _buildList(List<DownloadTask> downloads, String serverUrl, Color accent) {
+  Widget _buildList(
+    List<DownloadTask> downloads,
+    String serverUrl,
+    Color accent,
+  ) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
@@ -329,8 +344,12 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
               onTap: () => _onDownloadTap(download),
               onPlay: () => _playDownload(download),
               onDelete: () => _deleteDownload(download),
-              onPause: () => ref.read(downloadProvider.notifier).pauseDownload(download.id),
-              onResume: () => ref.read(downloadProvider.notifier).resumeDownload(download.id),
+              onPause: () => ref
+                  .read(downloadProvider.notifier)
+                  .pauseDownload(download.id),
+              onResume: () => ref
+                  .read(downloadProvider.notifier)
+                  .resumeDownload(download.id),
               onRetry: () => _retryDownload(download),
             ),
           );
@@ -408,7 +427,9 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
   void _onDownloadTap(DownloadTask download) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AdaptiveDetailPage(itemId: download.itemId)),
+      MaterialPageRoute(
+        builder: (_) => AdaptiveDetailPage(itemId: download.itemId),
+      ),
     );
   }
 
@@ -417,7 +438,10 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     if (download.localPath == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Download file not found'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Download file not found'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
       return;
@@ -430,14 +454,22 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     );
 
     try {
-      await ref.read(playerProvider.notifier).playLocalFile(item, download.localPath!);
+      await ref
+          .read(playerProvider.notifier)
+          .playLocalFile(item, download.localPath!);
       if (mounted) {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AdaptivePlayerPage()),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to play: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -468,9 +500,14 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text('Delete Download?'),
-        content: Text('Are you sure you want to delete "${download.itemName}"? This will remove the downloaded file.'),
+        content: Text(
+          'Are you sure you want to delete "${download.itemName}"? This will remove the downloaded file.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               ref.read(downloadProvider.notifier).deleteDownload(download.id);
@@ -492,7 +529,10 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to retry: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to retry: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -504,9 +544,14 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text('Clear All Downloads?'),
-        content: Text('This will delete all downloaded files. This action cannot be undone.'),
+        content: Text(
+          'This will delete all downloaded files. This action cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               ref.read(downloadProvider.notifier).deleteAllDownloads();
@@ -569,7 +614,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(
-              color: _isHovered ? accent.withValues(alpha: 0.5) : Colors.transparent,
+              color: _isHovered
+                  ? accent.withValues(alpha: 0.5)
+                  : Colors.transparent,
               width: 2,
             ),
           ),
@@ -588,7 +635,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             color: Colors.black54,
                           ),
                           child: Column(
@@ -605,24 +654,33 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                                         value: download.progress,
                                         strokeWidth: 4,
                                         backgroundColor: Colors.white24,
-                                        valueColor: AlwaysStoppedAnimation(accent),
+                                        valueColor: AlwaysStoppedAnimation(
+                                          accent,
+                                        ),
                                       ),
                                       Text(
                                         '${(download.progress * 100).toInt()}%',
-                                        style: AppTextStyles.labelSmall.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                     ],
                                   ),
                                 )
                               else
-                                Icon(Icons.pause_circle_filled, size: 44, color: AppColors.warning),
+                                Icon(
+                                  Icons.pause_circle_filled,
+                                  size: 44,
+                                  color: AppColors.warning,
+                                ),
                               const SizedBox(height: 6),
                               Text(
                                 isActive ? 'Downloading...' : 'Paused',
-                                style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
@@ -632,15 +690,26 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             color: Colors.black54,
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.error_outline, size: 44, color: AppColors.error),
+                              Icon(
+                                Icons.error_outline,
+                                size: 44,
+                                color: AppColors.error,
+                              ),
                               const SizedBox(height: 6),
-                              Text('Failed', style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+                              Text(
+                                'Failed',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.error,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -649,7 +718,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -670,11 +741,21 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                                     color: accent,
                                     borderRadius: BorderRadius.circular(30),
                                   ),
-                                  child: Icon(Icons.play_arrow, size: 28, color: Colors.white),
+                                  child: Icon(
+                                    Icons.play_arrow,
+                                    size: 28,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              Text('Play', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                              Text(
+                                'Play',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -689,7 +770,11 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                             color: AppColors.success,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Icon(Icons.download_done, size: 16, color: Colors.white),
+                          child: Icon(
+                            Icons.download_done,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     if (_isHovered)
@@ -700,10 +785,30 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            if (isActive) _buildActionButton(Icons.pause, 'Pause', widget.onPause),
-                            if (isPaused) _buildActionButton(Icons.play_arrow, 'Resume', widget.onResume),
-                            if (isFailed) _buildActionButton(Icons.refresh, 'Retry', widget.onRetry),
-                            _buildActionButton(Icons.delete_outline, 'Delete', widget.onDelete, isDestructive: true),
+                            if (isActive)
+                              _buildActionButton(
+                                Icons.pause,
+                                'Pause',
+                                widget.onPause,
+                              ),
+                            if (isPaused)
+                              _buildActionButton(
+                                Icons.play_arrow,
+                                'Resume',
+                                widget.onResume,
+                              ),
+                            if (isFailed)
+                              _buildActionButton(
+                                Icons.refresh,
+                                'Retry',
+                                widget.onRetry,
+                              ),
+                            _buildActionButton(
+                              Icons.delete_outline,
+                              'Delete',
+                              widget.onDelete,
+                              isDestructive: true,
+                            ),
                           ],
                         ),
                       ),
@@ -718,19 +823,27 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                   children: [
                     Text(
                       download.itemName,
-                      style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(_getTypeIcon(download.itemType), size: 14, color: AppColors.textTertiary),
+                        Icon(
+                          _getTypeIcon(download.itemType),
+                          size: 14,
+                          color: AppColors.textTertiary,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             download.itemType ?? 'Unknown',
-                            style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textTertiary,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -738,7 +851,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
                           const SizedBox(width: 8),
                           Text(
                             _formatBytes(download.totalBytes),
-                            style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textTertiary,
+                            ),
                           ),
                         ],
                       ],
@@ -760,7 +875,12 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
         future: file.exists(),
         builder: (context, snapshot) {
           if (snapshot.data == true) {
-            return Image.file(file, fit: BoxFit.cover, errorBuilder: (_, _, _) => _buildNetworkPoster(download, serverUrl));
+            return Image.file(
+              file,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) =>
+                  _buildNetworkPoster(download, serverUrl),
+            );
           }
           return _buildNetworkPoster(download, serverUrl);
         },
@@ -772,7 +892,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
   Widget _buildNetworkPoster(DownloadTask download, String serverUrl) {
     if (download.primaryImageTag != null) {
       return CachedNetworkImage(
-        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
+        imageUrl:
+            '$serverUrl/Items/${download.itemId}/Images/Primary?tag=${download.primaryImageTag}',
         memCacheWidth: 400,
         memCacheHeight: 600,
         fadeInDuration: const Duration(milliseconds: 150),
@@ -787,11 +908,22 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
   Widget _buildPlaceholder() {
     return Container(
       color: AppColors.surfaceElevated,
-      child: Center(child: Icon(Icons.movie_outlined, size: 40, color: AppColors.textTertiary)),
+      child: Center(
+        child: Icon(
+          Icons.movie_outlined,
+          size: 40,
+          color: AppColors.textTertiary,
+        ),
+      ),
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed, {bool isDestructive = false}) {
+  Widget _buildActionButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed, {
+    bool isDestructive = false,
+  }) {
     return Tooltip(
       message: label,
       child: Material(
@@ -802,7 +934,9 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isDestructive ? AppColors.error.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.2),
+              color: isDestructive
+                  ? AppColors.error.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(icon, size: 18, color: Colors.white),
@@ -831,7 +965,8 @@ class _DownloadGridCardState extends State<_DownloadGridCard> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }
@@ -880,15 +1015,26 @@ class _DownloadListItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               child: Stack(
                 children: [
-                  SizedBox(width: 70, height: 100, child: _buildPosterImage(download, serverUrl)),
+                  SizedBox(
+                    width: 70,
+                    height: 100,
+                    child: _buildPosterImage(download, serverUrl),
+                  ),
                   if (isCompleted)
                     Positioned(
                       top: 4,
                       right: 4,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(12)),
-                        child: Icon(Icons.download_done, size: 12, color: Colors.white),
+                        decoration: BoxDecoration(
+                          color: AppColors.success,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.download_done,
+                          size: 12,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                 ],
@@ -901,19 +1047,27 @@ class _DownloadListItem extends StatelessWidget {
                 children: [
                   Text(
                     download.itemName,
-                    style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w600),
+                    style: AppTextStyles.titleSmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(_getTypeIcon(download.itemType), size: 14, color: AppColors.textTertiary),
+                      Icon(
+                        _getTypeIcon(download.itemType),
+                        size: 14,
+                        color: AppColors.textTertiary,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           download.itemType ?? 'Unknown',
-                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -921,7 +1075,9 @@ class _DownloadListItem extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           _formatBytes(download.totalBytes),
-                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
                         ),
                       ],
                     ],
@@ -943,16 +1099,38 @@ class _DownloadListItem extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: accent,
                       foregroundColor: AppColors.textOnPrimary,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 if (isActive)
-                  IconButton(onPressed: onPause, icon: Icon(Icons.pause), tooltip: 'Pause'),
+                  IconButton(
+                    onPressed: onPause,
+                    icon: Icon(Icons.pause),
+                    tooltip: 'Pause',
+                  ),
                 if (isPaused)
-                  IconButton(onPressed: onResume, icon: Icon(Icons.play_arrow), tooltip: 'Resume', color: accent),
+                  IconButton(
+                    onPressed: onResume,
+                    icon: Icon(Icons.play_arrow),
+                    tooltip: 'Resume',
+                    color: accent,
+                  ),
                 if (isFailed)
-                  IconButton(onPressed: onRetry, icon: Icon(Icons.refresh), tooltip: 'Retry', color: accent),
-                IconButton(onPressed: onDelete, icon: Icon(Icons.delete_outline), tooltip: 'Delete', color: AppColors.error),
+                  IconButton(
+                    onPressed: onRetry,
+                    icon: Icon(Icons.refresh),
+                    tooltip: 'Retry',
+                    color: accent,
+                  ),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete_outline),
+                  tooltip: 'Delete',
+                  color: AppColors.error,
+                ),
               ],
             ),
           ],
@@ -971,7 +1149,10 @@ class _DownloadListItem extends StatelessWidget {
               children: [
                 Icon(Icons.downloading, size: 14, color: accent),
                 const SizedBox(width: 4),
-                Text('Downloading ${(download.progress * 100).toInt()}%', style: AppTextStyles.bodySmall.copyWith(color: accent)),
+                Text(
+                  'Downloading ${(download.progress * 100).toInt()}%',
+                  style: AppTextStyles.bodySmall.copyWith(color: accent),
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -988,9 +1169,18 @@ class _DownloadListItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.pause_circle_outline, size: 14, color: AppColors.warning),
+                Icon(
+                  Icons.pause_circle_outline,
+                  size: 14,
+                  color: AppColors.warning,
+                ),
                 const SizedBox(width: 4),
-                Text('Paused - ${(download.progress * 100).toInt()}%', style: AppTextStyles.bodySmall.copyWith(color: AppColors.warning)),
+                Text(
+                  'Paused - ${(download.progress * 100).toInt()}%',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.warning,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -1004,9 +1194,16 @@ class _DownloadListItem extends StatelessWidget {
       case DownloadStatus.completed:
         return Row(
           children: [
-            Icon(Icons.check_circle_outline, size: 14, color: AppColors.success),
+            Icon(
+              Icons.check_circle_outline,
+              size: 14,
+              color: AppColors.success,
+            ),
             const SizedBox(width: 4),
-            Text('Ready to watch', style: AppTextStyles.bodySmall.copyWith(color: AppColors.success)),
+            Text(
+              'Ready to watch',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.success),
+            ),
           ],
         );
       case DownloadStatus.failed:
@@ -1027,17 +1224,35 @@ class _DownloadListItem extends StatelessWidget {
       case DownloadStatus.pending:
         return Row(
           children: [
-            Icon(Icons.hourglass_empty, size: 14, color: AppColors.textSecondary),
+            Icon(
+              Icons.hourglass_empty,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
             const SizedBox(width: 4),
-            Text('Pending...', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+            Text(
+              'Pending...',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         );
       case DownloadStatus.cancelled:
         return Row(
           children: [
-            Icon(Icons.cancel_outlined, size: 14, color: AppColors.textSecondary),
+            Icon(
+              Icons.cancel_outlined,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
             const SizedBox(width: 4),
-            Text('Cancelled', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+            Text(
+              'Cancelled',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         );
     }
@@ -1048,7 +1263,11 @@ class _DownloadListItem extends StatelessWidget {
     if (localPrimaryPath != null && localPrimaryPath.isNotEmpty) {
       final localFile = File(localPrimaryPath);
       if (localFile.existsSync()) {
-        return Image.file(localFile, fit: BoxFit.cover, errorBuilder: (_, _, _) => _buildNetworkImage(download, serverUrl));
+        return Image.file(
+          localFile,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => _buildNetworkImage(download, serverUrl),
+        );
       }
     }
     return _buildNetworkImage(download, serverUrl);
@@ -1057,16 +1276,32 @@ class _DownloadListItem extends StatelessWidget {
   Widget _buildNetworkImage(DownloadTask download, String serverUrl) {
     if (download.primaryImageTag != null) {
       return CachedNetworkImage(
-        imageUrl: '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90',
+        imageUrl:
+            '$serverUrl/Items/${download.itemId}/Images/Primary?fillWidth=160&quality=90',
         memCacheWidth: 160,
         memCacheHeight: 240,
         fadeInDuration: const Duration(milliseconds: 150),
         fit: BoxFit.cover,
-        placeholder: (_, _) => Container(color: AppColors.glassBorder, child: Center(child: Icon(Icons.movie_outlined, color: AppColors.textSecondary))),
-        errorWidget: (_, _, _) => Container(color: AppColors.glassBorder, child: Center(child: Icon(Icons.movie_outlined, color: AppColors.textSecondary))),
+        placeholder: (_, _) => Container(
+          color: AppColors.glassBorder,
+          child: Center(
+            child: Icon(Icons.movie_outlined, color: AppColors.textSecondary),
+          ),
+        ),
+        errorWidget: (_, _, _) => Container(
+          color: AppColors.glassBorder,
+          child: Center(
+            child: Icon(Icons.movie_outlined, color: AppColors.textSecondary),
+          ),
+        ),
       );
     }
-    return Container(color: AppColors.glassBorder, child: Center(child: Icon(Icons.movie_outlined, color: AppColors.textSecondary)));
+    return Container(
+      color: AppColors.glassBorder,
+      child: Center(
+        child: Icon(Icons.movie_outlined, color: AppColors.textSecondary),
+      ),
+    );
   }
 
   IconData _getTypeIcon(String? type) {
@@ -1088,7 +1323,8 @@ class _DownloadListItem extends StatelessWidget {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }

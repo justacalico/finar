@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Coverage filtering and script tests for the release pipeline.
 
 ### Changed
+- Unified the page title bar: Settings, Downloads, Library, Search and Favorites now share the same `PageHeader` (glass bar, `headlineMedium` title, back button only on pushed routes) on desktop and mobile. `LibraryHeader` was generalised into `PageHeader` under `lib/widgets`.
 - Release CI jobs now install `gh`, `glab` and `jq` as binaries under `~/.local/bin` so they work on shell runners without a package manager.
 - Made the entire colour palette reactive: `AppColors` now derives background, surface, text, glass and primary colours from the active theme mode, theme style, theme colour and accent colour. Light mode, OLED and Coloured styles now actually change the UI.
 - `AppTextStyles` and `AppTheme` now use the reactive `AppColors` so switching theme mode or style updates text and Material theme data.

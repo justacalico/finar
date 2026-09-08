@@ -32,7 +32,19 @@ void main() {
   testWidgets(
     'standalone desktop settings keeps back button and account actions',
     (tester) async {
-      await tester.pumpWidget(_wrap(const SettingsDesktop()));
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsDesktop()),
+              ),
+              child: const Text('go'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('go'));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
@@ -41,10 +53,10 @@ void main() {
     },
   );
 
-  testWidgets('embedded mobile settings app bar has no back button', (
+  testWidgets('embedded mobile settings header has no back button', (
     tester,
   ) async {
-    await tester.pumpWidget(_wrap(const SettingsMobile(embedded: true)));
+    await tester.pumpWidget(_wrap(const SettingsMobile()));
     await tester.pumpAndSettle();
 
     expect(find.text('Settings'), findsOneWidget);
@@ -52,7 +64,19 @@ void main() {
   });
 
   testWidgets('standalone mobile settings shows a back button', (tester) async {
-    await tester.pumpWidget(_wrap(const SettingsMobile()));
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsMobile())),
+            child: const Text('go'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('go'));
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);

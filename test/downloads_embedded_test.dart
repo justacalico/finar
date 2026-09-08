@@ -39,7 +39,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Downloads'), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
     },
   );
 
@@ -64,6 +64,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Downloads'), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
 }

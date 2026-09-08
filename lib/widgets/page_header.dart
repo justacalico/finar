@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/theme/text_styles.dart';
-import '../../widgets/widgets.dart';
+import '../core/theme/app_theme.dart';
+import '../core/theme/text_styles.dart';
+import 'widgets.dart';
 
-/// Shared header used by every library page.
-/// The only thing that changes between libraries is the title (the library name).
-class LibraryHeader extends StatelessWidget {
+/// The single title bar used at the top of every page.
+/// Optional back button, a title, and optional trailing controls.
+class PageHeader extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
-  /// Explicit back handler for libraries opened inside the shell, where the
-  /// route itself cannot be popped.
+  /// Explicit back handler for pages embedded in the shell, where the route
+  /// itself cannot be popped.
   final VoidCallback? onBack;
 
-  const LibraryHeader({
+  const PageHeader({
     super.key,
     required this.title,
     this.trailing,
@@ -22,8 +22,8 @@ class LibraryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pushed library routes (mobile) need a way back; the embedded desktop
-    // shell is the root route so canPop stays false there.
+    // Pushed routes (mobile) need a way back; the embedded shell is the root
+    // route so canPop stays false there.
     final canPop = onBack != null || Navigator.canPop(context);
 
     return GlassContainer(

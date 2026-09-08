@@ -30,6 +30,8 @@ class MobileSearchPageState extends ConsumerState<MobileSearchPage> {
     return SafeArea(
       child: Column(
         children: [
+          const PageHeader(title: 'Search'),
+
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16),

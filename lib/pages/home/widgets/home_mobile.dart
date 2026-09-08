@@ -1275,7 +1275,7 @@ class HomeMobileState extends ConsumerState<HomeMobile>
   }
 
   Widget _buildSettingsPage() {
-    return const SettingsMobile(embedded: true);
+    return const SettingsMobile();
   }
 
   void _openSeeAllMedia({
