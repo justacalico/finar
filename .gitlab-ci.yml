@@ -17,7 +17,7 @@ stages:
 
 github-sync:
   stage: sync
-  tags: [linux-truenas]
+  tags: [linux]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -42,7 +42,7 @@ github-sync:
 
 github-dispatch:
   stage: sync
-  tags: [linux-truenas]
+  tags: [linux]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -67,7 +67,7 @@ github-dispatch:
 
 github-mr-build:
   stage: sync
-  tags: [linux-truenas]
+  tags: [linux]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -86,7 +86,7 @@ github-mr-build:
 
 github-release-sync:
   stage: release
-  tags: [linux-truenas]
+  tags: [linux]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
