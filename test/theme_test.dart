@@ -4,6 +4,7 @@ import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/app_theme.dart';
 import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/providers/settings_provider.dart';
+import 'package:finar/widgets/animated_card.dart';
 
 void main() {
   group('AppColors', () {
@@ -204,6 +205,67 @@ void main() {
         tester.widget<ColoredBox>(box).color,
         const Color(0xFFF2F2F7),
       );
+    });
+  });
+
+  group('image overlay text', () {
+    testWidgets('AnimatedCard title stays white in light mode', (tester) async {
+      AppColors.set(
+        brightness: Brightness.light,
+        oled: false,
+        themeColor: const Color(0xFF00E5B8),
+        accentColor: const Color(0xFF00B8D9),
+        useSystemAccent: false,
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: AnimatedCard(
+                width: 120,
+                title: 'Movie',
+                subtitle: '2024',
+                enableEntranceAnimation: false,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // The title sits on the card's dark gradient, so it must not follow
+      // the light theme's dark textPrimary color.
+      final title = tester.widget<Text>(find.text('Movie'));
+      expect(title.style?.color, AppColors.white);
+      final subtitle = tester.widget<Text>(find.text('2024'));
+      expect(subtitle.style?.color, AppColors.white.withValues(alpha: 0.85));
+    });
+
+    testWidgets('HeroCard title stays white in light mode', (tester) async {
+      AppColors.set(
+        brightness: Brightness.light,
+        oled: false,
+        themeColor: const Color(0xFF00E5B8),
+        accentColor: const Color(0xFF00B8D9),
+        useSystemAccent: false,
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: HeroCard(
+              title: 'Featured',
+              subtitle: 'Movie',
+              height: 300,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final title = tester.widget<Text>(find.text('Featured'));
+      expect(title.style?.color, AppColors.white);
     });
   });
 

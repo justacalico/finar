@@ -384,6 +384,7 @@ class _AnimatedCardState extends State<AnimatedCard> {
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w600,
               height: 1.2,
+              color: AppColors.white,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -393,7 +394,7 @@ class _AnimatedCardState extends State<AnimatedCard> {
             Text(
               widget.subtitle!,
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.white.withValues(alpha: 0.85),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -627,7 +628,9 @@ class _HeroCardState extends State<HeroCard> {
                         // Title
                         Text(
                           widget.title,
-                          style: AppTextStyles.hero,
+                          style: AppTextStyles.hero.copyWith(
+                            color: AppColors.white,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -636,7 +639,9 @@ class _HeroCardState extends State<HeroCard> {
                           const SizedBox(height: 4),
                           Text(
                             widget.subtitle!,
-                            style: AppTextStyles.subtitle,
+                            style: AppTextStyles.subtitle.copyWith(
+                              color: AppColors.white.withValues(alpha: 0.85),
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -647,7 +652,7 @@ class _HeroCardState extends State<HeroCard> {
                           Text(
                             widget.description!,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.white.withValues(alpha: 0.85),
                             ),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
@@ -771,20 +776,20 @@ class _MetadataBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.glassWhite,
+        color: AppColors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: color ?? AppColors.textPrimary),
+            Icon(icon, size: 14, color: color ?? AppColors.white),
             const SizedBox(width: 4),
           ],
           Text(
             text,
             style: AppTextStyles.labelSmall.copyWith(
-              color: color ?? AppColors.textPrimary,
+              color: color ?? AppColors.white,
             ),
           ),
         ],
