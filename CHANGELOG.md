@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the desktop layout briefly overflowing during the mobile/desktop swap: `AdaptiveLayout` no longer runs an `AnimatedSwitcher` transition, which forced the outgoing layout to be re-laid out at the new window size.
 - Fixed the home feed refetching every time the mobile shell remounted (e.g. after a resize); it now only loads when there is no cached data.
 - Fixed build issues for macOS
+- Fixed Windows CI builds failing on media_kit's libmpv/ANGLE integrity check: the plugin's CMake download has no retry or HTTP status check, so the workflow now pre-fetches both archives with curl before `flutter build windows` runs.
 
 ## [4.1.0]
 

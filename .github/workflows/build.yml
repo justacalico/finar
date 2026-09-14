@@ -340,6 +340,14 @@ jobs:
               find dist -name "*.AppImage" -exec cp {} "artifacts/finar-linux-aarch64-${VERSION}-${BUILD_DATE}.AppImage" \; 2>/dev/null || true
               ;;
             windows)
+              # media_kit's CMake file(DOWNLOAD) has no retry or HTTP status
+              # check, so a bad fetch fails the build on an MD5 mismatch.
+              # Pre-fetch both archives so the in-build download is skipped.
+              mkdir -p build/windows/x64
+              curl -fL --retry 5 -o "build/windows/x64/mpv-dev-x86_64-20230924-git-652a1dd.7z" \
+                "https://github.com/media-kit/libmpv-win32-video-build/releases/download/2023-09-24/mpv-dev-x86_64-20230924-git-652a1dd.7z"
+              curl -fL --retry 5 -o "build/windows/x64/ANGLE.7z" \
+                "https://github.com/alexmercerind/flutter-windows-ANGLE-OpenGL-ES/releases/download/v1.0.1/ANGLE.7z"
               flutter build windows --release --build-name="$VERSION" --build-number="$BUILD_NUMBER"
               7z a "artifacts/finar-windows-x64-${VERSION}-${BUILD_DATE}.zip" "build/windows/x64/runner/Release"
               ;;
