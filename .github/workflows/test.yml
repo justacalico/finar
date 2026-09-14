@@ -24,6 +24,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Stamp pubspec with CI run number
+        run: bash scripts/set-ci-version.sh "${{ github.run_number }}"
+
       - uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
