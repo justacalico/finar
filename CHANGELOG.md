@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - GitLab -> GitHub -> GitLab release CI: automated builds for Android, Linux, Windows, macOS and iOS, signed Android releases, nightly/versioned GitHub releases, and GitLab release mirroring.
 - Coverage filtering and script tests for the release pipeline.
+- CI runs now stamp the pubspec version with the run number (e.g. 4.1.1+42) so every artifact reports which CI run built it.
 
 ### Changed
 - Unified the page title bar: Settings, Downloads, Library, Search and Favorites now share the same `PageHeader` (glass bar, `headlineMedium` title, back button only on pushed routes) on desktop and mobile. `LibraryHeader` was generalised into `PageHeader` under `lib/widgets`.

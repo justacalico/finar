@@ -87,12 +87,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Stamp pubspec with CI run number
+        shell: bash
+        run: bash scripts/set-ci-version.sh "${{ github.run_number }}"
+
       - name: Read version from pubspec
         id: version
         shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
-          BUILD_NUMBER=$(date +%s | cut -c4-10)
+          BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | cut -s -d'+' -f2)
+          BUILD_NUMBER="${BUILD_NUMBER:-${{ github.run_number }}}"
           BUILD_DATE=$(date +%Y-%m-%d)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
