@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../core/api/format.dart';
 import '../core/api/models.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/audio_provider.dart';
-import '../providers/downloads_provider.dart';
 import '../providers/library_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/providers.dart';
 import '../widgets/app_image.dart';
 import '../widgets/async_view.dart';
 import '../widgets/backdrop_hero.dart';
+import '../widgets/detail_actions.dart';
 import '../widgets/focusable.dart';
-import '../widgets/item_menu.dart';
 import '../widgets/media_rail.dart';
 import 'player_page.dart';
 
@@ -95,6 +93,17 @@ class _Header extends ConsumerWidget {
     final client = ref.read(jellyfinClientProvider);
     final poster = client.posterUrl(item, maxWidth: 400);
 
+    void play({bool resume = true}) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => PlayerPage(
+                item: item,
+                startPosition: resume && item.resumeTicks > 0
+                    ? Duration(
+                        microseconds: item.resumeTicks ~/ 10)
+                    : null,
+              )));
+    }
+
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -131,7 +140,11 @@ class _Header extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: Insets.md),
-        _Actions(item: item),
+        DetailActions(
+          item: item,
+          onPlay: play,
+          onPlayFromStart: () => play(resume: false),
+        ),
         if (item.overview != null &&
             item.overview!.isNotEmpty) ...[
           const SizedBox(height: Insets.md),
@@ -177,151 +190,6 @@ class _Header extends ConsumerWidget {
                 info,
               ],
             ),
-    );
-  }
-}
-
-class _Actions extends ConsumerWidget {
-  final MediaItem item;
-  const _Actions({required this.item});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final actions = ref.read(mediaActionsProvider);
-    final downloads = ref.watch(downloadsProvider);
-    final entry = downloads
-        .where((e) => e.item.id == item.id)
-        .firstOrNull;
-    final downloaded =
-        entry?.status == DownloadStatus.done;
-    final downloading = entry != null &&
-        (entry.status == DownloadStatus.downloading ||
-            entry.status == DownloadStatus.queued);
-
-    void play({bool resume = true}) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => PlayerPage(
-                item: item,
-                startPosition: resume && item.resumeTicks > 0
-                    ? Duration(
-                        microseconds: item.resumeTicks ~/ 10)
-                    : null,
-              )));
-    }
-
-    void playAlbum() {
-      // Albums resolve their tracks in _AlbumTracks; this branch only
-      // fires for already-playable audio items.
-      ref
-          .read(audioPlayerProvider.notifier)
-          .playTracks([item], 0);
-    }
-
-    return Wrap(
-      spacing: Insets.sm,
-      runSpacing: Insets.sm,
-      children: [
-        if (item.isVideo)
-          FilledButton.icon(
-            onPressed: () => play(),
-            icon: const Icon(Icons.play_arrow),
-            label: Text(item.hasProgress
-                ? 'Resume ${formatDuration(Duration(microseconds: item.resumeTicks ~/ 10))}'
-                : 'Play'),
-          ),
-        if (item.hasProgress)
-          OutlinedButton(
-            onPressed: () => play(resume: false),
-            child: const Text('Play from start'),
-          ),
-        if (item.kind == MediaKind.audio)
-          FilledButton.icon(
-            onPressed: playAlbum,
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Play'),
-          ),
-        _ActionIcon(
-          tooltip: item.isFavorite
-              ? 'Remove from favorites'
-              : 'Add to favorites',
-          icon: item.isFavorite
-              ? Icons.favorite
-              : Icons.favorite_border,
-          active: item.isFavorite,
-          onPressed: () => actions.toggleFavorite(item),
-        ),
-        _ActionIcon(
-          tooltip:
-              item.isPlayed ? 'Mark unplayed' : 'Mark played',
-          icon: item.isPlayed
-              ? Icons.check_circle
-              : Icons.check_circle_outline,
-          active: item.isPlayed,
-          onPressed: () => actions.togglePlayed(item),
-        ),
-        if (item.isVideo)
-          _ActionIcon(
-            tooltip: downloaded
-                ? 'Downloaded'
-                : downloading
-                    ? 'Downloading'
-                    : 'Download',
-            icon: downloaded
-                ? Icons.download_done
-                : downloading
-                    ? Icons.downloading
-                    : Icons.download_outlined,
-            active: downloaded,
-            onPressed: downloaded || downloading
-                ? null
-                : () => ref
-                    .read(downloadsProvider.notifier)
-                    .download(item),
-          ),
-        _ActionIcon(
-          tooltip: 'More',
-          icon: Icons.more_horiz,
-          onPressed: () => showItemMenu(context, ref, item,
-              onPlay: (x) => play(),
-              onOpen: (_) {}),
-        ),
-      ],
-    );
-  }
-}
-
-/// Circular action button matching the detail action row. Quiet tonal
-/// fill; the icon picks up the accent when [active].
-class _ActionIcon extends StatelessWidget {
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onPressed;
-  final bool active;
-
-  const _ActionIcon({
-    required this.icon,
-    required this.tooltip,
-    this.onPressed,
-    this.active = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      icon: Icon(icon, size: 20),
-      style: IconButton.styleFrom(
-        backgroundColor: active
-            ? scheme.primary.withValues(alpha: 0.18)
-            : scheme.secondaryContainer,
-        foregroundColor: active
-            ? scheme.primary
-            : scheme.onSecondaryContainer,
-        disabledBackgroundColor:
-            scheme.secondaryContainer.withValues(alpha: 0.5),
-      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:finar/core/theme/app_theme.dart';
 import 'package:finar/providers/providers.dart';
 import 'package:finar/widgets/app_image.dart';
 import 'package:finar/widgets/async_view.dart';
+import 'package:finar/widgets/detail_actions.dart';
 import 'package:finar/widgets/media_card.dart';
 import 'package:finar/widgets/page_header.dart';
 import 'package:finar/widgets/seek_bar.dart';
@@ -140,6 +141,47 @@ void main() {
         options: {'Dark': 'Dark', 'Light': 'Light'},
       )));
       expect(find.text('Dark'), findsOneWidget);
+    });
+  });
+
+  group('DetailActions', () {
+    const movie = MediaItem(
+      id: 'm1',
+      name: 'Film',
+      kind: MediaKind.movie,
+      runtimeTicks: 9000000000,
+      userData: UserData(
+          played: false,
+          playbackPositionTicks: 4500000000,
+          isFavorite: true),
+    );
+
+    testWidgets(
+        'every action is inline, no overflow menu entry', (t) async {
+      await t.pumpWidget(
+          await app(const DetailActions(item: movie)));
+      await t.pump();
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline),
+          findsOneWidget);
+      expect(find.byIcon(Icons.download_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.more_horiz), findsNothing);
+      expect(find.byIcon(Icons.more_vert), findsNothing);
+    });
+
+    testWidgets('resume and play-from-start both offered', (t) async {
+      var plays = 0;
+      var restarts = 0;
+      await t.pumpWidget(await app(DetailActions(
+        item: movie,
+        onPlay: () => plays++,
+        onPlayFromStart: () => restarts++,
+      )));
+      await t.pump();
+      await t.tap(find.textContaining('Resume'));
+      await t.tap(find.text('Play from start'));
+      expect(plays, 1);
+      expect(restarts, 1);
     });
   });
 
