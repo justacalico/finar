@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../core/theme/app_theme.dart';
 import '../core/utils/platform.dart';
@@ -153,11 +154,25 @@ class _Sidebar extends ConsumerWidget {
               Insets.sm,
               Insets.lg,
             ),
-            child: Text(
-              'Finar',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(color: scheme.primary),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(dim(8)),
+                  child: SvgPicture.asset(
+                    'icon.svg',
+                    width: dim(34),
+                    height: dim(34),
+                  ),
+                ),
+                SizedBox(width: Insets.sm),
+                Text(
+                  'Finar',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(color: scheme.primary),
+                ),
+              ],
             ),
           ),
           for (final s in destinations.keys) _item(context, ref, s),

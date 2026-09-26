@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
 ### Added
+- The sidebar header now shows the app icon next to the Finar wordmark.
 - Ctrl+plus/minus/0 scales the interface up and down (50% to 200%), saved between launches.
 
 ### Changed
