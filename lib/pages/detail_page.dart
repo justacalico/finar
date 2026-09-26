@@ -331,7 +331,12 @@ class _AlbumTracks extends ConsumerWidget {
       sortBy: 'ParentIndexNumber,IndexNumber',
     );
     final page = ref.watch(pagedItemsProvider(tracksQuery));
-    final audio = ref.watch(audioPlayerProvider);
+    // Only rebuild the list when the track or play state changes —
+    // position ticks would rebuild it every frame otherwise.
+    final currentId = ref.watch(
+        audioPlayerProvider.select((s) => s.current?.id));
+    final playing =
+        ref.watch(audioPlayerProvider.select((s) => s.playing));
     return AsyncView(
       value: page,
       builder: (data) {
@@ -356,8 +361,8 @@ class _AlbumTracks extends ConsumerWidget {
               _TrackTile(
                 track: data.items[i],
                 index: i,
-                playing: audio.current?.id == data.items[i].id,
-                paused: !audio.playing,
+                playing: currentId == data.items[i].id,
+                paused: !playing,
                 onTap: () => ref
                     .read(audioPlayerProvider.notifier)
                     .playTracks(data.items, i),

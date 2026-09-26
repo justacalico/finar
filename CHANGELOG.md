@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The playback bar is now a docked strip at the bottom of the window instead of a floating pill, matching the sidebar chrome.
 
 ### Fixed
+- Fixed the video player rebuilding its surface every frame (flicker): the media_kit VideoController is now created once per player instead of per build.
+- Fixed the seek bar hammering the player on every drag tick; it now seeks once on release and previews the target time while dragging.
+- Fixed the album track list rebuilding on every playback tick by narrowing its provider watch.
 - Fixed music and video playing at the same time: starting a video now pauses the music queue, and starting music stops any video player, so only one stream runs.
 - Fixed the About tile showing a dangling '+' when the build has no CI number; the version now reads like pubspec.
 - Inset the detail page's back button from the hero corner instead of letting it sit flush against the edge.

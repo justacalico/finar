@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit_video/media_kit_video.dart' hide VideoState;
 
@@ -27,6 +28,15 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   Timer? _hideTimer;
   bool _started = false;
   late final VideoPlayerNotifier _player;
+  VideoController? _videoController;
+
+  // The controller must live as long as the player; building a new
+  // one per frame keeps reattaching the surface and strobes.
+  VideoController _controllerFor(Player p) {
+    final c = _videoController;
+    if (c != null && identical(c.player, p)) return c;
+    return _videoController = VideoController(p);
+  }
 
   @override
   void initState() {
@@ -91,7 +101,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
             children: [
               Center(
                 child: player != null
-                    ? Video(controller: VideoController(player))
+                    ? Video(controller: _controllerFor(player))
                     : SizedBox.shrink(),
               ),
               if (state?.buffering != false)

@@ -134,6 +134,26 @@ void main() {
       final slider = t.widget<Slider>(find.byType(Slider));
       expect(slider.onChanged, isNull);
     });
+
+    testWidgets('seek commits once on release, not per tick',
+        (t) async {
+      final seeks = <Duration>[];
+      await t.pumpWidget(await app(SeekBar(
+        position: Duration.zero,
+        duration: const Duration(minutes: 4),
+        onSeek: seeks.add,
+      )));
+      final slider = find.byType(Slider);
+      final drag = await t.startGesture(t.getCenter(slider));
+      await drag.moveBy(const Offset(120, 0));
+      await t.pump();
+      // The thumb moved but the player has not been seeked yet.
+      expect(seeks, isEmpty);
+      await drag.up();
+      await t.pump();
+      expect(seeks.length, 1);
+      expect(seeks.single.inMinutes, greaterThan(0));
+    });
   });
 
   group('PageHeader', () {
