@@ -270,14 +270,22 @@ void main() {
       expect(bars(t), isNot(equals(a)));
     });
 
-    testWidgets('bars rest flat when paused', (t) async {
+    testWidgets('bars fade to rest when paused', (t) async {
+      await t.pumpWidget(await app(const PlayingIndicator()));
+      await t.pump(const Duration(milliseconds: 220));
       await t.pumpWidget(
           await app(const PlayingIndicator(playing: false)));
-      final a = bars(t);
+      await t.pump(const Duration(milliseconds: 150));
+      final mid = bars(t);
       await t.pump(const Duration(milliseconds: 400));
-      expect(bars(t), equals(a));
-      expect(a[0], a[1]);
-      expect(a[1], a[2]);
+      final rest = bars(t);
+      // Mid-fade the bars are still coming down.
+      expect(mid, isNot(equals(rest)));
+      // Once settled they sit at one flat height and stay there.
+      expect(rest[0], rest[1]);
+      expect(rest[1], rest[2]);
+      await t.pump(const Duration(milliseconds: 300));
+      expect(bars(t), equals(rest));
     });
   });
 
