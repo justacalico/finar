@@ -1,299 +1,34 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:dpad/dpad.dart';
-import 'core/theme/app_theme.dart';
-import 'core/theme/colors.dart';
-import 'core/theme/text_styles.dart';
-import 'core/services/controller_service.dart';
-import 'providers/providers.dart';
-import 'pages/adaptive_pages.dart';
-import 'pages/login_page.dart';
-import 'pages/whos_watching_page.dart';
 
-class FinarApp extends ConsumerStatefulWidget {
+import 'core/theme/app_theme.dart';
+import 'pages/auth_page.dart';
+import 'pages/shell_page.dart';
+import 'providers/session_provider.dart';
+import 'providers/settings_provider.dart';
+
+class FinarApp extends ConsumerWidget {
   const FinarApp({super.key});
 
   @override
-  ConsumerState<FinarApp> createState() => _FinarAppState();
-}
-
-class _FinarAppState extends ConsumerState<FinarApp>
-    with WidgetsBindingObserver {
-  StreamSubscription<ControllerAction>? _gamepadSubscription;
-  String _appearanceKey = '';
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // Set system UI overlay style
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
-
-    // Enable edge-to-edge on Android
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-    // Defer auth restoration and gamepad setup to after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authProvider.notifier).initialize();
-      _setupGamepadListener();
-    });
-  }
-
-  void _setupGamepadListener() {
-    // Listen for gamepad actions and convert them to focus navigation
-    final gamepadNotifier = ref.read(gamepadStateProvider.notifier);
-    _gamepadSubscription = gamepadNotifier.actionStream.listen(
-      _handleGamepadAction,
-    );
-
-    // Also listen for keyboard events that might be gamepad buttons
-    // This is important for Steam Deck where Steam Input can send
-    // controller buttons as keyboard events
-    HardwareKeyboard.instance.addHandler(_handleKeyboardGamepadInput);
-  }
-
-  /// Handle gamepad buttons sent as keyboard events (Steam Input support)
-  bool _handleKeyboardGamepadInput(KeyEvent event) {
-    if (event is! KeyDownEvent) return false;
-
-    // Get controller action from keyboard event
-    final action = ControllerService.getAction(event);
-    if (action != null) {
-      // Don't process if this is a regular keyboard key that's already handled
-      // Only process gamepad-specific keys
-      final key = event.logicalKey;
-      final isGamepadKey =
-          key == LogicalKeyboardKey.gameButtonA ||
-          key == LogicalKeyboardKey.gameButtonB ||
-          key == LogicalKeyboardKey.gameButtonX ||
-          key == LogicalKeyboardKey.gameButtonY ||
-          key == LogicalKeyboardKey.gameButtonStart ||
-          key == LogicalKeyboardKey.gameButtonSelect ||
-          key == LogicalKeyboardKey.gameButtonLeft1 ||
-          key == LogicalKeyboardKey.gameButtonRight1 ||
-          key == LogicalKeyboardKey.gameButtonLeft2 ||
-          key == LogicalKeyboardKey.gameButtonRight2 ||
-          key == LogicalKeyboardKey.goBack ||
-          key == LogicalKeyboardKey.browserBack ||
-          key == LogicalKeyboardKey.select;
-
-      if (isGamepadKey) {
-        _handleGamepadAction(action);
-        return true; // Event handled
-      }
-    }
-    return false; // Let the event propagate
-  }
-
-  void _handleGamepadAction(ControllerAction action) {
-    final context = this.context;
-    if (!mounted) return;
-
-    switch (action) {
-      case ControllerAction.up:
-        _moveFocus(context, TraversalDirection.up);
-        break;
-      case ControllerAction.down:
-        _moveFocus(context, TraversalDirection.down);
-        break;
-      case ControllerAction.left:
-        _moveFocus(context, TraversalDirection.left);
-        break;
-      case ControllerAction.right:
-        _moveFocus(context, TraversalDirection.right);
-        break;
-      case ControllerAction.select:
-        _activateFocusedWidget(context);
-        break;
-      case ControllerAction.back:
-        _handleBack(context);
-        break;
-      default:
-        break;
-    }
-  }
-
-  void _moveFocus(BuildContext context, TraversalDirection direction) {
-    final primaryFocus = FocusManager.instance.primaryFocus;
-    if (primaryFocus != null) {
-      primaryFocus.focusInDirection(direction);
-    }
-  }
-
-  void _activateFocusedWidget(BuildContext context) {
-    final primaryFocus = FocusManager.instance.primaryFocus;
-    if (primaryFocus != null) {
-      // Simulate Enter key press to activate focused widget
-      final keyEvent = KeyDownEvent(
-        physicalKey: PhysicalKeyboardKey.enter,
-        logicalKey: LogicalKeyboardKey.enter,
-        timeStamp: Duration.zero,
-      );
-      primaryFocus.onKeyEvent?.call(primaryFocus, keyEvent);
-    }
-  }
-
-  void _handleBack(BuildContext context) {
-    // Try to pop the current route
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    // Rebuild so ThemeMode.system follows the OS brightness
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _gamepadSubscription?.cancel();
-    HardwareKeyboard.instance.removeHandler(_handleKeyboardGamepadInput);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Watch gamepad state to keep the provider active
-    ref.watch(gamepadStateProvider);
-
-    return DpadNavigator(
-      enabled: true,
-      onBackPressed: () {
-        _handleBack(context);
-      },
-      child: Consumer(
-        builder: (context, ref, _) {
-          final settings = ref.watch(settingsProvider);
-          final view = View.of(context);
-          final platformBrightness = view.platformDispatcher.platformBrightness;
-          final brightness =
-              settings.appThemeMode.forcedBrightness ?? platformBrightness;
-          final accentColor = accentColorOptions[
-            settings.accentColorIndex.clamp(0, accentColorOptions.length - 1)
-          ].$3;
-
-          AppColors.set(
-            brightness: brightness,
-            oled: settings.appThemeMode.isOled,
-            themeColor: accentColor,
-            accentColor: accentColor,
-            useSystemAccent: settings.useSystemAccent,
-          );
-
-          AppTheme.setSystemUIStyle(brightness);
-
-          // Widgets read AppColors directly so they have no Theme dependency
-          // to rebuild from. Repaint the whole tree when appearance changes.
-          final appearanceKey =
-              '${settings.appThemeMode}|'
-              '${settings.accentColorIndex}|'
-              '${settings.useSystemAccent}|$platformBrightness';
-          if (appearanceKey != _appearanceKey) {
-            _appearanceKey = appearanceKey;
-            AppTheme.scheduleTreeRebuild();
-          }
-
-          return MaterialApp(
-            title: 'Finar',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightThemeWithPrimary(accentColor),
-            darkTheme: AppTheme.darkThemeWithPrimary(accentColor),
-            themeMode: settings.appThemeMode.materialThemeMode,
-            home: const _AppRouter(),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _AppRouter extends ConsumerWidget {
-  const _AppRouter();
-
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settingsLoaded = ref.watch(settingsLoadedProvider);
-    final authState = ref.watch(authProvider);
-    final profiles = ref.watch(savedProfilesProvider);
+    final settings = ref.watch(settingsProvider);
+    final session = ref.watch(sessionProvider);
 
-    // Show splash until settings are loaded so first frame uses stored theme/accent
-    if (settingsLoaded.isLoading || settingsLoaded.hasError) {
-      return const _SplashScreen();
-    }
-
-    // Show loading while checking auth
-    if (authState.isLoading) {
-      return const _SplashScreen();
-    }
-
-    // Not authenticated: show Who's watching if we have any saved profiles, else login
-    if (!authState.isAuthenticated) {
-      if (profiles.isNotEmpty) {
-        return const WhosWatchingPage();
-      }
-      return const LoginPage();
-    }
-
-    return const AdaptiveHomePage();
-  }
-}
-
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo with gradient
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: SvgPicture.asset(
-                'icon.svg',
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Finar',
-              style: AppTextStyles.displaySmall.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 48),
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return MaterialApp(
+      title: 'Finar',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.build(Brightness.light, settings.accent),
+      darkTheme:
+          AppTheme.build(Brightness.dark, settings.accent, oled: settings.oled),
+      themeMode: settings.flutterThemeMode,
+      home: switch (session) {
+        SessionLoading() => const Scaffold(
+            body: Center(
+                child: CircularProgressIndicator.adaptive())),
+        SignedOut() => const AuthPage(),
+        SignedIn() => const ShellPage(),
+      },
     );
   }
 }

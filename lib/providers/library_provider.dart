@@ -1,447 +1,253 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/api/jellyfin_api.dart';
-import '../core/api/media_service.dart';
-import '../core/api/models/media_item.dart';
-import '../core/api/models/library.dart';
-import 'auth_provider.dart';
 
-/// Media service provider
-final mediaServiceProvider = Provider<MediaService>((ref) {
-  final api = ref.watch(jellyfinApiProvider);
-  return MediaService(api);
-});
+import '../core/api/models.dart';
+import 'providers.dart';
 
-/// Home data provider - cached for 2 minutes
-final homeDataProvider = FutureProvider<HomeData>((ref) async {
-  // Keep alive for 2 minutes to avoid re-fetching on tab switches
-  final link = ref.keepAlive();
-  Future.delayed(const Duration(minutes: 2), () => link.close());
+/// A fetchable slice of the item catalog. Immutable key for family providers.
+class ItemQuery {
+  final String? parentId;
+  final List<String>? types;
+  final String sortBy;
+  final String sortOrder;
+  final String? searchTerm;
+  final bool? isFavorite;
+  final List<String>? filters;
+  final String? genres;
+  final String? personIds;
+  final int pageSize;
 
-  final mediaService = ref.watch(mediaServiceProvider);
-  return await mediaService.getHomeData();
-});
-
-/// Libraries provider - cached for 5 minutes
-final librariesProvider = FutureProvider<List<Library>>((ref) async {
-  // Keep alive for 5 minutes since libraries rarely change
-  final link = ref.keepAlive();
-  Future.delayed(const Duration(minutes: 5), () => link.close());
-
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getLibraries();
-});
-
-/// Library state for mobile/TV home pages
-class LibraryState {
-  final List<Library> libraries;
-  final HomeData? homeData;
-  final bool isLoading;
-  final String? error;
-  final String searchQuery;
-  final List<MediaItem> searchResults;
-  final Map<String, List<MediaItem>> libraryItems;
-
-  const LibraryState({
-    this.libraries = const [],
-    this.homeData,
-    this.isLoading = false,
-    this.error,
-    this.searchQuery = '',
-    this.searchResults = const [],
-    this.libraryItems = const {},
+  const ItemQuery({
+    this.parentId,
+    this.types,
+    this.sortBy = 'SortName',
+    this.sortOrder = 'Ascending',
+    this.searchTerm,
+    this.isFavorite,
+    this.filters,
+    this.genres,
+    this.personIds,
+    this.pageSize = 60,
   });
 
-  // Convenience getters for home data
-  List<MediaItem> get continueWatching => homeData?.continueWatching ?? [];
-  List<MediaItem> get nextUp => homeData?.nextUp ?? [];
-  List<MediaItem> get recentlyAdded => homeData?.recentlyAdded ?? [];
-  List<MediaItem> get recentlyReleased => homeData?.recentlyReleased ?? [];
-  List<MediaItem> get topRated => homeData?.topRated ?? [];
-  List<MediaItem> get recommended => homeData?.recommended ?? [];
-  List<MediaItem> get favorites => homeData?.favorites ?? [];
-  List<MediaItem> get watchlist => homeData?.watchlist ?? [];
-  List<MediaItem> get recentlyAddedMovies =>
-      homeData?.recentlyAddedMovies ?? [];
-  List<MediaItem> get recentlyAddedShows => homeData?.recentlyAddedShows ?? [];
-  MediaItem? get featuredItem => continueWatching.isNotEmpty
-      ? continueWatching.first
-      : recentlyAdded.isNotEmpty
-      ? recentlyAdded.first
-      : null;
-
-  LibraryState copyWith({
-    List<Library>? libraries,
-    HomeData? homeData,
-    bool? isLoading,
-    String? error,
-    String? searchQuery,
-    List<MediaItem>? searchResults,
-    Map<String, List<MediaItem>>? libraryItems,
-  }) {
-    return LibraryState(
-      libraries: libraries ?? this.libraries,
-      homeData: homeData ?? this.homeData,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-      searchQuery: searchQuery ?? this.searchQuery,
-      searchResults: searchResults ?? this.searchResults,
-      libraryItems: libraryItems ?? this.libraryItems,
-    );
-  }
-}
-
-/// Library notifier for mobile/TV home pages
-class LibraryNotifier extends StateNotifier<LibraryState> {
-  final MediaService _mediaService;
-  final JellyfinApi _api;
-
-  LibraryNotifier(this._mediaService, this._api) : super(const LibraryState());
-
-  Future<void> loadLibraries() async {
-    try {
-      final libraries = await _api.getLibraries();
-      state = state.copyWith(libraries: libraries);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
-  }
-
-  Future<void> loadHomeData() async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      final homeData = await _mediaService.getHomeData();
-      state = state.copyWith(homeData: homeData, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> search(String query) async {
-    if (query.isEmpty) {
-      state = state.copyWith(searchQuery: '', searchResults: []);
-      return;
-    }
-    state = state.copyWith(searchQuery: query, isLoading: true);
-    try {
-      final results = await _mediaService.search(query);
-      state = state.copyWith(
-        searchResults: results.all
-            .map(
-              (h) => MediaItem(
-                id: h.itemId,
-                name: h.name,
-                type: mediaTypeFromString(h.type),
-                typeString: h.type,
-                productionYear: h.productionYear,
-                imageTags: h.primaryImageTag != null
-                    ? ImageTags(primary: h.primaryImageTag)
-                    : null,
-                seriesName: h.series,
-                album: h.album,
-                albumArtist: h.albumArtist,
-                indexNumber: h.indexNumber,
-                parentIndexNumber: h.parentIndexNumber,
-              ),
-            )
-            .toList(),
-        isLoading: false,
+  ItemQuery copyWith({
+    String? sortBy,
+    String? sortOrder,
+    String? searchTerm,
+    bool? isFavorite,
+  }) =>
+      ItemQuery(
+        parentId: parentId,
+        types: types,
+        sortBy: sortBy ?? this.sortBy,
+        sortOrder: sortOrder ?? this.sortOrder,
+        searchTerm: searchTerm ?? this.searchTerm,
+        isFavorite: isFavorite ?? this.isFavorite,
+        filters: filters,
+        genres: genres,
+        personIds: personIds,
+        pageSize: pageSize,
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
 
-  void clearSearch() {
-    state = state.copyWith(searchQuery: '', searchResults: []);
+  @override
+  bool operator ==(Object other) =>
+      other is ItemQuery &&
+      other.parentId == parentId &&
+      _listEq(other.types, types) &&
+      other.sortBy == sortBy &&
+      other.sortOrder == sortOrder &&
+      other.searchTerm == searchTerm &&
+      other.isFavorite == isFavorite &&
+      _listEq(other.filters, filters) &&
+      other.genres == genres &&
+      other.personIds == personIds &&
+      other.pageSize == pageSize;
+
+  @override
+  int get hashCode => Object.hash(
+        parentId,
+        Object.hashAll(types ?? const []),
+        sortBy,
+        sortOrder,
+        searchTerm,
+        isFavorite,
+        Object.hashAll(filters ?? const []),
+        genres,
+        personIds,
+        pageSize,
+      );
+
+  static bool _listEq(List<String>? a, List<String>? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null || a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
 
-/// Library provider for mobile/TV home pages
-final libraryProvider = StateNotifierProvider<LibraryNotifier, LibraryState>((
-  ref,
-) {
-  final mediaService = ref.watch(mediaServiceProvider);
-  final api = ref.watch(jellyfinApiProvider);
-  return LibraryNotifier(mediaService, api);
-});
-
-/// Library content state
-class LibraryContentState {
+/// Paged list state for a query.
+class PagedItems {
   final List<MediaItem> items;
-  final int totalCount;
-  final bool isLoading;
-  final bool hasMore;
-  final String? error;
+  final int total;
+  final bool loadingMore;
 
-  const LibraryContentState({
+  const PagedItems({
     this.items = const [],
-    this.totalCount = 0,
-    this.isLoading = false,
-    this.hasMore = true,
-    this.error,
+    this.total = 0,
+    this.loadingMore = false,
   });
 
-  LibraryContentState copyWith({
-    List<MediaItem>? items,
-    int? totalCount,
-    bool? isLoading,
-    bool? hasMore,
-    String? error,
-  }) {
-    return LibraryContentState(
-      items: items ?? this.items,
-      totalCount: totalCount ?? this.totalCount,
-      isLoading: isLoading ?? this.isLoading,
-      hasMore: hasMore ?? this.hasMore,
-      error: error,
-    );
-  }
+  bool get hasMore => items.length < total;
+
+  PagedItems copyLoading(bool v) =>
+      PagedItems(items: items, total: total, loadingMore: v);
 }
 
-/// Library content notifier
-class LibraryContentNotifier extends StateNotifier<LibraryContentState> {
-  final MediaService _mediaService;
-  final String _libraryId;
-  String _sortBy = 'SortName';
-  String _sortOrder = 'Ascending';
-  List<String>? _genres;
-  List<int>? _years;
-  String? _searchTerm;
+/// Every live [PagedItemsNotifier] registers here so mutations can patch
+/// all visible lists at once.
+final itemListRegistryProvider =
+    Provider<Set<PagedItemsNotifier>>((ref) => <PagedItemsNotifier>{});
 
-  LibraryContentNotifier(this._mediaService, this._libraryId)
-    : super(const LibraryContentState()) {
-    loadInitial();
+class PagedItemsNotifier extends FamilyAsyncNotifier<PagedItems, ItemQuery> {
+  @override
+  Future<PagedItems> build(ItemQuery arg) async {
+    final registry = ref.read(itemListRegistryProvider);
+    registry.add(this);
+    ref.onDispose(() => registry.remove(this));
+    final result = await _fetch(0);
+    return PagedItems(items: result.items, total: result.totalCount);
   }
 
-  Future<void> loadInitial() async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      final content = await _mediaService.getLibraryContent(
-        _libraryId,
-        sortBy: _sortBy,
-        sortOrder: _sortOrder,
-        genres: _genres,
-        years: _years,
-        searchTerm: _searchTerm,
-      );
-      state = LibraryContentState(
-        items: content.items,
-        totalCount: content.totalCount,
-        hasMore: content.hasMore,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+  Future<ItemsResult> _fetch(int startIndex) {
+    return ref.read(jellyfinClientProvider).getItems(
+          parentId: arg.parentId,
+          includeItemTypes: arg.types,
+          startIndex: startIndex,
+          limit: arg.pageSize,
+          sortBy: arg.sortBy,
+          sortOrder: arg.sortOrder,
+          recursive: true,
+          fields: const ['Overview'],
+          searchTerm: arg.searchTerm,
+          isFavorite: arg.isFavorite,
+          filters: arg.filters,
+          genres: arg.genres,
+          personIds: arg.personIds,
+        );
   }
 
   Future<void> loadMore() async {
-    if (state.isLoading || !state.hasMore) return;
-
-    state = state.copyWith(isLoading: true);
+    final current = state.valueOrNull;
+    if (current == null || current.loadingMore || !current.hasMore) return;
+    state = AsyncData(current.copyLoading(true));
     try {
-      final content = await _mediaService.getLibraryContent(
-        _libraryId,
-        startIndex: state.items.length,
-        sortBy: _sortBy,
-        sortOrder: _sortOrder,
-        genres: _genres,
-        years: _years,
-        searchTerm: _searchTerm,
-      );
-      state = state.copyWith(
-        items: [...state.items, ...content.items],
-        totalCount: content.totalCount,
-        hasMore: content.hasMore,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      final result = await _fetch(current.items.length);
+      final latest = state.valueOrNull ?? current;
+      state = AsyncData(PagedItems(
+        items: [...latest.items, ...result.items],
+        total: result.totalCount,
+      ));
+    } catch (_) {
+      state = AsyncData(current.copyLoading(false));
+      rethrow;
     }
   }
 
-  void setSorting(String sortBy, String sortOrder) {
-    _sortBy = sortBy;
-    _sortOrder = sortOrder;
-    loadInitial();
-  }
-
-  void setFilters({List<String>? genres, List<int>? years}) {
-    _genres = genres;
-    _years = years;
-    loadInitial();
-  }
-
-  void setSearch(String? term) {
-    _searchTerm = term?.isEmpty == true ? null : term;
-    loadInitial();
-  }
-
-  Future<void> refresh() async {
-    await loadInitial();
+  /// Patch one item's user data in place (favorite/watched toggles).
+  void updateItem(MediaItem updated) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    state = AsyncData(PagedItems(
+      items: [
+        for (final i in current.items) i.id == updated.id ? updated : i
+      ],
+      total: current.total,
+      loadingMore: current.loadingMore,
+    ));
   }
 }
 
-/// Library content provider factory
-final libraryContentProvider =
-    StateNotifierProvider.family<
-      LibraryContentNotifier,
-      LibraryContentState,
-      String
-    >((ref, libraryId) {
-      final mediaService = ref.watch(mediaServiceProvider);
-      return LibraryContentNotifier(mediaService, libraryId);
-    });
+final pagedItemsProvider = AsyncNotifierProvider.family<PagedItemsNotifier,
+    PagedItems, ItemQuery>(PagedItemsNotifier.new);
 
-/// Single item detail provider
-final itemDetailProvider = FutureProvider.family<MediaItem, String>((
-  ref,
-  itemId,
-) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getItem(itemId);
+final itemProvider =
+    FutureProvider.family.autoDispose<MediaItem, String>((ref, id) async {
+  return ref.read(jellyfinClientProvider).getItem(id);
 });
 
-/// Movie details provider
-final movieDetailsProvider = FutureProvider.family<MovieDetails, String>((
-  ref,
-  movieId,
-) async {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return await mediaService.getMovieDetails(movieId);
+final similarProvider = FutureProvider.family
+    .autoDispose<List<MediaItem>, String>((ref, id) async {
+  return ref.read(jellyfinClientProvider).getSimilar(id);
 });
 
-/// Series details provider
-final seriesDetailsProvider = FutureProvider.family<SeriesDetails, String>((
-  ref,
-  seriesId,
-) async {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return await mediaService.getSeriesDetails(seriesId);
+final seasonsProvider = FutureProvider.family
+    .autoDispose<List<MediaItem>, String>((ref, seriesId) async {
+  return ref.read(jellyfinClientProvider).getSeasons(seriesId);
 });
 
-/// Season episodes provider
-final seasonEpisodesProvider =
-    FutureProvider.family<
-      List<MediaItem>,
-      ({String seriesId, String seasonId})
-    >((ref, params) async {
-      final mediaService = ref.watch(mediaServiceProvider);
-      return await mediaService.getSeasonEpisodes(
-        params.seriesId,
-        params.seasonId,
-      );
-    });
-
-/// Similar items provider
-final similarItemsProvider = FutureProvider.family<List<MediaItem>, String>((
-  ref,
-  itemId,
-) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getSimilarItems(itemId);
+final episodesProvider = FutureProvider.family
+    .autoDispose<List<MediaItem>, ({String seriesId, String seasonId})>(
+        (ref, arg) async {
+  return ref
+      .read(jellyfinClientProvider)
+      .getEpisodes(arg.seriesId, seasonId: arg.seasonId);
 });
 
-/// Continue watching provider
-final continueWatchingProvider = FutureProvider<List<MediaItem>>((ref) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getContinueWatching();
+final searchProvider = FutureProvider.autoDispose
+    .family<List<SearchHint>, String>((ref, query) async {
+  if (query.trim().isEmpty) return const [];
+  return ref.read(jellyfinClientProvider).search(query);
 });
 
-/// Next up provider
-final nextUpProvider = FutureProvider<List<MediaItem>>((ref) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getNextUp();
-});
+/// User-data mutations. Patches every live list plus the item cache so
+/// the UI stays consistent everywhere.
+class MediaActions {
+  final Ref _ref;
+  MediaActions(this._ref);
 
-/// Recently added provider
-final recentlyAddedProvider = FutureProvider.family<List<MediaItem>, String?>((
-  ref,
-  parentId,
-) async {
-  final api = ref.watch(jellyfinApiProvider);
-  return await api.getRecentlyAdded(parentId: parentId);
-});
-
-/// Favorites provider
-final favoritesProvider = FutureProvider.family<List<MediaItem>, List<String>?>(
-  (ref, types) async {
-    final api = ref.watch(jellyfinApiProvider);
-    return await api.getFavorites(includeItemTypes: types);
-  },
-);
-
-/// Search state
-class SearchState {
-  final String query;
-  final SearchResults? results;
-  final bool isLoading;
-  final String? error;
-
-  const SearchState({
-    this.query = '',
-    this.results,
-    this.isLoading = false,
-    this.error,
-  });
-
-  SearchState copyWith({
-    String? query,
-    SearchResults? results,
-    bool? isLoading,
-    String? error,
-  }) {
-    return SearchState(
-      query: query ?? this.query,
-      results: results ?? this.results,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
+  Future<void> toggleFavorite(MediaItem item) async {
+    final client = _ref.read(jellyfinClientProvider);
+    final next = !item.isFavorite;
+    await client.setFavorite(item.id, next);
+    _patch(item.copyWith(
+        userData: UserData(
+      rating: item.userData.rating,
+      playedPercentage: item.userData.playedPercentage,
+      playbackPositionTicks: item.userData.playbackPositionTicks,
+      playCount: item.userData.playCount,
+      isFavorite: next,
+      played: item.userData.played,
+      lastPlayedDate: item.userData.lastPlayedDate,
+    )));
   }
-}
 
-/// Search notifier
-class SearchNotifier extends StateNotifier<SearchState> {
-  final MediaService _mediaService;
-
-  SearchNotifier(this._mediaService) : super(const SearchState());
-
-  Future<void> search(String query) async {
-    if (query.isEmpty) {
-      state = const SearchState();
-      return;
+  Future<void> togglePlayed(MediaItem item) async {
+    final client = _ref.read(jellyfinClientProvider);
+    final next = !item.isPlayed;
+    if (next) {
+      await client.markPlayed(item.id);
+    } else {
+      await client.markUnplayed(item.id);
     }
-
-    state = state.copyWith(query: query, isLoading: true, error: null);
-    try {
-      final results = await _mediaService.search(query);
-      state = state.copyWith(results: results, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    _patch(item.copyWith(
+        userData: UserData(
+      rating: item.userData.rating,
+      playedPercentage: next ? 100 : 0,
+      playbackPositionTicks: next ? item.userData.playbackPositionTicks : 0,
+      playCount: item.userData.playCount,
+      isFavorite: item.userData.isFavorite,
+      played: next,
+      lastPlayedDate: item.userData.lastPlayedDate,
+    )));
   }
 
-  void clear() {
-    state = const SearchState();
+  void _patch(MediaItem updated) {
+    for (final notifier in _ref.read(itemListRegistryProvider)) {
+      notifier.updateItem(updated);
+    }
+    _ref.invalidate(itemProvider(updated.id));
   }
 }
 
-/// Search provider
-final searchProvider = StateNotifierProvider<SearchNotifier, SearchState>((
-  ref,
-) {
-  final mediaService = ref.watch(mediaServiceProvider);
-  return SearchNotifier(mediaService);
-});
-
-/// Favorite toggle provider
-final favoriteToggleProvider =
-    FutureProvider.family<bool, ({String itemId, bool currentState})>((
-      ref,
-      params,
-    ) async {
-      final mediaService = ref.watch(mediaServiceProvider);
-      return await mediaService.toggleFavorite(
-        params.itemId,
-        params.currentState,
-      );
-    });
+final mediaActionsProvider = Provider<MediaActions>(MediaActions.new);

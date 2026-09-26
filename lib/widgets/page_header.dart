@@ -1,54 +1,57 @@
 import 'package:flutter/material.dart';
-import '../core/theme/app_theme.dart';
-import '../core/theme/text_styles.dart';
-import 'widgets.dart';
 
-/// The single title bar used at the top of every page.
-/// Optional back button, a title, and optional trailing controls.
+import '../core/theme/app_theme.dart';
+
+/// Shared page title bar used by every section and pushed page so the
+/// top of every screen is identical.
 class PageHeader extends StatelessWidget {
   final String title;
-  final Widget? trailing;
-
-  /// Explicit back handler for pages embedded in the shell, where the route
-  /// itself cannot be popped.
+  final List<Widget> actions;
+  final bool showBack;
   final VoidCallback? onBack;
+  final Widget? below;
 
   const PageHeader({
     super.key,
     required this.title,
-    this.trailing,
+    this.actions = const [],
+    this.showBack = false,
     this.onBack,
+    this.below,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Pushed routes (mobile) need a way back; the embedded shell is the root
-    // route so canPop stays false there.
-    final canPop = onBack != null || Navigator.canPop(context);
-
-    return GlassContainer(
-      blur: AppTheme.blurLight,
-      opacity: 0.05,
-      borderRadius: 0,
-      showBorder: false,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Row(
+    final canPop = Navigator.of(context).canPop();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          Insets.sm, Insets.sm, Insets.sm, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (canPop)
-            IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: onBack ?? () => Navigator.pop(context),
-              tooltip: 'Back',
-            ),
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyles.headlineMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+          Row(
+            children: [
+              if (showBack || canPop)
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: onBack ??
+                      () => Navigator.of(context).maybePop(),
+                )
+              else
+                const SizedBox(width: Insets.sm),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+              ...actions,
+            ],
           ),
-          if (trailing != null) trailing!,
+          if (below != null) below!,
         ],
       ),
     );

@@ -2,57 +2,59 @@
 
 Finar is a Jellyfin client built to just work.
 
-![desktop.png](desktop.png)
-
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![License](https://img.shields.io/badge/License-AGPL%20v3-green?style=for-the-badge)
 
 ## Features
 
-- Video playback
-- Android, iOS, macOS, Windows, Linux, and Web support
-- Desktop and Mobile UI.
-- Downloads
-- Multiple accounts (eg. The who's watching screen)
-- Controller support
-- Music playback
-
-
-## Contributing
-
-Pull requests are welcome. 
-
-## AI
-
-- All AI made code is allowed however you are responsible for testing and verifying the code.
+- Video playback with resume, speed control and audio/subtitle selection
+- Music playback with a persistent mini player and shuffle queues
+- Downloads for offline playback
+- Multiple accounts with a who's-watching picker
+- Adaptive layout: one app for phone, tablet, desktop and web
+- Keyboard and controller navigation across every screen
+- Android, iOS, macOS, Windows, Linux and Web
 
 ## Requirements
 
 - Flutter SDK `^3.10.3`
 - A running [Jellyfin](https://jellyfin.org/) server
 
-## Getting Started
+## Building
 
 ```bash
-git clone https://gitlab.com/Openlyst/finar.git
-cd finar
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter run
+flutter run -d <device>
 ```
 
-## Build Releases
+Release builds are produced by CI for every platform. Android release
+builds are signed when `android/key.properties` is present (CI injects
+it); otherwise the build falls back to debug signing.
+
+## Testing
 
 ```bash
-flutter build apk --release
-flutter build ios --release
-flutter build macos --release
-flutter build windows --release
-flutter build linux --release
-flutter build web --release
+flutter test --coverage
+python3 scripts/filter_coverage.py
+bash test/scripts/run_all.sh
 ```
 
-## Privacy
+## Project layout
 
-See [PRIVACY.md](PRIVACY.md) for how Finar handles data (no collection; data stays on your device and your Jellyfin server).
+- `lib/core` — Jellyfin client, models, storage, theme, utilities
+- `lib/providers` — Riverpod providers for session, library, playback, downloads and settings
+- `lib/widgets` — shared UI kit: cards, rails, grids, headers, menus
+- `lib/pages` — screens composed from the shared kit
+
+## Contributing
+
+Pull requests are welcome.
+
+## AI
+
+- All AI made code is allowed however you are responsible for testing and verifying the code.
+
+## License
+
+[AGPL-3.0](LICENSE)

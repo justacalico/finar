@@ -4,15 +4,13 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
-  gamepads_windows
   media_kit_libs_windows_video
   media_kit_video
-  screen_brightness_windows
-  share_plus
   url_launcher_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  jni
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
