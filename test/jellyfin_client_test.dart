@@ -182,6 +182,30 @@ void main() {
       expect(adapter.requests.single.query['SearchTerm'], 'ali');
     });
 
+
+    test('getPublicUsers parses the user list', () async {
+      final adapter = FakeAdapter({
+        '/Users/Public': [
+          {'Id': 'u1', 'Name': 'Cal', 'HasPassword': true},
+          {'Id': 'u2', 'Name': 'Guest'},
+        ],
+      });
+      final c = clientWith(adapter);
+      final users = await c.getPublicUsers();
+      expect(users.length, 2);
+      expect(users.first.hasPassword, isTrue);
+    });
+
+    test('userImageUrl builds with tag and width', () {
+      final c = clientWith(FakeAdapter({}));
+      final u = JfUser(id: 'u1', name: 'Cal', primaryImageTag: 'tag');
+      expect(c.userImageUrl(u, maxWidth: 100),
+          contains('/Items/u1/Images/Primary'));
+      expect(c.userImageUrl(u, maxWidth: 100), contains('maxWidth=100'));
+      expect(c.userImageUrl(const JfUser(id: 'u2', name: 'G')),
+          isEmpty);
+    });
+
     test('mark played/favorite use right verbs', () async {
       final adapter = FakeAdapter({});
       final c = clientWith(adapter)

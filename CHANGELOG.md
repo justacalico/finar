@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rebuilt downloads on a persisted manifest with progress and resume-safe failure states.
 - Rebuilt music playback on a shared queue with shuffle, played through a persistent mini player.
 - Settings now live in one persisted model driving appearance, playback, subtitles and downloads.
-- Sign-in flow is a single guided page: server address, who's watching, password, with saved accounts for one-tap switching.
+- Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with saved accounts for one-tap switching.
 
 ### Fixed
 - Fixed layout resets: section and open library now live in one shell state so resizing across the phone/desktop breakpoint keeps your place.

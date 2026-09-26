@@ -4,13 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/models.dart';
 import '../core/storage/app_storage.dart';
 import '../core/theme/app_theme.dart';
-import '../core/utils/platform.dart';
 import '../providers/providers.dart';
 import '../providers/session_provider.dart';
-import '../widgets/app_image.dart';
 import '../widgets/focusable.dart';
 
-/// Sign-in flow: server address -> who's watching -> password.
+/// Sign-in flow: server address -> username + password.
 /// One page, internal steps, no routes.
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -20,26 +18,37 @@ class AuthPage extends ConsumerStatefulWidget {
 }
 
 class _AuthPageState extends ConsumerState<AuthPage> {
-  final _serverController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  String _scheme = 'https://';
   ServerInfo? _server;
-  List<JfUser> _users = [];
-  JfUser? _selectedUser;
   String? _error;
   bool _busy = false;
   bool _connecting = false;
 
   @override
   void dispose() {
-    _serverController.dispose();
+    _addressController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  /// Full server URL from the scheme dropdown plus the typed address.
+  /// A pasted URL keeps its own scheme.
+  String _serverUrl() {
+    var address = _addressController.text.trim();
+    if (address.startsWith('http://') || address.startsWith('https://')) {
+      return address;
+    }
+    return '$_scheme$address';
+  }
+
   Future<void> _connect() async {
-    final url = _serverController.text.trim();
-    if (url.isEmpty) return;
+    final url = _serverUrl();
+    if (url.isEmpty || url == _scheme) return;
     setState(() {
       _connecting = true;
       _error = null;
@@ -47,13 +56,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     try {
       final info =
           await ref.read(jellyfinClientProvider).testConnection(url);
-      List<JfUser> users = [];
-      try {
-        users = await ref.read(jellyfinClientProvider).getPublicUsers();
-      } catch (_) {}
       setState(() {
         _server = info;
-        _users = users;
         _connecting = false;
       });
     } catch (_) {
@@ -65,7 +69,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
-  Future<void> _signIn(JfUser user, String password) async {
+  Future<void> _signIn() async {
+    final username = _usernameController.text.trim();
+    if (username.isEmpty) {
+      setState(() => _error = 'Enter your Jellyfin username.');
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -74,14 +83,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       await ref.read(sessionProvider.notifier).signIn(
             serverUrl: _server!.serverUrl,
             serverName: _server!.name,
-            username: user.name,
-            password: password,
-            imageTag: user.primaryImageTag,
+            username: username,
+            password: _passwordController.text,
           );
+      if (mounted) setState(() => _busy = false);
     } catch (_) {
       setState(() {
         _busy = false;
-        _error = 'Sign in failed. Check your password and try again.';
+        _error =
+            'Sign in failed. Check your username and password.';
       });
     }
   }
@@ -126,13 +136,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: Insets.xxl),
-                  if (_server == null) ...[
-                    _serverStep(savedAccounts),
-                  ] else if (_selectedUser == null) ...[
-                    _usersStep(savedAccounts),
-                  ] else ...[
-                    _passwordStep(),
-                  ],
+                  if (_server == null)
+                    _serverStep(savedAccounts)
+                  else
+                    _credentialsStep(savedAccounts),
                   if (_error != null) ...[
                     const SizedBox(height: Insets.md),
                     Text(_error!,
@@ -156,14 +163,36 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         Text('Connect to a server',
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Insets.sm),
-        TextField(
-          controller: _serverController,
-          decoration: const InputDecoration(
-            hintText: 'http://192.168.1.10:8096',
-          ),
-          keyboardType: TextInputType.url,
-          autocorrect: false,
-          onSubmitted: (_) => _connect(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButton<String>(
+              value: _scheme,
+              underline: const SizedBox.shrink(),
+              borderRadius: BorderRadius.circular(Radii.card),
+              items: const [
+                DropdownMenuItem(
+                    value: 'https://', child: Text('https://')),
+                DropdownMenuItem(
+                    value: 'http://', child: Text('http://')),
+              ],
+              onChanged: (v) {
+                if (v != null) setState(() => _scheme = v);
+              },
+            ),
+            const SizedBox(width: Insets.sm),
+            Expanded(
+              child: TextField(
+                controller: _addressController,
+                decoration: const InputDecoration(
+                  hintText: 'jellyfin.example.com:8096',
+                ),
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                onSubmitted: (_) => _connect(),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: Insets.md),
         FilledButton(
@@ -180,39 +209,40 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           Text('Saved accounts',
               style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Insets.sm),
-          for (final a in accounts)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Insets.sm),
-              child: Focusable(
-                onTap: _busy ? null : () => _switchTo(a),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(Radii.card)),
-                  tileColor: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest,
-                  title: Text(a.userName),
-                  subtitle: Text(
-                      '${a.serverName.isEmpty ? 'Jellyfin' : a.serverName}  •  ${a.serverUrl}'),
-                  trailing: _busy
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.chevron_right),
-                ),
-              ),
-            ),
+          for (final a in accounts) _accountTile(a),
         ],
       ],
     );
   }
 
-  Widget _usersStep(List<SavedAccount> accounts) {
+  Widget _accountTile(SavedAccount account) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Insets.sm),
+      child: Focusable(
+        onTap: _busy ? null : () => _switchTo(account),
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Radii.card)),
+          tileColor:
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+          title: Text(account.userName),
+          subtitle: Text(
+              '${account.serverName.isEmpty ? 'Jellyfin' : account.serverName}  •  ${account.serverUrl}'),
+          trailing: _busy
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.chevron_right),
+        ),
+      ),
+    );
+  }
+
+  Widget _credentialsStep(List<SavedAccount> accounts) {
+    final server = _server!;
     final localAccounts = accounts
-        .where((a) => a.serverUrl == _server!.serverUrl)
+        .where((a) => a.serverUrl == server.serverUrl)
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -223,16 +253,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => setState(() {
                       _server = null;
-                      _users = [];
                       _error = null;
                     })),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_server!.name,
+                  Text(server.name,
                       style: Theme.of(context).textTheme.titleMedium),
-                  Text(_server!.serverUrl,
+                  Text(server.serverUrl,
                       style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
@@ -240,113 +269,22 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           ],
         ),
         const SizedBox(height: Insets.lg),
-        if (_users.isEmpty && localAccounts.isEmpty)
-          Text('No public users on this server.',
-              style: Theme.of(context).textTheme.bodySmall),
-        if (localAccounts.isNotEmpty) ...[
-          Text('Saved accounts',
-              style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: Insets.sm),
-          for (final a in localAccounts)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Insets.sm),
-              child: Focusable(
-                onTap: _busy ? null : () => _switchTo(a),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(Radii.card)),
-                  tileColor: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest,
-                  title: Text(a.userName),
-                  trailing: const Icon(Icons.chevron_right),
-                ),
-              ),
-            ),
-          const SizedBox(height: Insets.md),
-        ],
-        if (_users.isNotEmpty) ...[
-          Text("Who's watching?",
-              style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: Insets.sm),
-          Wrap(
-            spacing: Insets.md,
-            runSpacing: Insets.md,
-            children: [
-              for (final u in _users) _userTile(u),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _userTile(JfUser user) {
-    final client = ref.read(jellyfinClientProvider);
-    return Focusable(
-      onTap: () => setState(() {
-        _selectedUser = user;
-        _passwordController.clear();
-        _error = null;
-      }),
-      child: SizedBox(
-        width: 96,
-        child: Column(
-          children: [
-            AppImage(
-              client.userImageUrl(user, maxWidth: 192),
-              shape: ArtShape.avatar,
-            ),
-            const SizedBox(height: Insets.sm),
-            Text(user.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge),
-          ],
+        TextField(
+          controller: _usernameController,
+          decoration: const InputDecoration(hintText: 'Username'),
+          autocorrect: false,
+          textInputAction: TextInputAction.next,
         ),
-      ),
-    );
-  }
-
-  Widget _passwordStep() {
-    final user = _selectedUser!;
-    final client = ref.read(jellyfinClientProvider);
-    final needsPassword =
-        user.hasPassword || user.hasConfiguredPassword;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => setState(() => _selectedUser = null)),
-            SizedBox(
-                width: 56,
-                child: AppImage(
-                    client.userImageUrl(user, maxWidth: 112),
-                    shape: ArtShape.avatar)),
-            const SizedBox(width: Insets.sm),
-            Text(user.name,
-                style: Theme.of(context).textTheme.titleMedium),
-          ],
+        const SizedBox(height: Insets.sm),
+        TextField(
+          controller: _passwordController,
+          decoration: const InputDecoration(hintText: 'Password'),
+          obscureText: true,
+          onSubmitted: (_) => _signIn(),
         ),
-        const SizedBox(height: Insets.lg),
-        if (needsPassword)
-          TextField(
-            controller: _passwordController,
-            decoration: const InputDecoration(hintText: 'Password'),
-            obscureText: true,
-            autofocus: !isDesktopPlatform,
-            onSubmitted: (_) =>
-                _signIn(user, _passwordController.text),
-          ),
         const SizedBox(height: Insets.md),
         FilledButton(
-          onPressed: _busy
-              ? null
-              : () => _signIn(user, _passwordController.text),
+          onPressed: _busy ? null : _signIn,
           child: _busy
               ? const SizedBox(
                   width: 18,
@@ -354,6 +292,13 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   child: CircularProgressIndicator(strokeWidth: 2))
               : const Text('Sign in'),
         ),
+        if (localAccounts.isNotEmpty) ...[
+          const SizedBox(height: Insets.xl),
+          Text('Saved accounts',
+              style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(height: Insets.sm),
+          for (final a in localAccounts) _accountTile(a),
+        ],
       ],
     );
   }
