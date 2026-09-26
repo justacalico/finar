@@ -190,7 +190,8 @@ class _VersionTileState extends State<_VersionTile> {
     super.initState();
     PackageInfo.fromPlatform().then((p) {
       if (mounted) {
-        setState(() => _version = '${p.version}+${p.buildNumber}');
+        setState(
+            () => _version = formatVersion(p.version, p.buildNumber));
       }
     });
   }
