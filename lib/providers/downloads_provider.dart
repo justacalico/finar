@@ -158,8 +158,10 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
         client.streamUrl(item.id),
         path,
         cancelToken: token,
-        options:
-            Options(headers: {'X-Emby-Authorization': client.authHeader}),
+        options: Options(headers: {
+          'Authorization': client.authHeader,
+          'X-Emby-Authorization': client.authHeader,
+        }),
         onReceiveProgress: (received, total) {
           if (total > 0) {
             _update(

@@ -30,6 +30,9 @@ class JellyfinClient {
             )) {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
+        // Jellyfin 10.9+ wants Authorization; older servers and Emby
+        // still read X-Emby-Authorization. Send both.
+        options.headers['Authorization'] = authHeader;
         options.headers['X-Emby-Authorization'] = authHeader;
         handler.next(options);
       },
@@ -112,7 +115,7 @@ class JellyfinClient {
     if (res.data['Authenticated'] != true) return null;
     final token = res.data['AccessToken'] as String;
     final me = await _dio.get('/Users/Me',
-        options: Options(headers: {'X-Emby-Token': token}));
+        queryParameters: {'api_key': token});
     final user = JfUser.fromJson(me.data as Map<String, dynamic>);
     setCredentials(accessToken: token, userId: user.id);
     return AuthResult(

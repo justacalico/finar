@@ -125,6 +125,20 @@ void main() {
       expect(sent.body, contains('pw'));
     });
 
+    test('requests send Authorization and X-Emby-Authorization',
+        () async {
+      final adapter = FakeAdapter({'/System/Info/Public': {}});
+      final c = clientWith(adapter)
+        ..setCredentials(accessToken: 'tok', userId: 'u1');
+      await c.getServerInfo();
+      final headers = adapter.requests.single.headers;
+      expect(headers['Authorization'],
+          contains('MediaBrowser Client="Finar"'));
+      expect(headers['Authorization'], contains('Token="tok"'));
+      expect(headers['X-Emby-Authorization'],
+          contains('Token="tok"'));
+    });
+
     test('getItems maps query params', () async {
       final adapter = FakeAdapter({
         '/Users/u1/Items': {'Items': [], 'TotalRecordCount': 0},
