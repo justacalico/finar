@@ -49,23 +49,30 @@ class AppTheme {
   static ColorScheme scheme(Brightness brightness, Color accent,
       {bool oled = false}) {
     if (brightness == Brightness.light) {
+      const elevated = Color(0xFFF5F5F7);
       return ColorScheme.light(
         primary: accent == kAccentOptions['Mono']
             ? const Color(0xFF3A3A3C)
             : accent,
         surface: Colors.white,
         onSurface: const Color(0xFF1D1D1F),
-        surfaceContainerHighest: const Color(0xFFF5F5F7),
+        surfaceContainerHighest: elevated,
+        secondaryContainer: const Color(0xFFE8E8ED),
+        onSecondaryContainer: const Color(0xFF1D1D1F),
         outline: const Color(0x22000000),
       );
     }
     final bg = oled ? Colors.black : const Color(0xFF0E0E13);
+    final elevated =
+        oled ? const Color(0xFF141416) : const Color(0xFF1A1A21);
     return ColorScheme.dark(
       primary: accent,
       surface: bg,
       onSurface: const Color(0xFFF5F5F7),
-      surfaceContainerHighest:
-          oled ? const Color(0xFF141416) : const Color(0xFF1A1A21),
+      surfaceContainerHighest: elevated,
+      secondaryContainer:
+          oled ? const Color(0xFF222227) : const Color(0xFF26262E),
+      onSecondaryContainer: const Color(0xFFF5F5F7),
       outline: const Color(0x1FFFFFFF),
     );
   }

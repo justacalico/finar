@@ -11,6 +11,7 @@ import 'package:finar/providers/library_provider.dart';
 import 'package:finar/providers/navigation_provider.dart';
 import 'package:finar/providers/providers.dart';
 import 'package:finar/providers/settings_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,6 +111,24 @@ void main() {
       expect(s.subtitleSize, 1.5);
       expect(s.maxStreamingBitrate, 4000000);
       expect(s.autoplayNext, isFalse);
+    });
+  });
+
+  group('AppTheme', () {
+    test('tonal surfaces stay quiet, not vivid', () {
+      final dark = AppTheme.scheme(
+          Brightness.dark, kAccentOptions['System']!);
+      expect(dark.secondaryContainer,
+          isNot(equals(dark.primary)));
+      expect(dark.onSecondaryContainer, dark.onSurface);
+      final light = AppTheme.scheme(
+          Brightness.light, kAccentOptions['System']!);
+      expect(light.secondaryContainer,
+          isNot(equals(light.primary)));
+      final oled = AppTheme.scheme(
+          Brightness.dark, kAccentOptions['System']!,
+          oled: true);
+      expect(oled.surface.value, 0xFF000000);
     });
   });
 

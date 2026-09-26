@@ -240,49 +240,88 @@ class _Actions extends ConsumerWidget {
             icon: const Icon(Icons.play_arrow),
             label: const Text('Play'),
           ),
-        IconButton.filledTonal(
+        _ActionIcon(
           tooltip: item.isFavorite
               ? 'Remove from favorites'
               : 'Add to favorites',
-          icon: Icon(item.isFavorite
+          icon: item.isFavorite
               ? Icons.favorite
-              : Icons.favorite_border),
+              : Icons.favorite_border,
+          active: item.isFavorite,
           onPressed: () => actions.toggleFavorite(item),
         ),
-        IconButton.filledTonal(
+        _ActionIcon(
           tooltip:
               item.isPlayed ? 'Mark unplayed' : 'Mark played',
-          icon: Icon(item.isPlayed
+          icon: item.isPlayed
               ? Icons.check_circle
-              : Icons.check_circle_outline),
+              : Icons.check_circle_outline,
+          active: item.isPlayed,
           onPressed: () => actions.togglePlayed(item),
         ),
         if (item.isVideo)
-          IconButton.filledTonal(
+          _ActionIcon(
             tooltip: downloaded
                 ? 'Downloaded'
                 : downloading
                     ? 'Downloading'
                     : 'Download',
-            icon: Icon(downloaded
+            icon: downloaded
                 ? Icons.download_done
                 : downloading
                     ? Icons.downloading
-                    : Icons.download_outlined),
+                    : Icons.download_outlined,
+            active: downloaded,
             onPressed: downloaded || downloading
                 ? null
                 : () => ref
                     .read(downloadsProvider.notifier)
                     .download(item),
           ),
-        IconButton.filledTonal(
+        _ActionIcon(
           tooltip: 'More',
-          icon: const Icon(Icons.more_horiz),
+          icon: Icons.more_horiz,
           onPressed: () => showItemMenu(context, ref, item,
               onPlay: (x) => play(),
               onOpen: (_) {}),
         ),
       ],
+    );
+  }
+}
+
+/// Circular action button matching the detail action row. Quiet tonal
+/// fill; the icon picks up the accent when [active].
+class _ActionIcon extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final bool active;
+
+  const _ActionIcon({
+    required this.icon,
+    required this.tooltip,
+    this.onPressed,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20),
+      style: IconButton.styleFrom(
+        backgroundColor: active
+            ? scheme.primary.withValues(alpha: 0.18)
+            : scheme.secondaryContainer,
+        foregroundColor: active
+            ? scheme.primary
+            : scheme.onSecondaryContainer,
+        disabledBackgroundColor:
+            scheme.secondaryContainer.withValues(alpha: 0.5),
+      ),
     );
   }
 }
