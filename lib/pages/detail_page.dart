@@ -54,14 +54,17 @@ class _Body extends ConsumerWidget {
             children: [
               BackdropHero(item: item, height: wide ? 420 : 260),
               SafeArea(
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: Colors.white),
-                  style: IconButton.styleFrom(
-                      backgroundColor: Colors.black38),
-                  onPressed: () => ref
-                      .read(shellNavProvider.notifier)
-                      .closeDetail(),
+                child: Padding(
+                  padding: const EdgeInsets.all(Insets.sm),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back,
+                        color: Colors.white),
+                    style: IconButton.styleFrom(
+                        backgroundColor: Colors.black38),
+                    onPressed: () => ref
+                        .read(shellNavProvider.notifier)
+                        .closeDetail(),
+                  ),
                 ),
               ),
             ],

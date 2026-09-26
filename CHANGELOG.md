@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The playback bar is now a docked strip at the bottom of the window instead of a floating pill, matching the sidebar chrome.
 
 ### Fixed
+- Inset the detail page's back button from the hero corner instead of letting it sit flush against the edge.
 - Fixed missing art in two places: the detail header now falls back to the item's cover when it has no backdrop (albums), and the mini player shows album art for tracks via AlbumPrimaryImageTag.
 - Removed the detail page's overflow menu, which only repeated actions already visible as buttons.
 - Fixed the detail action row rendering as vivid cyan circles: tonal surfaces are now restrained and favorite/watched/download states tint with the accent instead.
