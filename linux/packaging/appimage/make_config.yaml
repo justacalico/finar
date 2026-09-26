@@ -1,0 +1,16 @@
+display_name: Finar
+package_name: finar
+icon: linux/icons/app_icon.png
+keywords:
+  - jellyfin
+  - media
+  - streaming
+  - movies
+  - tv
+categories:
+  - AudioVideo
+  - Video
+  - Player
+generic_name: Media Player
+startup_notify: true
+actions: []
