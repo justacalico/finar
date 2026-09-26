@@ -135,6 +135,37 @@ void main() {
         expect(s.label, isNotEmpty);
       }
     });
+
+    test('detail stack pushes, pops and clears', () async {
+      final c = await container();
+      final n = c.read(shellNavProvider.notifier);
+      const a = MediaItem(id: 'a', name: 'A');
+      const b = MediaItem(id: 'b', name: 'B');
+
+      n.openDetail(a);
+      expect(c.read(shellNavProvider).detailItem?.id, 'a');
+      n.openDetail(b);
+      expect(c.read(shellNavProvider).detailItem?.id, 'b');
+      expect(c.read(shellNavProvider).detailStack.length, 2);
+
+      n.closeDetail();
+      expect(c.read(shellNavProvider).detailItem?.id, 'a');
+      n.closeDetail();
+      expect(c.read(shellNavProvider).detailItem, isNull);
+      // Closing an empty stack is a no-op.
+      n.closeDetail();
+      expect(c.read(shellNavProvider).detailStack, isEmpty);
+    });
+
+    test('selecting a section clears the detail stack', () async {
+      final c = await container();
+      final n = c.read(shellNavProvider.notifier);
+      n.openDetail(const MediaItem(id: 'a', name: 'A'));
+      n.select(ShellSection.settings);
+      expect(c.read(shellNavProvider).detailStack, isEmpty);
+      expect(
+          c.read(shellNavProvider).section, ShellSection.settings);
+    });
   });
 
   group('ItemQuery', () {

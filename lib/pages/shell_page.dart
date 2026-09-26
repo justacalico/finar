@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
 import '../core/utils/platform.dart';
 import '../providers/navigation_provider.dart';
+import 'detail_page.dart';
 import 'downloads_page.dart';
 import 'favorites_page.dart';
 import 'home_page.dart';
@@ -44,7 +45,13 @@ class ShellPage extends ConsumerWidget {
     final wide =
         isWideLayout(MediaQuery.of(context).size.width);
 
-    final body = _body(nav, wide);
+    final body = nav.detailItem != null
+        ? DetailPage(
+            key: ValueKey(nav.detailItem!.id),
+            itemId: nav.detailItem!.id,
+            item: nav.detailItem,
+          )
+        : _body(nav, wide);
 
     if (wide) {
       return Scaffold(

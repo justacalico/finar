@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
 import '../providers/downloads_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/providers.dart';
 import '../widgets/app_image.dart';
 import '../widgets/async_view.dart';
 import '../widgets/focusable.dart';
 import '../widgets/page_header.dart';
-import 'detail_page.dart';
 import 'player_page.dart';
 
 class DownloadsPage extends ConsumerWidget {
@@ -126,10 +126,9 @@ class _DownloadTile extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.info_outline),
                 tooltip: 'Details',
-                onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) =>
-                            DetailPage(itemId: item.id, item: item))),
+                onPressed: () => ref
+                    .read(shellNavProvider.notifier)
+                    .openDetail(item),
               ),
             ],
           ),

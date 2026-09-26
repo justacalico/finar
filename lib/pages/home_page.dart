@@ -6,21 +6,20 @@ import '../core/theme/app_theme.dart';
 import '../providers/downloads_provider.dart';
 import '../providers/home_provider.dart';
 import '../providers/library_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../widgets/app_image.dart';
 import '../widgets/async_view.dart';
 import '../widgets/backdrop_hero.dart';
 import '../widgets/item_menu.dart';
 import '../widgets/media_rail.dart';
-import 'detail_page.dart';
 import 'player_page.dart';
 import 'see_all_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  void _openItem(BuildContext context, MediaItem item) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => DetailPage(itemId: item.id, item: item)));
+  void _openItem(BuildContext context, WidgetRef ref, MediaItem item) {
+    ref.read(shellNavProvider.notifier).openDetail(item);
   }
 
   void _play(BuildContext context, MediaItem item) {
@@ -58,16 +57,16 @@ class HomePage extends ConsumerWidget {
                 _Feature(
                     item: data.featured!,
                     onPlay: () => _play(context, data.featured!),
-                    onOpen: () => _openItem(context, data.featured!)),
+                    onOpen: () => _openItem(context, ref, data.featured!)),
               if (data.resume.isNotEmpty)
                 MediaRail(
                   title: 'Continue watching',
                   items: data.resume,
                   shape: ArtShape.backdrop,
                   cardWidth: 260,
-                  onTap: (i) => _openItem(context, i),
+                  onTap: (i) => _openItem(context, ref, i),
                   onLongPress: (i) =>
-                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, i)),
+                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, ref, i)),
                 ),
               if (data.nextUp.isNotEmpty)
                 MediaRail(
@@ -75,9 +74,9 @@ class HomePage extends ConsumerWidget {
                   items: data.nextUp,
                   shape: ArtShape.backdrop,
                   cardWidth: 260,
-                  onTap: (i) => _openItem(context, i),
+                  onTap: (i) => _openItem(context, ref, i),
                   onLongPress: (i) =>
-                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, i)),
+                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, ref, i)),
                 ),
               for (final section in data.latestByLibrary)
                 MediaRail(
@@ -94,17 +93,17 @@ class HomePage extends ConsumerWidget {
                                         sortBy: 'DateCreated',
                                         sortOrder: 'Descending'),
                                   ))),
-                  onTap: (i) => _openItem(context, i),
+                  onTap: (i) => _openItem(context, ref, i),
                   onLongPress: (i) =>
-                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, i)),
+                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, ref, i)),
                 ),
               if (data.favorites.isNotEmpty)
                 MediaRail(
                   title: 'Favorites',
                   items: data.favorites,
-                  onTap: (i) => _openItem(context, i),
+                  onTap: (i) => _openItem(context, ref, i),
                   onLongPress: (i) =>
-                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, i)),
+                      showItemMenu(context, ref, i, onPlay: (x) => _play(context, x), onOpen: (i) => _openItem(context, ref, i)),
                 ),
             ],
           );

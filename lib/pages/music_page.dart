@@ -11,7 +11,6 @@ import '../widgets/async_view.dart';
 import '../widgets/focusable.dart';
 import '../widgets/media_grid.dart';
 import '../widgets/page_header.dart';
-import 'detail_page.dart';
 
 /// Music library browser: Albums / Artists / Tracks tabs.
 class MusicPage extends ConsumerStatefulWidget {
@@ -102,10 +101,9 @@ class _AlbumsTab extends ConsumerWidget {
               onLoadMore: () => ref
                   .read(pagedItemsProvider(query).notifier)
                   .loadMore(),
-              onTap: (item) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          DetailPage(itemId: item.id, item: item))),
+              onTap: (item) => ref
+                  .read(shellNavProvider.notifier)
+                  .openDetail(item),
             ),
     );
   }
@@ -132,10 +130,9 @@ class _ArtistsTab extends ConsumerWidget {
               onLoadMore: () => ref
                   .read(pagedItemsProvider(query).notifier)
                   .loadMore(),
-              onTap: (item) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          DetailPage(itemId: item.id, item: item))),
+              onTap: (item) => ref
+                  .read(shellNavProvider.notifier)
+                  .openDetail(item),
             ),
     );
   }

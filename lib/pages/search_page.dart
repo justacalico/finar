@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api/models.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/library_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/providers.dart';
 import '../widgets/app_image.dart';
 import '../widgets/async_view.dart';
 import '../widgets/focusable.dart';
 import '../widgets/page_header.dart';
-import 'detail_page.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -115,8 +115,9 @@ class _SearchCard extends ConsumerWidget {
         ? ArtShape.square
         : ArtShape.poster;
     return Focusable(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => DetailPage(itemId: hint.itemId))),
+      onTap: () => ref
+          .read(shellNavProvider.notifier)
+          .openDetail(MediaItem(id: hint.itemId, name: hint.name)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

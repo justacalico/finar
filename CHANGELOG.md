@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Rebuilt the entire app from scratch on a unified component kit: every list in the app now shares the same media card, rail, grid and page header instead of per-page copies.
+- The detail screen now renders inside the shell next to the sidebar and bottom navigation instead of covering them; similar items and linked content stack inside it and back steps through.
 - Rebuilt the Jellyfin client around a single typed model layer and one Dio client; every screen reads through shared providers.
 - Rebuilt the player with consistent auto-hiding controls, keyboard and controller shortcuts, seek bar with buffer display, speed, audio and subtitle menus, and server-side progress reporting.
 - Rebuilt downloads on a persisted manifest with progress and resume-safe failure states.

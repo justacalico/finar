@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/api/models.dart';
+
 /// Top-level sections inside the app shell.
 enum ShellSection { home, search, favorites, downloads, libraries, settings }
 
@@ -23,22 +25,33 @@ class ShellNav {
   final String? libraryName;
   final String? libraryCollectionType;
 
+  /// Open detail pages, innermost last. Detail lives in the shell so
+  /// the sidebar and bottom nav stay visible.
+  final List<MediaItem> detailStack;
+
   const ShellNav({
     this.section = ShellSection.home,
     this.libraryId,
     this.libraryName,
     this.libraryCollectionType,
+    this.detailStack = const [],
   });
+
+  MediaItem? get detailItem =>
+      detailStack.isEmpty ? null : detailStack.last;
 
   ShellNav copyWith({
     ShellSection? section,
     String? Function()? libraryId,
     String? Function()? libraryName,
+    List<MediaItem>? detailStack,
   }) =>
       ShellNav(
         section: section ?? this.section,
         libraryId: libraryId != null ? libraryId() : this.libraryId,
         libraryName: libraryName != null ? libraryName() : this.libraryName,
+        libraryCollectionType: libraryCollectionType,
+        detailStack: detailStack ?? this.detailStack,
       );
 }
 
@@ -48,7 +61,10 @@ class ShellNavNotifier extends Notifier<ShellNav> {
 
   void select(ShellSection section) {
     state = state.copyWith(
-        section: section, libraryId: () => null, libraryName: () => null);
+        section: section,
+        libraryId: () => null,
+        libraryName: () => null,
+        detailStack: const []);
   }
 
   void openLibrary(String id, String name,
@@ -62,6 +78,20 @@ class ShellNavNotifier extends Notifier<ShellNav> {
 
   void closeLibrary() {
     state = state.copyWith(libraryId: () => null, libraryName: () => null);
+  }
+
+  void openDetail(MediaItem item) {
+    state =
+        state.copyWith(detailStack: [...state.detailStack, item]);
+  }
+
+  /// Pop the current detail. With nothing left the previous section
+  /// shows again.
+  void closeDetail() {
+    if (state.detailStack.isEmpty) return;
+    state = state.copyWith(
+        detailStack:
+            state.detailStack.sublist(0, state.detailStack.length - 1));
   }
 }
 

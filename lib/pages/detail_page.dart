@@ -8,6 +8,7 @@ import '../core/theme/app_theme.dart';
 import '../providers/audio_provider.dart';
 import '../providers/downloads_provider.dart';
 import '../providers/library_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/providers.dart';
 import '../widgets/app_image.dart';
 import '../widgets/async_view.dart';
@@ -59,8 +60,9 @@ class _Body extends ConsumerWidget {
                       color: Colors.white),
                   style: IconButton.styleFrom(
                       backgroundColor: Colors.black38),
-                  onPressed: () =>
-                      Navigator.of(context).maybePop(),
+                  onPressed: () => ref
+                      .read(shellNavProvider.notifier)
+                      .closeDetail(),
                 ),
               ),
             ],
@@ -510,10 +512,9 @@ class _ArtistAlbums extends ConsumerWidget {
               items: data.items,
               shape: ArtShape.square,
               cardWidth: 170,
-              onTap: (a) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          DetailPage(itemId: a.id, item: a))),
+              onTap: (a) => ref
+                  .read(shellNavProvider.notifier)
+                  .openDetail(a),
             ),
     );
   }
@@ -595,10 +596,9 @@ class _SimilarRail extends ConsumerWidget {
           : MediaRail(
               title: 'More like this',
               items: items,
-              onTap: (i) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          DetailPage(itemId: i.id, item: i))),
+              onTap: (i) => ref
+                  .read(shellNavProvider.notifier)
+                  .openDetail(i),
             ),
     );
   }

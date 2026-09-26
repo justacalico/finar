@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/library_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../widgets/async_view.dart';
 import '../widgets/item_menu.dart';
 import '../widgets/media_grid.dart';
 import '../widgets/page_header.dart';
-import 'detail_page.dart';
 import 'player_page.dart';
 
 class FavoritesPage extends ConsumerWidget {
@@ -35,10 +35,9 @@ class FavoritesPage extends ConsumerWidget {
                     onLoadMore: () => ref
                         .read(pagedItemsProvider(_query).notifier)
                         .loadMore(),
-                    onTap: (item) => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => DetailPage(
-                                itemId: item.id, item: item))),
+                    onTap: (item) => ref
+                        .read(shellNavProvider.notifier)
+                        .openDetail(item),
                     onLongPress: (item) => showItemMenu(
                       context,
                       ref,
@@ -46,10 +45,9 @@ class FavoritesPage extends ConsumerWidget {
                       onPlay: (x) => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => PlayerPage(item: x))),
-                      onOpen: (x) => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => DetailPage(
-                                  itemId: x.id, item: x))),
+                      onOpen: (x) => ref
+                          .read(shellNavProvider.notifier)
+                          .openDetail(x),
                     ),
                   ),
           ),

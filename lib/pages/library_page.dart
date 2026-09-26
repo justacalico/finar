@@ -8,7 +8,6 @@ import '../widgets/async_view.dart';
 import '../widgets/item_menu.dart';
 import '../widgets/media_grid.dart';
 import '../widgets/page_header.dart';
-import 'detail_page.dart';
 import 'player_page.dart';
 
 /// Browsable grid for one library with sort controls and paging.
@@ -130,14 +129,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
   }
 
   void _open(BuildContext context, MediaItem item) {
-    if (widget.inShell) {
-      Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(
-              builder: (_) => DetailPage(itemId: item.id, item: item)));
-    } else {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => DetailPage(itemId: item.id, item: item)));
-    }
+    ref.read(shellNavProvider.notifier).openDetail(item);
   }
 
   void _play(BuildContext context, MediaItem item) {
