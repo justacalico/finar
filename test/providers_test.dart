@@ -6,6 +6,7 @@ import 'package:finar/core/api/jellyfin_client.dart';
 import 'package:finar/core/api/models.dart';
 import 'package:finar/core/storage/app_storage.dart';
 import 'package:finar/core/theme/app_theme.dart';
+import 'package:finar/providers/audio_provider.dart';
 import 'package:finar/providers/downloads_provider.dart';
 import 'package:finar/providers/library_provider.dart';
 import 'package:finar/providers/navigation_provider.dart';
@@ -211,6 +212,17 @@ void main() {
       n.select(ShellSection.settings);
       expect(c.read(shellNavProvider).detailStack, isEmpty);
       expect(c.read(shellNavProvider).section, ShellSection.settings);
+    });
+  });
+
+  group('AudioPlayerNotifier', () {
+    test('pause on an empty player does not create one',
+        () async {
+      final c = await container();
+      // A lazy Player() would fail to construct in the test
+      // sandbox; pause() must skip it entirely.
+      await c.read(audioPlayerProvider.notifier).pause();
+      expect(c.read(audioPlayerProvider).current, isNull);
     });
   });
 

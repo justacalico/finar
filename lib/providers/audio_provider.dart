@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 
 import '../core/api/models.dart';
+import 'playback_provider.dart';
 import 'providers.dart';
 
 /// Pure queue model: ordering, shuffle, next/previous resolution.
@@ -179,6 +180,9 @@ class AudioPlayerNotifier extends Notifier<AudioState> {
   Future<void> _openCurrent() async {
     final item = state.queue.current;
     if (item == null) return;
+    // Music and video are mutually exclusive: only one stream at a
+    // time, otherwise both players run underneath each other.
+    await ref.read(videoPlayerProvider.notifier).stop();
     final client = ref.read(jellyfinClientProvider);
     try {
       await player.open(Media(client.audioStreamUrl(item.id)), play: true);
@@ -197,7 +201,12 @@ class AudioPlayerNotifier extends Notifier<AudioState> {
   }
 
   Future<void> toggle() => player.playOrPause();
-  Future<void> pause() => player.pause();
+
+  /// Pause without materializing a player when none exists.
+  Future<void> pause() async {
+    final p = _player;
+    if (p != null) await p.pause();
+  }
 
   Future<void> next() async {
     final q = state.queue.advance();

@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The playback bar is now a docked strip at the bottom of the window instead of a floating pill, matching the sidebar chrome.
 
 ### Fixed
+- Fixed music and video playing at the same time: starting a video now pauses the music queue, and starting music stops any video player, so only one stream runs.
 - Fixed the About tile showing a dangling '+' when the build has no CI number; the version now reads like pubspec.
 - Inset the detail page's back button from the hero corner instead of letting it sit flush against the edge.
 - Fixed missing art in two places: the detail header now falls back to the item's cover when it has no backdrop (albums), and the mini player shows album art for tracks via AlbumPrimaryImageTag.

@@ -6,6 +6,7 @@ import 'package:media_kit/media_kit.dart';
 import '../core/api/format.dart';
 import '../core/api/jellyfin_client.dart';
 import '../core/api/models.dart';
+import 'audio_provider.dart';
 import 'downloads_provider.dart';
 import 'providers.dart';
 import 'settings_provider.dart';
@@ -184,6 +185,9 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
     List<MediaItem>? upNext,
   }) async {
     await stop();
+    // Pause the music queue so audio and video never run two
+    // streams at once.
+    await ref.read(audioPlayerProvider.notifier).pause();
     final client = ref.read(jellyfinClientProvider);
     final settings = ref.read(settingsProvider);
     final localPath = ref
