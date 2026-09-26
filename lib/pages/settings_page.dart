@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/api/format.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/session_provider.dart';
 import '../providers/settings_provider.dart';

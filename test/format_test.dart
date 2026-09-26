@@ -63,4 +63,11 @@ void main() {
       expect(formatBytes(3 * 1024 * 1024 * 1024), '3.0 GB');
     });
   });
+
+  group('formatVersion', () {
+    test('hides empty build number', () {
+      expect(formatVersion('5.0.0', ''), '5.0.0');
+      expect(formatVersion('5.0.0', '42'), '5.0.0+42');
+    });
+  });
 }

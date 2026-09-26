@@ -39,3 +39,7 @@ String formatBytes(int? bytes) {
       : value.toStringAsFixed(1);
   return '$str ${units[unit]}';
 }
+
+/// "5.0.0" or "5.0.0+42" when a CI build number exists.
+String formatVersion(String version, String buildNumber) =>
+    buildNumber.isEmpty ? version : '$version+$buildNumber';
