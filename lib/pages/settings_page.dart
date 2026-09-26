@@ -168,11 +168,6 @@ class SettingsPage extends ConsumerWidget {
                 ),
               ),
             ),
-            const SettingTile(
-              icon: Icons.movie_outlined,
-              title: 'Powered by Jellyfin',
-              subtitle: 'The free software media system',
-            ),
           ],
         ),
       ],
