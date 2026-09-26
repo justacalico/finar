@@ -523,6 +523,7 @@ class MediaItem {
   final List<String> artists;
   final String? album;
   final String? albumId;
+  final String? albumPrimaryImageTag;
   final String? playlistItemId;
   final int? localTrailerCount;
   final String? primaryImageAspectRatio;
@@ -562,6 +563,7 @@ class MediaItem {
     this.artists = const [],
     this.album,
     this.albumId,
+    this.albumPrimaryImageTag,
     this.playlistItemId,
     this.localTrailerCount,
     this.primaryImageAspectRatio,
@@ -616,6 +618,8 @@ class MediaItem {
         artists: _stringList(json['Artists']),
         album: json['Album'] as String?,
         albumId: json['AlbumId'] as String?,
+        albumPrimaryImageTag:
+            json['AlbumPrimaryImageTag'] as String?,
         playlistItemId: json['PlaylistItemId'] as String?,
         localTrailerCount: _int(json['LocalTrailerCount']),
         primaryImageAspectRatio:
@@ -653,6 +657,7 @@ class MediaItem {
         'Artists': artists,
         'Album': album,
         'AlbumId': albumId,
+        'AlbumPrimaryImageTag': albumPrimaryImageTag,
         'PlaylistItemId': playlistItemId,
       };
 
@@ -749,6 +754,7 @@ class MediaItem {
         artists: artists,
         album: album,
         albumId: albumId,
+        albumPrimaryImageTag: albumPrimaryImageTag,
         playlistItemId: playlistItemId,
         localTrailerCount: localTrailerCount,
         primaryImageAspectRatio: primaryImageAspectRatio,

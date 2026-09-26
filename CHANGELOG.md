@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
 ### Fixed
+- Fixed missing art in two places: the detail header now falls back to the item's cover when it has no backdrop (albums), and the mini player shows album art for tracks via AlbumPrimaryImageTag.
 - Removed the detail page's overflow menu, which only repeated actions already visible as buttons.
 - Fixed the detail action row rendering as vivid cyan circles: tonal surfaces are now restrained and favorite/watched/download states tint with the accent instead.
 - Fixed sign-in failing on Jellyfin 12: the server no longer accepts the legacy X-Emby-Authorization header, so every request now sends the standard Authorization header as well.

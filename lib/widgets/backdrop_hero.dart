@@ -23,10 +23,13 @@ class BackdropHero extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final url = ref.read(jellyfinClientProvider).backdropUrl(
-          item,
-          maxWidth: 1600,
-        );
+    final client = ref.read(jellyfinClientProvider);
+    var url = client.backdropUrl(item, maxWidth: 1600);
+    // Albums and most audio items have no backdrop; their cover is
+    // the only art worth showing up here.
+    if (url.isEmpty) {
+      url = client.posterUrl(item, maxWidth: 1600);
+    }
     return SizedBox(
       height: height,
       width: double.infinity,

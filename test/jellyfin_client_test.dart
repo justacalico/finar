@@ -277,6 +277,25 @@ void main() {
       expect(c.posterUrl(ep), contains('/Items/s1/Images/Primary'));
     });
 
+    test('poster falls back to album art for tracks', () {
+      final c = clientWith(FakeAdapter({}))
+        ..setCredentials(accessToken: 't', userId: 'u1');
+      final track = MediaItem.fromJson({
+        'Id': 'tr1',
+        'Name': 'Song',
+        'Type': 'Audio',
+        'AlbumId': 'alb9',
+        'AlbumPrimaryImageTag': 'albumtag',
+      });
+      final url = c.posterUrl(track);
+      expect(url, contains('/Items/alb9/Images/Primary'));
+      expect(url, contains('tag=albumtag'));
+      // No album id means no art at all.
+      final orphan = MediaItem.fromJson(
+          {'Id': 'tr2', 'Name': 'Song', 'Type': 'Audio'});
+      expect(c.posterUrl(orphan), isEmpty);
+    });
+
     test('stream urls embed token and params', () {
       final c = clientWith(FakeAdapter({}))
         ..setCredentials(accessToken: 'tok', userId: 'u1');

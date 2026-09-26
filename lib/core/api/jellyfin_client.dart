@@ -434,9 +434,18 @@ class JellyfinClient {
       return '';
     }
     final tag = item.imageTags.primary;
-    if (tag == null) return '';
-    return imageUrl(item.id, 'Primary',
-        maxWidth: maxWidth, quality: quality, tag: tag);
+    if (tag != null) {
+      return imageUrl(item.id, 'Primary',
+          maxWidth: maxWidth, quality: quality, tag: tag);
+    }
+    // Tracks carry no art of their own; the album's does.
+    if (item.albumId != null) {
+      return imageUrl(item.albumId!, 'Primary',
+          maxWidth: maxWidth,
+          quality: quality,
+          tag: item.albumPrimaryImageTag);
+    }
+    return '';
   }
 
   String thumbUrl(MediaItem item, {int? maxWidth, int quality = 85}) {
