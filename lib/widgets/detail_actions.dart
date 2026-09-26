@@ -27,11 +27,10 @@ class DetailActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final actions = ref.read(mediaActionsProvider);
     final downloads = ref.watch(downloadsProvider);
-    final entry = downloads
-        .where((e) => e.item.id == item.id)
-        .firstOrNull;
+    final entry = downloads.where((e) => e.item.id == item.id).firstOrNull;
     final downloaded = entry?.status == DownloadStatus.done;
-    final downloading = entry != null &&
+    final downloading =
+        entry != null &&
         (entry.status == DownloadStatus.downloading ||
             entry.status == DownloadStatus.queued);
 
@@ -43,9 +42,11 @@ class DetailActions extends ConsumerWidget {
           FilledButton.icon(
             onPressed: onPlay,
             icon: const Icon(Icons.play_arrow),
-            label: Text(item.hasProgress
-                ? 'Resume ${formatDuration(Duration(microseconds: item.resumeTicks ~/ 10))}'
-                : 'Play'),
+            label: Text(
+              item.hasProgress
+                  ? 'Resume ${formatDuration(Duration(microseconds: item.resumeTicks ~/ 10))}'
+                  : 'Play',
+            ),
           ),
         if (item.hasProgress && item.isVideo)
           OutlinedButton(
@@ -54,9 +55,8 @@ class DetailActions extends ConsumerWidget {
           ),
         if (item.kind == MediaKind.audio)
           FilledButton.icon(
-            onPressed: () => ref
-                .read(audioPlayerProvider.notifier)
-                .playTracks([item], 0),
+            onPressed: () =>
+                ref.read(audioPlayerProvider.notifier).playTracks([item], 0),
             icon: const Icon(Icons.play_arrow),
             label: const Text('Play'),
           ),
@@ -64,18 +64,13 @@ class DetailActions extends ConsumerWidget {
           tooltip: item.isFavorite
               ? 'Remove from favorites'
               : 'Add to favorites',
-          icon: item.isFavorite
-              ? Icons.favorite
-              : Icons.favorite_border,
+          icon: item.isFavorite ? Icons.favorite : Icons.favorite_border,
           active: item.isFavorite,
           onPressed: () => actions.toggleFavorite(item),
         ),
         ActionIconButton(
-          tooltip:
-              item.isPlayed ? 'Mark unplayed' : 'Mark played',
-          icon: item.isPlayed
-              ? Icons.check_circle
-              : Icons.check_circle_outline,
+          tooltip: item.isPlayed ? 'Mark unplayed' : 'Mark played',
+          icon: item.isPlayed ? Icons.check_circle : Icons.check_circle_outline,
           active: item.isPlayed,
           onPressed: () => actions.togglePlayed(item),
         ),
@@ -84,19 +79,17 @@ class DetailActions extends ConsumerWidget {
             tooltip: downloaded
                 ? 'Downloaded'
                 : downloading
-                    ? 'Downloading'
-                    : 'Download',
+                ? 'Downloading'
+                : 'Download',
             icon: downloaded
                 ? Icons.download_done
                 : downloading
-                    ? Icons.downloading
-                    : Icons.download_outlined,
+                ? Icons.downloading
+                : Icons.download_outlined,
             active: downloaded,
             onPressed: downloaded || downloading
                 ? null
-                : () => ref
-                    .read(downloadsProvider.notifier)
-                    .download(item),
+                : () => ref.read(downloadsProvider.notifier).download(item),
           ),
       ],
     );
@@ -125,16 +118,15 @@ class ActionIconButton extends StatelessWidget {
     return IconButton(
       tooltip: tooltip,
       onPressed: onPressed,
-      icon: Icon(icon, size: 20),
+      icon: Icon(icon, size: dim(20)),
       style: IconButton.styleFrom(
         backgroundColor: active
             ? scheme.primary.withValues(alpha: 0.18)
             : scheme.secondaryContainer,
-        foregroundColor: active
-            ? scheme.primary
-            : scheme.onSecondaryContainer,
-        disabledBackgroundColor:
-            scheme.secondaryContainer.withValues(alpha: 0.5),
+        foregroundColor: active ? scheme.primary : scheme.onSecondaryContainer,
+        disabledBackgroundColor: scheme.secondaryContainer.withValues(
+          alpha: 0.5,
+        ),
       ),
     );
   }

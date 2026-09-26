@@ -28,26 +28,24 @@ class FavoritesPage extends ConsumerWidget {
                 ? const EmptyView(
                     icon: Icons.favorite_outline,
                     title: 'No favorites yet',
-                    subtitle:
-                        'Long-press any item to add it to favorites.')
+                    subtitle: 'Long-press any item to add it to favorites.',
+                  )
                 : MediaGrid(
                     page: data,
                     onLoadMore: () => ref
                         .read(pagedItemsProvider(_query).notifier)
                         .loadMore(),
-                    onTap: (item) => ref
-                        .read(shellNavProvider.notifier)
-                        .openDetail(item),
+                    onTap: (item) =>
+                        ref.read(shellNavProvider.notifier).openDetail(item),
                     onLongPress: (item) => showItemMenu(
                       context,
                       ref,
                       item,
                       onPlay: (x) => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => PlayerPage(item: x))),
-                      onOpen: (x) => ref
-                          .read(shellNavProvider.notifier)
-                          .openDetail(x),
+                        MaterialPageRoute(builder: (_) => PlayerPage(item: x)),
+                      ),
+                      onOpen: (x) =>
+                          ref.read(shellNavProvider.notifier).openDetail(x),
                     ),
                   ),
           ),

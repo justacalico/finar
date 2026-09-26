@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:media_kit_video/media_kit_video.dart'
-    hide VideoState;
+import 'package:media_kit_video/media_kit_video.dart' hide VideoState;
 
+import '../core/theme/app_theme.dart';
 import '../core/api/models.dart';
 import '../providers/playback_provider.dart';
 import '../widgets/seek_bar.dart';
@@ -92,12 +92,12 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
               Center(
                 child: player != null
                     ? Video(controller: VideoController(player))
-                    : const SizedBox.shrink(),
+                    : SizedBox.shrink(),
               ),
               if (state?.buffering != false)
                 const Center(
-                    child: CircularProgressIndicator(
-                        color: Colors.white)),
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
               AnimatedOpacity(
                 opacity: _controlsVisible ? 1 : 0,
                 duration: const Duration(milliseconds: 200),
@@ -105,8 +105,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   ignoring: !_controlsVisible,
                   child: _Controls(
                     state: state,
-                    onBack: () =>
-                        Navigator.of(context).maybePop(),
+                    onBack: () => Navigator.of(context).maybePop(),
                     onAction: _showControls,
                   ),
                 ),
@@ -170,7 +169,7 @@ class _Controls extends ConsumerWidget {
       children: [
         // Top bar
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -182,8 +181,7 @@ class _Controls extends ConsumerWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon:
-                      const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: onBack,
                 ),
                 Expanded(
@@ -192,9 +190,10 @@ class _Controls extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600),
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 _TrackMenu(state: s),
@@ -202,7 +201,7 @@ class _Controls extends ConsumerWidget {
             ),
           ),
         ),
-        const Spacer(),
+        Spacer(),
         // Center controls
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -216,19 +215,19 @@ class _Controls extends ConsumerWidget {
                 onAction();
               },
             ),
-            const SizedBox(width: 32),
+            SizedBox(width: dim(32)),
             IconButton(
               iconSize: 64,
               color: Colors.white,
-              icon: Icon(s?.playing == true
-                  ? Icons.pause_circle
-                  : Icons.play_circle),
+              icon: Icon(
+                s?.playing == true ? Icons.pause_circle : Icons.play_circle,
+              ),
               onPressed: () {
                 notifier.toggle();
                 onAction();
               },
             ),
-            const SizedBox(width: 32),
+            SizedBox(width: dim(32)),
             IconButton(
               iconSize: 40,
               color: Colors.white,
@@ -240,10 +239,10 @@ class _Controls extends ConsumerWidget {
             ),
           ],
         ),
-        const Spacer(),
+        Spacer(),
         // Bottom bar
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
@@ -253,7 +252,7 @@ class _Controls extends ConsumerWidget {
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -270,18 +269,17 @@ class _Controls extends ConsumerWidget {
                     children: [
                       IconButton(
                         color: Colors.white,
-                        icon: Icon(s?.playing == true
-                            ? Icons.pause
-                            : Icons.play_arrow),
+                        icon: Icon(
+                          s?.playing == true ? Icons.pause : Icons.play_arrow,
+                        ),
                         onPressed: () {
                           notifier.toggle();
                           onAction();
                         },
                       ),
                       _SpeedMenu(speed: s?.speed ?? 1),
-                      const Spacer(),
-                      if (s != null &&
-                          s.subtitleStreams.isNotEmpty)
+                      Spacer(),
+                      if (s != null && s.subtitleStreams.isNotEmpty)
                         _SubtitleMenu(state: s),
                     ],
                   ),
@@ -303,13 +301,12 @@ class _TrackMenu extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = state;
     if (s == null || s.audioStreams.length <= 1) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
     return PopupMenuButton<int>(
       icon: const Icon(Icons.audiotrack, color: Colors.white),
       tooltip: 'Audio track',
-      onSelected: (i) =>
-          ref.read(videoPlayerProvider.notifier).selectAudio(i),
+      onSelected: (i) => ref.read(videoPlayerProvider.notifier).selectAudio(i),
       itemBuilder: (_) => [
         for (final stream in s.audioStreams)
           CheckedPopupMenuItem(
@@ -329,16 +326,14 @@ class _SubtitleMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<int>(
-      icon: const Icon(Icons.subtitles_outlined,
-          color: Colors.white),
+      icon: const Icon(Icons.subtitles_outlined, color: Colors.white),
       tooltip: 'Subtitles',
       onSelected: (i) =>
           ref.read(videoPlayerProvider.notifier).selectSubtitle(i),
       itemBuilder: (_) => [
         CheckedPopupMenuItem(
           value: -1,
-          checked: state.subtitleIndex == -1 ||
-              state.subtitleIndex == null,
+          checked: state.subtitleIndex == -1 || state.subtitleIndex == null,
           child: const Text('Off'),
         ),
         for (final stream in state.subtitleStreams)
@@ -362,8 +357,7 @@ class _SpeedMenu extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<double>(
       tooltip: 'Playback speed',
-      onSelected: (v) =>
-          ref.read(videoPlayerProvider.notifier).setSpeed(v),
+      onSelected: (v) => ref.read(videoPlayerProvider.notifier).setSpeed(v),
       itemBuilder: (_) => [
         for (final v in _speeds)
           CheckedPopupMenuItem(
@@ -373,11 +367,14 @@ class _SpeedMenu extends ConsumerWidget {
           ),
       ],
       child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text('${speed}x',
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600)),
+        padding: EdgeInsets.all(12),
+        child: Text(
+          '${speed}x',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

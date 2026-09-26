@@ -19,16 +19,20 @@ class FakeAdapter implements HttpClientAdapter {
 
   @override
   Future<ResponseBody> fetch(
-      RequestOptions options,
-      Stream<Uint8List>? requestStream,
-      Future<void>? cancelFuture) async {
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     Stream<Uint8List>? stream = requestStream;
     if (stream != null) await stream.drain<void>();
     final data = handler?.call(options);
-    return ResponseBody.fromString(jsonEncode(data ?? {}), 200,
-        headers: {
-          Headers.contentTypeHeader: ['application/json']
-        });
+    return ResponseBody.fromString(
+      jsonEncode(data ?? {}),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
   }
 }
 
@@ -41,20 +45,23 @@ Future<ProviderContainer> container({
   final dio = Dio()..httpClientAdapter = FakeAdapter(api);
   final client = JellyfinClient(dio: dio, deviceId: 't')
     ..setServerUrl('http://srv');
-  final c = ProviderContainer(overrides: [
-    appStorageProvider.overrideWithValue(storage),
-    jellyfinClientProvider.overrideWithValue(client),
-  ]);
+  final c = ProviderContainer(
+    overrides: [
+      appStorageProvider.overrideWithValue(storage),
+      jellyfinClientProvider.overrideWithValue(client),
+    ],
+  );
   addTearDown(c.dispose);
   return c;
 }
 
 SavedAccount saved() => const SavedAccount(
-    serverUrl: 'http://srv',
-    serverName: 'Srv',
-    userId: 'u1',
-    userName: 'Cal',
-    accessToken: 'tok');
+  serverUrl: 'http://srv',
+  serverName: 'Srv',
+  userId: 'u1',
+  userName: 'Cal',
+  accessToken: 'tok',
+);
 
 Future<Map<String, Object>> prefsWithAccount() async {
   final json = jsonEncode([saved().toJson()]);
@@ -77,8 +84,8 @@ void main() {
         api: (o) => o.path == '/Users/u1/Views'
             ? {
                 'Items': [
-                  {'Id': 'l1', 'Name': 'Movies'}
-                ]
+                  {'Id': 'l1', 'Name': 'Movies'},
+                ],
               }
             : {},
         prefs: await prefsWithAccount(),
@@ -93,22 +100,27 @@ void main() {
     });
 
     test('signIn stores and activates the account', () async {
-      final c = await container(api: (o) {
-        if (o.path == '/Users/AuthenticateByName') {
-          return {
-            'User': {'Id': 'u9', 'Name': 'Sam'},
-            'AccessToken': 'fresh',
-            'ServerId': 'srv',
-          };
-        }
-        return {'Items': []};
-      });
+      final c = await container(
+        api: (o) {
+          if (o.path == '/Users/AuthenticateByName') {
+            return {
+              'User': {'Id': 'u9', 'Name': 'Sam'},
+              'AccessToken': 'fresh',
+              'ServerId': 'srv',
+            };
+          }
+          return {'Items': []};
+        },
+      );
       await pumpEventQueue();
-      await c.read(sessionProvider.notifier).signIn(
-          serverUrl: 'http://srv',
-          serverName: 'Srv',
-          username: 'sam',
-          password: 'pw');
+      await c
+          .read(sessionProvider.notifier)
+          .signIn(
+            serverUrl: 'http://srv',
+            serverName: 'Srv',
+            username: 'sam',
+            password: 'pw',
+          );
       final s = c.read(sessionProvider) as SignedIn;
       expect(s.account.userId, 'u9');
       final storage = c.read(appStorageProvider);
@@ -117,36 +129,33 @@ void main() {
 
     test('signOut clears session and stored account', () async {
       final c = await container(
-          api: (_) => {'Items': []},
-          prefs: await prefsWithAccount());
+        api: (_) => {'Items': []},
+        prefs: await prefsWithAccount(),
+      );
       c.read(sessionProvider);
       await pumpEventQueue();
       expect(c.read(sessionProvider), isA<SignedIn>());
       await c.read(sessionProvider.notifier).signOut();
       expect(c.read(sessionProvider), isA<SignedOut>());
-      expect(
-          c.read(appStorageProvider).activeAccount(), isNull);
+      expect(c.read(appStorageProvider).activeAccount(), isNull);
       expect(c.read(appStorageProvider).accounts(), isEmpty);
     });
 
     test('switchAccount activates another saved account', () async {
       final c = await container(api: (_) => {'Items': []});
       await pumpEventQueue();
-      await c
-          .read(sessionProvider.notifier)
-          .switchAccount(saved());
+      await c.read(sessionProvider.notifier).switchAccount(saved());
       expect(c.read(sessionProvider), isA<SignedIn>());
     });
 
     test('removeAccount drops the session when active', () async {
       final c = await container(
-          api: (_) => {'Items': []},
-          prefs: await prefsWithAccount());
+        api: (_) => {'Items': []},
+        prefs: await prefsWithAccount(),
+      );
       c.read(sessionProvider);
       await pumpEventQueue();
-      await c
-          .read(sessionProvider.notifier)
-          .removeAccount(saved());
+      await c.read(sessionProvider.notifier).removeAccount(saved());
       expect(c.read(sessionProvider), isA<SignedOut>());
     });
   });

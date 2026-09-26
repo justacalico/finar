@@ -18,11 +18,12 @@ class MusicPage extends ConsumerStatefulWidget {
   final String title;
   final bool inShell;
 
-  const MusicPage(
-      {super.key,
-      required this.libraryId,
-      this.title = 'Music',
-      this.inShell = false});
+  const MusicPage({
+    super.key,
+    required this.libraryId,
+    this.title = 'Music',
+    this.inShell = false,
+  });
 
   @override
   ConsumerState<MusicPage> createState() => _MusicPageState();
@@ -52,9 +53,7 @@ class _MusicPageState extends ConsumerState<MusicPage>
           title: widget.title,
           showBack: widget.inShell,
           onBack: widget.inShell
-              ? () => ref
-                  .read(shellNavProvider.notifier)
-                  .closeLibrary()
+              ? () => ref.read(shellNavProvider.notifier).closeLibrary()
               : null,
           below: TabBar(
             controller: _tab,
@@ -86,24 +85,20 @@ class _AlbumsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final query = ItemQuery(
-        parentId: libraryId, types: const ['MusicAlbum']);
+    final query = ItemQuery(parentId: libraryId, types: const ['MusicAlbum']);
     final page = ref.watch(pagedItemsProvider(query));
     return AsyncView(
       value: page,
       onRetry: () => ref.invalidate(pagedItemsProvider(query)),
       builder: (data) => data.items.isEmpty
-          ? const EmptyView(
-              icon: Icons.album_outlined, title: 'No albums')
+          ? const EmptyView(icon: Icons.album_outlined, title: 'No albums')
           : MediaGrid(
               page: data,
               shape: ArtShape.square,
-              onLoadMore: () => ref
-                  .read(pagedItemsProvider(query).notifier)
-                  .loadMore(),
-              onTap: (item) => ref
-                  .read(shellNavProvider.notifier)
-                  .openDetail(item),
+              onLoadMore: () =>
+                  ref.read(pagedItemsProvider(query).notifier).loadMore(),
+              onTap: (item) =>
+                  ref.read(shellNavProvider.notifier).openDetail(item),
             ),
     );
   }
@@ -115,24 +110,20 @@ class _ArtistsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final query = ItemQuery(
-        parentId: libraryId, types: const ['MusicArtist']);
+    final query = ItemQuery(parentId: libraryId, types: const ['MusicArtist']);
     final page = ref.watch(pagedItemsProvider(query));
     return AsyncView(
       value: page,
       onRetry: () => ref.invalidate(pagedItemsProvider(query)),
       builder: (data) => data.items.isEmpty
-          ? const EmptyView(
-              icon: Icons.person_outline, title: 'No artists')
+          ? const EmptyView(icon: Icons.person_outline, title: 'No artists')
           : MediaGrid(
               page: data,
               shape: ArtShape.square,
-              onLoadMore: () => ref
-                  .read(pagedItemsProvider(query).notifier)
-                  .loadMore(),
-              onTap: (item) => ref
-                  .read(shellNavProvider.notifier)
-                  .openDetail(item),
+              onLoadMore: () =>
+                  ref.read(pagedItemsProvider(query).notifier).loadMore(),
+              onTap: (item) =>
+                  ref.read(shellNavProvider.notifier).openDetail(item),
             ),
     );
   }
@@ -144,40 +135,34 @@ class _TracksTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final query =
-        ItemQuery(parentId: libraryId, types: const ['Audio']);
+    final query = ItemQuery(parentId: libraryId, types: const ['Audio']);
     final page = ref.watch(pagedItemsProvider(query));
     final client = ref.read(jellyfinClientProvider);
     return AsyncView(
       value: page,
       onRetry: () => ref.invalidate(pagedItemsProvider(query)),
       builder: (data) => data.items.isEmpty
-          ? const EmptyView(
-              icon: Icons.music_note_outlined, title: 'No tracks')
+          ? const EmptyView(icon: Icons.music_note_outlined, title: 'No tracks')
           : NotificationListener<ScrollNotification>(
               onNotification: (n) {
-                if (n.metrics.pixels >
-                        n.metrics.maxScrollExtent - 600 &&
+                if (n.metrics.pixels > n.metrics.maxScrollExtent - 600 &&
                     data.hasMore &&
                     !data.loadingMore) {
-                  ref
-                      .read(pagedItemsProvider(query).notifier)
-                      .loadMore();
+                  ref.read(pagedItemsProvider(query).notifier).loadMore();
                 }
                 return false;
               },
               child: ListView.builder(
-                padding: const EdgeInsets.all(Insets.md),
-                itemCount:
-                    data.items.length + (data.hasMore ? 1 : 0),
+                padding: EdgeInsets.all(Insets.md),
+                itemCount: data.items.length + (data.hasMore ? 1 : 0),
                 itemBuilder: (context, i) {
                   if (i >= data.items.length) {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(Insets.md),
-                      child:
-                          CircularProgressIndicator.adaptive(),
-                    ));
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(Insets.md),
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                    );
                   }
                   final track = data.items[i];
                   return Focusable(
@@ -186,20 +171,24 @@ class _TracksTab extends ConsumerWidget {
                         .playTracks(data.items, i),
                     child: ListTile(
                       leading: SizedBox(
-                        width: 44,
+                        width: dim(44),
                         child: AppImage(
                           track.albumId != null
                               ? client.imageUrl(
-                                  track.albumId!, 'Primary',
-                                  maxWidth: 88)
+                                  track.albumId!,
+                                  'Primary',
+                                  maxWidth: 88,
+                                )
                               : '',
                           shape: ArtShape.square,
                           borderRadius: 8,
                         ),
                       ),
-                      title: Text(track.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
+                      title: Text(
+                        track.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       subtitle: Text(
                         [
                           if (track.artists.isNotEmpty)
@@ -210,10 +199,10 @@ class _TracksTab extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: track.runtimeLabel.isNotEmpty
-                          ? Text(track.runtimeLabel,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall)
+                          ? Text(
+                              track.runtimeLabel,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            )
                           : null,
                     ),
                   );

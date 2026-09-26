@@ -48,7 +48,9 @@ class SessionNotifier extends Notifier<SessionState> {
     final client = ref.read(jellyfinClientProvider);
     client.setServerUrl(account.serverUrl);
     client.setCredentials(
-        accessToken: account.accessToken, userId: account.userId);
+      accessToken: account.accessToken,
+      userId: account.userId,
+    );
     await _storage.setActiveAccount(account.key);
     state = SignedIn(account: account);
     await refreshLibraries();
@@ -120,5 +122,6 @@ class SessionNotifier extends Notifier<SessionState> {
   }
 }
 
-final sessionProvider =
-    NotifierProvider<SessionNotifier, SessionState>(SessionNotifier.new);
+final sessionProvider = NotifierProvider<SessionNotifier, SessionState>(
+  SessionNotifier.new,
+);

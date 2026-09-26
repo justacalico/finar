@@ -24,8 +24,7 @@ class PageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          Insets.sm, Insets.sm, Insets.sm, 0),
+      padding: EdgeInsets.fromLTRB(Insets.sm, Insets.sm, Insets.sm, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,18 +33,16 @@ class PageHeader extends StatelessWidget {
               if (showBack || canPop)
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: onBack ??
-                      () => Navigator.of(context).maybePop(),
+                  onPressed: onBack ?? () => Navigator.of(context).maybePop(),
                 )
               else
-                const SizedBox(width: Insets.sm),
+                SizedBox(width: Insets.sm),
               Expanded(
                 child: Text(
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style:
-                      Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
               ...actions,

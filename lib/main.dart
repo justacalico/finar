@@ -16,9 +16,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        appStorageProvider.overrideWithValue(storage),
-      ],
+      overrides: [appStorageProvider.overrideWithValue(storage)],
       child: const FinarApp(),
     ),
   );

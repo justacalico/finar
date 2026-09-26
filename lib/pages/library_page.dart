@@ -73,8 +73,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
           title: widget.title,
           showBack: widget.inShell,
           onBack: widget.inShell
-              ? () =>
-                  ref.read(shellNavProvider.notifier).closeLibrary()
+              ? () => ref.read(shellNavProvider.notifier).closeLibrary()
               : null,
           actions: [
             PopupMenuButton<String>(
@@ -86,17 +85,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
                   CheckedPopupMenuItem(
                     value: e.key,
                     checked: _sortBy == e.key,
-                    child: Text(_sortBy == e.key
-                        ? '${e.value} ${_descending ? '↓' : '↑'}'
-                        : e.value),
+                    child: Text(
+                      _sortBy == e.key
+                          ? '${e.value} ${_descending ? '↓' : '↑'}'
+                          : e.value,
+                    ),
                   ),
               ],
             ),
             IconButton(
               icon: const Icon(Icons.refresh),
               tooltip: 'Refresh',
-              onPressed: () =>
-                  ref.invalidate(pagedItemsProvider(_query)),
+              onPressed: () => ref.invalidate(pagedItemsProvider(_query)),
             ),
           ],
         ),
@@ -107,7 +107,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             builder: (data) => data.items.isEmpty
                 ? const EmptyView(
                     icon: Icons.inbox_outlined,
-                    title: 'This library is empty')
+                    title: 'This library is empty',
+                  )
                 : MediaGrid(
                     page: data,
                     onLoadMore: () => ref
@@ -133,8 +134,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
   }
 
   void _play(BuildContext context, MediaItem item) {
-    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-        builder: (_) => PlayerPage(item: item)));
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).push(MaterialPageRoute(builder: (_) => PlayerPage(item: item)));
   }
-
 }

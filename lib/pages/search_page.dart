@@ -47,8 +47,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         PageHeader(
           title: 'Search',
           below: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Insets.sm, Insets.sm, Insets.sm, 0),
+            padding: EdgeInsets.fromLTRB(Insets.sm, Insets.sm, Insets.sm, 0),
             child: TextField(
               controller: _controller,
               onChanged: _onChanged,
@@ -73,22 +72,24 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           child: _query.isEmpty
               ? const EmptyView(
                   icon: Icons.search,
-                  title: 'Search your library')
+                  title: 'Search your library',
+                )
               : AsyncView(
                   value: results,
                   builder: (hints) => hints.isEmpty
                       ? const EmptyView(
                           icon: Icons.search_off,
-                          title: 'No results')
+                          title: 'No results',
+                        )
                       : GridView.builder(
-                          padding: const EdgeInsets.all(Insets.md),
+                          padding: EdgeInsets.all(Insets.md),
                           gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 160,
-                            mainAxisSpacing: Insets.md,
-                            crossAxisSpacing: Insets.sm,
-                            childAspectRatio: 0.62,
-                          ),
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: dim(160),
+                                mainAxisSpacing: Insets.md,
+                                crossAxisSpacing: Insets.sm,
+                                childAspectRatio: 0.62,
+                              ),
                           itemCount: hints.length,
                           itemBuilder: (context, i) =>
                               _SearchCard(hint: hints[i]),
@@ -108,8 +109,12 @@ class _SearchCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final client = ref.read(jellyfinClientProvider);
     final url = hint.primaryImageTag != null
-        ? client.imageUrl(hint.itemId, 'Primary',
-            maxWidth: 320, tag: hint.primaryImageTag)
+        ? client.imageUrl(
+            hint.itemId,
+            'Primary',
+            maxWidth: 320,
+            tag: hint.primaryImageTag,
+          )
         : '';
     final shape = hint.kind == MediaKind.artist
         ? ArtShape.square
@@ -122,11 +127,13 @@ class _SearchCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppImage(url, shape: shape),
-          const SizedBox(height: 8),
-          Text(hint.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelLarge),
+          SizedBox(height: dim(8)),
+          Text(
+            hint.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
           Text(
             [
               hint.type,

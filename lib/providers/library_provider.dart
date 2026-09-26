@@ -34,19 +34,18 @@ class ItemQuery {
     String? sortOrder,
     String? searchTerm,
     bool? isFavorite,
-  }) =>
-      ItemQuery(
-        parentId: parentId,
-        types: types,
-        sortBy: sortBy ?? this.sortBy,
-        sortOrder: sortOrder ?? this.sortOrder,
-        searchTerm: searchTerm ?? this.searchTerm,
-        isFavorite: isFavorite ?? this.isFavorite,
-        filters: filters,
-        genres: genres,
-        personIds: personIds,
-        pageSize: pageSize,
-      );
+  }) => ItemQuery(
+    parentId: parentId,
+    types: types,
+    sortBy: sortBy ?? this.sortBy,
+    sortOrder: sortOrder ?? this.sortOrder,
+    searchTerm: searchTerm ?? this.searchTerm,
+    isFavorite: isFavorite ?? this.isFavorite,
+    filters: filters,
+    genres: genres,
+    personIds: personIds,
+    pageSize: pageSize,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -64,17 +63,17 @@ class ItemQuery {
 
   @override
   int get hashCode => Object.hash(
-        parentId,
-        Object.hashAll(types ?? const []),
-        sortBy,
-        sortOrder,
-        searchTerm,
-        isFavorite,
-        Object.hashAll(filters ?? const []),
-        genres,
-        personIds,
-        pageSize,
-      );
+    parentId,
+    Object.hashAll(types ?? const []),
+    sortBy,
+    sortOrder,
+    searchTerm,
+    isFavorite,
+    Object.hashAll(filters ?? const []),
+    genres,
+    personIds,
+    pageSize,
+  );
 
   static bool _listEq(List<String>? a, List<String>? b) {
     if (identical(a, b)) return true;
@@ -106,8 +105,9 @@ class PagedItems {
 
 /// Every live [PagedItemsNotifier] registers here so mutations can patch
 /// all visible lists at once.
-final itemListRegistryProvider =
-    Provider<Set<PagedItemsNotifier>>((ref) => <PagedItemsNotifier>{});
+final itemListRegistryProvider = Provider<Set<PagedItemsNotifier>>(
+  (ref) => <PagedItemsNotifier>{},
+);
 
 class PagedItemsNotifier extends FamilyAsyncNotifier<PagedItems, ItemQuery> {
   @override
@@ -120,7 +120,9 @@ class PagedItemsNotifier extends FamilyAsyncNotifier<PagedItems, ItemQuery> {
   }
 
   Future<ItemsResult> _fetch(int startIndex) {
-    return ref.read(jellyfinClientProvider).getItems(
+    return ref
+        .read(jellyfinClientProvider)
+        .getItems(
           parentId: arg.parentId,
           includeItemTypes: arg.types,
           startIndex: startIndex,
@@ -144,10 +146,12 @@ class PagedItemsNotifier extends FamilyAsyncNotifier<PagedItems, ItemQuery> {
     try {
       final result = await _fetch(current.items.length);
       final latest = state.valueOrNull ?? current;
-      state = AsyncData(PagedItems(
-        items: [...latest.items, ...result.items],
-        total: result.totalCount,
-      ));
+      state = AsyncData(
+        PagedItems(
+          items: [...latest.items, ...result.items],
+          total: result.totalCount,
+        ),
+      );
     } catch (_) {
       state = AsyncData(current.copyLoading(false));
       rethrow;
@@ -158,47 +162,55 @@ class PagedItemsNotifier extends FamilyAsyncNotifier<PagedItems, ItemQuery> {
   void updateItem(MediaItem updated) {
     final current = state.valueOrNull;
     if (current == null) return;
-    state = AsyncData(PagedItems(
-      items: [
-        for (final i in current.items) i.id == updated.id ? updated : i
-      ],
-      total: current.total,
-      loadingMore: current.loadingMore,
-    ));
+    state = AsyncData(
+      PagedItems(
+        items: [
+          for (final i in current.items) i.id == updated.id ? updated : i,
+        ],
+        total: current.total,
+        loadingMore: current.loadingMore,
+      ),
+    );
   }
 }
 
-final pagedItemsProvider = AsyncNotifierProvider.family<PagedItemsNotifier,
-    PagedItems, ItemQuery>(PagedItemsNotifier.new);
+final pagedItemsProvider =
+    AsyncNotifierProvider.family<PagedItemsNotifier, PagedItems, ItemQuery>(
+      PagedItemsNotifier.new,
+    );
 
-final itemProvider =
-    FutureProvider.family.autoDispose<MediaItem, String>((ref, id) async {
+final itemProvider = FutureProvider.family.autoDispose<MediaItem, String>((
+  ref,
+  id,
+) async {
   return ref.read(jellyfinClientProvider).getItem(id);
 });
 
 final similarProvider = FutureProvider.family
     .autoDispose<List<MediaItem>, String>((ref, id) async {
-  return ref.read(jellyfinClientProvider).getSimilar(id);
-});
+      return ref.read(jellyfinClientProvider).getSimilar(id);
+    });
 
 final seasonsProvider = FutureProvider.family
     .autoDispose<List<MediaItem>, String>((ref, seriesId) async {
-  return ref.read(jellyfinClientProvider).getSeasons(seriesId);
-});
+      return ref.read(jellyfinClientProvider).getSeasons(seriesId);
+    });
 
 final episodesProvider = FutureProvider.family
-    .autoDispose<List<MediaItem>, ({String seriesId, String seasonId})>(
-        (ref, arg) async {
-  return ref
-      .read(jellyfinClientProvider)
-      .getEpisodes(arg.seriesId, seasonId: arg.seasonId);
-});
+    .autoDispose<List<MediaItem>, ({String seriesId, String seasonId})>((
+      ref,
+      arg,
+    ) async {
+      return ref
+          .read(jellyfinClientProvider)
+          .getEpisodes(arg.seriesId, seasonId: arg.seasonId);
+    });
 
 final searchProvider = FutureProvider.autoDispose
     .family<List<SearchHint>, String>((ref, query) async {
-  if (query.trim().isEmpty) return const [];
-  return ref.read(jellyfinClientProvider).search(query);
-});
+      if (query.trim().isEmpty) return const [];
+      return ref.read(jellyfinClientProvider).search(query);
+    });
 
 /// User-data mutations. Patches every live list plus the item cache so
 /// the UI stays consistent everywhere.
@@ -210,16 +222,19 @@ class MediaActions {
     final client = _ref.read(jellyfinClientProvider);
     final next = !item.isFavorite;
     await client.setFavorite(item.id, next);
-    _patch(item.copyWith(
+    _patch(
+      item.copyWith(
         userData: UserData(
-      rating: item.userData.rating,
-      playedPercentage: item.userData.playedPercentage,
-      playbackPositionTicks: item.userData.playbackPositionTicks,
-      playCount: item.userData.playCount,
-      isFavorite: next,
-      played: item.userData.played,
-      lastPlayedDate: item.userData.lastPlayedDate,
-    )));
+          rating: item.userData.rating,
+          playedPercentage: item.userData.playedPercentage,
+          playbackPositionTicks: item.userData.playbackPositionTicks,
+          playCount: item.userData.playCount,
+          isFavorite: next,
+          played: item.userData.played,
+          lastPlayedDate: item.userData.lastPlayedDate,
+        ),
+      ),
+    );
   }
 
   Future<void> togglePlayed(MediaItem item) async {
@@ -230,16 +245,19 @@ class MediaActions {
     } else {
       await client.markUnplayed(item.id);
     }
-    _patch(item.copyWith(
+    _patch(
+      item.copyWith(
         userData: UserData(
-      rating: item.userData.rating,
-      playedPercentage: next ? 100 : 0,
-      playbackPositionTicks: next ? item.userData.playbackPositionTicks : 0,
-      playCount: item.userData.playCount,
-      isFavorite: item.userData.isFavorite,
-      played: next,
-      lastPlayedDate: item.userData.lastPlayedDate,
-    )));
+          rating: item.userData.rating,
+          playedPercentage: next ? 100 : 0,
+          playbackPositionTicks: next ? item.userData.playbackPositionTicks : 0,
+          playCount: item.userData.playCount,
+          isFavorite: item.userData.isFavorite,
+          played: next,
+          lastPlayedDate: item.userData.lastPlayedDate,
+        ),
+      ),
+    );
   }
 
   void _patch(MediaItem updated) {

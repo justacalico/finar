@@ -18,11 +18,11 @@ enum DownloadStatus { queued, downloading, done, failed }
 /// Status label shown in the downloads list.
 extension DownloadStatusLabel on DownloadStatus {
   String get label => switch (this) {
-        DownloadStatus.queued => 'Queued',
-        DownloadStatus.downloading => 'Downloading',
-        DownloadStatus.done => 'Done',
-        DownloadStatus.failed => 'Failed',
-      };
+    DownloadStatus.queued => 'Queued',
+    DownloadStatus.downloading => 'Downloading',
+    DownloadStatus.done => 'Done',
+    DownloadStatus.failed => 'Failed',
+  };
 }
 
 class DownloadEntry {
@@ -45,29 +45,30 @@ class DownloadEntry {
     DownloadStatus? status,
     double? progress,
     String? error,
-  }) =>
-      DownloadEntry(
-        item: item,
-        localPath: localPath ?? this.localPath,
-        status: status ?? this.status,
-        progress: progress ?? this.progress,
-        error: error,
-      );
+  }) => DownloadEntry(
+    item: item,
+    localPath: localPath ?? this.localPath,
+    status: status ?? this.status,
+    progress: progress ?? this.progress,
+    error: error,
+  );
 
   Map<String, dynamic> toJson() => {
-        'item': item.toJson(),
-        'localPath': localPath,
-        'status': status.name,
-        'progress': progress,
-      };
+    'item': item.toJson(),
+    'localPath': localPath,
+    'status': status.name,
+    'progress': progress,
+  };
 
   factory DownloadEntry.fromJson(Map<String, dynamic> j) => DownloadEntry(
-        item: MediaItem.fromJson(j['item'] as Map<String, dynamic>),
-        localPath: j['localPath'] as String?,
-        status: DownloadStatus.values.firstWhere((s) => s.name == j['status'],
-            orElse: () => DownloadStatus.failed),
-        progress: (j['progress'] as num?)?.toDouble() ?? 0,
-      );
+    item: MediaItem.fromJson(j['item'] as Map<String, dynamic>),
+    localPath: j['localPath'] as String?,
+    status: DownloadStatus.values.firstWhere(
+      (s) => s.name == j['status'],
+      orElse: () => DownloadStatus.failed,
+    ),
+    progress: (j['progress'] as num?)?.toDouble() ?? 0,
+  );
 }
 
 class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
@@ -90,23 +91,26 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
         for (final e in entries)
           e.status == DownloadStatus.done
               ? e
-              : e.copyWith(status: DownloadStatus.failed)
+              : e.copyWith(status: DownloadStatus.failed),
       ];
     } catch (_) {
       return [];
     }
   }
 
-  Future<void> _persist() => ref.read(appStorageProvider).setRaw(
-      _manifestKey, jsonEncode(state.map((e) => e.toJson()).toList()));
+  Future<void> _persist() => ref
+      .read(appStorageProvider)
+      .setRaw(_manifestKey, jsonEncode(state.map((e) => e.toJson()).toList()));
 
-  bool isDownloaded(String itemId) => state.any(
-      (e) => e.item.id == itemId && e.status == DownloadStatus.done);
+  bool isDownloaded(String itemId) =>
+      state.any((e) => e.item.id == itemId && e.status == DownloadStatus.done);
 
-  bool isActive(String itemId) => state.any((e) =>
-      e.item.id == itemId &&
-      (e.status == DownloadStatus.downloading ||
-          e.status == DownloadStatus.queued));
+  bool isActive(String itemId) => state.any(
+    (e) =>
+        e.item.id == itemId &&
+        (e.status == DownloadStatus.downloading ||
+            e.status == DownloadStatus.queued),
+  );
 
   String? localPathFor(String itemId) {
     for (final e in state) {
@@ -125,9 +129,7 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
   }
 
   void _update(String itemId, DownloadEntry Function(DownloadEntry) fn) {
-    state = [
-      for (final e in state) e.item.id == itemId ? fn(e) : e,
-    ];
+    state = [for (final e in state) e.item.id == itemId ? fn(e) : e];
   }
 
   Future<void> download(MediaItem item) async {
@@ -136,7 +138,8 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
     _dirFuture ??= downloadsDirectory();
     final dir = await _dirFuture!;
     await ensureDirectory(dir);
-    final ext = item.mediaSources.isNotEmpty &&
+    final ext =
+        item.mediaSources.isNotEmpty &&
             item.mediaSources.first.container != null
         ? item.mediaSources.first.container!
         : 'mkv';
@@ -145,9 +148,10 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
     state = [
       ...state,
       DownloadEntry(
-          item: item,
-          localPath: path,
-          status: DownloadStatus.downloading),
+        item: item,
+        localPath: path,
+        status: DownloadStatus.downloading,
+      ),
     ];
 
     final token = CancelToken();
@@ -158,26 +162,29 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
         client.streamUrl(item.id),
         path,
         cancelToken: token,
-        options: Options(headers: {
-          'Authorization': client.authHeader,
-          'X-Emby-Authorization': client.authHeader,
-        }),
+        options: Options(
+          headers: {
+            'Authorization': client.authHeader,
+            'X-Emby-Authorization': client.authHeader,
+          },
+        ),
         onReceiveProgress: (received, total) {
           if (total > 0) {
-            _update(
-                item.id, (e) => e.copyWith(progress: received / total));
+            _update(item.id, (e) => e.copyWith(progress: received / total));
           }
         },
       );
-      _update(item.id,
-          (e) => e.copyWith(status: DownloadStatus.done, progress: 1));
+      _update(
+        item.id,
+        (e) => e.copyWith(status: DownloadStatus.done, progress: 1),
+      );
       await _persist();
     } catch (err) {
       await deleteFileIfExists(path);
       _update(
-          item.id,
-          (e) => e.copyWith(
-              status: DownloadStatus.failed, error: err.toString()));
+        item.id,
+        (e) => e.copyWith(status: DownloadStatus.failed, error: err.toString()),
+      );
       await _persist();
     } finally {
       _tokens.remove(item.id);
@@ -191,7 +198,10 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
     if (entry?.localPath != null) {
       await deleteFileIfExists(entry!.localPath!);
     }
-    state = [for (final e in state) if (e.item.id != itemId) e];
+    state = [
+      for (final e in state)
+        if (e.item.id != itemId) e,
+    ];
     await _persist();
   }
 
@@ -200,4 +210,5 @@ class DownloadsNotifier extends Notifier<List<DownloadEntry>> {
 
 final downloadsProvider =
     NotifierProvider<DownloadsNotifier, List<DownloadEntry>>(
-        DownloadsNotifier.new);
+      DownloadsNotifier.new,
+    );

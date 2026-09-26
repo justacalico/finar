@@ -33,27 +33,23 @@ class SeeAllPage extends ConsumerWidget {
           Expanded(
             child: AsyncView(
               value: page,
-              onRetry: () =>
-                  ref.invalidate(pagedItemsProvider(query)),
+              onRetry: () => ref.invalidate(pagedItemsProvider(query)),
               builder: (data) => MediaGrid(
                 page: data,
                 shape: shape,
-                onLoadMore: () => ref
-                    .read(pagedItemsProvider(query).notifier)
-                    .loadMore(),
-                onTap: (item) => ref
-                    .read(shellNavProvider.notifier)
-                    .openDetail(item),
+                onLoadMore: () =>
+                    ref.read(pagedItemsProvider(query).notifier).loadMore(),
+                onTap: (item) =>
+                    ref.read(shellNavProvider.notifier).openDetail(item),
                 onLongPress: (item) => showItemMenu(
                   context,
                   ref,
                   item,
                   onPlay: (x) => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => PlayerPage(item: x))),
-                  onOpen: (x) => ref
-                      .read(shellNavProvider.notifier)
-                      .openDetail(x),
+                    MaterialPageRoute(builder: (_) => PlayerPage(item: x)),
+                  ),
+                  onOpen: (x) =>
+                      ref.read(shellNavProvider.notifier).openDetail(x),
                 ),
               ),
             ),

@@ -55,8 +55,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       _error = null;
     });
     try {
-      final info =
-          await ref.read(jellyfinClientProvider).testConnection(url);
+      final info = await ref.read(jellyfinClientProvider).testConnection(url);
       setState(() {
         _server = info;
         _connecting = false;
@@ -81,7 +80,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       _error = null;
     });
     try {
-      await ref.read(sessionProvider.notifier).signIn(
+      await ref
+          .read(sessionProvider.notifier)
+          .signIn(
             serverUrl: _server!.serverUrl,
             serverName: _server!.name,
             username: username,
@@ -91,8 +92,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     } catch (_) {
       setState(() {
         _busy = false;
-        _error =
-            'Sign in failed. Check your username and password.';
+        _error = 'Sign in failed. Check your username and password.';
       });
     }
   }
@@ -111,42 +111,46 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final savedAccounts =
-        ref.watch(sessionProvider) is SignedOut
-            ? (ref.watch(sessionProvider) as SignedOut).accounts
-            : const <SavedAccount>[];
+    final savedAccounts = ref.watch(sessionProvider) is SignedOut
+        ? (ref.watch(sessionProvider) as SignedOut).accounts
+        : const <SavedAccount>[];
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Insets.lg),
+            padding: EdgeInsets.all(Insets.lg),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: Insets.xl),
-                  Text('Finar',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displaySmall),
-                  const SizedBox(height: Insets.xs),
+                  SizedBox(height: Insets.xl),
+                  Text(
+                    'Finar',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displaySmall,
+                  ),
+                  SizedBox(height: Insets.xs),
                   Text(
                     'Your Jellyfin library, everywhere.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: Insets.xxl),
+                  SizedBox(height: Insets.xxl),
                   if (_server == null)
                     _serverStep(savedAccounts)
                   else
                     _credentialsStep(savedAccounts),
                   if (_error != null) ...[
-                    const SizedBox(height: Insets.md),
-                    Text(_error!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.error)),
+                    SizedBox(height: Insets.md),
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -161,31 +165,31 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Connect to a server',
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: Insets.sm),
+        Text(
+          'Connect to a server',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        SizedBox(height: Insets.sm),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DropdownButton<String>(
               value: _scheme,
-              underline: const SizedBox.shrink(),
+              underline: SizedBox.shrink(),
               borderRadius: BorderRadius.circular(Radii.card),
               items: const [
-                DropdownMenuItem(
-                    value: 'https://', child: Text('https://')),
-                DropdownMenuItem(
-                    value: 'http://', child: Text('http://')),
+                DropdownMenuItem(value: 'https://', child: Text('https://')),
+                DropdownMenuItem(value: 'http://', child: Text('http://')),
               ],
               onChanged: (v) {
                 if (v != null) setState(() => _scheme = v);
               },
             ),
-            const SizedBox(width: Insets.sm),
+            SizedBox(width: Insets.sm),
             Expanded(
               child: TextField(
                 controller: _addressController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'jellyfin.example.com:8096',
                 ),
                 keyboardType: TextInputType.url,
@@ -195,21 +199,24 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             ),
           ],
         ),
-        const SizedBox(height: Insets.md),
+        SizedBox(height: Insets.md),
         FilledButton(
           onPressed: _connecting ? null : _connect,
           child: _connecting
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+              ? SizedBox(
+                  width: dim(18),
+                  height: dim(18),
+                  child: CircularProgressIndicator(strokeWidth: dim(2)),
+                )
               : const Text('Connect'),
         ),
         if (accounts.isNotEmpty) ...[
-          const SizedBox(height: Insets.xl),
-          Text('Saved accounts',
-              style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: Insets.sm),
+          SizedBox(height: Insets.xl),
+          Text(
+            'Saved accounts',
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+          SizedBox(height: Insets.sm),
           for (final a in accounts) _accountTile(a),
         ],
       ],
@@ -218,22 +225,24 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   Widget _accountTile(SavedAccount account) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: Insets.sm),
+      padding: EdgeInsets.only(bottom: Insets.sm),
       child: Focusable(
         onTap: _busy ? null : () => _switchTo(account),
         child: ListTile(
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Radii.card)),
-          tileColor:
-              Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(Radii.card),
+          ),
+          tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           title: Text(account.userName),
           subtitle: Text(
-              '${account.serverName.isEmpty ? 'Jellyfin' : account.serverName}  •  ${account.serverUrl}'),
+            '${account.serverName.isEmpty ? 'Jellyfin' : account.serverName}  •  ${account.serverUrl}',
+          ),
           trailing: _busy
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+              ? SizedBox(
+                  width: dim(18),
+                  height: dim(18),
+                  child: CircularProgressIndicator(strokeWidth: dim(2)),
+                )
               : const Icon(Icons.chevron_right),
         ),
       ),
@@ -251,64 +260,72 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         Row(
           children: [
             IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => setState(() {
-                      _server = null;
-                      _error = null;
-                    })),
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => setState(() {
+                _server = null;
+                _error = null;
+              }),
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(server.name,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  Text(server.serverUrl,
-                      style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    server.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    server.serverUrl,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: Insets.lg),
+        SizedBox(height: Insets.lg),
         TextField(
           controller: _usernameController,
-          decoration: const InputDecoration(hintText: 'Username'),
+          decoration: InputDecoration(hintText: 'Username'),
           autocorrect: false,
           textInputAction: TextInputAction.next,
         ),
-        const SizedBox(height: Insets.sm),
+        SizedBox(height: Insets.sm),
         TextField(
           controller: _passwordController,
           decoration: InputDecoration(
             hintText: 'Password',
             suffixIcon: IconButton(
-              tooltip:
-                  _hidePassword ? 'Show password' : 'Hide password',
-              icon: Icon(_hidePassword
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined),
-              onPressed: () => setState(
-                  () => _hidePassword = !_hidePassword),
+              tooltip: _hidePassword ? 'Show password' : 'Hide password',
+              icon: Icon(
+                _hidePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+              ),
+              onPressed: () => setState(() => _hidePassword = !_hidePassword),
             ),
           ),
           obscureText: _hidePassword,
           onSubmitted: (_) => _signIn(),
         ),
-        const SizedBox(height: Insets.md),
+        SizedBox(height: Insets.md),
         FilledButton(
           onPressed: _busy ? null : _signIn,
           child: _busy
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+              ? SizedBox(
+                  width: dim(18),
+                  height: dim(18),
+                  child: CircularProgressIndicator(strokeWidth: dim(2)),
+                )
               : const Text('Sign in'),
         ),
         if (localAccounts.isNotEmpty) ...[
-          const SizedBox(height: Insets.xl),
-          Text('Saved accounts',
-              style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: Insets.sm),
+          SizedBox(height: Insets.xl),
+          Text(
+            'Saved accounts',
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+          SizedBox(height: Insets.sm),
           for (final a in localAccounts) _accountTile(a),
         ],
       ],

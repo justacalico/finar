@@ -23,8 +23,12 @@ class PlayQueue {
     this._shufflePos,
   );
 
-  factory PlayQueue(List<MediaItem> tracks, int startIndex,
-      {bool shuffle = false, Random? random}) {
+  factory PlayQueue(
+    List<MediaItem> tracks,
+    int startIndex, {
+    bool shuffle = false,
+    Random? random,
+  }) {
     if (tracks.isEmpty) {
       return const PlayQueue._([], -1, false, [], -1);
     }
@@ -127,14 +131,13 @@ class AudioState {
     bool? loading,
     Duration? position,
     Duration? duration,
-  }) =>
-      AudioState(
-        queue: queue ?? this.queue,
-        playing: playing ?? this.playing,
-        loading: loading ?? this.loading,
-        position: position ?? this.position,
-        duration: duration ?? this.duration,
-      );
+  }) => AudioState(
+    queue: queue ?? this.queue,
+    playing: playing ?? this.playing,
+    loading: loading ?? this.loading,
+    position: position ?? this.position,
+    duration: duration ?? this.duration,
+  );
 }
 
 class AudioPlayerNotifier extends Notifier<AudioState> {
@@ -154,21 +157,21 @@ class AudioPlayerNotifier extends Notifier<AudioState> {
   Player _createPlayer() {
     final p = Player();
     p.stream.playing.listen((v) => state = state.copyWith(playing: v));
-    p.stream.position
-        .listen((v) => state = state.copyWith(position: v));
-    p.stream.duration
-        .listen((v) => state = state.copyWith(duration: v));
+    p.stream.position.listen((v) => state = state.copyWith(position: v));
+    p.stream.duration.listen((v) => state = state.copyWith(duration: v));
     p.stream.completed.listen((v) {
       if (v) _onTrackEnd();
     });
     return p;
   }
 
-  Future<void> playTracks(List<MediaItem> tracks, int startIndex,
-      {bool shuffle = false}) async {
+  Future<void> playTracks(
+    List<MediaItem> tracks,
+    int startIndex, {
+    bool shuffle = false,
+  }) async {
     if (tracks.isEmpty) return;
-    final queue =
-        PlayQueue(tracks, startIndex, shuffle: shuffle);
+    final queue = PlayQueue(tracks, startIndex, shuffle: shuffle);
     state = state.copyWith(queue: queue, loading: true);
     await _openCurrent();
   }
@@ -232,5 +235,6 @@ class AudioPlayerNotifier extends Notifier<AudioState> {
   }
 }
 
-final audioPlayerProvider =
-    NotifierProvider<AudioPlayerNotifier, AudioState>(AudioPlayerNotifier.new);
+final audioPlayerProvider = NotifierProvider<AudioPlayerNotifier, AudioState>(
+  AudioPlayerNotifier.new,
+);

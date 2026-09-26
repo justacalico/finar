@@ -7,13 +7,13 @@ enum ShellSection { home, search, favorites, downloads, libraries, settings }
 
 extension ShellSectionData on ShellSection {
   String get label => switch (this) {
-        ShellSection.home => 'Home',
-        ShellSection.search => 'Search',
-        ShellSection.favorites => 'Favorites',
-        ShellSection.downloads => 'Downloads',
-        ShellSection.libraries => 'Libraries',
-        ShellSection.settings => 'Settings',
-      };
+    ShellSection.home => 'Home',
+    ShellSection.search => 'Search',
+    ShellSection.favorites => 'Favorites',
+    ShellSection.downloads => 'Downloads',
+    ShellSection.libraries => 'Libraries',
+    ShellSection.settings => 'Settings',
+  };
 }
 
 /// Which shell section is visible plus which library (if any) is open
@@ -37,22 +37,20 @@ class ShellNav {
     this.detailStack = const [],
   });
 
-  MediaItem? get detailItem =>
-      detailStack.isEmpty ? null : detailStack.last;
+  MediaItem? get detailItem => detailStack.isEmpty ? null : detailStack.last;
 
   ShellNav copyWith({
     ShellSection? section,
     String? Function()? libraryId,
     String? Function()? libraryName,
     List<MediaItem>? detailStack,
-  }) =>
-      ShellNav(
-        section: section ?? this.section,
-        libraryId: libraryId != null ? libraryId() : this.libraryId,
-        libraryName: libraryName != null ? libraryName() : this.libraryName,
-        libraryCollectionType: libraryCollectionType,
-        detailStack: detailStack ?? this.detailStack,
-      );
+  }) => ShellNav(
+    section: section ?? this.section,
+    libraryId: libraryId != null ? libraryId() : this.libraryId,
+    libraryName: libraryName != null ? libraryName() : this.libraryName,
+    libraryCollectionType: libraryCollectionType,
+    detailStack: detailStack ?? this.detailStack,
+  );
 }
 
 class ShellNavNotifier extends Notifier<ShellNav> {
@@ -61,19 +59,20 @@ class ShellNavNotifier extends Notifier<ShellNav> {
 
   void select(ShellSection section) {
     state = state.copyWith(
-        section: section,
-        libraryId: () => null,
-        libraryName: () => null,
-        detailStack: const []);
+      section: section,
+      libraryId: () => null,
+      libraryName: () => null,
+      detailStack: const [],
+    );
   }
 
-  void openLibrary(String id, String name,
-      {String? collectionType}) {
+  void openLibrary(String id, String name, {String? collectionType}) {
     state = ShellNav(
-        section: ShellSection.libraries,
-        libraryId: id,
-        libraryName: name,
-        libraryCollectionType: collectionType);
+      section: ShellSection.libraries,
+      libraryId: id,
+      libraryName: name,
+      libraryCollectionType: collectionType,
+    );
   }
 
   void closeLibrary() {
@@ -81,8 +80,7 @@ class ShellNavNotifier extends Notifier<ShellNav> {
   }
 
   void openDetail(MediaItem item) {
-    state =
-        state.copyWith(detailStack: [...state.detailStack, item]);
+    state = state.copyWith(detailStack: [...state.detailStack, item]);
   }
 
   /// Pop the current detail. With nothing left the previous section
@@ -90,10 +88,11 @@ class ShellNavNotifier extends Notifier<ShellNav> {
   void closeDetail() {
     if (state.detailStack.isEmpty) return;
     state = state.copyWith(
-        detailStack:
-            state.detailStack.sublist(0, state.detailStack.length - 1));
+      detailStack: state.detailStack.sublist(0, state.detailStack.length - 1),
+    );
   }
 }
 
-final shellNavProvider =
-    NotifierProvider<ShellNavNotifier, ShellNav>(ShellNavNotifier.new);
+final shellNavProvider = NotifierProvider<ShellNavNotifier, ShellNav>(
+  ShellNavNotifier.new,
+);

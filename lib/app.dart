@@ -38,21 +38,23 @@ class FinarApp extends ConsumerWidget {
       title: 'Finar',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(Brightness.light, settings.accent),
-      darkTheme:
-          AppTheme.build(Brightness.dark, settings.accent, oled: settings.oled),
+      darkTheme: AppTheme.build(
+        Brightness.dark,
+        settings.accent,
+        oled: settings.oled,
+      ),
       themeMode: settings.flutterThemeMode,
       builder: (context, child) => CallbackShortcuts(
         bindings: zoomBindings,
         child: Focus(
           autofocus: true,
-          child:
-              UiScaler(scale: settings.uiScale, child: child!),
+          child: UiScaler(scale: settings.uiScale, child: child!),
         ),
       ),
       home: switch (session) {
         SessionLoading() => const Scaffold(
-            body: Center(
-                child: CircularProgressIndicator.adaptive())),
+          body: Center(child: CircularProgressIndicator.adaptive()),
+        ),
         SignedOut() => const AuthPage(),
         SignedIn() => const ShellPage(),
       },

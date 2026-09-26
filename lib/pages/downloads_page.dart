@@ -26,12 +26,12 @@ class DownloadsPage extends ConsumerWidget {
                   icon: Icons.download_outlined,
                   title: 'No downloads',
                   subtitle:
-                      'Downloaded items are stored on this device for offline playback.')
+                      'Downloaded items are stored on this device for offline playback.',
+                )
               : ListView.separated(
-                  padding: const EdgeInsets.all(Insets.md),
+                  padding: EdgeInsets.all(Insets.md),
                   itemCount: entries.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: Insets.sm),
+                  separatorBuilder: (_, __) => SizedBox(height: Insets.sm),
                   itemBuilder: (context, i) {
                     final e = entries[i];
                     return _DownloadTile(entry: e);
@@ -53,56 +53,56 @@ class _DownloadTile extends ConsumerWidget {
     final item = entry.item;
     return Focusable(
       onTap: entry.status == DownloadStatus.done
-          ? () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => PlayerPage(item: item)))
+          ? () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => PlayerPage(item: item)))
           : null,
-      onLongPress: () =>
-          ref.read(downloadsProvider.notifier).remove(item.id),
+      onLongPress: () => ref.read(downloadsProvider.notifier).remove(item.id),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(Insets.sm),
+          padding: EdgeInsets.all(Insets.sm),
           child: Row(
             children: [
               SizedBox(
-                width: 110,
+                width: dim(110),
                 child: AppImage(
                   client.thumbUrl(item, maxWidth: 220),
                   shape: ArtShape.backdrop,
                 ),
               ),
-              const SizedBox(width: Insets.sm),
+              SizedBox(width: Insets.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.displayTitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall),
-                    const SizedBox(height: 4),
+                    Text(
+                      item.displayTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    SizedBox(height: dim(4)),
                     if (entry.status == DownloadStatus.downloading)
                       Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           LinearProgressIndicator(
-                              value: entry.progress > 0
-                                  ? entry.progress
-                                  : null),
-                          const SizedBox(height: 4),
+                            value: entry.progress > 0 ? entry.progress : null,
+                          ),
+                          SizedBox(height: dim(4)),
                           Text(
                             '${(entry.progress * 100).toStringAsFixed(0)}%',
-                            style:
-                                Theme.of(context).textTheme.labelSmall,
+                            style: Theme.of(context).textTheme.labelSmall,
                           ),
                         ],
                       )
                     else if (entry.status == DownloadStatus.failed)
-                      Text('Download failed',
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .error))
+                      Text(
+                        'Download failed',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      )
                     else
                       Text(
                         [
@@ -119,16 +119,14 @@ class _DownloadTile extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.delete_outline),
                 tooltip: 'Remove download',
-                onPressed: () => ref
-                    .read(downloadsProvider.notifier)
-                    .remove(item.id),
+                onPressed: () =>
+                    ref.read(downloadsProvider.notifier).remove(item.id),
               ),
               IconButton(
                 icon: const Icon(Icons.info_outline),
                 tooltip: 'Details',
-                onPressed: () => ref
-                    .read(shellNavProvider.notifier)
-                    .openDetail(item),
+                onPressed: () =>
+                    ref.read(shellNavProvider.notifier).openDetail(item),
               ),
             ],
           ),

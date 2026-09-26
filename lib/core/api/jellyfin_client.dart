@@ -19,24 +19,29 @@ class JellyfinClient {
     this.deviceName = 'Finar',
     required this.deviceId,
     this.clientVersion = '1.0.0',
-  }) : _dio = dio ??
-            Dio(BaseOptions(
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 30),
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              },
-            )) {
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        // Jellyfin 10.9+ wants Authorization; older servers and Emby
-        // still read X-Emby-Authorization. Send both.
-        options.headers['Authorization'] = authHeader;
-        options.headers['X-Emby-Authorization'] = authHeader;
-        handler.next(options);
-      },
-    ));
+  }) : _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               connectTimeout: const Duration(seconds: 15),
+               receiveTimeout: const Duration(seconds: 30),
+               headers: {
+                 'Accept': 'application/json',
+                 'Content-Type': 'application/json',
+               },
+             ),
+           ) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // Jellyfin 10.9+ wants Authorization; older servers and Emby
+          // still read X-Emby-Authorization. Send both.
+          options.headers['Authorization'] = authHeader;
+          options.headers['X-Emby-Authorization'] = authHeader;
+          handler.next(options);
+        },
+      ),
+    );
   }
 
   String get authHeader {
@@ -77,7 +82,9 @@ class JellyfinClient {
   Future<ServerInfo> getServerInfo() async {
     final res = await _dio.get('/System/Info/Public');
     return ServerInfo.fromJson(
-        res.data as Map<String, dynamic>, serverUrl ?? '');
+      res.data as Map<String, dynamic>,
+      serverUrl ?? '',
+    );
   }
 
   Future<ServerInfo> testConnection(String url) async {
@@ -97,10 +104,8 @@ class JellyfinClient {
       '/Users/AuthenticateByName',
       data: {'Username': username, 'Pw': password},
     );
-    final result =
-        AuthResult.fromJson(res.data as Map<String, dynamic>);
-    setCredentials(
-        accessToken: result.accessToken, userId: result.user.id);
+    final result = AuthResult.fromJson(res.data as Map<String, dynamic>);
+    setCredentials(accessToken: result.accessToken, userId: result.user.id);
     return result;
   }
 
@@ -110,12 +115,13 @@ class JellyfinClient {
   }
 
   Future<AuthResult?> checkQuickConnect(String secret) async {
-    final res = await _dio.get('/QuickConnect/Connect',
-        queryParameters: {'secret': secret});
+    final res = await _dio.get(
+      '/QuickConnect/Connect',
+      queryParameters: {'secret': secret},
+    );
     if (res.data['Authenticated'] != true) return null;
     final token = res.data['AccessToken'] as String;
-    final me = await _dio.get('/Users/Me',
-        queryParameters: {'api_key': token});
+    final me = await _dio.get('/Users/Me', queryParameters: {'api_key': token});
     final user = JfUser.fromJson(me.data as Map<String, dynamic>);
     setCredentials(accessToken: token, userId: user.id);
     return AuthResult(
@@ -190,8 +196,7 @@ class JellyfinClient {
     final res = await _dio.get(
       '/Users/$userId/Items/$itemId',
       queryParameters: const {
-        'Fields':
-            'Overview,People,Genres,MediaStreams,Chapters,MediaSources',
+        'Fields': 'Overview,People,Genres,MediaStreams,Chapters,MediaSources',
       },
     );
     return MediaItem.fromJson(res.data as Map<String, dynamic>);
@@ -200,11 +205,7 @@ class JellyfinClient {
   Future<List<MediaItem>> getSimilar(String itemId, {int limit = 12}) async {
     final res = await _dio.get(
       '/Items/$itemId/Similar',
-      queryParameters: {
-        'UserId': userId,
-        'Limit': limit,
-        'Fields': 'Overview',
-      },
+      queryParameters: {'UserId': userId, 'Limit': limit, 'Fields': 'Overview'},
     );
     return parseItemList(res.data['Items'] as List<dynamic>);
   }
@@ -258,8 +259,7 @@ class JellyfinClient {
       '/Users/$userId/Suggestions',
       queryParameters: {'Limit': limit, 'Fields': 'Overview'},
     );
-    final items =
-        parseItemList(res.data['Items'] as List<dynamic>? ?? []);
+    final items = parseItemList(res.data['Items'] as List<dynamic>? ?? []);
     return items.where((i) => !i.isContainer).toList();
   }
 
@@ -286,8 +286,10 @@ class JellyfinClient {
     return parseItemList(res.data['Items'] as List<dynamic>);
   }
 
-  Future<List<MediaItem>> getEpisodes(String seriesId,
-      {String? seasonId}) async {
+  Future<List<MediaItem>> getEpisodes(
+    String seriesId, {
+    String? seasonId,
+  }) async {
     final res = await _dio.get(
       '/Shows/$seriesId/Episodes',
       queryParameters: {
@@ -329,8 +331,7 @@ class JellyfinClient {
       '/Items/$itemId/PlaybackInfo',
       queryParameters: {
         'UserId': userId,
-        if (audioStreamIndex != null)
-          'AudioStreamIndex': audioStreamIndex,
+        if (audioStreamIndex != null) 'AudioStreamIndex': audioStreamIndex,
         if (subtitleStreamIndex != null)
           'SubtitleStreamIndex': subtitleStreamIndex,
         if (startTimeTicks != null) 'StartTimeTicks': startTimeTicks,
@@ -355,8 +356,7 @@ class JellyfinClient {
       'api_key': accessToken ?? '',
       if (mediaSourceId != null) 'MediaSourceId': mediaSourceId,
       if (container != null) 'Container': container,
-      if (audioStreamIndex != null)
-        'AudioStreamIndex': '$audioStreamIndex',
+      if (audioStreamIndex != null) 'AudioStreamIndex': '$audioStreamIndex',
       if (subtitleStreamIndex != null)
         'SubtitleStreamIndex': '$subtitleStreamIndex',
       if (startTimeTicks != null) 'StartTimeTicks': '$startTimeTicks',
@@ -379,8 +379,7 @@ class JellyfinClient {
       'DeviceId': deviceId,
       if (mediaSourceId != null) 'MediaSourceId': mediaSourceId,
       if (playSessionId != null) 'PlaySessionId': playSessionId,
-      if (audioStreamIndex != null)
-        'AudioStreamIndex': '$audioStreamIndex',
+      if (audioStreamIndex != null) 'AudioStreamIndex': '$audioStreamIndex',
       if (subtitleStreamIndex != null)
         'SubtitleStreamIndex': '$subtitleStreamIndex',
       if (maxBitrate != null) 'MaxStreamingBitrate': '$maxBitrate',
@@ -396,7 +395,11 @@ class JellyfinClient {
       '$serverUrl/Audio/$itemId/stream?api_key=$accessToken&static=true';
 
   String subtitleUrl(
-          String itemId, String mediaSourceId, int index, String format) =>
+    String itemId,
+    String mediaSourceId,
+    int index,
+    String format,
+  ) =>
       '$serverUrl/Videos/$itemId/$mediaSourceId/Subtitles/$index/Stream.$format?api_key=$accessToken';
 
   String imageUrl(
@@ -422,46 +425,76 @@ class JellyfinClient {
   String posterUrl(MediaItem item, {int? maxWidth, int quality = 90}) {
     if (item.kind == MediaKind.episode) {
       if (item.seriesId != null && item.seriesPrimaryImageTag != null) {
-        return imageUrl(item.seriesId!, 'Primary',
-            maxWidth: maxWidth,
-            quality: quality,
-            tag: item.seriesPrimaryImageTag);
+        return imageUrl(
+          item.seriesId!,
+          'Primary',
+          maxWidth: maxWidth,
+          quality: quality,
+          tag: item.seriesPrimaryImageTag,
+        );
       }
       if (item.imageTags.primary != null) {
-        return imageUrl(item.id, 'Primary',
-            maxWidth: maxWidth, quality: quality, tag: item.imageTags.primary);
+        return imageUrl(
+          item.id,
+          'Primary',
+          maxWidth: maxWidth,
+          quality: quality,
+          tag: item.imageTags.primary,
+        );
       }
       return '';
     }
     final tag = item.imageTags.primary;
     if (tag != null) {
-      return imageUrl(item.id, 'Primary',
-          maxWidth: maxWidth, quality: quality, tag: tag);
+      return imageUrl(
+        item.id,
+        'Primary',
+        maxWidth: maxWidth,
+        quality: quality,
+        tag: tag,
+      );
     }
     // Tracks carry no art of their own; the album's does.
     if (item.albumId != null) {
-      return imageUrl(item.albumId!, 'Primary',
-          maxWidth: maxWidth,
-          quality: quality,
-          tag: item.albumPrimaryImageTag);
+      return imageUrl(
+        item.albumId!,
+        'Primary',
+        maxWidth: maxWidth,
+        quality: quality,
+        tag: item.albumPrimaryImageTag,
+      );
     }
     return '';
   }
 
   String thumbUrl(MediaItem item, {int? maxWidth, int quality = 85}) {
     if (item.imageTags.thumb != null) {
-      return imageUrl(item.id, 'Thumb',
-          maxWidth: maxWidth, quality: quality, tag: item.imageTags.thumb);
+      return imageUrl(
+        item.id,
+        'Thumb',
+        maxWidth: maxWidth,
+        quality: quality,
+        tag: item.imageTags.thumb,
+      );
     }
     if (item.imageTags.primary != null) {
-      return imageUrl(item.id, 'Primary',
-          maxWidth: maxWidth, quality: quality, tag: item.imageTags.primary);
+      return imageUrl(
+        item.id,
+        'Primary',
+        maxWidth: maxWidth,
+        quality: quality,
+        tag: item.imageTags.primary,
+      );
     }
     return backdropUrl(item, maxWidth: maxWidth, quality: quality);
   }
 
-  String backdropUrl(MediaItem item,
-      {int index = 0, int? maxWidth, int quality = 85}) {
+  String backdropUrl(
+    MediaItem item, {
+    int index = 0,
+    int? maxWidth,
+    int quality = 85,
+  }) {
     String? tag;
     var id = item.id;
     if (item.backdropImageTags.isNotEmpty) {
@@ -469,71 +502,103 @@ class JellyfinClient {
           .backdropImageTags[index.clamp(0, item.backdropImageTags.length - 1)];
     } else if (item.parentBackdropImageTags.isNotEmpty &&
         item.parentBackdropItemId != null) {
-      tag = item.parentBackdropImageTags[
-          index.clamp(0, item.parentBackdropImageTags.length - 1)];
+      tag =
+          item.parentBackdropImageTags[index.clamp(
+            0,
+            item.parentBackdropImageTags.length - 1,
+          )];
       id = item.parentBackdropItemId!;
     }
     if (tag == null) return '';
-    return imageUrl(id, 'Backdrop',
-        maxWidth: maxWidth, quality: quality, tag: tag, index: index);
+    return imageUrl(
+      id,
+      'Backdrop',
+      maxWidth: maxWidth,
+      quality: quality,
+      tag: tag,
+      index: index,
+    );
   }
 
   String personImageUrl(Person person, {int? maxWidth}) {
     if (person.primaryImageTag == null) return '';
-    return imageUrl(person.id, 'Primary',
-        maxWidth: maxWidth, tag: person.primaryImageTag);
+    return imageUrl(
+      person.id,
+      'Primary',
+      maxWidth: maxWidth,
+      tag: person.primaryImageTag,
+    );
   }
 
   String userImageUrl(JfUser user, {int? maxWidth}) {
     if (user.primaryImageTag == null) return '';
-    return imageUrl(user.id, 'Primary',
-        maxWidth: maxWidth, tag: user.primaryImageTag);
+    return imageUrl(
+      user.id,
+      'Primary',
+      maxWidth: maxWidth,
+      tag: user.primaryImageTag,
+    );
   }
 
   // --- Playback reporting ---
 
-  Future<void> reportStart(String itemId,
-      {String? mediaSourceId,
-      String? playSessionId,
-      int positionTicks = 0,
-      bool isPaused = false}) async {
-    await _dio.post('/Sessions/Playing', data: {
-      'ItemId': itemId,
-      'MediaSourceId': mediaSourceId,
-      'PlaySessionId': playSessionId,
-      'PositionTicks': positionTicks,
-      'IsPaused': isPaused,
-      'CanSeek': true,
-      'PlayMethod': 'DirectPlay',
-    });
+  Future<void> reportStart(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    int positionTicks = 0,
+    bool isPaused = false,
+  }) async {
+    await _dio.post(
+      '/Sessions/Playing',
+      data: {
+        'ItemId': itemId,
+        'MediaSourceId': mediaSourceId,
+        'PlaySessionId': playSessionId,
+        'PositionTicks': positionTicks,
+        'IsPaused': isPaused,
+        'CanSeek': true,
+        'PlayMethod': 'DirectPlay',
+      },
+    );
   }
 
-  Future<void> reportProgress(String itemId,
-      {String? mediaSourceId,
-      String? playSessionId,
-      required int positionTicks,
-      bool isPaused = false}) async {
-    await _dio.post('/Sessions/Playing/Progress', data: {
-      'ItemId': itemId,
-      'MediaSourceId': mediaSourceId,
-      'PlaySessionId': playSessionId,
-      'PositionTicks': positionTicks,
-      'IsPaused': isPaused,
-      'CanSeek': true,
-      'PlayMethod': 'DirectPlay',
-    });
+  Future<void> reportProgress(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    required int positionTicks,
+    bool isPaused = false,
+  }) async {
+    await _dio.post(
+      '/Sessions/Playing/Progress',
+      data: {
+        'ItemId': itemId,
+        'MediaSourceId': mediaSourceId,
+        'PlaySessionId': playSessionId,
+        'PositionTicks': positionTicks,
+        'IsPaused': isPaused,
+        'CanSeek': true,
+        'PlayMethod': 'DirectPlay',
+      },
+    );
   }
 
-  Future<void> reportStop(String itemId,
-      {String? mediaSourceId,
-      String? playSessionId,
-      required int positionTicks}) async {
-    await _dio.post('/Sessions/Playing/Stopped', data: {
-      'ItemId': itemId,
-      'MediaSourceId': mediaSourceId,
-      'PlaySessionId': playSessionId,
-      'PositionTicks': positionTicks,
-    });
+  Future<void> reportStop(
+    String itemId, {
+    String? mediaSourceId,
+    String? playSessionId,
+    required int positionTicks,
+  }) async {
+    await _dio.post(
+      '/Sessions/Playing/Stopped',
+      data: {
+        'ItemId': itemId,
+        'MediaSourceId': mediaSourceId,
+        'PlaySessionId': playSessionId,
+        'PositionTicks': positionTicks,
+      },
+    );
   }
 
   // --- User data ---
@@ -548,13 +613,11 @@ class JellyfinClient {
       ? _dio.post('/Users/$userId/FavoriteItems/$itemId')
       : _dio.delete('/Users/$userId/FavoriteItems/$itemId');
 
-  Future<List<MediaItem>> getPlaylists() async =>
-      (await getItems(
-        includeItemTypes: ['Playlist'],
-        recursive: true,
-        sortBy: 'SortName',
-      ))
-          .items;
+  Future<List<MediaItem>> getPlaylists() async => (await getItems(
+    includeItemTypes: ['Playlist'],
+    recursive: true,
+    sortBy: 'SortName',
+  )).items;
 
   Future<MediaItem?> getOrCreateWatchlist() async {
     final playlists = await getPlaylists();
@@ -562,8 +625,10 @@ class JellyfinClient {
       final n = p.name.toLowerCase();
       if (n == 'watchlist' || n == 'watch list') return p;
     }
-    final res = await _dio.post('/Playlists',
-        queryParameters: {'Name': 'Watchlist', 'UserId': userId});
+    final res = await _dio.post(
+      '/Playlists',
+      queryParameters: {'Name': 'Watchlist', 'UserId': userId},
+    );
     final id = res.data['Id'] as String?;
     if (id == null) return null;
     return (await getItems(ids: id)).items.firstOrNull;
@@ -577,72 +642,74 @@ class JellyfinClient {
     return parseItemList(res.data['Items'] as List<dynamic>? ?? []);
   }
 
-  Future<void> addToPlaylist(String playlistId, String itemId) =>
-      _dio.post('/Playlists/$playlistId/Items',
-          queryParameters: {'Ids': itemId, 'UserId': userId});
+  Future<void> addToPlaylist(String playlistId, String itemId) => _dio.post(
+    '/Playlists/$playlistId/Items',
+    queryParameters: {'Ids': itemId, 'UserId': userId},
+  );
 
   Future<void> removeFromPlaylist(String playlistId, String entryId) =>
-      _dio.delete('/Playlists/$playlistId/Items',
-          queryParameters: {'EntryIds': entryId});
+      _dio.delete(
+        '/Playlists/$playlistId/Items',
+        queryParameters: {'EntryIds': entryId},
+      );
 
   // --- Device profile ---
 
   Map<String, dynamic> get deviceProfile => {
-        'Name': clientName,
-        'MaxStreamingBitrate': 120000000,
-        'MusicStreamingTranscodingBitrate': 384000,
-        'DirectPlayProfiles': [
+    'Name': clientName,
+    'MaxStreamingBitrate': 120000000,
+    'MusicStreamingTranscodingBitrate': 384000,
+    'DirectPlayProfiles': [
+      {
+        'Container': 'mp4,m4v,mkv,webm,mov,avi,wmv,ts,m2ts',
+        'Type': 'Video',
+        'VideoCodec': 'h264,hevc,vp8,vp9,av1,mpeg2video',
+        'AudioCodec': 'aac,mp3,opus,flac,vorbis,ac3,eac3,dts,truehd',
+      },
+      {
+        'Container': 'mp3,flac,opus,aac,m4a,ogg,webm,wav,wma,alac',
+        'Type': 'Audio',
+      },
+    ],
+    'TranscodingProfiles': [
+      {
+        'Container': 'ts',
+        'Type': 'Video',
+        'AudioCodec': 'aac,mp3',
+        'VideoCodec': 'h264',
+        'Context': 'Streaming',
+        'Protocol': 'hls',
+        'MaxAudioChannels': '6',
+        'MinSegments': '2',
+        'BreakOnNonKeyFrames': true,
+      },
+      {
+        'Container': 'mp3',
+        'Type': 'Audio',
+        'AudioCodec': 'mp3',
+        'Context': 'Streaming',
+        'Protocol': 'http',
+      },
+    ],
+    'SubtitleProfiles': [
+      {'Format': 'srt', 'Method': 'External'},
+      {'Format': 'vtt', 'Method': 'External'},
+      {'Format': 'ass', 'Method': 'External'},
+      {'Format': 'ssa', 'Method': 'External'},
+    ],
+    'CodecProfiles': [
+      {
+        'Type': 'Video',
+        'Codec': 'h264',
+        'Conditions': [
           {
-            'Container': 'mp4,m4v,mkv,webm,mov,avi,wmv,ts,m2ts',
-            'Type': 'Video',
-            'VideoCodec': 'h264,hevc,vp8,vp9,av1,mpeg2video',
-            'AudioCodec': 'aac,mp3,opus,flac,vorbis,ac3,eac3,dts,truehd',
-          },
-          {
-            'Container':
-                'mp3,flac,opus,aac,m4a,ogg,webm,wav,wma,alac',
-            'Type': 'Audio',
-          },
-        ],
-        'TranscodingProfiles': [
-          {
-            'Container': 'ts',
-            'Type': 'Video',
-            'AudioCodec': 'aac,mp3',
-            'VideoCodec': 'h264',
-            'Context': 'Streaming',
-            'Protocol': 'hls',
-            'MaxAudioChannels': '6',
-            'MinSegments': '2',
-            'BreakOnNonKeyFrames': true,
-          },
-          {
-            'Container': 'mp3',
-            'Type': 'Audio',
-            'AudioCodec': 'mp3',
-            'Context': 'Streaming',
-            'Protocol': 'http',
-          },
-        ],
-        'SubtitleProfiles': [
-          {'Format': 'srt', 'Method': 'External'},
-          {'Format': 'vtt', 'Method': 'External'},
-          {'Format': 'ass', 'Method': 'External'},
-          {'Format': 'ssa', 'Method': 'External'},
-        ],
-        'CodecProfiles': [
-          {
-            'Type': 'Video',
-            'Codec': 'h264',
-            'Conditions': [
-              {
-                'Condition': 'LessThanEqual',
-                'Property': 'VideoBitDepth',
-                'Value': '10',
-              },
-            ],
+            'Condition': 'LessThanEqual',
+            'Property': 'VideoBitDepth',
+            'Value': '10',
           },
         ],
-        'ContainerProfiles': <Map<String, dynamic>>[],
-      };
+      },
+    ],
+    'ContainerProfiles': <Map<String, dynamic>>[],
+  };
 }

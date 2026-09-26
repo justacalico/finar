@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../core/api/models.dart';
 import '../providers/providers.dart';
 
@@ -31,7 +32,7 @@ class BackdropHero extends ConsumerWidget {
       url = client.posterUrl(item, maxWidth: 1600);
     }
     return SizedBox(
-      height: height,
+      height: dim(height),
       width: double.infinity,
       child: Stack(
         fit: StackFit.expand,
@@ -46,7 +47,7 @@ class BackdropHero extends ConsumerWidget {
           else
             _fallback(context),
           // Legibility scrim. Functional, not decorative.
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -62,17 +63,13 @@ class BackdropHero extends ConsumerWidget {
           ),
           if (overlay != null)
             Positioned.fill(
-              child: Align(
-                alignment: overlayAlignment,
-                child: overlay,
-              ),
+              child: Align(alignment: overlayAlignment, child: overlay),
             ),
         ],
       ),
     );
   }
 
-  Widget _fallback(BuildContext context) => Container(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      );
+  Widget _fallback(BuildContext context) =>
+      Container(color: Theme.of(context).colorScheme.surfaceContainerHighest);
 }

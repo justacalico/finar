@@ -18,32 +18,32 @@ import '../widgets/mini_player.dart';
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
 
-  static const _destinations = <ShellSection, ({IconData icon, IconData selected})>{
-    ShellSection.home: (icon: Icons.home_outlined, selected: Icons.home),
-    ShellSection.search: (icon: Icons.search, selected: Icons.search),
-    ShellSection.favorites: (
-      icon: Icons.favorite_outline,
-      selected: Icons.favorite
-    ),
-    ShellSection.downloads: (
-      icon: Icons.download_outlined,
-      selected: Icons.download
-    ),
-    ShellSection.libraries: (
-      icon: Icons.video_library_outlined,
-      selected: Icons.video_library
-    ),
-    ShellSection.settings: (
-      icon: Icons.settings_outlined,
-      selected: Icons.settings
-    ),
-  };
+  static const _destinations =
+      <ShellSection, ({IconData icon, IconData selected})>{
+        ShellSection.home: (icon: Icons.home_outlined, selected: Icons.home),
+        ShellSection.search: (icon: Icons.search, selected: Icons.search),
+        ShellSection.favorites: (
+          icon: Icons.favorite_outline,
+          selected: Icons.favorite,
+        ),
+        ShellSection.downloads: (
+          icon: Icons.download_outlined,
+          selected: Icons.download,
+        ),
+        ShellSection.libraries: (
+          icon: Icons.video_library_outlined,
+          selected: Icons.video_library,
+        ),
+        ShellSection.settings: (
+          icon: Icons.settings_outlined,
+          selected: Icons.settings,
+        ),
+      };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.watch(shellNavProvider);
-    final wide =
-        isWideLayout(MediaQuery.of(context).size.width);
+    final wide = isWideLayout(MediaQuery.of(context).size.width);
 
     final body = nav.detailItem != null
         ? DetailPage(
@@ -62,8 +62,9 @@ class ShellPage extends ConsumerWidget {
                 children: [
                   _Sidebar(nav: nav, destinations: _destinations),
                   VerticalDivider(
-                      width: 1,
-                      color: Theme.of(context).colorScheme.outline),
+                    width: dim(1),
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                   Expanded(child: body),
                 ],
               ),
@@ -113,9 +114,10 @@ class ShellPage extends ConsumerWidget {
         if (nav.libraryId != null) {
           if (nav.libraryCollectionType == 'music') {
             return MusicPage(
-                libraryId: nav.libraryId!,
-                title: nav.libraryName ?? 'Music',
-                inShell: true);
+              libraryId: nav.libraryId!,
+              title: nav.libraryName ?? 'Music',
+              inShell: true,
+            );
           }
           return LibraryPage(
             libraryId: nav.libraryId!,
@@ -132,8 +134,7 @@ class ShellPage extends ConsumerWidget {
 
 class _Sidebar extends ConsumerWidget {
   final ShellNav nav;
-  final Map<ShellSection, ({IconData icon, IconData selected})>
-      destinations;
+  final Map<ShellSection, ({IconData icon, IconData selected})> destinations;
 
   const _Sidebar({required this.nav, required this.destinations});
 
@@ -141,18 +142,23 @@ class _Sidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      width: 220,
+      width: dim(220),
       child: ListView(
-        padding: const EdgeInsets.all(Insets.sm),
+        padding: EdgeInsets.all(Insets.sm),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Insets.sm, Insets.md, Insets.sm, Insets.lg),
-            child: Text('Finar',
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: scheme.primary)),
+            padding: EdgeInsets.fromLTRB(
+              Insets.sm,
+              Insets.md,
+              Insets.sm,
+              Insets.lg,
+            ),
+            child: Text(
+              'Finar',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(color: scheme.primary),
+            ),
           ),
           for (final s in destinations.keys) _item(context, ref, s),
         ],
@@ -165,25 +171,29 @@ class _Sidebar extends ConsumerWidget {
     final selected = nav.section == s;
     final d = destinations[s]!;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: EdgeInsets.only(bottom: 2),
       child: ListTile(
         dense: true,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
+          borderRadius: BorderRadius.circular(dim(10)),
+        ),
         selected: selected,
         selectedTileColor: scheme.primary.withValues(alpha: 0.15),
-        leading: Icon(selected ? d.selected : d.icon,
-            size: 22,
-            color: selected
-                ? scheme.primary
-                : scheme.onSurface.withValues(alpha: 0.7)),
-        title: Text(s.label,
-            style: TextStyle(
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.w400,
-                color: selected ? scheme.primary : null)),
-        onTap: () =>
-            ref.read(shellNavProvider.notifier).select(s),
+        leading: Icon(
+          selected ? d.selected : d.icon,
+          size: dim(22),
+          color: selected
+              ? scheme.primary
+              : scheme.onSurface.withValues(alpha: 0.7),
+        ),
+        title: Text(
+          s.label,
+          style: TextStyle(
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? scheme.primary : null,
+          ),
+        ),
+        onTap: () => ref.read(shellNavProvider.notifier).select(s),
       ),
     );
   }

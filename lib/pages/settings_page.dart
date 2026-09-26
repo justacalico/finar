@@ -34,11 +34,10 @@ class SettingsPage extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
     final session = ref.watch(sessionProvider);
-    final account =
-        session is SignedIn ? session.account : null;
+    final account = session is SignedIn ? session.account : null;
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: Insets.xl),
+      padding: EdgeInsets.only(bottom: Insets.xl),
       children: [
         const PageHeader(title: 'Settings'),
         SettingsGroup(
@@ -53,10 +52,7 @@ class SettingsPage extends ConsumerWidget {
             SettingDropdown<String>(
               title: 'Accent color',
               value: settings.accentName,
-              options: {
-                for (final name in kAccentOptions.keys)
-                  name: name
-              },
+              options: {for (final name in kAccentOptions.keys) name: name},
               onChanged: notifier.setAccent,
             ),
             SettingSwitch(
@@ -141,17 +137,13 @@ class SettingsPage extends ConsumerWidget {
               icon: Icons.switch_account_outlined,
               title: 'Switch account',
               subtitle: 'Sign in to another server or user',
-              onTap: () => ref
-                  .read(sessionProvider.notifier)
-                  .signOut(),
+              onTap: () => ref.read(sessionProvider.notifier).signOut(),
             ),
             SettingTile(
               icon: Icons.logout,
               title: 'Sign out',
               destructive: true,
-              onTap: () => ref
-                  .read(sessionProvider.notifier)
-                  .signOut(),
+              onTap: () => ref.read(sessionProvider.notifier).signOut(),
             ),
           ],
         ),
@@ -163,14 +155,17 @@ class SettingsPage extends ConsumerWidget {
               icon: Icons.code,
               title: 'Source code',
               subtitle: 'gitlab.com/Openlyst/finar',
-              onTap: () => launchUrl(
-                  Uri.parse('https://gitlab.com/Openlyst/finar')),
+              onTap: () =>
+                  launchUrl(Uri.parse('https://gitlab.com/Openlyst/finar')),
             ),
             SettingTile(
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy',
-              onTap: () => launchUrl(Uri.parse(
-                  'https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md')),
+              onTap: () => launchUrl(
+                Uri.parse(
+                  'https://gitlab.com/Openlyst/finar/-/blob/main/PRIVACY.md',
+                ),
+              ),
             ),
             const SettingTile(
               icon: Icons.movie_outlined,
@@ -199,8 +194,7 @@ class _VersionTileState extends State<_VersionTile> {
     super.initState();
     PackageInfo.fromPlatform().then((p) {
       if (mounted) {
-        setState(() =>
-            _version = '${p.version}+${p.buildNumber}');
+        setState(() => _version = '${p.version}+${p.buildNumber}');
       }
     });
   }

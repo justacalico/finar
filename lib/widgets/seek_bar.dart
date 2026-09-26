@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_theme.dart';
 import '../core/api/format.dart';
 
 /// Playback scrubber with buffered track and time labels.
@@ -23,18 +24,16 @@ class SeekBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final max = duration.inMilliseconds.toDouble();
-    final value =
-        max > 0 ? position.inMilliseconds.clamp(0, max.toInt()) : 0;
-    final buf =
-        max > 0 ? buffered.inMilliseconds.clamp(0, max.toInt()) : 0;
+    final value = max > 0 ? position.inMilliseconds.clamp(0, max.toInt()) : 0;
+    final buf = max > 0 ? buffered.inMilliseconds.clamp(0, max.toInt()) : 0;
 
     final slider = SliderTheme(
       data: SliderTheme.of(context).copyWith(
-        trackHeight: compact ? 3 : 4,
+        trackHeight: compact ? dim(3) : dim(4),
         thumbShape: RoundSliderThumbShape(
-            enabledThumbRadius: compact ? 6 : 8),
-        secondaryActiveTrackColor:
-            scheme.onSurface.withValues(alpha: 0.3),
+          enabledThumbRadius: compact ? dim(6) : dim(8),
+        ),
+        secondaryActiveTrackColor: scheme.onSurface.withValues(alpha: 0.3),
       ),
       child: Slider(
         value: value / (max > 0 ? max : 1),
@@ -50,11 +49,13 @@ class SeekBar extends StatelessWidget {
     final remaining = duration - position;
     return Row(
       children: [
-        Text(formatDuration(position),
-            style: Theme.of(context).textTheme.labelMedium),
-        const SizedBox(width: 8),
+        Text(
+          formatDuration(position),
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        SizedBox(width: dim(8)),
         Expanded(child: slider),
-        const SizedBox(width: 8),
+        SizedBox(width: dim(8)),
         Text(
           remaining > Duration.zero
               ? '-${formatDuration(remaining)}'

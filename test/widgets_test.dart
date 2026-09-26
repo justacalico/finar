@@ -32,8 +32,7 @@ Future<Widget> app(Widget child) async {
       jellyfinClientProvider.overrideWithValue(client),
     ],
     child: MaterialApp(
-      theme: AppTheme.build(
-          Brightness.dark, kAccentOptions['System']!),
+      theme: AppTheme.build(Brightness.dark, kAccentOptions['System']!),
       home: Scaffold(body: child),
     ),
   );
@@ -50,10 +49,10 @@ const _track = MediaItem(
 class _PlayingQueue extends AudioPlayerNotifier {
   @override
   AudioState build() => AudioState(
-        queue: PlayQueue(const [_track], 0),
-        position: const Duration(seconds: 10),
-        duration: const Duration(minutes: 3, seconds: 24),
-      );
+    queue: PlayQueue(const [_track], 0),
+    position: const Duration(seconds: 10),
+    duration: const Duration(minutes: 3, seconds: 24),
+  );
 }
 
 void main() {
@@ -63,9 +62,10 @@ void main() {
       name: 'The Movie',
       productionYear: 2021,
       userData: UserData(
-          played: false,
-          playbackPositionTicks: 300,
-          isFavorite: false),
+        played: false,
+        playbackPositionTicks: 300,
+        isFavorite: false,
+      ),
       runtimeTicks: 1000,
     );
 
@@ -79,17 +79,20 @@ void main() {
 
     testWidgets('watched badge shows for played items', (t) async {
       const played = MediaItem(
-          id: 'i2', name: 'Seen', userData: UserData(played: true));
-      await t.pumpWidget(
-          await app(const MediaCard(item: played)));
+        id: 'i2',
+        name: 'Seen',
+        userData: UserData(played: true),
+      );
+      await t.pumpWidget(await app(const MediaCard(item: played)));
       await t.pump();
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
     testWidgets('tap callback fires', (t) async {
       var tapped = false;
-      await t.pumpWidget(await app(
-          MediaCard(item: item, onTap: () => tapped = true)));
+      await t.pumpWidget(
+        await app(MediaCard(item: item, onTap: () => tapped = true)),
+      );
       await t.pump();
       await t.tap(find.byType(MediaCard));
       expect(tapped, isTrue);
@@ -105,21 +108,29 @@ void main() {
 
   group('SeekBar', () {
     testWidgets('shows position and remaining labels', (t) async {
-      await t.pumpWidget(await app(SeekBar(
-        position: const Duration(seconds: 90),
-        duration: const Duration(minutes: 10),
-        onSeek: (_) {},
-      )));
+      await t.pumpWidget(
+        await app(
+          SeekBar(
+            position: const Duration(seconds: 90),
+            duration: const Duration(minutes: 10),
+            onSeek: (_) {},
+          ),
+        ),
+      );
       expect(find.text('1:30'), findsOneWidget);
       expect(find.text('-8:30'), findsOneWidget);
     });
 
     testWidgets('slider disabled without duration', (t) async {
-      await t.pumpWidget(await app(SeekBar(
-        position: Duration.zero,
-        duration: Duration.zero,
-        onSeek: (_) {},
-      )));
+      await t.pumpWidget(
+        await app(
+          SeekBar(
+            position: Duration.zero,
+            duration: Duration.zero,
+            onSeek: (_) {},
+          ),
+        ),
+      );
       final slider = t.widget<Slider>(find.byType(Slider));
       expect(slider.onChanged, isNull);
     });
@@ -127,40 +138,52 @@ void main() {
 
   group('PageHeader', () {
     testWidgets('renders the title', (t) async {
-      await t.pumpWidget(
-          await app(const PageHeader(title: 'Downloads')));
+      await t.pumpWidget(await app(const PageHeader(title: 'Downloads')));
       expect(find.text('Downloads'), findsOneWidget);
     });
   });
 
   group('Settings widgets', () {
     testWidgets('group renders title and children', (t) async {
-      await t.pumpWidget(await app(const SettingsGroup(
-        title: 'Playback',
-        children: [SettingSwitch(title: 'Autoplay', value: true)],
-      )));
+      await t.pumpWidget(
+        await app(
+          const SettingsGroup(
+            title: 'Playback',
+            children: [SettingSwitch(title: 'Autoplay', value: true)],
+          ),
+        ),
+      );
       expect(find.text('Playback'), findsOneWidget);
       expect(find.text('Autoplay'), findsOneWidget);
     });
 
     testWidgets('switch toggles', (t) async {
       var value = false;
-      await t.pumpWidget(await app(StatefulBuilder(
-        builder: (context, setState) => SettingSwitch(
-            title: 'Toggle',
-            value: value,
-            onChanged: (v) => setState(() => value = v)),
-      )));
+      await t.pumpWidget(
+        await app(
+          StatefulBuilder(
+            builder: (context, setState) => SettingSwitch(
+              title: 'Toggle',
+              value: value,
+              onChanged: (v) => setState(() => value = v),
+            ),
+          ),
+        ),
+      );
       await t.tap(find.byType(Switch));
       expect(value, isTrue);
     });
 
     testWidgets('dropdown shows current value', (t) async {
-      await t.pumpWidget(await app(const SettingDropdown<String>(
-        title: 'Theme',
-        value: 'Dark',
-        options: {'Dark': 'Dark', 'Light': 'Light'},
-      )));
+      await t.pumpWidget(
+        await app(
+          const SettingDropdown<String>(
+            title: 'Theme',
+            value: 'Dark',
+            options: {'Dark': 'Dark', 'Light': 'Light'},
+          ),
+        ),
+      );
       expect(find.text('Dark'), findsOneWidget);
     });
   });
@@ -172,19 +195,17 @@ void main() {
       kind: MediaKind.movie,
       runtimeTicks: 9000000000,
       userData: UserData(
-          played: false,
-          playbackPositionTicks: 4500000000,
-          isFavorite: true),
+        played: false,
+        playbackPositionTicks: 4500000000,
+        isFavorite: true,
+      ),
     );
 
-    testWidgets(
-        'every action is inline, no overflow menu entry', (t) async {
-      await t.pumpWidget(
-          await app(const DetailActions(item: movie)));
+    testWidgets('every action is inline, no overflow menu entry', (t) async {
+      await t.pumpWidget(await app(const DetailActions(item: movie)));
       await t.pump();
       expect(find.byIcon(Icons.favorite), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline),
-          findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
       expect(find.byIcon(Icons.download_outlined), findsOneWidget);
       expect(find.byIcon(Icons.more_horiz), findsNothing);
       expect(find.byIcon(Icons.more_vert), findsNothing);
@@ -193,11 +214,15 @@ void main() {
     testWidgets('resume and play-from-start both offered', (t) async {
       var plays = 0;
       var restarts = 0;
-      await t.pumpWidget(await app(DetailActions(
-        item: movie,
-        onPlay: () => plays++,
-        onPlayFromStart: () => restarts++,
-      )));
+      await t.pumpWidget(
+        await app(
+          DetailActions(
+            item: movie,
+            onPlay: () => plays++,
+            onPlayFromStart: () => restarts++,
+          ),
+        ),
+      );
       await t.pump();
       await t.tap(find.textContaining('Resume'));
       await t.tap(find.text('Play from start'));
@@ -209,23 +234,23 @@ void main() {
   group('MiniPlayer', () {
     testWidgets('docked full-width bar, no glass overlay', (t) async {
       SharedPreferences.setMockInitialValues({});
-      final storage =
-          AppStorage(await SharedPreferences.getInstance());
+      final storage = AppStorage(await SharedPreferences.getInstance());
       final client = JellyfinClient(dio: Dio(), deviceId: 't')
         ..setServerUrl('http://srv')
         ..setCredentials(accessToken: 't', userId: 'u');
-      await t.pumpWidget(ProviderScope(
-        overrides: [
-          appStorageProvider.overrideWithValue(storage),
-          jellyfinClientProvider.overrideWithValue(client),
-          audioPlayerProvider.overrideWith(_PlayingQueue.new),
-        ],
-        child: MaterialApp(
-          theme: AppTheme.build(
-              Brightness.dark, kAccentOptions['System']!),
-          home: const Scaffold(body: MiniPlayer()),
+      await t.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appStorageProvider.overrideWithValue(storage),
+            jellyfinClientProvider.overrideWithValue(client),
+            audioPlayerProvider.overrideWith(_PlayingQueue.new),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.build(Brightness.dark, kAccentOptions['System']!),
+            home: const Scaffold(body: MiniPlayer()),
+          ),
         ),
-      ));
+      );
       await t.pump();
       expect(find.text('Song One'), findsOneWidget);
       expect(find.text('Some Artist'), findsOneWidget);
@@ -236,12 +261,14 @@ void main() {
       expect(t.getSize(find.byType(MiniPlayer)).width, 800);
       // It is a chrome element: solid surface with a top edge.
       final box = t.widget<Container>(
-          find.descendant(
+        find
+            .descendant(
               of: find.byType(MiniPlayer),
-              matching: find.byType(Container))
-          .first);
-      expect(
-          (box.decoration! as BoxDecoration).border, isNotNull);
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect((box.decoration! as BoxDecoration).border, isNotNull);
     });
 
     testWidgets('hidden when nothing is queued', (t) async {
@@ -253,15 +280,18 @@ void main() {
 
   group('PlayingIndicator', () {
     List<double> bars(WidgetTester t) => [
-          for (var i = 0; i < 3; i++)
-            t
-                .getSize(find
-                    .descendant(
-                        of: find.byType(PlayingIndicator),
-                        matching: find.byType(Container))
-                    .at(i))
-                .height
-        ];
+      for (var i = 0; i < 3; i++)
+        t
+            .getSize(
+              find
+                  .descendant(
+                    of: find.byType(PlayingIndicator),
+                    matching: find.byType(Container),
+                  )
+                  .at(i),
+            )
+            .height,
+    ];
 
     testWidgets('bars animate while playing', (t) async {
       await t.pumpWidget(await app(const PlayingIndicator()));
@@ -274,8 +304,7 @@ void main() {
     testWidgets('bars fade to rest when paused', (t) async {
       await t.pumpWidget(await app(const PlayingIndicator()));
       await t.pump(const Duration(milliseconds: 220));
-      await t.pumpWidget(
-          await app(const PlayingIndicator(playing: false)));
+      await t.pumpWidget(await app(const PlayingIndicator(playing: false)));
       await t.pump(const Duration(milliseconds: 150));
       final mid = bars(t);
       await t.pump(const Duration(milliseconds: 400));
@@ -291,47 +320,71 @@ void main() {
   });
 
   group('UiScaler', () {
-    testWidgets('shrinks the logical viewport by the factor',
-        (t) async {
-      Size? seen;
-      await t.pumpWidget(await app(UiScaler(
-        scale: 2.0,
-        child: Builder(builder: (context) {
-          seen = MediaQuery.of(context).size;
-          return const SizedBox();
-        }),
-      )));
-      // Test surface is 800x600, so the app lays out at 400x300.
-      expect(seen, const Size(400, 300));
-      expect(find.byType(Transform), findsWidgets);
+    tearDown(() => uiScaleFactor = 1.0);
+
+    testWidgets('scales text and dims, keeps the viewport', (t) async {
+      TextScaler? scaler;
+      Size? size;
+      await t.pumpWidget(
+        await app(
+          UiScaler(
+            scale: 2.0,
+            child: Builder(
+              builder: (context) {
+                scaler = MediaQuery.textScalerOf(context);
+                size = MediaQuery.sizeOf(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+      // Same window, bigger UI: viewport stays, factor doubles.
+      expect(size, const Size(800, 600));
+      expect(scaler, const TextScaler.linear(2.0));
+      expect(uiScaleFactor, 2.0);
+      expect(Insets.md, 32);
+      expect(dim(10), 20);
     });
 
-    testWidgets('scale 1 passes the viewport through', (t) async {
-      Size? seen;
-      await t.pumpWidget(await app(UiScaler(
-        scale: 1.0,
-        child: Builder(builder: (context) {
-          seen = MediaQuery.of(context).size;
-          return const SizedBox();
-        }),
-      )));
-      expect(seen, const Size(800, 600));
+    testWidgets('scale 1 leaves everything alone', (t) async {
+      Size? size;
+      TextScaler? scaler;
+      await t.pumpWidget(
+        await app(
+          UiScaler(
+            scale: 1.0,
+            child: Builder(
+              builder: (context) {
+                scaler = MediaQuery.textScalerOf(context);
+                size = MediaQuery.sizeOf(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(size, const Size(800, 600));
+      expect(scaler, const TextScaler.linear(1.0));
+      expect(uiScaleFactor, 1.0);
+      expect(Insets.md, 16);
     });
   });
 
   group('EmptyView / ErrorView', () {
     testWidgets('empty view shows icon and title', (t) async {
-      await t.pumpWidget(await app(const EmptyView(
-          icon: Icons.inbox, title: 'Nothing here')));
+      await t.pumpWidget(
+        await app(const EmptyView(icon: Icons.inbox, title: 'Nothing here')),
+      );
       expect(find.text('Nothing here'), findsOneWidget);
       expect(find.byIcon(Icons.inbox), findsOneWidget);
     });
 
     testWidgets('error view retries', (t) async {
       var retried = false;
-      await t.pumpWidget(await app(ErrorView(
-          message: 'Failed',
-          onRetry: () => retried = true)));
+      await t.pumpWidget(
+        await app(ErrorView(message: 'Failed', onRetry: () => retried = true)),
+      );
       await t.tap(find.text('Try again'));
       expect(retried, isTrue);
     });

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Browser-style zoom for the whole app. The child lays out in a
-/// viewport scaled by 1/scale, then the result is scaled back to
-/// fill the real window, so every element (text, spacing, images)
-/// grows or shrinks together. MediaQuery is rewritten so pages see
-/// the logical size they actually laid out in.
+import '../core/theme/app_theme.dart';
+
+/// Scales the UI itself rather than magnifying the frame. Text grows
+/// through textScaler and every dimension token (Insets, Radii, dim)
+/// multiplies by the factor, so the layout stays the same while the
+/// interface gets denser or roomier.
 class UiScaler extends StatelessWidget {
   final double scale;
   final Widget child;
@@ -13,27 +14,14 @@ class UiScaler extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (scale == 1.0) return child;
-    final media = MediaQuery.of(context);
-    final size = media.size / scale;
+    // Set before children build so the dimension getters below pick
+    // up the factor.
+    uiScaleFactor = scale;
     return MediaQuery(
-      data: media.copyWith(
-        size: size,
-        padding: media.padding / scale,
-        viewPadding: media.viewPadding / scale,
-        viewInsets: media.viewInsets / scale,
-      ),
-      child: ClipRect(
-        child: Transform.scale(
-          scale: scale,
-          alignment: Alignment.topLeft,
-          child: SizedBox(
-            width: size.width,
-            height: size.height,
-            child: child,
-          ),
-        ),
-      ),
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: TextScaler.linear(scale)),
+      child: child,
     );
   }
 }

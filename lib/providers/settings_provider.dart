@@ -35,14 +35,13 @@ class AppSettings {
     this.uiScale = 1.0,
   });
 
-  Color get accent =>
-      kAccentOptions[accentName] ?? kAccentOptions['System']!;
+  Color get accent => kAccentOptions[accentName] ?? kAccentOptions['System']!;
 
   ThemeMode get flutterThemeMode => switch (themeMode) {
-        AppThemeMode.system => ThemeMode.system,
-        AppThemeMode.light => ThemeMode.light,
-        _ => ThemeMode.dark,
-      };
+    AppThemeMode.system => ThemeMode.system,
+    AppThemeMode.light => ThemeMode.light,
+    _ => ThemeMode.dark,
+  };
 
   bool get oled => themeMode == AppThemeMode.oled;
 
@@ -60,60 +59,55 @@ class AppSettings {
     bool? downloadWifiOnly,
     bool? showThumbnails,
     double? uiScale,
-  }) =>
-      AppSettings(
-        themeMode: themeMode ?? this.themeMode,
-        accentName: accentName ?? this.accentName,
-        autoplayNext: autoplayNext ?? this.autoplayNext,
-        rememberPosition: rememberPosition ?? this.rememberPosition,
-        maxStreamingBitrate:
-            maxStreamingBitrate ?? this.maxStreamingBitrate,
-        preferredAudioLanguage:
-            preferredAudioLanguage ?? this.preferredAudioLanguage,
-        preferredSubtitleLanguage:
-            preferredSubtitleLanguage ?? this.preferredSubtitleLanguage,
-        subtitlesEnabled: subtitlesEnabled ?? this.subtitlesEnabled,
-        subtitleSize: subtitleSize ?? this.subtitleSize,
-        subtitleBackground: subtitleBackground ?? this.subtitleBackground,
-        downloadWifiOnly: downloadWifiOnly ?? this.downloadWifiOnly,
-        showThumbnails: showThumbnails ?? this.showThumbnails,
-        uiScale: uiScale ?? this.uiScale,
-      );
+  }) => AppSettings(
+    themeMode: themeMode ?? this.themeMode,
+    accentName: accentName ?? this.accentName,
+    autoplayNext: autoplayNext ?? this.autoplayNext,
+    rememberPosition: rememberPosition ?? this.rememberPosition,
+    maxStreamingBitrate: maxStreamingBitrate ?? this.maxStreamingBitrate,
+    preferredAudioLanguage:
+        preferredAudioLanguage ?? this.preferredAudioLanguage,
+    preferredSubtitleLanguage:
+        preferredSubtitleLanguage ?? this.preferredSubtitleLanguage,
+    subtitlesEnabled: subtitlesEnabled ?? this.subtitlesEnabled,
+    subtitleSize: subtitleSize ?? this.subtitleSize,
+    subtitleBackground: subtitleBackground ?? this.subtitleBackground,
+    downloadWifiOnly: downloadWifiOnly ?? this.downloadWifiOnly,
+    showThumbnails: showThumbnails ?? this.showThumbnails,
+    uiScale: uiScale ?? this.uiScale,
+  );
 
   Map<String, dynamic> toJson() => {
-        'themeMode': themeMode.name,
-        'accentName': accentName,
-        'autoplayNext': autoplayNext,
-        'rememberPosition': rememberPosition,
-        'maxStreamingBitrate': maxStreamingBitrate,
-        'preferredAudioLanguage': preferredAudioLanguage,
-        'preferredSubtitleLanguage': preferredSubtitleLanguage,
-        'subtitlesEnabled': subtitlesEnabled,
-        'subtitleSize': subtitleSize,
-        'subtitleBackground': subtitleBackground,
-        'downloadWifiOnly': downloadWifiOnly,
-        'showThumbnails': showThumbnails,
-        'uiScale': uiScale,
-      };
+    'themeMode': themeMode.name,
+    'accentName': accentName,
+    'autoplayNext': autoplayNext,
+    'rememberPosition': rememberPosition,
+    'maxStreamingBitrate': maxStreamingBitrate,
+    'preferredAudioLanguage': preferredAudioLanguage,
+    'preferredSubtitleLanguage': preferredSubtitleLanguage,
+    'subtitlesEnabled': subtitlesEnabled,
+    'subtitleSize': subtitleSize,
+    'subtitleBackground': subtitleBackground,
+    'downloadWifiOnly': downloadWifiOnly,
+    'showThumbnails': showThumbnails,
+    'uiScale': uiScale,
+  };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        themeMode: themeModeFromName(j['themeMode'] as String?),
-        accentName: j['accentName'] as String? ?? 'System',
-        autoplayNext: j['autoplayNext'] as bool? ?? true,
-        rememberPosition: j['rememberPosition'] as bool? ?? true,
-        maxStreamingBitrate: j['maxStreamingBitrate'] as int? ?? 0,
-        preferredAudioLanguage:
-            j['preferredAudioLanguage'] as String? ?? '',
-        preferredSubtitleLanguage:
-            j['preferredSubtitleLanguage'] as String? ?? '',
-        subtitlesEnabled: j['subtitlesEnabled'] as bool? ?? true,
-        subtitleSize: (j['subtitleSize'] as num?)?.toDouble() ?? 1.0,
-        subtitleBackground:
-            (j['subtitleBackground'] as num?)?.toDouble() ?? 0.6,
-        downloadWifiOnly: j['downloadWifiOnly'] as bool? ?? false,
-        showThumbnails: j['showThumbnails'] as bool? ?? true,
-        uiScale: (j['uiScale'] as num?)?.toDouble() ?? 1.0,
-      );
+    themeMode: themeModeFromName(j['themeMode'] as String?),
+    accentName: j['accentName'] as String? ?? 'System',
+    autoplayNext: j['autoplayNext'] as bool? ?? true,
+    rememberPosition: j['rememberPosition'] as bool? ?? true,
+    maxStreamingBitrate: j['maxStreamingBitrate'] as int? ?? 0,
+    preferredAudioLanguage: j['preferredAudioLanguage'] as String? ?? '',
+    preferredSubtitleLanguage: j['preferredSubtitleLanguage'] as String? ?? '',
+    subtitlesEnabled: j['subtitlesEnabled'] as bool? ?? true,
+    subtitleSize: (j['subtitleSize'] as num?)?.toDouble() ?? 1.0,
+    subtitleBackground: (j['subtitleBackground'] as num?)?.toDouble() ?? 0.6,
+    downloadWifiOnly: j['downloadWifiOnly'] as bool? ?? false,
+    showThumbnails: j['showThumbnails'] as bool? ?? true,
+    uiScale: (j['uiScale'] as num?)?.toDouble() ?? 1.0,
+  );
 }
 
 class SettingsNotifier extends Notifier<AppSettings> {
@@ -152,18 +146,38 @@ class SettingsNotifier extends Notifier<AppSettings> {
       update((s) => s.copyWith(showThumbnails: v));
 
   static const zoomSteps = <double>[
-    0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0
+    0.5,
+    0.67,
+    0.75,
+    0.8,
+    0.9,
+    1.0,
+    1.1,
+    1.25,
+    1.5,
+    1.75,
+    2.0,
   ];
 
-  Future<void> zoomIn() => update((s) => s.copyWith(
-      uiScale: zoomSteps.firstWhere((v) => v > s.uiScale + 0.001,
-          orElse: () => zoomSteps.last)));
-  Future<void> zoomOut() => update((s) => s.copyWith(
-      uiScale: zoomSteps.lastWhere((v) => v < s.uiScale - 0.001,
-          orElse: () => zoomSteps.first)));
-  Future<void> resetZoom() =>
-      update((s) => s.copyWith(uiScale: 1.0));
+  Future<void> zoomIn() => update(
+    (s) => s.copyWith(
+      uiScale: zoomSteps.firstWhere(
+        (v) => v > s.uiScale + 0.001,
+        orElse: () => zoomSteps.last,
+      ),
+    ),
+  );
+  Future<void> zoomOut() => update(
+    (s) => s.copyWith(
+      uiScale: zoomSteps.lastWhere(
+        (v) => v < s.uiScale - 0.001,
+        orElse: () => zoomSteps.first,
+      ),
+    ),
+  );
+  Future<void> resetZoom() => update((s) => s.copyWith(uiScale: 1.0));
 }
 
-final settingsProvider =
-    NotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
+final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(
+  SettingsNotifier.new,
+);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../core/api/jellyfin_client.dart';
 import '../core/api/models.dart';
 import '../providers/providers.dart';
@@ -58,11 +59,11 @@ class MediaCard extends ConsumerWidget {
     };
 
     return SizedBox(
-      width: width,
+      width: dim(width),
       child: Focusable(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: 12,
+        borderRadius: dim(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -74,7 +75,7 @@ class MediaCard extends ConsumerWidget {
               ],
             ),
             if (showTitle) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: dim(8)),
               Text(
                 _title,
                 maxLines: 1,
@@ -95,14 +96,13 @@ class MediaCard extends ConsumerWidget {
     );
   }
 
-  String _thumb(JellyfinClient client) =>
-      client.thumbUrl(item, maxWidth: 640);
+  String _thumb(JellyfinClient client) => client.thumbUrl(item, maxWidth: 640);
 
   String get _title => switch (item.kind) {
-        MediaKind.episode => item.seriesName ?? item.name,
-        MediaKind.audio => item.name,
-        _ => item.name,
-      };
+    MediaKind.episode => item.seriesName ?? item.name,
+    MediaKind.audio => item.name,
+    _ => item.name,
+  };
 
   String? get _subtitle {
     if (item.kind == MediaKind.episode) {
@@ -118,30 +118,29 @@ class MediaCard extends ConsumerWidget {
   }
 
   Widget _progress() => Positioned(
-        left: 0,
-        right: 0,
-        bottom: 0,
-        child: ClipRRect(
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(12)),
-          child: LinearProgressIndicator(
-            value: item.progress,
-            minHeight: 4,
-            backgroundColor: Colors.black45,
-          ),
-        ),
-      );
+    left: 0,
+    right: 0,
+    bottom: 0,
+    child: ClipRRect(
+      borderRadius: BorderRadius.vertical(bottom: Radius.circular(dim(12))),
+      child: LinearProgressIndicator(
+        value: item.progress,
+        minHeight: dim(4),
+        backgroundColor: Colors.black45,
+      ),
+    ),
+  );
 
   Widget _watchedBadge(BuildContext context) => Positioned(
-        top: 6,
-        right: 6,
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.check, size: 14, color: Colors.white),
-        ),
-      );
+    top: dim(6),
+    right: dim(6),
+    child: Container(
+      padding: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(Icons.check, size: dim(14), color: Colors.white),
+    ),
+  );
 }

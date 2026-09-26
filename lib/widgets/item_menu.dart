@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../core/api/models.dart';
 import '../providers/downloads_provider.dart';
 import '../providers/library_provider.dart';
@@ -15,10 +16,8 @@ Future<void> showItemMenu(
   void Function(MediaItem item)? onOpen,
 }) {
   // Snapshot state before opening: this runs outside a build pass.
-  final downloaded =
-      ref.read(downloadsProvider.notifier).isDownloaded(item.id);
-  final downloading =
-      ref.read(downloadsProvider.notifier).isActive(item.id);
+  final downloaded = ref.read(downloadsProvider.notifier).isDownloaded(item.id);
+  final downloading = ref.read(downloadsProvider.notifier).isActive(item.id);
   return showModalBottomSheet(
     context: context,
     showDragHandle: true,
@@ -31,43 +30,43 @@ Future<void> showItemMenu(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(item.displayTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium),
+                child: Text(
+                  item.displayTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
             ),
             if (item.isPlayable)
               ListTile(
                 leading: const Icon(Icons.play_arrow),
-                title: Text(item.hasProgress
-                    ? 'Resume'
-                    : 'Play'),
+                title: Text(item.hasProgress ? 'Resume' : 'Play'),
                 onTap: () {
                   Navigator.pop(context);
                   onPlay?.call(item);
                 },
               ),
             ListTile(
-              leading: Icon(item.isFavorite
-                  ? Icons.favorite
-                  : Icons.favorite_border),
+              leading: Icon(
+                item.isFavorite ? Icons.favorite : Icons.favorite_border,
+              ),
               title: Text(
-                  item.isFavorite ? 'Remove from favorites' : 'Favorite'),
+                item.isFavorite ? 'Remove from favorites' : 'Favorite',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 actions.toggleFavorite(item);
               },
             ),
             ListTile(
-              leading: Icon(item.isPlayed
-                  ? Icons.check_circle
-                  : Icons.check_circle_outline),
-              title:
-                  Text(item.isPlayed ? 'Mark unplayed' : 'Mark played'),
+              leading: Icon(
+                item.isPlayed ? Icons.check_circle : Icons.check_circle_outline,
+              ),
+              title: Text(item.isPlayed ? 'Mark unplayed' : 'Mark played'),
               onTap: () {
                 Navigator.pop(context);
                 actions.togglePlayed(item);
@@ -75,14 +74,16 @@ Future<void> showItemMenu(
             ),
             if (item.isVideo)
               ListTile(
-                leading: Icon(downloaded
-                    ? Icons.download_done
-                    : Icons.download_outlined),
-                title: Text(downloaded
-                    ? 'Downloaded'
-                    : downloading
-                        ? 'Downloading...'
-                        : 'Download'),
+                leading: Icon(
+                  downloaded ? Icons.download_done : Icons.download_outlined,
+                ),
+                title: Text(
+                  downloaded
+                      ? 'Downloaded'
+                      : downloading
+                      ? 'Downloading...'
+                      : 'Download',
+                ),
                 onTap: downloaded || downloading
                     ? null
                     : () {
@@ -99,7 +100,7 @@ Future<void> showItemMenu(
                   onOpen(item);
                 },
               ),
-            const SizedBox(height: 8),
+            SizedBox(height: dim(8)),
           ],
         ),
       );

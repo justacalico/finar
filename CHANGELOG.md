@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
 ### Added
-- Ctrl+plus/minus/0 zooms the whole interface in and out (50% to 200%), saved between launches.
+- Ctrl+plus/minus/0 scales the interface up and down (50% to 200%), saved between launches.
 
 ### Changed
 - The playing track in lists now shows animated equalizer bars that ease down to a flat rest height while paused, instead of a static icon.

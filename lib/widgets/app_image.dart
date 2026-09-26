@@ -1,3 +1,4 @@
+import '../core/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -6,11 +7,11 @@ enum ArtShape { poster, backdrop, square, avatar }
 
 extension ArtShapeRatio on ArtShape {
   double get ratio => switch (this) {
-        ArtShape.poster => 2 / 3,
-        ArtShape.backdrop => 16 / 9,
-        ArtShape.square => 1,
-        ArtShape.avatar => 1,
-      };
+    ArtShape.poster => 2 / 3,
+    ArtShape.backdrop => 16 / 9,
+    ArtShape.square => 1,
+    ArtShape.avatar => 1,
+  };
 }
 
 /// Cached Jellyfin image with a consistent placeholder and error state.
@@ -37,7 +38,7 @@ class AppImage extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final clipped = ClipRRect(
       borderRadius: shape == ArtShape.avatar
-          ? BorderRadius.circular(999)
+          ? BorderRadius.circular(dim(999))
           : BorderRadius.circular(borderRadius),
       child: SizedBox.expand(
         child: url.isEmpty
@@ -56,17 +57,14 @@ class AppImage extends StatelessWidget {
   }
 
   Widget _placeholder(ColorScheme scheme) => Container(
-        color: scheme.surfaceContainerHighest,
-        child: Center(
-          child: Icon(
-            switch (shape) {
-              ArtShape.poster => Icons.movie_outlined,
-              ArtShape.backdrop => Icons.image_outlined,
-              ArtShape.square => Icons.music_note_outlined,
-              ArtShape.avatar => Icons.person_outline,
-            },
-            color: scheme.onSurface.withValues(alpha: 0.25),
-          ),
-        ),
-      );
+    color: scheme.surfaceContainerHighest,
+    child: Center(
+      child: Icon(switch (shape) {
+        ArtShape.poster => Icons.movie_outlined,
+        ArtShape.backdrop => Icons.image_outlined,
+        ArtShape.square => Icons.music_note_outlined,
+        ArtShape.avatar => Icons.person_outline,
+      }, color: scheme.onSurface.withValues(alpha: 0.25)),
+    ),
+  );
 }

@@ -19,7 +19,7 @@ class MiniPlayer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final audio = ref.watch(audioPlayerProvider);
     final track = audio.current;
-    if (track == null) return const SizedBox.shrink();
+    if (track == null) return SizedBox.shrink();
     final client = ref.read(jellyfinClientProvider);
     final scheme = Theme.of(context).colorScheme;
 
@@ -28,10 +28,7 @@ class MiniPlayer extends ConsumerWidget {
         color: scheme.surfaceContainer,
         border: Border(top: BorderSide(color: scheme.outline)),
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: Insets.sm,
-        vertical: Insets.xs,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Insets.sm, vertical: Insets.xs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -71,14 +68,14 @@ class MiniPlayer extends ConsumerWidget {
     return Row(
       children: [
         SizedBox(
-          width: 40,
+          width: dim(40),
           child: AppImage(
             client.posterUrl(track, maxWidth: 120),
             shape: ArtShape.square,
             borderRadius: 8,
           ),
         ),
-        const SizedBox(width: Insets.sm),
+        SizedBox(width: Insets.sm),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -109,10 +106,10 @@ class MiniPlayer extends ConsumerWidget {
         ),
         IconButton(
           icon: audio.loading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+              ? SizedBox(
+                  width: dim(20),
+                  height: dim(20),
+                  child: CircularProgressIndicator(strokeWidth: dim(2)),
                 )
               : Icon(audio.playing ? Icons.pause : Icons.play_arrow),
           onPressed: () => ref.read(audioPlayerProvider.notifier).toggle(),

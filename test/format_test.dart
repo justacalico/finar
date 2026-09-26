@@ -39,8 +39,10 @@ void main() {
     });
 
     test('formats h:mm:ss', () {
-      expect(formatDuration(const Duration(hours: 2, minutes: 3, seconds: 4)),
-          '2:03:04');
+      expect(
+        formatDuration(const Duration(hours: 2, minutes: 3, seconds: 4)),
+        '2:03:04',
+      );
     });
 
     test('negative durations get a sign', () {

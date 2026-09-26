@@ -116,20 +116,18 @@ class JfUser {
       name: json['Name'] as String? ?? '',
       primaryImageTag: json['PrimaryImageTag'] as String?,
       hasPassword: json['HasPassword'] as bool? ?? false,
-      hasConfiguredPassword:
-          json['HasConfiguredPassword'] as bool? ?? false,
-      lastLoginDate:
-          DateTime.tryParse(json['LastLoginDate'] as String? ?? ''),
+      hasConfiguredPassword: json['HasConfiguredPassword'] as bool? ?? false,
+      lastLoginDate: DateTime.tryParse(json['LastLoginDate'] as String? ?? ''),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'Id': id,
-        'Name': name,
-        'PrimaryImageTag': primaryImageTag,
-        'HasPassword': hasPassword,
-        'HasConfiguredPassword': hasConfiguredPassword,
-      };
+    'Id': id,
+    'Name': name,
+    'PrimaryImageTag': primaryImageTag,
+    'HasPassword': hasPassword,
+    'HasConfiguredPassword': hasConfiguredPassword,
+  };
 }
 
 class AuthResult {
@@ -195,20 +193,20 @@ class ImageTags {
   });
 
   factory ImageTags.fromJson(Map<String, dynamic> json) => ImageTags(
-        primary: json['Primary'] as String?,
-        logo: json['Logo'] as String?,
-        thumb: json['Thumb'] as String?,
-        banner: json['Banner'] as String?,
-        backdrop: json['Backdrop'] as String?,
-      );
+    primary: json['Primary'] as String?,
+    logo: json['Logo'] as String?,
+    thumb: json['Thumb'] as String?,
+    banner: json['Banner'] as String?,
+    backdrop: json['Backdrop'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'Primary': primary,
-        'Logo': logo,
-        'Thumb': thumb,
-        'Banner': banner,
-        'Backdrop': backdrop,
-      };
+    'Primary': primary,
+    'Logo': logo,
+    'Thumb': thumb,
+    'Banner': banner,
+    'Backdrop': backdrop,
+  };
 }
 
 class UserData {
@@ -231,24 +229,23 @@ class UserData {
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
-        rating: _double(json['Rating']),
-        playedPercentage: _double(json['PlayedPercentage']),
-        playbackPositionTicks: _int(json['PlaybackPositionTicks']),
-        playCount: _int(json['PlayCount']),
-        isFavorite: json['IsFavorite'] as bool? ?? false,
-        played: json['Played'] as bool? ?? false,
-        lastPlayedDate:
-            DateTime.tryParse(json['LastPlayedDate'] as String? ?? ''),
-      );
+    rating: _double(json['Rating']),
+    playedPercentage: _double(json['PlayedPercentage']),
+    playbackPositionTicks: _int(json['PlaybackPositionTicks']),
+    playCount: _int(json['PlayCount']),
+    isFavorite: json['IsFavorite'] as bool? ?? false,
+    played: json['Played'] as bool? ?? false,
+    lastPlayedDate: DateTime.tryParse(json['LastPlayedDate'] as String? ?? ''),
+  );
 
   Map<String, dynamic> toJson() => {
-        'Rating': rating,
-        'PlayedPercentage': playedPercentage,
-        'PlaybackPositionTicks': playbackPositionTicks,
-        'PlayCount': playCount,
-        'IsFavorite': isFavorite,
-        'Played': played,
-      };
+    'Rating': rating,
+    'PlayedPercentage': playedPercentage,
+    'PlaybackPositionTicks': playbackPositionTicks,
+    'PlayCount': playCount,
+    'IsFavorite': isFavorite,
+    'Played': played,
+  };
 }
 
 class Person {
@@ -267,12 +264,12 @@ class Person {
   });
 
   factory Person.fromJson(Map<String, dynamic> json) => Person(
-        id: json['Id'] as String? ?? '',
-        name: json['Name'] as String? ?? '',
-        role: json['Role'] as String?,
-        type: json['Type'] as String?,
-        primaryImageTag: json['PrimaryImageTag'] as String?,
-      );
+    id: json['Id'] as String? ?? '',
+    name: json['Name'] as String? ?? '',
+    role: json['Role'] as String?,
+    type: json['Type'] as String?,
+    primaryImageTag: json['PrimaryImageTag'] as String?,
+  );
 }
 
 class Chapter {
@@ -282,9 +279,9 @@ class Chapter {
   const Chapter({required this.name, required this.startTicks});
 
   factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
-        name: json['Name'] as String? ?? '',
-        startTicks: _int(json['StartPositionTicks']) ?? 0,
-      );
+    name: json['Name'] as String? ?? '',
+    startTicks: _int(json['StartPositionTicks']) ?? 0,
+  );
 }
 
 class MediaStream {
@@ -319,20 +316,20 @@ class MediaStream {
   });
 
   factory MediaStream.fromJson(Map<String, dynamic> json) => MediaStream(
-        type: json['Type'] as String? ?? 'Unknown',
-        index: _int(json['Index']) ?? 0,
-        codec: json['Codec'] as String?,
-        language: json['Language'] as String?,
-        title: json['Title'] as String?,
-        displayTitle: json['DisplayTitle'] as String?,
-        isDefault: json['IsDefault'] as bool? ?? false,
-        isForced: json['IsForced'] as bool? ?? false,
-        isExternal: json['IsExternal'] as bool? ?? false,
-        width: _int(json['Width']),
-        height: _int(json['Height']),
-        channels: _int(json['Channels']),
-        deliveryUrl: json['DeliveryUrl'] as String?,
-      );
+    type: json['Type'] as String? ?? 'Unknown',
+    index: _int(json['Index']) ?? 0,
+    codec: json['Codec'] as String?,
+    language: json['Language'] as String?,
+    title: json['Title'] as String?,
+    displayTitle: json['DisplayTitle'] as String?,
+    isDefault: json['IsDefault'] as bool? ?? false,
+    isForced: json['IsForced'] as bool? ?? false,
+    isExternal: json['IsExternal'] as bool? ?? false,
+    width: _int(json['Width']),
+    height: _int(json['Height']),
+    channels: _int(json['Channels']),
+    deliveryUrl: json['DeliveryUrl'] as String?,
+  );
 
   bool get isVideo => type == 'Video';
   bool get isAudio => type == 'Audio';
@@ -374,21 +371,20 @@ class MediaSource {
   });
 
   factory MediaSource.fromJson(Map<String, dynamic> json) => MediaSource(
-        id: json['Id'] as String? ?? '',
-        container: json['Container'] as String?,
-        size: _int(json['Size']),
-        bitrate: _int(json['Bitrate']),
-        path: json['Path'] as String?,
-        supportsDirectPlay: json['SupportsDirectPlay'] as bool? ?? false,
-        supportsDirectStream:
-            json['SupportsDirectStream'] as bool? ?? false,
-        supportsTranscoding:
-            json['SupportsTranscoding'] as bool? ?? false,
-        streams: (json['MediaStreams'] as List<dynamic>?)
-                ?.map((e) => MediaStream.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-      );
+    id: json['Id'] as String? ?? '',
+    container: json['Container'] as String?,
+    size: _int(json['Size']),
+    bitrate: _int(json['Bitrate']),
+    path: json['Path'] as String?,
+    supportsDirectPlay: json['SupportsDirectPlay'] as bool? ?? false,
+    supportsDirectStream: json['SupportsDirectStream'] as bool? ?? false,
+    supportsTranscoding: json['SupportsTranscoding'] as bool? ?? false,
+    streams:
+        (json['MediaStreams'] as List<dynamic>?)
+            ?.map((e) => MediaStream.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
+  );
 
   List<MediaStream> get audioStreams =>
       streams.where((s) => s.isAudio).toList();
@@ -409,12 +405,13 @@ class PlaybackInfo {
   const PlaybackInfo({this.mediaSources = const [], this.playSessionId});
 
   factory PlaybackInfo.fromJson(Map<String, dynamic> json) => PlaybackInfo(
-        mediaSources: (json['MediaSources'] as List<dynamic>?)
-                ?.map((e) => MediaSource.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-        playSessionId: json['PlaySessionId'] as String?,
-      );
+    mediaSources:
+        (json['MediaSources'] as List<dynamic>?)
+            ?.map((e) => MediaSource.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
+    playSessionId: json['PlaySessionId'] as String?,
+  );
 }
 
 class ItemsResult {
@@ -430,17 +427,17 @@ class ItemsResult {
 }
 
 ItemsResult parseItemsResult(Map<String, dynamic> json) => ItemsResult(
-      items: (json['Items'] as List<dynamic>?)
-              ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      totalCount: _int(json['TotalRecordCount']) ?? 0,
-      startIndex: _int(json['StartIndex']) ?? 0,
-    );
+  items:
+      (json['Items'] as List<dynamic>?)
+          ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  totalCount: _int(json['TotalRecordCount']) ?? 0,
+  startIndex: _int(json['StartIndex']) ?? 0,
+);
 
-List<MediaItem> parseItemList(List<dynamic> json) => json
-    .map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
-    .toList();
+List<MediaItem> parseItemList(List<dynamic> json) =>
+    json.map((e) => MediaItem.fromJson(e as Map<String, dynamic>)).toList();
 
 MediaItem parseItem(Map<String, dynamic> json) => MediaItem.fromJson(json);
 
@@ -451,9 +448,9 @@ class Genre {
   const Genre({required this.id, required this.name});
 
   factory Genre.fromJson(Map<String, dynamic> json) => Genre(
-        id: json['Id'] as String? ?? '',
-        name: json['Name'] as String? ?? '',
-      );
+    id: json['Id'] as String? ?? '',
+    name: json['Name'] as String? ?? '',
+  );
 }
 
 class SearchHint {
@@ -476,14 +473,14 @@ class SearchHint {
   });
 
   factory SearchHint.fromJson(Map<String, dynamic> json) => SearchHint(
-        itemId: json['ItemId'] as String? ?? '',
-        name: json['Name'] as String? ?? '',
-        type: json['Type'] as String? ?? '',
-        productionYear: _int(json['ProductionYear']),
-        series: json['Series'] as String?,
-        primaryImageTag: json['PrimaryImageTag'] as String?,
-        matchedTerm: json['MatchedTerm'] as String?,
-      );
+    itemId: json['ItemId'] as String? ?? '',
+    name: json['Name'] as String? ?? '',
+    type: json['Type'] as String? ?? '',
+    productionYear: _int(json['ProductionYear']),
+    series: json['Series'] as String?,
+    primaryImageTag: json['PrimaryImageTag'] as String?,
+    matchedTerm: json['MatchedTerm'] as String?,
+  );
 
   MediaKind get kind => MediaKind.fromString(type);
 }
@@ -570,96 +567,96 @@ class MediaItem {
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) => MediaItem(
-        id: json['Id'] as String,
-        name: json['Name'] as String? ?? '',
-        overview: json['Overview'] as String?,
-        kind: MediaKind.fromString(json['Type'] as String?),
-        typeString: json['Type'] as String?,
-        productionYear: _int(json['ProductionYear']),
-        premiereDate: json['PremiereDate'] as String?,
-        officialRating: json['OfficialRating'] as String?,
-        communityRating: _double(json['CommunityRating']),
-        runtimeTicks: _int(json['RunTimeTicks']),
-        imageTags: json['ImageTags'] != null
-            ? ImageTags.fromJson(json['ImageTags'] as Map<String, dynamic>)
-            : const ImageTags(),
-        backdropImageTags: _stringList(json['BackdropImageTags']),
-        parentBackdropItemId: json['ParentBackdropItemId'] as String?,
-        parentBackdropImageTags:
-            _stringList(json['ParentBackdropImageTags']),
-        seriesId: json['SeriesId'] as String?,
-        seriesName: json['SeriesName'] as String?,
-        seriesPrimaryImageTag: json['SeriesPrimaryImageTag'] as String?,
-        seasonId: json['SeasonId'] as String?,
-        seasonName: json['SeasonName'] as String?,
-        indexNumber: _int(json['IndexNumber']),
-        parentIndexNumber: _int(json['ParentIndexNumber']),
-        people: (json['People'] as List<dynamic>?)
-                ?.map((e) => Person.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-        genres: _stringList(json['Genres']),
-        mediaSources: (json['MediaSources'] as List<dynamic>?)
-                ?.map((e) => MediaSource.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-        chapters: (json['Chapters'] as List<dynamic>?)
-                ?.map((e) => Chapter.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-        userData: json['UserData'] != null
-            ? UserData.fromJson(json['UserData'] as Map<String, dynamic>)
-            : const UserData(),
-        parentId: json['ParentId'] as String?,
-        collectionType: json['CollectionType'] as String?,
-        childCount: _int(json['ChildCount']),
-        recursiveItemCount: _int(json['RecursiveItemCount']),
-        albumArtist: json['AlbumArtist'] as String?,
-        artists: _stringList(json['Artists']),
-        album: json['Album'] as String?,
-        albumId: json['AlbumId'] as String?,
-        albumPrimaryImageTag:
-            json['AlbumPrimaryImageTag'] as String?,
-        playlistItemId: json['PlaylistItemId'] as String?,
-        localTrailerCount: _int(json['LocalTrailerCount']),
-        primaryImageAspectRatio:
-            json['PrimaryImageAspectRatio']?.toString(),
-      );
+    id: json['Id'] as String,
+    name: json['Name'] as String? ?? '',
+    overview: json['Overview'] as String?,
+    kind: MediaKind.fromString(json['Type'] as String?),
+    typeString: json['Type'] as String?,
+    productionYear: _int(json['ProductionYear']),
+    premiereDate: json['PremiereDate'] as String?,
+    officialRating: json['OfficialRating'] as String?,
+    communityRating: _double(json['CommunityRating']),
+    runtimeTicks: _int(json['RunTimeTicks']),
+    imageTags: json['ImageTags'] != null
+        ? ImageTags.fromJson(json['ImageTags'] as Map<String, dynamic>)
+        : const ImageTags(),
+    backdropImageTags: _stringList(json['BackdropImageTags']),
+    parentBackdropItemId: json['ParentBackdropItemId'] as String?,
+    parentBackdropImageTags: _stringList(json['ParentBackdropImageTags']),
+    seriesId: json['SeriesId'] as String?,
+    seriesName: json['SeriesName'] as String?,
+    seriesPrimaryImageTag: json['SeriesPrimaryImageTag'] as String?,
+    seasonId: json['SeasonId'] as String?,
+    seasonName: json['SeasonName'] as String?,
+    indexNumber: _int(json['IndexNumber']),
+    parentIndexNumber: _int(json['ParentIndexNumber']),
+    people:
+        (json['People'] as List<dynamic>?)
+            ?.map((e) => Person.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
+    genres: _stringList(json['Genres']),
+    mediaSources:
+        (json['MediaSources'] as List<dynamic>?)
+            ?.map((e) => MediaSource.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
+    chapters:
+        (json['Chapters'] as List<dynamic>?)
+            ?.map((e) => Chapter.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
+    userData: json['UserData'] != null
+        ? UserData.fromJson(json['UserData'] as Map<String, dynamic>)
+        : const UserData(),
+    parentId: json['ParentId'] as String?,
+    collectionType: json['CollectionType'] as String?,
+    childCount: _int(json['ChildCount']),
+    recursiveItemCount: _int(json['RecursiveItemCount']),
+    albumArtist: json['AlbumArtist'] as String?,
+    artists: _stringList(json['Artists']),
+    album: json['Album'] as String?,
+    albumId: json['AlbumId'] as String?,
+    albumPrimaryImageTag: json['AlbumPrimaryImageTag'] as String?,
+    playlistItemId: json['PlaylistItemId'] as String?,
+    localTrailerCount: _int(json['LocalTrailerCount']),
+    primaryImageAspectRatio: json['PrimaryImageAspectRatio']?.toString(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'Id': id,
-        'Name': name,
-        'Overview': overview,
-        'Type': typeString,
-        'ProductionYear': productionYear,
-        'PremiereDate': premiereDate,
-        'OfficialRating': officialRating,
-        'CommunityRating': communityRating,
-        'RunTimeTicks': runtimeTicks,
-        'ImageTags': imageTags.toJson(),
-        'BackdropImageTags': backdropImageTags,
-        'ParentBackdropItemId': parentBackdropItemId,
-        'ParentBackdropImageTags': parentBackdropImageTags,
-        'SeriesId': seriesId,
-        'SeriesName': seriesName,
-        'SeriesPrimaryImageTag': seriesPrimaryImageTag,
-        'SeasonId': seasonId,
-        'SeasonName': seasonName,
-        'IndexNumber': indexNumber,
-        'ParentIndexNumber': parentIndexNumber,
-        'Genres': genres,
-        'UserData': userData.toJson(),
-        'ParentId': parentId,
-        'CollectionType': collectionType,
-        'ChildCount': childCount,
-        'RecursiveItemCount': recursiveItemCount,
-        'AlbumArtist': albumArtist,
-        'Artists': artists,
-        'Album': album,
-        'AlbumId': albumId,
-        'AlbumPrimaryImageTag': albumPrimaryImageTag,
-        'PlaylistItemId': playlistItemId,
-      };
+    'Id': id,
+    'Name': name,
+    'Overview': overview,
+    'Type': typeString,
+    'ProductionYear': productionYear,
+    'PremiereDate': premiereDate,
+    'OfficialRating': officialRating,
+    'CommunityRating': communityRating,
+    'RunTimeTicks': runtimeTicks,
+    'ImageTags': imageTags.toJson(),
+    'BackdropImageTags': backdropImageTags,
+    'ParentBackdropItemId': parentBackdropItemId,
+    'ParentBackdropImageTags': parentBackdropImageTags,
+    'SeriesId': seriesId,
+    'SeriesName': seriesName,
+    'SeriesPrimaryImageTag': seriesPrimaryImageTag,
+    'SeasonId': seasonId,
+    'SeasonName': seasonName,
+    'IndexNumber': indexNumber,
+    'ParentIndexNumber': parentIndexNumber,
+    'Genres': genres,
+    'UserData': userData.toJson(),
+    'ParentId': parentId,
+    'CollectionType': collectionType,
+    'ChildCount': childCount,
+    'RecursiveItemCount': recursiveItemCount,
+    'AlbumArtist': albumArtist,
+    'Artists': artists,
+    'Album': album,
+    'AlbumId': albumId,
+    'AlbumPrimaryImageTag': albumPrimaryImageTag,
+    'PlaylistItemId': playlistItemId,
+  };
 
   bool get isPlayable =>
       kind == MediaKind.movie ||
@@ -720,43 +717,43 @@ class MediaItem {
   }
 
   MediaItem copyWith({UserData? userData}) => MediaItem(
-        id: id,
-        name: name,
-        overview: overview,
-        kind: kind,
-        typeString: typeString,
-        productionYear: productionYear,
-        premiereDate: premiereDate,
-        officialRating: officialRating,
-        communityRating: communityRating,
-        runtimeTicks: runtimeTicks,
-        imageTags: imageTags,
-        backdropImageTags: backdropImageTags,
-        parentBackdropItemId: parentBackdropItemId,
-        parentBackdropImageTags: parentBackdropImageTags,
-        seriesId: seriesId,
-        seriesName: seriesName,
-        seriesPrimaryImageTag: seriesPrimaryImageTag,
-        seasonId: seasonId,
-        seasonName: seasonName,
-        indexNumber: indexNumber,
-        parentIndexNumber: parentIndexNumber,
-        people: people,
-        genres: genres,
-        mediaSources: mediaSources,
-        chapters: chapters,
-        userData: userData ?? this.userData,
-        parentId: parentId,
-        collectionType: collectionType,
-        childCount: childCount,
-        recursiveItemCount: recursiveItemCount,
-        albumArtist: albumArtist,
-        artists: artists,
-        album: album,
-        albumId: albumId,
-        albumPrimaryImageTag: albumPrimaryImageTag,
-        playlistItemId: playlistItemId,
-        localTrailerCount: localTrailerCount,
-        primaryImageAspectRatio: primaryImageAspectRatio,
-      );
+    id: id,
+    name: name,
+    overview: overview,
+    kind: kind,
+    typeString: typeString,
+    productionYear: productionYear,
+    premiereDate: premiereDate,
+    officialRating: officialRating,
+    communityRating: communityRating,
+    runtimeTicks: runtimeTicks,
+    imageTags: imageTags,
+    backdropImageTags: backdropImageTags,
+    parentBackdropItemId: parentBackdropItemId,
+    parentBackdropImageTags: parentBackdropImageTags,
+    seriesId: seriesId,
+    seriesName: seriesName,
+    seriesPrimaryImageTag: seriesPrimaryImageTag,
+    seasonId: seasonId,
+    seasonName: seasonName,
+    indexNumber: indexNumber,
+    parentIndexNumber: parentIndexNumber,
+    people: people,
+    genres: genres,
+    mediaSources: mediaSources,
+    chapters: chapters,
+    userData: userData ?? this.userData,
+    parentId: parentId,
+    collectionType: collectionType,
+    childCount: childCount,
+    recursiveItemCount: recursiveItemCount,
+    albumArtist: albumArtist,
+    artists: artists,
+    album: album,
+    albumId: albumId,
+    albumPrimaryImageTag: albumPrimaryImageTag,
+    playlistItemId: playlistItemId,
+    localTrailerCount: localTrailerCount,
+    primaryImageAspectRatio: primaryImageAspectRatio,
+  );
 }

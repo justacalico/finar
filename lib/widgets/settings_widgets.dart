@@ -16,18 +16,21 @@ class SettingsGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-              Insets.md, Insets.lg, Insets.md, Insets.sm),
-          child: Text(title,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelMedium
-                  ?.copyWith(
-                      color:
-                          Theme.of(context).colorScheme.primary)),
+          padding: EdgeInsets.fromLTRB(
+            Insets.md,
+            Insets.lg,
+            Insets.md,
+            Insets.sm,
+          ),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
         ),
         Card(
-          margin: const EdgeInsets.symmetric(horizontal: Insets.md),
+          margin: EdgeInsets.symmetric(horizontal: Insets.md),
           child: Column(children: children),
         ),
       ],
@@ -83,7 +86,7 @@ class SettingDropdown<T> extends StatelessWidget {
       subtitle: subtitle != null ? Text(subtitle!) : null,
       trailing: DropdownButton<T>(
         value: value,
-        underline: const SizedBox.shrink(),
+        underline: SizedBox.shrink(),
         borderRadius: BorderRadius.circular(Radii.card),
         items: [
           for (final e in options.entries)
@@ -136,7 +139,7 @@ class SettingSlider extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 48,
+            width: dim(48),
             child: Text(
               label?.call(value) ?? value.toStringAsFixed(1),
               style: Theme.of(context).textTheme.bodySmall,
@@ -169,15 +172,13 @@ class SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive
-        ? Theme.of(context).colorScheme.error
-        : null;
+    final color = destructive ? Theme.of(context).colorScheme.error : null;
     return ListTile(
       leading: icon != null ? Icon(icon, color: color) : null,
       title: Text(title, style: TextStyle(color: color)),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ??
-          (onTap != null ? const Icon(Icons.chevron_right) : null),
+      trailing:
+          trailing ?? (onTap != null ? const Icon(Icons.chevron_right) : null),
       onTap: onTap,
     );
   }

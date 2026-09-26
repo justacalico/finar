@@ -13,8 +13,7 @@ class RecordedRequest {
   final dynamic body;
   final Map<String, dynamic> headers;
 
-  RecordedRequest(
-      this.method, this.path, this.query, this.body, this.headers);
+  RecordedRequest(this.method, this.path, this.query, this.body, this.headers);
 }
 
 class FakeAdapter implements HttpClientAdapter {
@@ -28,21 +27,36 @@ class FakeAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     String? body;
     if (requestStream != null) {
       final bytes = await requestStream.fold<List<int>>(
-          [], (a, b) => a..addAll(b));
+        [],
+        (a, b) => a..addAll(b),
+      );
       body = utf8.decode(bytes);
     }
-    requests.add(RecordedRequest(options.method, options.path,
-        options.queryParameters, body, options.headers));
+    requests.add(
+      RecordedRequest(
+        options.method,
+        options.path,
+        options.queryParameters,
+        body,
+        options.headers,
+      ),
+    );
 
     if (failWithStatus != null) {
       return ResponseBody.fromString(
-          'error', failWithStatus!,
-          statusMessage: 'Error', headers: {});
+        'error',
+        failWithStatus!,
+        statusMessage: 'Error',
+        headers: {},
+      );
     }
 
     dynamic data = responses[options.path];
@@ -55,10 +69,12 @@ class FakeAdapter implements HttpClientAdapter {
       }
     }
     return ResponseBody.fromString(
-        jsonEncode(data ?? {}), 200,
-        headers: {
-          Headers.contentTypeHeader: ['application/json']
-        });
+      jsonEncode(data ?? {}),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
   }
 }
 
@@ -79,7 +95,10 @@ void main() {
 
     test('auth header includes token only when set', () {
       final c = JellyfinClient(
-          deviceId: 'd', deviceName: 'Dev', clientVersion: '9.9');
+        deviceId: 'd',
+        deviceName: 'Dev',
+        clientVersion: '9.9',
+      );
       expect(c.authHeader, isNot(contains('Token')));
       c.setCredentials(accessToken: 'tok', userId: 'u');
       expect(c.authHeader, contains('Token="tok"'));
@@ -97,7 +116,7 @@ void main() {
         '/System/Info/Public': {
           'Id': 'srv',
           'ServerName': 'My Server',
-          'Version': '10.9.0'
+          'Version': '10.9.0',
         },
       });
       final c = clientWith(adapter);
@@ -125,18 +144,15 @@ void main() {
       expect(sent.body, contains('pw'));
     });
 
-    test('requests send Authorization and X-Emby-Authorization',
-        () async {
+    test('requests send Authorization and X-Emby-Authorization', () async {
       final adapter = FakeAdapter({'/System/Info/Public': {}});
       final c = clientWith(adapter)
         ..setCredentials(accessToken: 'tok', userId: 'u1');
       await c.getServerInfo();
       final headers = adapter.requests.single.headers;
-      expect(headers['Authorization'],
-          contains('MediaBrowser Client="Finar"'));
+      expect(headers['Authorization'], contains('MediaBrowser Client="Finar"'));
       expect(headers['Authorization'], contains('Token="tok"'));
-      expect(headers['X-Emby-Authorization'],
-          contains('Token="tok"'));
+      expect(headers['X-Emby-Authorization'], contains('Token="tok"'));
     });
 
     test('getItems maps query params', () async {
@@ -146,15 +162,16 @@ void main() {
       final c = clientWith(adapter)
         ..setCredentials(accessToken: 't', userId: 'u1');
       await c.getItems(
-          parentId: 'lib1',
-          includeItemTypes: ['Movie'],
-          limit: 10,
-          startIndex: 20,
-          sortBy: 'SortName',
-          recursive: true,
-          searchTerm: 'alien',
-          isFavorite: true,
-          genres: 'Drama');
+        parentId: 'lib1',
+        includeItemTypes: ['Movie'],
+        limit: 10,
+        startIndex: 20,
+        sortBy: 'SortName',
+        recursive: true,
+        searchTerm: 'alien',
+        isFavorite: true,
+        genres: 'Drama',
+      );
       final q = adapter.requests.single.query;
       expect(q['ParentId'], 'lib1');
       expect(q['IncludeItemTypes'], 'Movie');
@@ -171,7 +188,7 @@ void main() {
           'Items': [
             {'Id': 'l1', 'Name': 'Movies', 'CollectionType': 'movies'},
             {'Id': 'l2', 'Name': 'Music', 'CollectionType': 'music'},
-          ]
+          ],
         },
       });
       final c = clientWith(adapter)
@@ -185,8 +202,8 @@ void main() {
       final adapter = FakeAdapter({
         '/Search/Hints': {
           'SearchHints': [
-            {'ItemId': 'i1', 'Name': 'Alien', 'Type': 'Movie'}
-          ]
+            {'ItemId': 'i1', 'Name': 'Alien', 'Type': 'Movie'},
+          ],
         },
       });
       final c = clientWith(adapter)
@@ -195,7 +212,6 @@ void main() {
       expect(hints.single.name, 'Alien');
       expect(adapter.requests.single.query['SearchTerm'], 'ali');
     });
-
 
     test('getPublicUsers parses the user list', () async {
       final adapter = FakeAdapter({
@@ -213,11 +229,12 @@ void main() {
     test('userImageUrl builds with tag and width', () {
       final c = clientWith(FakeAdapter({}));
       final u = JfUser(id: 'u1', name: 'Cal', primaryImageTag: 'tag');
-      expect(c.userImageUrl(u, maxWidth: 100),
-          contains('/Items/u1/Images/Primary'));
+      expect(
+        c.userImageUrl(u, maxWidth: 100),
+        contains('/Items/u1/Images/Primary'),
+      );
       expect(c.userImageUrl(u, maxWidth: 100), contains('maxWidth=100'));
-      expect(c.userImageUrl(const JfUser(id: 'u2', name: 'G')),
-          isEmpty);
+      expect(c.userImageUrl(const JfUser(id: 'u2', name: 'G')), isEmpty);
     });
 
     test('mark played/favorite use right verbs', () async {
@@ -232,8 +249,7 @@ void main() {
       expect(adapter.requests[0].path, '/Users/u1/PlayedItems/i1');
       expect(adapter.requests[1].method, 'DELETE');
       expect(adapter.requests[2].method, 'POST');
-      expect(adapter.requests[2].path,
-          '/Users/u1/FavoriteItems/i1');
+      expect(adapter.requests[2].path, '/Users/u1/FavoriteItems/i1');
       expect(adapter.requests[3].method, 'DELETE');
     });
 
@@ -245,10 +261,8 @@ void main() {
       await c.reportProgress('i1', positionTicks: 900, isPaused: true);
       await c.reportStop('i1', positionTicks: 900);
       expect(adapter.requests[0].path, '/Sessions/Playing');
-      expect(adapter.requests[1].path,
-          '/Sessions/Playing/Progress');
-      expect(adapter.requests[2].path,
-          '/Sessions/Playing/Stopped');
+      expect(adapter.requests[1].path, '/Sessions/Playing/Progress');
+      expect(adapter.requests[2].path, '/Sessions/Playing/Stopped');
       expect(adapter.requests[1].body, contains('900'));
     });
   });
@@ -257,8 +271,13 @@ void main() {
     test('image urls carry params', () {
       final c = clientWith(FakeAdapter({}))
         ..setCredentials(accessToken: 't', userId: 'u1');
-      final url = c.imageUrl('i1', 'Primary',
-          maxWidth: 300, quality: 80, tag: 'x');
+      final url = c.imageUrl(
+        'i1',
+        'Primary',
+        maxWidth: 300,
+        quality: 80,
+        tag: 'x',
+      );
       expect(url, startsWith('http://server:8096/Items/i1/Images/Primary'));
       expect(url, contains('maxWidth=300'));
       expect(url, contains('tag=x'));
@@ -291,16 +310,18 @@ void main() {
       expect(url, contains('/Items/alb9/Images/Primary'));
       expect(url, contains('tag=albumtag'));
       // No album id means no art at all.
-      final orphan = MediaItem.fromJson(
-          {'Id': 'tr2', 'Name': 'Song', 'Type': 'Audio'});
+      final orphan = MediaItem.fromJson({
+        'Id': 'tr2',
+        'Name': 'Song',
+        'Type': 'Audio',
+      });
       expect(c.posterUrl(orphan), isEmpty);
     });
 
     test('stream urls embed token and params', () {
       final c = clientWith(FakeAdapter({}))
         ..setCredentials(accessToken: 'tok', userId: 'u1');
-      final url = c.streamUrl('i1',
-          mediaSourceId: 'ms', startTimeTicks: 42);
+      final url = c.streamUrl('i1', mediaSourceId: 'ms', startTimeTicks: 42);
       expect(url, contains('api_key=tok'));
       expect(url, contains('MediaSourceId=ms'));
       expect(url, contains('StartTimeTicks=42'));
@@ -315,14 +336,14 @@ void main() {
       final own = MediaItem.fromJson({
         'Id': 'i1',
         'Name': 'x',
-        'BackdropImageTags': ['b1']
+        'BackdropImageTags': ['b1'],
       });
       expect(c.backdropUrl(own), contains('/Items/i1/Images/Backdrop'));
       final child = MediaItem.fromJson({
         'Id': 'i2',
         'Name': 'x',
         'ParentBackdropItemId': 'p9',
-        'ParentBackdropImageTags': ['pb']
+        'ParentBackdropImageTags': ['pb'],
       });
       expect(c.backdropUrl(child), contains('/Items/p9/Images/Backdrop'));
       final none = MediaItem.fromJson({'Id': 'i3', 'Name': 'x'});

@@ -49,14 +49,17 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     final results = await Future.wait([
       orEmpty(client.getResume()),
       orEmpty(client.getNextUp()),
-      orEmpty(client
-          .getItems(
+      orEmpty(
+        client
+            .getItems(
               isFavorite: true,
               recursive: true,
               limit: 16,
               sortBy: 'SortName',
-              fields: const ['Overview'])
-          .then((r) => r.items)),
+              fields: const ['Overview'],
+            )
+            .then((r) => r.items),
+      ),
       for (final lib in session.libraries)
         orEmpty(client.getLatest(parentId: lib.id, limit: 16)),
     ]);
@@ -67,9 +70,11 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     final latest = <HomeSection>[
       for (var i = 0; i < session.libraries.length; i++)
         if (results[3 + i].isNotEmpty)
-          HomeSection('Latest ${session.libraries[i].name}',
-              results[3 + i],
-              libraryId: session.libraries[i].id),
+          HomeSection(
+            'Latest ${session.libraries[i].name}',
+            results[3 + i],
+            libraryId: session.libraries[i].id,
+          ),
     ];
 
     return HomeData(
@@ -81,5 +86,6 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   }
 }
 
-final homeProvider =
-    AsyncNotifierProvider<HomeNotifier, HomeData>(HomeNotifier.new);
+final homeProvider = AsyncNotifierProvider<HomeNotifier, HomeData>(
+  HomeNotifier.new,
+);

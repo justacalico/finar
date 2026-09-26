@@ -1,3 +1,4 @@
+import '../core/theme/app_theme.dart';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -67,12 +68,12 @@ class _PlayingIndicatorState extends State<PlayingIndicator>
         children: [
           for (var i = 0; i < 3; i++)
             Container(
-              width: 3,
-              height: 4 + 10 * _level(i),
-              margin: const EdgeInsets.symmetric(horizontal: 1),
+              width: dim(3),
+              height: dim(4 + 10 * _level(i)),
+              margin: EdgeInsets.symmetric(horizontal: dim(1)),
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(1.5),
+                borderRadius: BorderRadius.circular(dim(1.5)),
               ),
             ),
         ],
@@ -82,8 +83,7 @@ class _PlayingIndicatorState extends State<PlayingIndicator>
 
   double _level(int i) {
     // Each bar is a third of a cycle behind the previous one.
-    final live =
-        (sin(2 * pi * (_bounce.value + i / 3)) + 1) / 2;
+    final live = (sin(2 * pi * (_bounce.value + i / 3)) + 1) / 2;
     return _rest + (live - _rest) * _settle.value;
   }
 }

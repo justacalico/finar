@@ -34,6 +34,8 @@ String formatBytes(int? bytes) {
     value /= 1024;
     unit++;
   }
-  final str = value >= 100 ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
+  final str = value >= 100
+      ? value.toStringAsFixed(0)
+      : value.toStringAsFixed(1);
   return '$str ${units[unit]}';
 }

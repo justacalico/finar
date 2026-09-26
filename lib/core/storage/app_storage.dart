@@ -21,22 +21,22 @@ class SavedAccount {
   });
 
   factory SavedAccount.fromJson(Map<String, dynamic> j) => SavedAccount(
-        serverUrl: j['serverUrl'] as String,
-        serverName: j['serverName'] as String? ?? '',
-        userId: j['userId'] as String,
-        userName: j['userName'] as String? ?? '',
-        accessToken: j['accessToken'] as String,
-        imageTag: j['imageTag'] as String?,
-      );
+    serverUrl: j['serverUrl'] as String,
+    serverName: j['serverName'] as String? ?? '',
+    userId: j['userId'] as String,
+    userName: j['userName'] as String? ?? '',
+    accessToken: j['accessToken'] as String,
+    imageTag: j['imageTag'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'serverUrl': serverUrl,
-        'serverName': serverName,
-        'userId': userId,
-        'userName': userName,
-        'accessToken': accessToken,
-        'imageTag': imageTag,
-      };
+    'serverUrl': serverUrl,
+    'serverName': serverName,
+    'userId': userId,
+    'userName': userName,
+    'accessToken': accessToken,
+    'imageTag': imageTag,
+  };
 
   String get key => '$serverUrl::$userId';
 }
@@ -70,13 +70,17 @@ class AppStorage {
     all.removeWhere((a) => a.key == account.key);
     all.add(account);
     await _prefs.setString(
-        _accountsKey, jsonEncode(all.map((a) => a.toJson()).toList()));
+      _accountsKey,
+      jsonEncode(all.map((a) => a.toJson()).toList()),
+    );
   }
 
   Future<void> removeAccount(String key) async {
     final all = accounts()..removeWhere((a) => a.key == key);
     await _prefs.setString(
-        _accountsKey, jsonEncode(all.map((a) => a.toJson()).toList()));
+      _accountsKey,
+      jsonEncode(all.map((a) => a.toJson()).toList()),
+    );
     if (activeAccountKey() == key) {
       await _prefs.remove(_activeKey);
     }
@@ -116,12 +120,10 @@ class AppStorage {
 
   String deviceId() => _prefs.getString(_deviceIdKey) ?? '';
 
-  Future<void> setDeviceId(String id) =>
-      _prefs.setString(_deviceIdKey, id);
+  Future<void> setDeviceId(String id) => _prefs.setString(_deviceIdKey, id);
 
   /// Generic string storage for feature manifests (downloads, etc).
   String? getRaw(String key) => _prefs.getString(key);
 
-  Future<void> setRaw(String key, String value) =>
-      _prefs.setString(key, value);
+  Future<void> setRaw(String key, String value) => _prefs.setString(key, value);
 }

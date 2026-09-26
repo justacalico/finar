@@ -99,7 +99,10 @@ int? preferredAudioIndex(List<MediaStream> streams, String language) {
 
 /// Pick the initial subtitle index honouring preferences. -1 = none.
 int preferredSubtitleIndex(
-    List<MediaStream> streams, String language, bool enabled) {
+  List<MediaStream> streams,
+  String language,
+  bool enabled,
+) {
   if (!enabled || streams.isEmpty) return -1;
   if (language.isNotEmpty) {
     for (final s in streams) {
@@ -150,21 +153,20 @@ class VideoState {
     int? audioIndex,
     int? subtitleIndex,
     double? speed,
-  }) =>
-      VideoState(
-        item: item,
-        player: player,
-        position: position ?? this.position,
-        duration: duration ?? this.duration,
-        buffered: buffered ?? this.buffered,
-        playing: playing ?? this.playing,
-        buffering: buffering ?? this.buffering,
-        audioIndex: audioIndex ?? this.audioIndex,
-        subtitleIndex: subtitleIndex ?? this.subtitleIndex,
-        audioStreams: audioStreams,
-        subtitleStreams: subtitleStreams,
-        speed: speed ?? this.speed,
-      );
+  }) => VideoState(
+    item: item,
+    player: player,
+    position: position ?? this.position,
+    duration: duration ?? this.duration,
+    buffered: buffered ?? this.buffered,
+    playing: playing ?? this.playing,
+    buffering: buffering ?? this.buffering,
+    audioIndex: audioIndex ?? this.audioIndex,
+    subtitleIndex: subtitleIndex ?? this.subtitleIndex,
+    audioStreams: audioStreams,
+    subtitleStreams: subtitleStreams,
+    speed: speed ?? this.speed,
+  );
 }
 
 /// Owns the media_kit [Player] for the currently playing item, plus
@@ -176,13 +178,17 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
   @override
   VideoState? build() => null;
 
-  Future<void> play(MediaItem item,
-      {int startTimeTicks = 0, List<MediaItem>? upNext}) async {
+  Future<void> play(
+    MediaItem item, {
+    int startTimeTicks = 0,
+    List<MediaItem>? upNext,
+  }) async {
     await stop();
     final client = ref.read(jellyfinClientProvider);
     final settings = ref.read(settingsProvider);
-    final localPath =
-        ref.read(downloadsProvider.notifier).localPathFor(item.id);
+    final localPath = ref
+        .read(downloadsProvider.notifier)
+        .localPathFor(item.id);
 
     PlaybackInfo info = const PlaybackInfo();
     if (localPath == null) {
@@ -197,10 +203,14 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
       } catch (_) {}
     }
 
-    _choice = resolveStream(client, item, info,
-        localPath: localPath,
-        maxBitrate: settings.maxStreamingBitrate,
-        startTimeTicks: startTimeTicks);
+    _choice = resolveStream(
+      client,
+      item,
+      info,
+      localPath: localPath,
+      maxBitrate: settings.maxStreamingBitrate,
+      startTimeTicks: startTimeTicks,
+    );
 
     final player = Player();
     state = VideoState(
@@ -210,42 +220,54 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
       audioStreams: _choice!.audioStreams,
       subtitleStreams: _choice!.subtitleStreams,
       audioIndex: preferredAudioIndex(
-          _choice!.audioStreams, settings.preferredAudioLanguage),
-      subtitleIndex: preferredSubtitleIndex(_choice!.subtitleStreams,
-          settings.preferredSubtitleLanguage, settings.subtitlesEnabled),
+        _choice!.audioStreams,
+        settings.preferredAudioLanguage,
+      ),
+      subtitleIndex: preferredSubtitleIndex(
+        _choice!.subtitleStreams,
+        settings.preferredSubtitleLanguage,
+        settings.subtitlesEnabled,
+      ),
     );
 
-    player.stream.playing
-        .listen((v) => _update((s) => s.copyWith(playing: v)));
-    player.stream.position
-        .listen((v) => _update((s) => s.copyWith(position: v)));
-    player.stream.duration
-        .listen((v) => _update((s) => s.copyWith(duration: v)));
-    player.stream.buffer
-        .listen((v) => _update((s) => s.copyWith(buffered: v)));
-    player.stream.buffering
-        .listen((v) => _update((s) => s.copyWith(buffering: v)));
+    player.stream.playing.listen((v) => _update((s) => s.copyWith(playing: v)));
+    player.stream.position.listen(
+      (v) => _update((s) => s.copyWith(position: v)),
+    );
+    player.stream.duration.listen(
+      (v) => _update((s) => s.copyWith(duration: v)),
+    );
+    player.stream.buffer.listen((v) => _update((s) => s.copyWith(buffered: v)));
+    player.stream.buffering.listen(
+      (v) => _update((s) => s.copyWith(buffering: v)),
+    );
 
     try {
-      await player.open(Media(_choice!.url,
-          start: startTimeTicks > 0
-              ? ticksToDuration(startTimeTicks)
-              : null));
+      await player.open(
+        Media(
+          _choice!.url,
+          start: startTimeTicks > 0 ? ticksToDuration(startTimeTicks) : null,
+        ),
+      );
       client
-          .reportStart(item.id,
-              mediaSourceId: _choice!.mediaSourceId,
-              playSessionId: _choice!.playSessionId,
-              positionTicks: startTimeTicks)
+          .reportStart(
+            item.id,
+            mediaSourceId: _choice!.mediaSourceId,
+            playSessionId: _choice!.playSessionId,
+            positionTicks: startTimeTicks,
+          )
           .catchError((_) {});
       _reportTimer = Timer.periodic(const Duration(seconds: 10), (_) {
         final s = state;
         if (s == null) return;
         client
-            .reportProgress(item.id,
-                mediaSourceId: _choice!.mediaSourceId,
-                playSessionId: _choice!.playSessionId,
-                positionTicks: durationToTicks(s.position),
-                isPaused: !s.playing)
+            .reportProgress(
+              item.id,
+              mediaSourceId: _choice!.mediaSourceId,
+              playSessionId: _choice!.playSessionId,
+              positionTicks: durationToTicks(s.position),
+              isPaused: !s.playing,
+            )
             .catchError((_) {});
       });
     } catch (_) {
@@ -299,10 +321,12 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
     if (s != null) {
       final client = ref.read(jellyfinClientProvider);
       client
-          .reportStop(s.item.id,
-              mediaSourceId: _choice?.mediaSourceId,
-              playSessionId: _choice?.playSessionId,
-              positionTicks: durationToTicks(s.position))
+          .reportStop(
+            s.item.id,
+            mediaSourceId: _choice?.mediaSourceId,
+            playSessionId: _choice?.playSessionId,
+            positionTicks: durationToTicks(s.position),
+          )
           .catchError((_) {});
       await s.player?.dispose();
     }
@@ -311,5 +335,6 @@ class VideoPlayerNotifier extends Notifier<VideoState?> {
   }
 }
 
-final videoPlayerProvider =
-    NotifierProvider<VideoPlayerNotifier, VideoState?>(VideoPlayerNotifier.new);
+final videoPlayerProvider = NotifierProvider<VideoPlayerNotifier, VideoState?>(
+  VideoPlayerNotifier.new,
+);

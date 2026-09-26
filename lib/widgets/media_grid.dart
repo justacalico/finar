@@ -15,8 +15,8 @@ class MediaGrid extends StatelessWidget {
   final void Function(MediaItem item)? onTap;
   final void Function(MediaItem item)? onLongPress;
   final VoidCallback? onLoadMore;
-  final double minCardWidth;
-  final EdgeInsets padding;
+  final double? minCardWidth;
+  final EdgeInsets? padding;
 
   const MediaGrid({
     super.key,
@@ -25,8 +25,8 @@ class MediaGrid extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.onLoadMore,
-    this.minCardWidth = 140,
-    this.padding = const EdgeInsets.all(Insets.md),
+    this.minCardWidth,
+    this.padding,
   });
 
   @override
@@ -43,23 +43,23 @@ class MediaGrid extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final cols =
-              (constraints.maxWidth / (minCardWidth + Insets.sm))
+              (constraints.maxWidth / ((minCardWidth ?? dim(140)) + Insets.sm))
                   .floor()
                   .clamp(2, 12);
           return GridView.builder(
-            padding: padding,
+            padding: padding ?? EdgeInsets.all(Insets.md),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: cols,
               mainAxisSpacing: Insets.md,
               crossAxisSpacing: Insets.sm,
-              childAspectRatio:
-                  shape.ratio * 0.72, // room for title + subtitle
+              childAspectRatio: shape.ratio * 0.72, // room for title + subtitle
             ),
             itemCount: page.items.length + (page.hasMore ? 1 : 0),
             itemBuilder: (context, i) {
               if (i >= page.items.length) {
                 return const Center(
-                    child: CircularProgressIndicator.adaptive());
+                  child: CircularProgressIndicator.adaptive(),
+                );
               }
               final item = page.items[i];
               return MediaCard(

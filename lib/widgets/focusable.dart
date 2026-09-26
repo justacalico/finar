@@ -1,3 +1,4 @@
+import '../core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -42,7 +43,8 @@ class _FocusableState extends State<Focusable> {
       },
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) => widget.onTap?.call()),
+          onInvoke: (_) => widget.onTap?.call(),
+        ),
       },
       child: GestureDetector(
         onTap: widget.onTap,
@@ -50,10 +52,10 @@ class _FocusableState extends State<Focusable> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 120),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
+            borderRadius: BorderRadius.circular(dim(widget.borderRadius)),
             border: Border.all(
               color: _focused ? scheme.primary : Colors.transparent,
-              width: 2,
+              width: dim(2),
             ),
           ),
           child: AnimatedScale(

@@ -8,12 +8,12 @@ Future<AppStorage> storageWith([Map<String, Object> initial = const {}]) async {
 }
 
 SavedAccount account(String server, String user) => SavedAccount(
-      serverUrl: server,
-      serverName: 'Srv',
-      userId: user,
-      userName: user,
-      accessToken: 'tok-$user',
-    );
+  serverUrl: server,
+  serverName: 'Srv',
+  userId: user,
+  userName: user,
+  accessToken: 'tok-$user',
+);
 
 void main() {
   group('AppStorage accounts', () {
@@ -28,18 +28,20 @@ void main() {
       await s.saveAccount(account('http://a', 'u1'));
       await s.saveAccount(account('http://a', 'u2'));
       expect(s.accounts().length, 2);
-      await s.saveAccount(SavedAccount(
+      await s.saveAccount(
+        SavedAccount(
           serverUrl: 'http://a',
           serverName: 'Srv',
           userId: 'u1',
           userName: 'u1',
-          accessToken: 'newtok'));
+          accessToken: 'newtok',
+        ),
+      );
       expect(s.accounts().length, 2);
       expect(
-          s.accounts()
-              .firstWhere((a) => a.userId == 'u1')
-              .accessToken,
-          'newtok');
+        s.accounts().firstWhere((a) => a.userId == 'u1').accessToken,
+        'newtok',
+      );
     });
 
     test('active account pointer', () async {
