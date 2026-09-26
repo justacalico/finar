@@ -47,8 +47,11 @@ const _track = MediaItem(
 
 class _PlayingQueue extends AudioPlayerNotifier {
   @override
-  AudioState build() =>
-      AudioState(queue: PlayQueue(const [_track], 0));
+  AudioState build() => AudioState(
+        queue: PlayQueue(const [_track], 0),
+        position: const Duration(seconds: 10),
+        duration: const Duration(minutes: 3, seconds: 24),
+      );
 }
 
 void main() {
@@ -224,6 +227,9 @@ void main() {
       await t.pump();
       expect(find.text('Song One'), findsOneWidget);
       expect(find.text('Some Artist'), findsOneWidget);
+      expect(find.text('0:10'), findsOneWidget);
+      expect(find.text('3:24'), findsOneWidget);
+      expect(find.byType(Slider), findsOneWidget);
       expect(find.byType(BackdropFilter), findsNothing);
       expect(t.getSize(find.byType(MiniPlayer)).width, 800);
       // It is a chrome element: solid surface with a top edge.
