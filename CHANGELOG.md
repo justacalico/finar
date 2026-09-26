@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
 ### Changed
+- The playing track in lists now shows animated equalizer bars that rest flat while paused, instead of a static icon.
 - The playback bar now shows a seekable progress strip with elapsed and total time under the controls.
 - The playback bar is now a docked strip at the bottom of the window instead of a floating pill, matching the sidebar chrome.
 

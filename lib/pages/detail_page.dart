@@ -14,6 +14,7 @@ import '../widgets/backdrop_hero.dart';
 import '../widgets/detail_actions.dart';
 import '../widgets/focusable.dart';
 import '../widgets/media_rail.dart';
+import '../widgets/playing_indicator.dart';
 import 'player_page.dart';
 
 /// Item detail: hero, info, actions, children (episodes / tracks /
@@ -346,6 +347,7 @@ class _AlbumTracks extends ConsumerWidget {
                   index: i,
                   playing:
                       audio.current?.id == data.items[i].id,
+                  paused: !audio.playing,
                   onTap: () => ref
                       .read(audioPlayerProvider.notifier)
                       .playTracks(data.items, i)),
@@ -360,12 +362,14 @@ class _TrackTile extends StatelessWidget {
   final MediaItem track;
   final int index;
   final bool playing;
+  final bool paused;
   final VoidCallback onTap;
 
   const _TrackTile(
       {required this.track,
       required this.index,
       required this.playing,
+      this.paused = false,
       required this.onTap});
 
   @override
@@ -375,9 +379,7 @@ class _TrackTile extends StatelessWidget {
         width: 28,
         child: Center(
           child: playing
-              ? Icon(Icons.equalizer,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20)
+              ? PlayingIndicator(playing: !paused)
               : Text('${track.indexNumber ?? index + 1}',
                   style:
                       Theme.of(context).textTheme.bodySmall),

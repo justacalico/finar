@@ -11,6 +11,7 @@ import 'package:finar/widgets/detail_actions.dart';
 import 'package:finar/widgets/media_card.dart';
 import 'package:finar/widgets/mini_player.dart';
 import 'package:finar/widgets/page_header.dart';
+import 'package:finar/widgets/playing_indicator.dart';
 import 'package:finar/widgets/seek_bar.dart';
 import 'package:finar/widgets/settings_widgets.dart';
 import 'package:flutter/material.dart';
@@ -246,6 +247,37 @@ void main() {
       await t.pumpWidget(await app(const MiniPlayer()));
       await t.pump();
       expect(find.byType(Row), findsNothing);
+    });
+  });
+
+  group('PlayingIndicator', () {
+    List<double> bars(WidgetTester t) => [
+          for (var i = 0; i < 3; i++)
+            t
+                .getSize(find
+                    .descendant(
+                        of: find.byType(PlayingIndicator),
+                        matching: find.byType(Container))
+                    .at(i))
+                .height
+        ];
+
+    testWidgets('bars animate while playing', (t) async {
+      await t.pumpWidget(await app(const PlayingIndicator()));
+      await t.pump(const Duration(milliseconds: 120));
+      final a = bars(t);
+      await t.pump(const Duration(milliseconds: 240));
+      expect(bars(t), isNot(equals(a)));
+    });
+
+    testWidgets('bars rest flat when paused', (t) async {
+      await t.pumpWidget(
+          await app(const PlayingIndicator(playing: false)));
+      final a = bars(t);
+      await t.pump(const Duration(milliseconds: 400));
+      expect(bars(t), equals(a));
+      expect(a[0], a[1]);
+      expect(a[1], a[2]);
     });
   });
 
