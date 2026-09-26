@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings now live in one persisted model driving appearance, playback, subtitles and downloads.
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
+### Added
+- Ctrl+plus/minus/0 zooms the whole interface in and out (50% to 200%), saved between launches.
+
 ### Changed
 - The playing track in lists now shows animated equalizer bars that ease down to a flat rest height while paused, instead of a static icon.
 - The playback bar now shows a seekable progress strip with elapsed and total time under the controls.
@@ -32,9 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed duplicated UI drifting out of sync by moving every surface onto shared widgets.
 
 ## [4.1.1] - 2025-07-24
-
-### Added
-- Ctrl+plus/minus/0 zooms the whole interface in and out (50% to 200%), saved between launches.
 
 ### Added
 - GitLab -> GitHub -> GitLab release CI: automated builds for Android, Linux, Windows, macOS and iOS, signed Android releases, nightly/versioned GitHub releases, and GitLab release mirroring.
