@@ -17,6 +17,7 @@ class AppSettings {
   final double subtitleBackground; // 0..1 opacity
   final bool downloadWifiOnly;
   final bool showThumbnails;
+  final double uiScale;
 
   const AppSettings({
     this.themeMode = AppThemeMode.system,
@@ -31,6 +32,7 @@ class AppSettings {
     this.subtitleBackground = 0.6,
     this.downloadWifiOnly = false,
     this.showThumbnails = true,
+    this.uiScale = 1.0,
   });
 
   Color get accent =>
@@ -57,6 +59,7 @@ class AppSettings {
     double? subtitleBackground,
     bool? downloadWifiOnly,
     bool? showThumbnails,
+    double? uiScale,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -74,6 +77,7 @@ class AppSettings {
         subtitleBackground: subtitleBackground ?? this.subtitleBackground,
         downloadWifiOnly: downloadWifiOnly ?? this.downloadWifiOnly,
         showThumbnails: showThumbnails ?? this.showThumbnails,
+        uiScale: uiScale ?? this.uiScale,
       );
 
   Map<String, dynamic> toJson() => {
@@ -89,6 +93,7 @@ class AppSettings {
         'subtitleBackground': subtitleBackground,
         'downloadWifiOnly': downloadWifiOnly,
         'showThumbnails': showThumbnails,
+        'uiScale': uiScale,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -107,6 +112,7 @@ class AppSettings {
             (j['subtitleBackground'] as num?)?.toDouble() ?? 0.6,
         downloadWifiOnly: j['downloadWifiOnly'] as bool? ?? false,
         showThumbnails: j['showThumbnails'] as bool? ?? true,
+        uiScale: (j['uiScale'] as num?)?.toDouble() ?? 1.0,
       );
 }
 
@@ -144,6 +150,19 @@ class SettingsNotifier extends Notifier<AppSettings> {
       update((s) => s.copyWith(downloadWifiOnly: v));
   Future<void> setShowThumbnails(bool v) =>
       update((s) => s.copyWith(showThumbnails: v));
+
+  static const zoomSteps = <double>[
+    0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0
+  ];
+
+  Future<void> zoomIn() => update((s) => s.copyWith(
+      uiScale: zoomSteps.firstWhere((v) => v > s.uiScale + 0.001,
+          orElse: () => zoomSteps.last)));
+  Future<void> zoomOut() => update((s) => s.copyWith(
+      uiScale: zoomSteps.lastWhere((v) => v < s.uiScale - 0.001,
+          orElse: () => zoomSteps.first)));
+  Future<void> resetZoom() =>
+      update((s) => s.copyWith(uiScale: 1.0));
 }
 
 final settingsProvider =

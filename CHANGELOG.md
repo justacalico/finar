@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.1.1] - 2025-07-24
 
 ### Added
+- Ctrl+plus/minus/0 zooms the whole interface in and out (50% to 200%), saved between launches.
+
+### Added
 - GitLab -> GitHub -> GitLab release CI: automated builds for Android, Linux, Windows, macOS and iOS, signed Android releases, nightly/versioned GitHub releases, and GitLab release mirroring.
 - Coverage filtering and script tests for the release pipeline.
 - CI runs now stamp the pubspec version with the run number (e.g. 4.1.1+42) so every artifact reports which CI run built it.

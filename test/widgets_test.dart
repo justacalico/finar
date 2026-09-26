@@ -14,6 +14,7 @@ import 'package:finar/widgets/page_header.dart';
 import 'package:finar/widgets/playing_indicator.dart';
 import 'package:finar/widgets/seek_bar.dart';
 import 'package:finar/widgets/settings_widgets.dart';
+import 'package:finar/widgets/ui_scaler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -286,6 +287,35 @@ void main() {
       expect(rest[1], rest[2]);
       await t.pump(const Duration(milliseconds: 300));
       expect(bars(t), equals(rest));
+    });
+  });
+
+  group('UiScaler', () {
+    testWidgets('shrinks the logical viewport by the factor',
+        (t) async {
+      Size? seen;
+      await t.pumpWidget(await app(UiScaler(
+        scale: 2.0,
+        child: Builder(builder: (context) {
+          seen = MediaQuery.of(context).size;
+          return const SizedBox();
+        }),
+      )));
+      // Test surface is 800x600, so the app lays out at 400x300.
+      expect(seen, const Size(400, 300));
+      expect(find.byType(Transform), findsWidgets);
+    });
+
+    testWidgets('scale 1 passes the viewport through', (t) async {
+      Size? seen;
+      await t.pumpWidget(await app(UiScaler(
+        scale: 1.0,
+        child: Builder(builder: (context) {
+          seen = MediaQuery.of(context).size;
+          return const SizedBox();
+        }),
+      )));
+      expect(seen, const Size(800, 600));
     });
   });
 

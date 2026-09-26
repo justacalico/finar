@@ -112,6 +112,28 @@ void main() {
       expect(s.maxStreamingBitrate, 4000000);
       expect(s.autoplayNext, isFalse);
     });
+
+    test('zoom steps, clamps and resets', () async {
+      final c = await container();
+      final n = c.read(settingsProvider.notifier);
+      expect(c.read(settingsProvider).uiScale, 1.0);
+      await n.zoomIn();
+      expect(c.read(settingsProvider).uiScale, 1.1);
+      await n.zoomOut();
+      expect(c.read(settingsProvider).uiScale, 1.0);
+      for (var i = 0; i < 10; i++) {
+        await n.zoomOut();
+      }
+      expect(c.read(settingsProvider).uiScale, 0.5);
+      for (var i = 0; i < 20; i++) {
+        await n.zoomIn();
+      }
+      expect(c.read(settingsProvider).uiScale, 2.0);
+      await n.resetZoom();
+      expect(c.read(settingsProvider).uiScale, 1.0);
+      // Persisted with the rest of the settings.
+      expect(c.read(appStorageProvider).settings()['uiScale'], 1.0);
+    });
   });
 
   group('AppTheme', () {
