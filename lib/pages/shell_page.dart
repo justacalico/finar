@@ -144,38 +144,52 @@ class _Sidebar extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: dim(220),
-      child: ListView(
-        padding: EdgeInsets.all(Insets.sm),
+      child: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              Insets.sm,
-              Insets.md,
-              Insets.sm,
-              Insets.lg,
-            ),
-            child: Row(
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(Insets.sm),
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(dim(8)),
-                  child: SvgPicture.asset(
-                    'icon.svg',
-                    width: dim(34),
-                    height: dim(34),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    Insets.sm,
+                    Insets.md,
+                    Insets.sm,
+                    Insets.lg,
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(dim(8)),
+                        child: SvgPicture.asset(
+                          'icon.svg',
+                          width: dim(34),
+                          height: dim(34),
+                        ),
+                      ),
+                      SizedBox(width: Insets.sm),
+                      Text(
+                        'Finar',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(color: scheme.primary),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: Insets.sm),
-                Text(
-                  'Finar',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(color: scheme.primary),
-                ),
+                for (final s in destinations.keys)
+                  if (s != ShellSection.settings)
+                    _item(context, ref, s),
               ],
             ),
           ),
-          for (final s in destinations.keys) _item(context, ref, s),
+          Divider(height: 1, color: scheme.outline),
+          Padding(
+            padding: EdgeInsets.all(Insets.sm),
+            child: _item(context, ref, ShellSection.settings),
+          ),
         ],
       ),
     );

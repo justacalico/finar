@@ -56,6 +56,17 @@ void main() {
     await t.pump();
     expect(find.byType(SvgPicture), findsOneWidget);
     expect(find.text('Finar'), findsOneWidget);
+    // Settings is pinned to the bottom of the sidebar, not
+    // inline with the other destinations.
+    final settings =
+        find.widgetWithText(ListTile, 'Settings');
+    expect(settings, findsOneWidget);
+    final bottom = t.getBottomLeft(settings).dy;
+    expect(bottom, greaterThan(700));
+    final libraries =
+        find.widgetWithText(ListTile, 'Libraries');
+    expect(
+        bottom, greaterThan(t.getBottomLeft(libraries).dy));
     await t.pumpWidget(const SizedBox());
     await t.pump(const Duration(seconds: 1));
   });
