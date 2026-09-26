@@ -90,6 +90,34 @@ void main() {
     expect(find.text("Who's watching?"), findsNothing);
   });
 
+  testWidgets('password visibility toggles via the eye button',
+      (t) async {
+    await t.pumpWidget(await app(api: (o) {
+      if (o.path == '/System/Info/Public') {
+        return {'Id': 'srv', 'ServerName': 'Srv', 'Version': '1'};
+      }
+      return {};
+    }));
+    await t.pumpAndSettle();
+
+    await t.enterText(
+        find.byType(TextField).first, 'jellyfin.local:8096');
+    await t.tap(find.text('Connect'));
+    await t.pumpAndSettle();
+
+    TextField password() => t.widget<TextField>(
+        find.widgetWithText(TextField, 'Password'));
+    expect(password().obscureText, isTrue);
+
+    await t.tap(find.byIcon(Icons.visibility_outlined));
+    await t.pump();
+    expect(password().obscureText, isFalse);
+
+    await t.tap(find.byIcon(Icons.visibility_off_outlined));
+    await t.pump();
+    expect(password().obscureText, isTrue);
+  });
+
   testWidgets('failed connect shows error and stays on server step',
       (t) async {
     await t.pumpWidget(await app(api: (o) {

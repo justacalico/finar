@@ -27,6 +27,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   String? _error;
   bool _busy = false;
   bool _connecting = false;
+  bool _hidePassword = true;
 
   @override
   void dispose() {
@@ -278,8 +279,19 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         const SizedBox(height: Insets.sm),
         TextField(
           controller: _passwordController,
-          decoration: const InputDecoration(hintText: 'Password'),
-          obscureText: true,
+          decoration: InputDecoration(
+            hintText: 'Password',
+            suffixIcon: IconButton(
+              tooltip:
+                  _hidePassword ? 'Show password' : 'Hide password',
+              icon: Icon(_hidePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined),
+              onPressed: () => setState(
+                  () => _hidePassword = !_hidePassword),
+            ),
+          ),
+          obscureText: _hidePassword,
           onSubmitted: (_) => _signIn(),
         ),
         const SizedBox(height: Insets.md),
