@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings now live in one persisted model driving appearance, playback, subtitles and downloads.
 - Sign-in flow is a single guided page: server address with an http/https selector, then username and password, with a password visibility toggle and saved accounts for one-tap switching.
 
+### Changed
+- The playback bar is now a docked strip at the bottom of the window instead of a floating pill, matching the sidebar chrome.
+
 ### Fixed
 - Fixed missing art in two places: the detail header now falls back to the item's cover when it has no backdrop (albums), and the mini player shows album art for tracks via AlbumPrimaryImageTag.
 - Removed the detail page's overflow menu, which only repeated actions already visible as buttons.

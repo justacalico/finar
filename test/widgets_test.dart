@@ -3,11 +3,13 @@ import 'package:finar/core/api/jellyfin_client.dart';
 import 'package:finar/core/api/models.dart';
 import 'package:finar/core/storage/app_storage.dart';
 import 'package:finar/core/theme/app_theme.dart';
+import 'package:finar/providers/audio_provider.dart';
 import 'package:finar/providers/providers.dart';
 import 'package:finar/widgets/app_image.dart';
 import 'package:finar/widgets/async_view.dart';
 import 'package:finar/widgets/detail_actions.dart';
 import 'package:finar/widgets/media_card.dart';
+import 'package:finar/widgets/mini_player.dart';
 import 'package:finar/widgets/page_header.dart';
 import 'package:finar/widgets/seek_bar.dart';
 import 'package:finar/widgets/settings_widgets.dart';
@@ -33,6 +35,20 @@ Future<Widget> app(Widget child) async {
       home: Scaffold(body: child),
     ),
   );
+}
+
+const _track = MediaItem(
+  id: 't1',
+  name: 'Song One',
+  kind: MediaKind.audio,
+  artists: ['Some Artist'],
+  album: 'Some Album',
+);
+
+class _PlayingQueue extends AudioPlayerNotifier {
+  @override
+  AudioState build() =>
+      AudioState(queue: PlayQueue(const [_track], 0));
 }
 
 void main() {
@@ -182,6 +198,48 @@ void main() {
       await t.tap(find.text('Play from start'));
       expect(plays, 1);
       expect(restarts, 1);
+    });
+  });
+
+  group('MiniPlayer', () {
+    testWidgets('docked full-width bar, no glass overlay', (t) async {
+      SharedPreferences.setMockInitialValues({});
+      final storage =
+          AppStorage(await SharedPreferences.getInstance());
+      final client = JellyfinClient(dio: Dio(), deviceId: 't')
+        ..setServerUrl('http://srv')
+        ..setCredentials(accessToken: 't', userId: 'u');
+      await t.pumpWidget(ProviderScope(
+        overrides: [
+          appStorageProvider.overrideWithValue(storage),
+          jellyfinClientProvider.overrideWithValue(client),
+          audioPlayerProvider.overrideWith(_PlayingQueue.new),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.build(
+              Brightness.dark, kAccentOptions['System']!),
+          home: const Scaffold(body: MiniPlayer()),
+        ),
+      ));
+      await t.pump();
+      expect(find.text('Song One'), findsOneWidget);
+      expect(find.text('Some Artist'), findsOneWidget);
+      expect(find.byType(BackdropFilter), findsNothing);
+      expect(t.getSize(find.byType(MiniPlayer)).width, 800);
+      // It is a chrome element: solid surface with a top edge.
+      final box = t.widget<Container>(
+          find.descendant(
+              of: find.byType(MiniPlayer),
+              matching: find.byType(Container))
+          .first);
+      expect(
+          (box.decoration! as BoxDecoration).border, isNotNull);
+    });
+
+    testWidgets('hidden when nothing is queued', (t) async {
+      await t.pumpWidget(await app(const MiniPlayer()));
+      await t.pump();
+      expect(find.byType(Row), findsNothing);
     });
   });
 
