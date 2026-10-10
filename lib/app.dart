@@ -8,7 +8,9 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/colors.dart';
 import 'core/theme/text_styles.dart';
 import 'core/services/controller_service.dart';
+import 'core/utils/platform_detector.dart';
 import 'providers/providers.dart';
+import 'widgets/window_title_bar.dart';
 import 'pages/adaptive_pages.dart';
 import 'pages/login_page.dart';
 import 'pages/whos_watching_page.dart';
@@ -212,6 +214,22 @@ class _FinarAppState extends ConsumerState<FinarApp>
             theme: AppTheme.lightThemeWithPrimary(accentColor),
             darkTheme: AppTheme.darkThemeWithPrimary(accentColor),
             themeMode: settings.appThemeMode.materialThemeMode,
+            builder: (context, child) {
+              final body = child ?? const SizedBox.shrink();
+              if (!PlatformDetector.isDesktop) return body;
+              return Overlay(
+                initialEntries: [
+                  OverlayEntry(
+                    builder: (context) => Column(
+                      children: [
+                        const WindowTitleBar(),
+                        Expanded(child: body),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
             home: const _AppRouter(),
           );
         },

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:window_manager/window_manager.dart';
 import 'core/api/jellyfin_api.dart';
 import 'core/api/models/user.dart';
 import 'core/api/models/media_item.dart';
 import 'core/api/models/library.dart';
+import 'core/utils/platform_detector.dart';
 import 'app.dart';
 
 void main() async {
@@ -35,6 +37,18 @@ void main() async {
 
   // Initialize media_kit
   MediaKit.ensureInitialized();
+
+  if (PlatformDetector.isDesktop) {
+    await windowManager.ensureInitialized();
+    const windowOptions = WindowOptions(
+      titleBarStyle: TitleBarStyle.hidden,
+      windowButtonVisibility: false,
+    );
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   // Load the real app version for Jellyfin API headers
   await JellyfinApi.initialize();
