@@ -30,6 +30,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _useHttps = true;
+  int _stage = 1;
   String? _error;
 
   String _getServerUrl() {
@@ -108,12 +109,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
-  Future<void> _initiateQuickConnect() async {
-    if (_serverController.text.trim().isEmpty) {
-      setState(() => _error = 'Enter your server URL first');
-      return;
-    }
+  Future<void> _continue() async {
+    if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final connected = await ref
+        .read(authProvider.notifier)
+        .connectToServer(_getServerUrl());
+
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      if (connected) {
+        _stage = 2;
+      } else {
+        _error = ref.read(authProvider).errorMessage ??
+            'Could not connect to server';
+      }
+    });
+  }
+
+  Future<void> _initiateQuickConnect() async {
     setState(() {
       _isLoading = true;
       _error = null;
@@ -264,131 +284,191 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           isTV: isTV,
           child: Form(
             key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: SvgPicture.asset(
-                    'icon.svg',
-                    width: isTV ? 76 : 64,
-                    height: isTV ? 76 : 64,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'Finar',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontSize: isTV ? 32 : 28,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Sign in to your Jellyfin server',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: isTV ? 16 : 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                SizedBox(height: isTV ? 36 : 32),
-
-                _buildField(
-                  controller: _serverController,
-                  focusNode: _serverFocusNode,
-                  label: 'Server',
-                  hint: 'jellyfin.example.com',
-                  keyboardType: TextInputType.url,
-                  textInputAction: TextInputAction.next,
-                  onSubmitted: (_) => _usernameFocusNode.requestFocus(),
-                  isTV: isTV,
-                  prefixIcon: _buildSchemeToggle(isTV),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Enter your server URL';
-                    return null;
-                  },
-                ),
-                SizedBox(height: isTV ? 20 : 16),
-
-                _buildField(
-                  controller: _usernameController,
-                  focusNode: _usernameFocusNode,
-                  label: 'Username',
-                  hint: 'Enter your username',
-                  textInputAction: TextInputAction.next,
-                  onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                  isTV: isTV,
-                  prefixIcon: _buildFieldIcon(Icons.person_outline_rounded, isTV),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Enter your username';
-                    return null;
-                  },
-                ),
-                SizedBox(height: isTV ? 20 : 16),
-
-                _buildField(
-                  controller: _passwordController,
-                  focusNode: _passwordFocusNode,
-                  label: 'Password',
-                  hint: 'Enter your password',
-                  obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _login(),
-                  isTV: isTV,
-                  prefixIcon: _buildFieldIcon(Icons.lock_outline_rounded, isTV),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: AppColors.textTertiary,
-                      size: isTV ? 24 : 20,
-                    ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                ),
-
-                if (displayedError != null) ...[
-                  SizedBox(height: isTV ? 20 : 16),
-                  _buildErrorBanner(displayedError, isTV),
-                ],
-
-                SizedBox(height: isTV ? 32 : 28),
-
-                _buildSignInButton(isTV),
-                SizedBox(height: isTV ? 24 : 20),
-
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: AppColors.divider)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Text(
-                        'or',
-                        style: TextStyle(
-                          color: AppColors.textTertiary,
-                          fontSize: isTV ? 15 : 13,
-                        ),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: AppColors.divider)),
-                  ],
-                ),
-                SizedBox(height: isTV ? 24 : 20),
-
-                _buildButton(
-                  onPressed: _isLoading ? null : _initiateQuickConnect,
-                  label: 'Quick Connect',
-                  isOutlined: true,
-                  icon: Icons.bolt_outlined,
-                  focusNode: _quickConnectFocusNode,
-                  isTV: isTV,
-                ),
-              ],
-            ),
+            child: _stage == 1
+                ? _buildServerStage(isTV, displayedError)
+                : _buildCredentialsStage(isTV, displayedError),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(bool isTV, String subtitle) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Center(
+          child: SvgPicture.asset(
+            'icon.svg',
+            width: isTV ? 76 : 64,
+            height: isTV ? 76 : 64,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Text(
+          'Finar',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.headlineMedium.copyWith(
+            fontSize: isTV ? 32 : 28,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: isTV ? 16 : 14,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServerStage(bool isTV, String? displayedError) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildHeader(isTV, 'Connect to your Jellyfin server'),
+        SizedBox(height: isTV ? 36 : 32),
+
+        _buildField(
+          controller: _serverController,
+          focusNode: _serverFocusNode,
+          label: 'Server',
+          hint: 'jellyfin.example.com',
+          keyboardType: TextInputType.url,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _continue(),
+          isTV: isTV,
+          prefixIcon: _buildSchemeToggle(isTV),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Enter your server URL';
+            return null;
+          },
+        ),
+
+        if (displayedError != null) ...[
+          SizedBox(height: isTV ? 20 : 16),
+          _buildErrorBanner(displayedError, isTV),
+        ],
+
+        SizedBox(height: isTV ? 32 : 28),
+
+        _buildPrimaryButton(
+          label: 'Continue',
+          icon: Icons.arrow_forward_rounded,
+          onPressed: _continue,
+          isTV: isTV,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCredentialsStage(bool isTV, String? displayedError) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: IconButton(
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.textSecondary,
+              size: isTV ? 26 : 22,
+            ),
+            tooltip: 'Change server',
+            onPressed: () => setState(() {
+              _stage = 1;
+              _error = null;
+            }),
+          ),
+        ),
+        _buildHeader(isTV, _getServerUrl()),
+        SizedBox(height: isTV ? 36 : 32),
+
+        _buildField(
+          controller: _usernameController,
+          focusNode: _usernameFocusNode,
+          label: 'Username',
+          hint: 'Enter your username',
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) => _passwordFocusNode.requestFocus(),
+          isTV: isTV,
+          prefixIcon: _buildFieldIcon(Icons.person_outline_rounded, isTV),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Enter your username';
+            return null;
+          },
+        ),
+        SizedBox(height: isTV ? 20 : 16),
+
+        _buildField(
+          controller: _passwordController,
+          focusNode: _passwordFocusNode,
+          label: 'Password',
+          hint: 'Enter your password',
+          obscureText: _obscurePassword,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _login(),
+          isTV: isTV,
+          prefixIcon: _buildFieldIcon(Icons.lock_outline_rounded, isTV),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+              color: AppColors.textTertiary,
+              size: isTV ? 24 : 20,
+            ),
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+          ),
+        ),
+
+        if (displayedError != null) ...[
+          SizedBox(height: isTV ? 20 : 16),
+          _buildErrorBanner(displayedError, isTV),
+        ],
+
+        SizedBox(height: isTV ? 32 : 28),
+
+        _buildPrimaryButton(
+          label: 'Sign In',
+          onPressed: _login,
+          focusNode: _loginButtonFocusNode,
+          isTV: isTV,
+        ),
+        SizedBox(height: isTV ? 24 : 20),
+
+        Row(
+          children: [
+            Expanded(child: Divider(color: AppColors.divider)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Text(
+                'or',
+                style: TextStyle(
+                  color: AppColors.textTertiary,
+                  fontSize: isTV ? 15 : 13,
+                ),
+              ),
+            ),
+            Expanded(child: Divider(color: AppColors.divider)),
+          ],
+        ),
+        SizedBox(height: isTV ? 24 : 20),
+
+        _buildButton(
+          onPressed: _isLoading ? null : _initiateQuickConnect,
+          label: 'Quick Connect',
+          isOutlined: true,
+          icon: Icons.bolt_outlined,
+          focusNode: _quickConnectFocusNode,
+          isTV: isTV,
+        ),
+      ],
     );
   }
 
@@ -630,9 +710,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildSignInButton(bool isTV) {
+  Widget _buildPrimaryButton({
+    required String label,
+    required VoidCallback onPressed,
+    IconData? icon,
+    FocusNode? focusNode,
+    bool isTV = false,
+  }) {
     return Focus(
-      focusNode: _loginButtonFocusNode,
+      focusNode: focusNode,
       child: Builder(
         builder: (context) {
           final hasFocus = Focus.of(context).hasFocus;
@@ -654,7 +740,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       : null,
                 ),
                 child: InkWell(
-                  onTap: _isLoading ? null : _login,
+                  onTap: _isLoading ? null : onPressed,
                   borderRadius: BorderRadius.circular(14),
                   child: Center(
                     child: _isLoading
@@ -666,13 +752,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               valueColor: AlwaysStoppedAnimation(AppColors.textOnPrimary),
                             ),
                           )
-                        : Text(
-                            'Sign In',
-                            style: TextStyle(
-                              fontSize: isTV ? 18 : 16,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textOnPrimary,
-                            ),
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: isTV ? 18 : 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textOnPrimary,
+                                ),
+                              ),
+                              if (icon != null) ...[
+                                const SizedBox(width: 8),
+                                Icon(
+                                  icon,
+                                  size: isTV ? 22 : 19,
+                                  color: AppColors.textOnPrimary,
+                                ),
+                              ],
+                            ],
                           ),
                   ),
                 ),

@@ -8,9 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeAuthService extends AuthService {
-  _FakeAuthService({this.connectResult = true}) : super(JellyfinApi());
+  _FakeAuthService({this.connectResult = true, this.loginShouldFail = false})
+    : super(JellyfinApi());
 
   final bool connectResult;
+  final bool loginShouldFail;
   String? lastConnectUrl;
 
   @override
@@ -20,6 +22,15 @@ class _FakeAuthService extends AuthService {
   Future<bool> connectToServer(String url) async {
     lastConnectUrl = url;
     return connectResult;
+  }
+
+  @override
+  Future<AuthenticationResult> login({
+    required String username,
+    required String password,
+  }) {
+    if (loginShouldFail) return Future.error(Exception('boom'));
+    return Future.error(UnimplementedError());
   }
 
   @override
@@ -47,27 +58,35 @@ Future<void> _pumpLogin(WidgetTester tester, {AuthService? authService}) async {
   await tester.pump();
 }
 
+Future<void> _goToCredentialsStage(WidgetTester tester) async {
+  await tester.enterText(
+    find.widgetWithText(TextFormField, 'Server'),
+    'jellyfin.local',
+  );
+  await tester.tap(find.text('Continue'));
+  await tester.pump();
+  await tester.pump();
+}
+
 void main() {
-  testWidgets('renders sign in form inside a card', (tester) async {
+  testWidgets('starts on the server stage', (tester) async {
     await _pumpLogin(tester);
 
     expect(find.text('Finar'), findsOneWidget);
-    expect(find.text('Sign in to your Jellyfin server'), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(3));
-    expect(find.text('Sign In'), findsOneWidget);
-    expect(find.text('Quick Connect'), findsOneWidget);
+    expect(find.text('Connect to your Jellyfin server'), findsOneWidget);
+    expect(find.byType(TextFormField), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Sign In'), findsNothing);
+    expect(find.text('Quick Connect'), findsNothing);
   });
 
-  testWidgets('shows validation errors when submitting an empty form', (
-    tester,
-  ) async {
+  testWidgets('empty server shows a validation error', (tester) async {
     await _pumpLogin(tester);
 
-    await tester.tap(find.text('Sign In'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
 
     expect(find.text('Enter your server URL'), findsOneWidget);
-    expect(find.text('Enter your username'), findsNWidgets(2));
   });
 
   testWidgets('scheme prefix toggles between https and http', (tester) async {
@@ -81,30 +100,7 @@ void main() {
     expect(find.text('https://'), findsNothing);
   });
 
-  testWidgets('password visibility toggle swaps the eye icon', (tester) async {
-    await _pumpLogin(tester);
-
-    expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.visibility_outlined));
-    await tester.pump();
-
-    expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.visibility_outlined), findsNothing);
-  });
-
-  testWidgets('quick connect without a server url shows an error banner', (
-    tester,
-  ) async {
-    await _pumpLogin(tester);
-
-    await tester.tap(find.text('Quick Connect'));
-    await tester.pump();
-
-    expect(find.text('Enter your server URL first'), findsOneWidget);
-    expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
-  });
-
-  testWidgets('failed login surfaces the auth error in a banner', (
+  testWidgets('unreachable server stays on stage one with an error banner', (
     tester,
   ) async {
     final service = _FakeAuthService(connectResult: false);
@@ -114,6 +110,78 @@ void main() {
       find.widgetWithText(TextFormField, 'Server'),
       'jellyfin.local',
     );
+    await tester.tap(find.text('Continue'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(service.lastConnectUrl, 'https://jellyfin.local');
+    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Sign In'), findsNothing);
+    expect(
+      find.text('Could not connect to server. Please check the URL.'),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+  });
+
+  testWidgets('continue connects then shows the credentials stage', (
+    tester,
+  ) async {
+    final service = _FakeAuthService();
+    await _pumpLogin(tester, authService: service);
+    await _goToCredentialsStage(tester);
+
+    expect(service.lastConnectUrl, 'https://jellyfin.local');
+    expect(find.text('https://jellyfin.local'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('Sign In'), findsOneWidget);
+    expect(find.text('Quick Connect'), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+  });
+
+  testWidgets('back button returns to the server stage', (tester) async {
+    await _pumpLogin(tester, authService: _FakeAuthService());
+    await _goToCredentialsStage(tester);
+
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pump();
+
+    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Sign In'), findsNothing);
+    expect(find.text('jellyfin.local'), findsOneWidget);
+  });
+
+  testWidgets('empty username shows a validation error on stage two', (
+    tester,
+  ) async {
+    await _pumpLogin(tester, authService: _FakeAuthService());
+    await _goToCredentialsStage(tester);
+
+    await tester.tap(find.text('Sign In'));
+    await tester.pump();
+
+    expect(find.text('Enter your username'), findsNWidgets(2));
+  });
+
+  testWidgets('password visibility toggle swaps the eye icon', (tester) async {
+    await _pumpLogin(tester, authService: _FakeAuthService());
+    await _goToCredentialsStage(tester);
+
+    expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.visibility_outlined));
+    await tester.pump();
+
+    expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.visibility_outlined), findsNothing);
+  });
+
+  testWidgets('failed login surfaces the auth error in a banner', (
+    tester,
+  ) async {
+    final service = _FakeAuthService(loginShouldFail: true);
+    await _pumpLogin(tester, authService: service);
+    await _goToCredentialsStage(tester);
+
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Username'),
       'calico',
@@ -126,11 +194,8 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(service.lastConnectUrl, 'https://jellyfin.local');
     expect(
-      find.text(
-        'Could not connect to server. Please check the URL and ensure the server is running.',
-      ),
+      find.text('An error occurred. Please try again.'),
       findsOneWidget,
     );
     expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
@@ -141,16 +206,12 @@ void main() {
   ) async {
     final service = _FakeAuthService();
     await _pumpLogin(tester, authService: service);
+    await _goToCredentialsStage(tester);
 
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Server'),
-      'jellyfin.local',
-    );
     await tester.tap(find.text('Quick Connect'));
     await tester.pump();
     await tester.pump();
 
-    expect(service.lastConnectUrl, 'https://jellyfin.local');
     expect(find.text('482913'), findsOneWidget);
     expect(find.text('Waiting for authorization...'), findsOneWidget);
     expect(find.byIcon(Icons.bolt_rounded), findsOneWidget);
