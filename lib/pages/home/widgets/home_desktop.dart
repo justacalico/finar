@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:finar/core/theme/colors.dart';
 import 'package:finar/core/theme/text_styles.dart';
 import 'package:finar/core/theme/app_theme.dart';
 import 'package:finar/core/api/models/library.dart';
 import 'package:finar/core/api/models/media_item.dart';
 import 'package:finar/core/api/auth_service.dart';
-import 'package:finar/core/api/models/user.dart';
 import 'package:finar/core/api/media_service.dart';
 import 'package:finar/core/services/controller_service.dart';
 import 'package:finar/providers/providers.dart';
@@ -781,14 +778,13 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
     final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
     final userName = user?.name.trim();
     final hasUserName = userName != null && userName.isNotEmpty;
-    final avatarLetter = hasUserName ? userName[0].toUpperCase() : '?';
 
     if (collapsed) {
       return Padding(
         padding: const EdgeInsets.all(12),
         child: Tooltip(
           message: hasUserName ? userName : 'Guest',
-          child: _buildUserAvatar(user, serverUrl, avatarLetter),
+          child: UserAvatar(user: user, serverUrl: serverUrl),
         ),
       );
     }
@@ -806,7 +802,7 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
       ),
       child: Row(
         children: [
-          _buildUserAvatar(user, serverUrl, avatarLetter),
+          UserAvatar(user: user, serverUrl: serverUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -869,58 +865,6 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildUserAvatar(User? user, String serverUrl, String fallbackLetter) {
-    final avatarUrl = (user != null && serverUrl.isNotEmpty)
-        ? user.getAvatarUrl(serverUrl)
-        : '';
-
-    return Container(
-      width: 42,
-      height: 42,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: avatarUrl.isEmpty
-            ? Center(
-                child: Text(
-                  fallbackLetter,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textOnPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              )
-            : CachedNetworkImage(
-                imageUrl: avatarUrl,
-                memCacheWidth: 84,
-                memCacheHeight: 84,
-                fadeInDuration: const Duration(milliseconds: 150),
-                placeholder: (_, _) => Container(color: AppColors.surface),
-                errorWidget: (_, _, _) => Center(
-                  child: Text(
-                    fallbackLetter,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: AppColors.textOnPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                fit: BoxFit.cover,
-              ),
       ),
     );
   }
