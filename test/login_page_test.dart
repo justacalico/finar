@@ -235,6 +235,39 @@ void main() {
     expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
   });
 
+  testWidgets('the response body message is shown when the server sends one', (
+    tester,
+  ) async {
+    final service = _FakeAuthService(
+      loginError: DioException(
+        requestOptions: RequestOptions(),
+        type: DioExceptionType.badResponse,
+        response: Response(
+          requestOptions: RequestOptions(),
+          statusCode: 400,
+          data: 'Invalid user',
+        ),
+      ),
+    );
+    await _pumpLogin(tester, authService: service);
+    await _goToCredentialsStage(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Username'),
+      'calico',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Password'),
+      'hunter2',
+    );
+    await tester.tap(find.text('Sign In'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Invalid user'), findsOneWidget);
+    expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+  });
+
   testWidgets('quick connect shows the code and cancel returns to the form', (
     tester,
   ) async {

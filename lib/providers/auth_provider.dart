@@ -16,6 +16,19 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(api);
 });
 
+String? _extractServerMessage(dynamic data) {
+  if (data is String) {
+    final trimmed = data.trim();
+    if (trimmed.isNotEmpty && trimmed.length < 120 && !trimmed.startsWith('<')) {
+      return trimmed;
+    }
+  } else if (data is Map) {
+    final message = data['Message'] ?? data['message'] ?? data['error'];
+    if (message is String && message.isNotEmpty) return message;
+  }
+  return null;
+}
+
 /// Helper to convert exceptions to user-friendly messages
 String _getErrorMessage(dynamic error) {
   if (kDebugMode) {
@@ -32,16 +45,17 @@ String _getErrorMessage(dynamic error) {
         return 'Could not connect to server. Please check the URL and ensure the server is running.';
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
+        final serverMessage = _extractServerMessage(error.response?.data);
         if (statusCode == 400 || statusCode == 401) {
-          return 'Invalid username or password.';
+          return serverMessage ?? 'Invalid username or password.';
         } else if (statusCode == 403) {
-          return 'Access denied. Your account may be disabled.';
+          return serverMessage ?? 'Access denied. Your account may be disabled.';
         } else if (statusCode == 404) {
           return 'Server not found. Please check the URL.';
         } else if (statusCode != null && statusCode >= 500) {
           return 'Server error. Please try again later.';
         }
-        return 'Server returned an error (${statusCode ?? 'unknown'}).';
+        return serverMessage ?? 'Server returned an error (${statusCode ?? 'unknown'}).';
       case DioExceptionType.cancel:
         return 'Request was cancelled.';
       case DioExceptionType.unknown:

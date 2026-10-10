@@ -44,12 +44,12 @@ class JellyfinApi {
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        options.headers['X-Emby-Authorization'] = _buildAuthHeader();
+        options.headers.addAll(authHeaders);
         return handler.next(options);
       },
       onError: (error, handler) {
         if (kDebugMode && error.response?.statusCode != 401) {
-          debugPrint('Jellyfin API Error: ${error.response?.statusCode} - ${error.message}');
+          debugPrint('Jellyfin API Error: ${error.response?.statusCode} - ${error.response?.data ?? error.message}');
         }
         return handler.next(error);
       },
@@ -96,8 +96,12 @@ class JellyfinApi {
     return parts.join(', ');
   }
 
-  /// Get the auth header for external use (e.g., downloads)
-  String get authHeader => _buildAuthHeader();
+  /// Auth headers for external use (e.g., downloads). Jellyfin 10.11 dropped
+  /// X-Emby-Authorization, so both names are sent for compatibility.
+  Map<String, String> get authHeaders => {
+    'Authorization': _buildAuthHeader(),
+    'X-Emby-Authorization': _buildAuthHeader(),
+  };
 
   /// Get the server URL
   String? get serverUrl => _serverUrl;
@@ -188,12 +192,8 @@ class JellyfinApi {
 
     if (response.data['Authenticated'] == true) {
       final accessToken = response.data['AccessToken'] as String;
-      final userResponse = await _dio.get(
-        '/Users/Me',
-        options: Options(headers: {
-          'X-Emby-Token': accessToken,
-        }),
-      );
+      _accessToken = accessToken;
+      final userResponse = await _dio.get('/Users/Me');
 
       final user = User.fromJson(userResponse.data as Map<String, dynamic>);
       

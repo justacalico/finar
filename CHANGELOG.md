@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Quick Connect timeout timer is now cancelled when leaving the code view instead of firing later.
 - Fixed the login page jumping back to the server stage after connecting or after a failed sign in. Connecting and signing in no longer swap the whole app to the splash screen, which unmounted the page and reset its stage.
-- A 400 response during sign in now shows "Invalid username or password" instead of "Server returned an error (400)".
+- A 400 response during sign in now shows "Invalid username or password" instead of "Server returned an error (400)", and error banners show the server's own message when it sends one.
+- Fixed login failing with a 400 on Jellyfin 10.11 servers: requests now send the `Authorization` header alongside `X-Emby-Authorization`, which 10.11 no longer accepts.
 
 ## [4.2.0] - 2026-09-29
 
