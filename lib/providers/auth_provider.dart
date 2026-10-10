@@ -136,7 +136,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String password,
     String? serverUrl,
   }) async {
-    state = const AuthState.loading();
     try {
       // Ensure auth service is initialized
       await _authService.init();

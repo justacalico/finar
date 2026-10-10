@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Quick Connect timeout timer is now cancelled when leaving the code view instead of firing later.
+- Fixed the login page jumping back to the server stage after connecting or after a failed sign in. Connecting and signing in no longer swap the whole app to the splash screen, which unmounted the page and reset its stage.
 
 ## [4.2.0] - 2026-09-29
 

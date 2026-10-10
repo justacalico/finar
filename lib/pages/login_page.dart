@@ -117,9 +117,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _error = null;
     });
 
-    final connected = await ref
-        .read(authProvider.notifier)
-        .connectToServer(_getServerUrl());
+    final authService = ref.read(authServiceProvider);
+    await authService.init();
+    final connected = await authService.connectToServer(_getServerUrl());
 
     if (!mounted) return;
     setState(() {
@@ -127,8 +127,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (connected) {
         _stage = 2;
       } else {
-        _error = ref.read(authProvider).errorMessage ??
-            'Could not connect to server';
+        _error = 'Could not connect to server. Please check the URL.';
       }
     });
   }
@@ -140,18 +139,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     try {
-      final connected = await ref
-          .read(authProvider.notifier)
-          .connectToServer(_getServerUrl());
-
-      if (!connected) {
-        setState(() {
-          _error = 'Failed to connect to server';
-          _isLoading = false;
-        });
-        return;
-      }
-
       final code = await ref.read(authProvider.notifier).initiateQuickConnect();
 
       if (code != null) {

@@ -199,6 +199,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+    expect(find.text('Sign In'), findsOneWidget);
+    expect(find.text('Continue'), findsNothing);
   });
 
   testWidgets('quick connect shows the code and cancel returns to the form', (
