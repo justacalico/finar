@@ -19,14 +19,6 @@ Finar is a Jellyfin client built to just work.
 - Music playback
 
 
-## Contributing
-
-Pull requests are welcome. 
-
-## AI
-
-- All AI made code is allowed however you are responsible for testing and verifying the code.
-
 ## Requirements
 
 - Flutter SDK `^3.10.3`
