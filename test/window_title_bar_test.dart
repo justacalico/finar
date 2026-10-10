@@ -68,7 +68,7 @@ void main() {
   ) async {
     await pumpBar(tester);
 
-    await tester.tap(find.byIcon(Icons.remove_rounded));
+    await tester.tap(find.byIcon(Icons.remove));
     await tester.pump();
 
     expect(calls.map((c) => c.method), contains('minimize'));
@@ -77,40 +77,68 @@ void main() {
   testWidgets('WindowTitleBar close button closes the window', (tester) async {
     await pumpBar(tester);
 
-    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.tap(find.byIcon(Icons.close));
     await tester.pump();
 
     expect(calls.map((c) => c.method), contains('close'));
   });
 
-  testWidgets('WindowTitleBar maximize button maximizes a restored window', (
+  testWidgets('WindowTitleBar zoom button maximizes a restored window', (
     tester,
   ) async {
     await pumpBar(tester);
 
-    await tester.tap(find.byIcon(Icons.crop_square_rounded));
+    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     final methods = calls.map((c) => c.method).toList();
     expect(methods, contains('isMaximized'));
     expect(methods, contains('maximize'));
     expect(methods, isNot(contains('unmaximize')));
-
-    expect(find.byIcon(Icons.filter_none_rounded), findsOneWidget);
   });
 
-  testWidgets('WindowTitleBar maximize button restores a maximized window', (
+  testWidgets('WindowTitleBar zoom button restores a maximized window', (
     tester,
   ) async {
     maximized = true;
     await pumpBar(tester);
 
-    await tester.tap(find.byIcon(Icons.crop_square_rounded));
+    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     final methods = calls.map((c) => c.method).toList();
     expect(methods, contains('unmaximize'));
     expect(methods, isNot(contains('maximize')));
+  });
+
+  testWidgets('WindowTitleBar hides traffic light glyphs until hover', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+
+    Visibility glyph = tester.widget<Visibility>(
+      find.ancestor(
+        of: find.byIcon(Icons.close),
+        matching: find.byType(Visibility),
+      ),
+    );
+    expect(glyph.visible, isFalse);
+
+    final gesture = await tester.createGesture(
+      kind: PointerDeviceKind.mouse,
+    );
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(tester.getCenter(find.byIcon(Icons.close)));
+    await tester.pump();
+
+    glyph = tester.widget<Visibility>(
+      find.ancestor(
+        of: find.byIcon(Icons.remove),
+        matching: find.byType(Visibility),
+      ),
+    );
+    expect(glyph.visible, isTrue);
   });
 
   testWidgets('WindowTitleBar caption buttons show tooltips on hover', (
@@ -123,7 +151,7 @@ void main() {
     );
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
-    await gesture.moveTo(tester.getCenter(find.byIcon(Icons.close_rounded)));
+    await gesture.moveTo(tester.getCenter(find.byIcon(Icons.close)));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 

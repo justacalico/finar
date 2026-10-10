@@ -6,49 +6,17 @@ import '../core/theme/colors.dart';
 import '../core/theme/text_styles.dart';
 import 'glass_container.dart';
 
-class WindowTitleBar extends StatefulWidget {
-  const WindowTitleBar({super.key});
-
-  @override
-  State<WindowTitleBar> createState() => _WindowTitleBarState();
-}
-
-class _WindowTitleBarState extends State<WindowTitleBar> with WindowListener {
+class WindowTitleBar extends StatelessWidget {
   static const double _height = 44;
 
-  bool _isMaximized = false;
+  const WindowTitleBar({super.key});
 
-  @override
-  void initState() {
-    super.initState();
-    windowManager.addListener(this);
-  }
-
-  @override
-  void dispose() {
-    windowManager.removeListener(this);
-    super.dispose();
-  }
-
-  @override
-  void onWindowMaximize() {
-    setState(() => _isMaximized = true);
-  }
-
-  @override
-  void onWindowUnmaximize() {
-    setState(() => _isMaximized = false);
-  }
-
-  Future<void> _toggleMaximize() async {
+  static Future<void> _toggleMaximize() async {
     final maximized = await windowManager.isMaximized();
     if (maximized) {
       await windowManager.unmaximize();
     } else {
       await windowManager.maximize();
-    }
-    if (mounted) {
-      setState(() => _isMaximized = !maximized);
     }
   }
 
@@ -63,18 +31,22 @@ class _WindowTitleBarState extends State<WindowTitleBar> with WindowListener {
       padding: EdgeInsets.zero,
       child: Row(
         children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: _TrafficLights(onToggleMaximize: _toggleMaximize),
+          ),
           Expanded(
             child: DragToMoveArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     SvgPicture.asset(
                       'icon.svg',
-                      width: 18,
-                      height: 18,
+                      width: 16,
+                      height: 16,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Text(
                       'Finar',
                       style: AppTextStyles.titleSmall,
@@ -84,23 +56,52 @@ class _WindowTitleBarState extends State<WindowTitleBar> with WindowListener {
               ),
             ),
           ),
-          _WindowCaptionButton(
-            icon: Icons.remove_rounded,
-            tooltip: 'Minimize',
-            onPressed: windowManager.minimize,
-          ),
-          _WindowCaptionButton(
-            icon: _isMaximized
-                ? Icons.filter_none_rounded
-                : Icons.crop_square_rounded,
-            tooltip: _isMaximized ? 'Restore' : 'Maximize',
-            onPressed: _toggleMaximize,
-          ),
-          _WindowCaptionButton(
-            icon: Icons.close_rounded,
+          const SizedBox(width: 74),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrafficLights extends StatefulWidget {
+  final VoidCallback onToggleMaximize;
+
+  const _TrafficLights({required this.onToggleMaximize});
+
+  @override
+  State<_TrafficLights> createState() => _TrafficLightsState();
+}
+
+class _TrafficLightsState extends State<_TrafficLights> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Row(
+        children: [
+          _TrafficLight(
+            color: const Color(0xFFFF5F57),
+            icon: Icons.close,
             tooltip: 'Close',
-            isClose: true,
-            onPressed: windowManager.close,
+            showGlyph: _hovered,
+            onTap: windowManager.close,
+          ),
+          _TrafficLight(
+            color: const Color(0xFFFEBC2E),
+            icon: Icons.remove,
+            tooltip: 'Minimize',
+            showGlyph: _hovered,
+            onTap: windowManager.minimize,
+          ),
+          _TrafficLight(
+            color: const Color(0xFF28C840),
+            icon: Icons.add,
+            tooltip: 'Zoom',
+            showGlyph: _hovered,
+            onTap: widget.onToggleMaximize,
           ),
         ],
       ),
@@ -108,37 +109,53 @@ class _WindowTitleBarState extends State<WindowTitleBar> with WindowListener {
   }
 }
 
-class _WindowCaptionButton extends StatelessWidget {
+class _TrafficLight extends StatelessWidget {
+  final Color color;
   final IconData icon;
   final String tooltip;
-  final VoidCallback onPressed;
-  final bool isClose;
+  final bool showGlyph;
+  final VoidCallback onTap;
 
-  const _WindowCaptionButton({
+  const _TrafficLight({
+    required this.color,
     required this.icon,
     required this.tooltip,
-    required this.onPressed,
-    this.isClose = false,
+    required this.showGlyph,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          hoverColor: isClose
-              ? const Color(0xFFC42B1C)
-              : AppColors.white.withValues(alpha: 0.08),
-          child: SizedBox(
-            width: 46,
-            height: double.infinity,
-            child: Icon(
-              icon,
-              size: 18,
-              color: AppColors.textPrimary,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.black.withValues(alpha: 0.15),
+                width: 0.5,
+              ),
+            ),
+            child: Center(
+              child: Visibility(
+                visible: showGlyph,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Icon(
+                  icon,
+                  size: 9,
+                  color: AppColors.black.withValues(alpha: 0.55),
+                ),
+              ),
             ),
           ),
         ),
