@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Replaced the OS window title bar with a custom in-app title bar on desktop (Linux, Windows, macOS). The new bar shows the app icon and name, supports drag-to-move and double-click to maximize, and provides minimize, maximize/restore and close buttons.
+- Redesigned the login page: the form now lives in a centered card over an ambient glow background, the protocol dropdown became an inline https/http toggle inside the server field, fields show prefix icons, errors display in a styled banner, and Sign In uses the theme gradient. The Quick Connect view uses the same card layout.
+- Login is now two stages: first enter the server URL and connect to it, then sign in with username and password or Quick Connect. A back button on the second stage returns to change the server.
+
+### Fixed
+- Quick Connect timeout timer is now cancelled when leaving the code view instead of firing later.
+- Fixed the login page jumping back to the server stage after connecting or after a failed sign in. Connecting and signing in no longer swap the whole app to the splash screen, which unmounted the page and reset its stage.
+- A 400 response during sign in now shows "Invalid username or password" instead of "Server returned an error (400)", and error banners show the server's own message when it sends one.
+- Fixed login failing with a 400 on Jellyfin 10.11 servers: requests now send the `Authorization` header alongside `X-Emby-Authorization`, which 10.11 no longer accepts.
 
 ## [4.2.0] - 2026-09-29
 

@@ -322,11 +322,7 @@ class DownloadService {
             _notifyProgress(task);
           }
         },
-        options: Options(
-          headers: {
-            'X-Emby-Authorization': _api.authHeader,
-          },
-        ),
+        options: Options(headers: _api.authHeaders),
       );
 
       // Download completed
@@ -383,11 +379,7 @@ class DownloadService {
         await _dio.download(
           primaryImageUrl,
           primaryImagePath,
-          options: Options(
-            headers: {
-              'X-Emby-Authorization': _api.authHeader,
-            },
-          ),
+          options: Options(headers: _api.authHeaders),
         );
         
         task.localPrimaryImagePath = primaryImagePath;
@@ -413,11 +405,7 @@ class DownloadService {
         await _dio.download(
           backdropImageUrl,
           backdropImagePath,
-          options: Options(
-            headers: {
-              'X-Emby-Authorization': _api.authHeader,
-            },
-          ),
+          options: Options(headers: _api.authHeaders),
         );
         
         task.localBackdropImagePath = backdropImagePath;
