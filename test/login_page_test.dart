@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:finar/core/api/auth_service.dart';
 import 'package:finar/core/api/jellyfin_api.dart';
 import 'package:finar/core/api/models/user.dart';
@@ -8,11 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeAuthService extends AuthService {
-  _FakeAuthService({this.connectResult = true, this.loginShouldFail = false})
+  _FakeAuthService({this.connectResult = true, this.loginError})
     : super(JellyfinApi());
 
   final bool connectResult;
-  final bool loginShouldFail;
+  final Object? loginError;
   String? lastConnectUrl;
 
   @override
@@ -29,8 +30,7 @@ class _FakeAuthService extends AuthService {
     required String username,
     required String password,
   }) {
-    if (loginShouldFail) return Future.error(Exception('boom'));
-    return Future.error(UnimplementedError());
+    return Future.error(loginError ?? UnimplementedError());
   }
 
   @override
@@ -178,7 +178,7 @@ void main() {
   testWidgets('failed login surfaces the auth error in a banner', (
     tester,
   ) async {
-    final service = _FakeAuthService(loginShouldFail: true);
+    final service = _FakeAuthService(loginError: Exception('boom'));
     await _pumpLogin(tester, authService: service);
     await _goToCredentialsStage(tester);
 
@@ -201,6 +201,38 @@ void main() {
     expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
     expect(find.text('Sign In'), findsOneWidget);
     expect(find.text('Continue'), findsNothing);
+  });
+
+  testWidgets('a 400 from the server shows invalid credentials', (
+    tester,
+  ) async {
+    final service = _FakeAuthService(
+      loginError: DioException(
+        requestOptions: RequestOptions(),
+        type: DioExceptionType.badResponse,
+        response: Response(
+          requestOptions: RequestOptions(),
+          statusCode: 400,
+        ),
+      ),
+    );
+    await _pumpLogin(tester, authService: service);
+    await _goToCredentialsStage(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Username'),
+      'calico',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Password'),
+      'hunter2',
+    );
+    await tester.tap(find.text('Sign In'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Invalid username or password.'), findsOneWidget);
+    expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
   });
 
   testWidgets('quick connect shows the code and cancel returns to the form', (

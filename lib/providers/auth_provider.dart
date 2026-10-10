@@ -32,7 +32,7 @@ String _getErrorMessage(dynamic error) {
         return 'Could not connect to server. Please check the URL and ensure the server is running.';
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
-        if (statusCode == 401) {
+        if (statusCode == 400 || statusCode == 401) {
           return 'Invalid username or password.';
         } else if (statusCode == 403) {
           return 'Access denied. Your account may be disabled.';
