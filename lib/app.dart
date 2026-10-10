@@ -217,10 +217,16 @@ class _FinarAppState extends ConsumerState<FinarApp>
             builder: (context, child) {
               final body = child ?? const SizedBox.shrink();
               if (!PlatformDetector.isDesktop) return body;
-              return Column(
-                children: [
-                  const WindowTitleBar(),
-                  Expanded(child: body),
+              return Overlay(
+                initialEntries: [
+                  OverlayEntry(
+                    builder: (context) => Column(
+                      children: [
+                        const WindowTitleBar(),
+                        Expanded(child: body),
+                      ],
+                    ),
+                  ),
                 ],
               );
             },

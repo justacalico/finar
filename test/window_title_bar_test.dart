@@ -1,4 +1,5 @@
 import 'package:finar/widgets/window_title_bar.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +29,27 @@ void main() {
   Future<void> pumpBar(WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(home: Scaffold(body: WindowTitleBar())),
+    );
+    await tester.pump();
+  }
+
+  Future<void> pumpBarAboveNavigator(WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) => Column(
+                children: [
+                  const WindowTitleBar(),
+                  Expanded(child: child ?? const SizedBox.shrink()),
+                ],
+              ),
+            ),
+          ],
+        ),
+        home: const Scaffold(body: Text('page')),
+      ),
     );
     await tester.pump();
   }
@@ -89,5 +111,23 @@ void main() {
     final methods = calls.map((c) => c.method).toList();
     expect(methods, contains('unmaximize'));
     expect(methods, isNot(contains('maximize')));
+  });
+
+  testWidgets('WindowTitleBar caption buttons show tooltips on hover', (
+    tester,
+  ) async {
+    await pumpBarAboveNavigator(tester);
+
+    final gesture = await tester.createGesture(
+      kind: PointerDeviceKind.mouse,
+    );
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(tester.getCenter(find.byIcon(Icons.close_rounded)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Close'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
