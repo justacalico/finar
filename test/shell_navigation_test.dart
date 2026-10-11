@@ -247,6 +247,42 @@ void main() {
       expect(container.read(shellNavProvider).libraryId, 'lib1');
     });
 
+    testWidgets('desktop sidebar pins settings above the collapse toggle', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: _overrides());
+      addTearDown(container.dispose);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      _setSurfaceSize(tester, const Size(1400, 900));
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: HomePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HomeDesktop), findsOneWidget);
+
+      final settings = find.text('Settings');
+      expect(settings, findsOneWidget);
+      expect(
+        find.ancestor(of: settings, matching: find.byType(ListView)),
+        findsNothing,
+      );
+      expect(
+        tester.getCenter(settings).dy,
+        lessThan(tester.getCenter(find.text('Collapse')).dy),
+      );
+
+      await tester.tap(settings);
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsDesktop), findsOneWidget);
+    });
+
     testWidgets('in-shell library back button returns to the browser', (
       tester,
     ) async {
