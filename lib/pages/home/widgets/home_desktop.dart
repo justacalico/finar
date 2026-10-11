@@ -477,26 +477,25 @@ class HomeDesktopState extends ConsumerState<HomeDesktop> {
                         ),
                         error: (_, _) => const SizedBox(),
                       ),
-
-                      if (!collapsed) ...[
-                        const SizedBox(height: 20),
-                        Divider(
-                          color: AppColors.divider.withValues(alpha: 0.5),
-                          indent: 16,
-                          endIndent: 16,
-                        ),
-                      ],
-
-                      _buildNavItem(
-                        icon: Icons.settings_outlined,
-                        activeIcon: Icons.settings_rounded,
-                        label: 'Settings',
-                        index: 100,
-                        focusIndex: 100,
-                        collapsed: collapsed,
-                      ),
                     ],
                   ),
+                ),
+
+                if (!collapsed)
+                  Divider(
+                    color: AppColors.divider.withValues(alpha: 0.5),
+                    indent: 16,
+                    endIndent: 16,
+                    height: 20,
+                  ),
+
+                _buildNavItem(
+                  icon: Icons.settings_outlined,
+                  activeIcon: Icons.settings_rounded,
+                  label: 'Settings',
+                  index: 100,
+                  focusIndex: 100,
+                  collapsed: collapsed,
                 ),
 
                 // Collapse/expand toggle
