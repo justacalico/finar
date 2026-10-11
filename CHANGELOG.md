@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redesigned the login page: the form now lives in a centered card over an ambient glow background, the protocol dropdown became an inline https/http toggle inside the server field, fields show prefix icons, errors display in a styled banner, and Sign In uses the theme gradient. The Quick Connect view uses the same card layout.
 - Login is now two stages: first enter the server URL and connect to it, then sign in with username and password or Quick Connect. A back button on the second stage returns to change the server.
 
+### Removed
+- Removed the redundant subtitle and audio track buttons from the desktop player controls. Both opened the same settings panel as the settings button, so only the settings button remains.
+
 ### Fixed
 - Fixed the user profile picture in the sidebar being cropped and zoomed in. The avatar now scales the whole image to fit inside the rounded square instead of cutting off the edges.
 - Quick Connect timeout timer is now cancelled when leaving the code view instead of firing later.
