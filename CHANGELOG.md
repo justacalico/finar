@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Removed the redundant subtitle and audio track buttons from the desktop player controls. Both opened the same settings panel as the settings button, so only the settings button remains.
+- Removed the fullscreen button from the desktop player top bar. It only toggled a system UI mode that does nothing inside a desktop window, so the button and the dead F key and double-tap fullscreen shortcuts are gone.
 
 ### Fixed
 - Fixed the user profile picture in the sidebar being cropped and zoomed in. The avatar now scales the whole image to fit inside the rounded square instead of cutting off the edges.
