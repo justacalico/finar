@@ -52,8 +52,9 @@ class SettingsPlaybackMobileSection extends ConsumerWidget {
                   )
                   .toList(),
               (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
+                }
               },
             ),
             mobileDivider(),
@@ -68,8 +69,9 @@ class SettingsPlaybackMobileSection extends ConsumerWidget {
                   )
                   .toList(),
               (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setSleepTimerMinutes(v);
+                }
               },
             ),
           ],

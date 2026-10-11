@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redesigned the login page: the form now lives in a centered card over an ambient glow background, the protocol dropdown became an inline https/http toggle inside the server field, fields show prefix icons, errors display in a styled banner, and Sign In uses the theme gradient. The Quick Connect view uses the same card layout.
 - Login is now two stages: first enter the server URL and connect to it, then sign in with username and password or Quick Connect. A back button on the second stage returns to change the server.
 - Moved the desktop sidebar Settings button out of the scrolling libraries list into the pinned bottom section above the collapse toggle, so it stays visible no matter how long the library list is.
+- Split oversized pages into per-section widgets: desktop home, desktop and mobile detail pages, mobile home, the music and general libraries, and downloads. Shared play, trailer, favorite, watchlist, download and share actions now live in `core/utils/media_actions.dart` instead of being copy pasted per page.
+- Replaced the deprecated `cacheExtent` parameter with `scrollCacheExtent` and `ReorderableListView.onReorder` with `onReorderItem`, added missing widget keys and const constructors, and wrapped bare if bodies in braces. `flutter analyze` now reports zero issues.
+- Replaced the broken lowercase `claude.md` pointer with a `CLAUDE.md` symlink to AGENTS.md.
 
 ### Removed
 - Removed the redundant subtitle and audio track buttons from the desktop player controls. Both opened the same settings panel as the settings button, so only the settings button remains.
@@ -26,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the login page jumping back to the server stage after connecting or after a failed sign in. Connecting and signing in no longer swap the whole app to the splash screen, which unmounted the page and reset its stage.
 - A 400 response during sign in now shows "Invalid username or password" instead of "Server returned an error (400)", and error banners show the server's own message when it sends one.
 - Fixed login failing with a 400 on Jellyfin 10.11 servers: requests now send the `Authorization` header alongside `X-Emby-Authorization`, which 10.11 no longer accepts.
+- Fixed Switch profile in desktop settings navigating with a popped context, which could crash and prevented the result snackbar from ever showing.
+- Fixed reordering items in the play queue placing them one slot too high when dragging downwards. Both the queue view and the player provider adjusted the target index, so the correction was applied twice.
+- Fixed See All on the desktop home tab doing nothing and leaking the expanded category into Search and Favorites. It now expands into a grid and returns to the previous view.
+- Fixed the mobile detail page creating and disposing a TabController that was never used.
 
 ## [4.2.0] - 2026-09-29
 

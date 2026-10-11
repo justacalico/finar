@@ -12,11 +12,7 @@ import 'library_provider.dart';
 import 'download_provider.dart';
 
 /// Repeat mode for playlist playback
-enum RepeatMode {
-  off,
-  one,
-  all,
-}
+enum RepeatMode { off, one, all }
 
 /// Player state
 class PlayerState {
@@ -292,7 +288,10 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
         // Frame dropping settings for smoother playback
         await (nativePlayer as dynamic).setProperty('framedrop', 'vo');
-        await (nativePlayer as dynamic).setProperty('video-latency-hacks', 'yes');
+        await (nativePlayer as dynamic).setProperty(
+          'video-latency-hacks',
+          'yes',
+        );
 
         // Disable expensive visual processing
         await (nativePlayer as dynamic).setProperty('deband', 'no');
@@ -300,11 +299,20 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
         await (nativePlayer as dynamic).setProperty('blend-subtitles', 'no');
 
         // Threading optimizations
-        await (nativePlayer as dynamic).setProperty('vd-lavc-threads', '0'); // Auto-detect
-        await (nativePlayer as dynamic).setProperty('ad-lavc-threads', '0'); // Auto-detect
+        await (nativePlayer as dynamic).setProperty(
+          'vd-lavc-threads',
+          '0',
+        ); // Auto-detect
+        await (nativePlayer as dynamic).setProperty(
+          'ad-lavc-threads',
+          '0',
+        ); // Auto-detect
 
         // Demuxer performance
-        await (nativePlayer as dynamic).setProperty('demuxer-readahead-secs', '20');
+        await (nativePlayer as dynamic).setProperty(
+          'demuxer-readahead-secs',
+          '20',
+        );
         await (nativePlayer as dynamic).setProperty('demuxer-thread', 'yes');
 
         if (kDebugMode) {
@@ -456,7 +464,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       } catch (e) {
         // Silently ignore - we're playing locally, server reporting is optional
         if (kDebugMode) {
-          debugPrint('Local playback: Server reporting skipped (offline or error)');
+          debugPrint(
+            'Local playback: Server reporting skipped (offline or error)',
+          );
         }
       }
     });
@@ -615,11 +625,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     final list = state.playlist;
     if (list == null || list.length < 2) return;
     final shuffled = List<MediaItem>.from(list)..shuffle();
-    await play(
-      shuffled.first,
-      playlist: shuffled,
-      playlistIndex: 0,
-    );
+    await play(shuffled.first, playlist: shuffled, playlistIndex: 0);
   }
 
   /// Cycle repeat mode: off -> one -> all -> off
@@ -670,16 +676,18 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
       // Check if it's already in the queue
       final currentPlaylist = state.playlist ?? [];
-      final alreadyQueued = currentPlaylist.any((item) => item.id == nextEpisode.id);
+      final alreadyQueued = currentPlaylist.any(
+        (item) => item.id == nextEpisode.id,
+      );
       if (alreadyQueued) return false;
 
       // Insert next episode to play after current
       insertNext(nextEpisode);
-      
+
       if (kDebugMode) {
         debugPrint('Queued next episode: ${nextEpisode.name}');
       }
-      
+
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -691,7 +699,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Remove item from queue by index
   void removeFromQueue(int index) {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length) {
+    if (state.playlist == null ||
+        index < 0 ||
+        index >= state.playlist!.length) {
       return;
     }
 
@@ -723,19 +733,19 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     }
   }
 
-  /// Move item in queue
+  /// Move item in queue. [newIndex] is the post-removal insert position.
   void reorderQueue(int oldIndex, int newIndex) {
     if (state.playlist == null) return;
 
     final newPlaylist = List<MediaItem>.from(state.playlist!);
     final item = newPlaylist.removeAt(oldIndex);
-    newPlaylist.insert(newIndex > oldIndex ? newIndex - 1 : newIndex, item);
+    newPlaylist.insert(newIndex, item);
 
     // Adjust current index
     int? currentIndex = state.playlistIndex;
     if (currentIndex != null) {
       if (oldIndex == currentIndex) {
-        currentIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
+        currentIndex = newIndex;
       } else if (oldIndex < currentIndex && newIndex >= currentIndex) {
         currentIndex--;
       } else if (oldIndex > currentIndex && newIndex <= currentIndex) {
@@ -748,7 +758,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   /// Play item at specific index in queue
   Future<void> playAtIndex(int index) async {
-    if (state.playlist == null || index < 0 || index >= state.playlist!.length) {
+    if (state.playlist == null ||
+        index < 0 ||
+        index >= state.playlist!.length) {
       return;
     }
     await play(

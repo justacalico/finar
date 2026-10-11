@@ -27,8 +27,9 @@ class SettingsAudioMobileSection extends ConsumerWidget {
                   )
                   .toList(),
               (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setAudioLanguage(v);
+                }
               },
             ),
             mobileDivider(),

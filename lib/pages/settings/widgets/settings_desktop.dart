@@ -159,17 +159,18 @@ class _SettingsDesktopState extends ConsumerState<SettingsDesktop> {
                         height: 48,
                         child: OutlinedButton.icon(
                           onPressed: () async {
-                            Navigator.pop(context);
-                            final message = await Navigator.of(context)
-                                .push<String?>(
-                                  MaterialPageRoute<String?>(
-                                    builder: (_) => const WhosWatchingPage(),
-                                  ),
-                                );
-                            if (message != null && context.mounted) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(message)));
+                            final navigator = Navigator.of(context);
+                            final messenger = ScaffoldMessenger.of(context);
+                            navigator.pop();
+                            final message = await navigator.push<String?>(
+                              MaterialPageRoute<String?>(
+                                builder: (_) => const WhosWatchingPage(),
+                              ),
+                            );
+                            if (message != null && messenger.mounted) {
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(message)),
+                              );
                             }
                           },
                           icon: const Icon(Icons.swap_horiz_rounded, size: 20),

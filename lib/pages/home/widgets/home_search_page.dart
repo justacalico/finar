@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
@@ -7,7 +8,7 @@ import '../../../widgets/widgets.dart';
 import '../../detail.dart';
 
 class MobileSearchPage extends ConsumerStatefulWidget {
-  const MobileSearchPage();
+  const MobileSearchPage({super.key});
 
   @override
   ConsumerState<MobileSearchPage> createState() => MobileSearchPageState();
@@ -73,7 +74,7 @@ class MobileSearchPageState extends ConsumerState<MobileSearchPage> {
                         ),
                     addRepaintBoundaries: true,
                     addAutomaticKeepAlives: false,
-                    cacheExtent: 1000,
+                    scrollCacheExtent: ScrollCacheExtent.pixels(1000),
                     itemCount: searchResults.length,
                     itemBuilder: (context, index) {
                       final item = searchResults[index];

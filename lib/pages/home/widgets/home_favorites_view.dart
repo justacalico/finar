@@ -4,11 +4,134 @@ import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
 import '../../../providers/providers.dart';
 import '../../../widgets/widgets.dart';
+import '../../../core/api/models/media_item.dart';
 import '../../detail.dart';
+import 'home_media_grid.dart';
+import 'home_widgets.dart';
 
-/// Favorites view for the mobile shell. Favorites has no bottom-nav tab, so
-/// this only shows when the section was selected on desktop and the window
-/// was resized down.
+class DesktopFavoritesView extends ConsumerWidget {
+  final String? expandedCategory;
+  final List<MediaItem>? expandedItems;
+  final void Function(String category, List<MediaItem> items) onShowAll;
+  final VoidCallback onClose;
+  final void Function(MediaItem item) onItemTap;
+
+  const DesktopFavoritesView({
+    super.key,
+    required this.expandedCategory,
+    required this.expandedItems,
+    required this.onShowAll,
+    required this.onClose,
+    required this.onItemTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorites = ref.watch(favoritesProvider(null));
+    final serverUrl = ref.read(jellyfinApiProvider).serverUrl ?? '';
+
+    // If a category is expanded, show the expanded view
+    if (expandedCategory != null && expandedItems != null) {
+      return ExpandedCategoryGrid(
+        category: expandedCategory!,
+        items: expandedItems!,
+        serverUrl: serverUrl,
+        onBack: onClose,
+        onItemTap: onItemTap,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const PageHeader(title: 'Favorites'),
+
+        // Content
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: favorites.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return _buildEmptyFavorites();
+                }
+                // Group favorites by type
+                final groupedItems = groupMediaByType(items);
+                return GroupedMediaGrid(
+                  groupedItems: groupedItems,
+                  serverUrl: serverUrl,
+                  onShowAll: onShowAll,
+                  onItemTap: onItemTap,
+                );
+              },
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load favorites',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(e.toString(), style: AppTextStyles.bodySmall),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => ref.refresh(favoritesProvider(null)),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyFavorites() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite_border,
+            size: 80,
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No favorites yet',
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Mark items as favorites to see them here',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class MobileFavoritesView extends ConsumerWidget {
   const MobileFavoritesView({super.key});
 

@@ -42,7 +42,7 @@ class PlayerCenterButton extends StatelessWidget {
   final Color? borderColor;
   final bool shimmer;
 
-  PlayerCenterButton({
+  const PlayerCenterButton({
     super.key,
     required this.icon,
     required this.onPressed,

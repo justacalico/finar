@@ -131,6 +131,21 @@ IconData getLibraryIcon(LibraryIcon icon) {
   }
 }
 
+IconData getLibraryIconByCollectionType(String? collectionType) {
+  switch (collectionType) {
+    case 'movies':
+      return Icons.movie_outlined;
+    case 'tvshows':
+      return Icons.tv_outlined;
+    case 'music':
+      return Icons.music_note_outlined;
+    case 'photos':
+      return Icons.photo_outlined;
+    default:
+      return Icons.folder_outlined;
+  }
+}
+
 MediaType getMediaTypeFromString(String? typeString) {
   switch (typeString?.toLowerCase()) {
     case 'movie':
