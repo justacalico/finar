@@ -8,16 +8,12 @@ import 'package:finar/widgets/widgets.dart';
 
 class PlayerDesktopTopBar extends ConsumerWidget {
   final bool controlsVisible;
-  final bool isFullscreen;
   final VoidCallback onBack;
-  final VoidCallback onToggleFullscreen;
 
   const PlayerDesktopTopBar({
     super.key,
     required this.controlsVisible,
-    required this.isFullscreen,
     required this.onBack,
-    required this.onToggleFullscreen,
   });
 
   @override
@@ -62,12 +58,6 @@ class PlayerDesktopTopBar extends ConsumerWidget {
                             ),
                         ],
                       ),
-                    ),
-                    GlassIconButton(
-                      icon: isFullscreen
-                          ? Icons.fullscreen_exit
-                          : Icons.fullscreen,
-                      onPressed: onToggleFullscreen,
                     ),
                   ],
                 ),

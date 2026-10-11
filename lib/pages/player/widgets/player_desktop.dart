@@ -24,7 +24,6 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
   static const Duration _controlsHideDelay = Duration(seconds: 3);
 
   bool _controlsVisible = true;
-  bool _isFullscreen = false;
   bool _showSettings = false;
   Timer? _hideTimer;
   final FocusNode _focusNode = FocusNode();
@@ -114,11 +113,6 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
         _adjustVolume(-0.1);
         break;
 
-      case LogicalKeyboardKey.keyF:
-      case LogicalKeyboardKey.gameButtonY:
-        _toggleFullscreen();
-        break;
-
       case LogicalKeyboardKey.keyM:
         _toggleMute();
         break;
@@ -127,11 +121,7 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
       case LogicalKeyboardKey.gameButtonB:
       case LogicalKeyboardKey.goBack:
       case LogicalKeyboardKey.browserBack:
-        if (_isFullscreen) {
-          _toggleFullscreen();
-        } else {
-          _onBack();
-        }
+        _onBack();
         break;
 
       case LogicalKeyboardKey.gameButtonLeft1:
@@ -182,15 +172,6 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
     ref.read(playerProvider.notifier).setVolume(currentVolume > 0 ? 0 : 1);
   }
 
-  void _toggleFullscreen() {
-    setState(() => _isFullscreen = !_isFullscreen);
-    if (_isFullscreen) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-  }
-
   void _onBack() {
     ref.read(playerProvider.notifier).stop();
     Navigator.of(context).pop();
@@ -231,7 +212,6 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _toggleControls,
-              onDoubleTap: _toggleFullscreen,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -296,9 +276,7 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
                   ),
                   PlayerDesktopTopBar(
                     controlsVisible: _controlsVisible,
-                    isFullscreen: _isFullscreen,
                     onBack: _onBack,
-                    onToggleFullscreen: _toggleFullscreen,
                   ),
                   PlayerDesktopCenterControls(
                     controlsVisible: _controlsVisible,
