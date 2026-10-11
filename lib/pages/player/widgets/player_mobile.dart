@@ -281,13 +281,15 @@ class _PlayerMobileState extends ConsumerState<PlayerMobile> {
           children: [
             Center(
               child: RepaintBoundary(
-                child: Video(
-                  controller: videoController,
-                  controls: noVideoControls,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.medium,
-                  wakelock: true,
-                ),
+                child: videoController == null
+                    ? const SizedBox.shrink()
+                    : Video(
+                        controller: videoController,
+                        controls: noVideoControls,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                        wakelock: true,
+                      ),
               ),
             ),
             if (_isLocked)

@@ -320,6 +320,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
   Player get player => _player;
   VideoController get videoController => _videoController;
+  VideoController? get videoControllerOrNull =>
+      _playerInitialized ? _videoController : null;
 
   /// Play a media item
   Future<void> play(
@@ -852,9 +854,9 @@ final playerProvider = StateNotifierProvider<PlayerNotifier, PlayerState>((
 });
 
 /// Video controller provider
-final videoControllerProvider = Provider<VideoController>((ref) {
+final videoControllerProvider = Provider<VideoController?>((ref) {
   final playerNotifier = ref.watch(playerProvider.notifier);
-  return playerNotifier.videoController;
+  return playerNotifier.videoControllerOrNull;
 });
 
 /// Player instance provider

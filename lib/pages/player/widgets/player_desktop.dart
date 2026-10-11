@@ -217,13 +217,15 @@ class _PlayerDesktopState extends ConsumerState<PlayerDesktop> {
                 children: [
                   Center(
                     child: RepaintBoundary(
-                      child: Video(
-                        controller: videoController,
-                        controls: noVideoControls,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.medium,
-                        wakelock: true,
-                      ),
+                      child: videoController == null
+                          ? const SizedBox.shrink()
+                          : Video(
+                              controller: videoController,
+                              controls: noVideoControls,
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.medium,
+                              wakelock: true,
+                            ),
                     ),
                   ),
                   Positioned(
