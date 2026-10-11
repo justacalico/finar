@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Login is now two stages: first enter the server URL and connect to it, then sign in with username and password or Quick Connect. A back button on the second stage returns to change the server.
 
 ### Fixed
+- Fixed the user profile picture in the sidebar being cropped and zoomed in. The avatar now scales the whole image to fit inside the rounded square instead of cutting off the edges.
 - Quick Connect timeout timer is now cancelled when leaving the code view instead of firing later.
 - Fixed the login page jumping back to the server stage after connecting or after a failed sign in. Connecting and signing in no longer swap the whole app to the splash screen, which unmounted the page and reset its stage.
 - A 400 response during sign in now shows "Invalid username or password" instead of "Server returned an error (400)", and error banners show the server's own message when it sends one.
