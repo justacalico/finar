@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.0] - 2026-10-10
 
+### Added
+- Golden screenshot tests for every page and screen across desktop and mobile layouts, with vendored test fonts, a fake HTTP layer for image widgets, and committed reference images regenerated via `flutter test --update-goldens`.
+
 ### Changed
 - Replaced the OS window title bar with a custom in-app title bar on desktop (Linux, Windows, macOS). The new bar shows the app icon and name, supports drag-to-move and double-click to maximize, and provides minimize, maximize/restore and close buttons.
 - Redesigned the login page: the form now lives in a centered card over an ambient glow background, the protocol dropdown became an inline https/http toggle inside the server field, fields show prefix icons, errors display in a styled banner, and Sign In uses the theme gradient. The Quick Connect view uses the same card layout.
