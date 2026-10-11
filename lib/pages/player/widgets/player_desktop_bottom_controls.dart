@@ -67,19 +67,6 @@ class PlayerDesktopBottomControls extends ConsumerWidget {
                           ),
                         const SizedBox(width: 16),
                         GlassIconButton(
-                          icon: Icons.subtitles,
-                          iconColor: state.currentSubtitleTrack != null
-                              ? AppColors.primary
-                              : null,
-                          onPressed: onToggleSettings,
-                        ),
-                        const SizedBox(width: 8),
-                        GlassIconButton(
-                          icon: Icons.audiotrack,
-                          onPressed: onToggleSettings,
-                        ),
-                        const SizedBox(width: 8),
-                        GlassIconButton(
                           icon: Icons.settings,
                           onPressed: onToggleSettings,
                         ),
