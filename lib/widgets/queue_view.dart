@@ -40,9 +40,9 @@ class QueueView extends ConsumerWidget {
                 Text(
                   'Queue',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Row(
                   children: [
@@ -59,7 +59,10 @@ class QueueView extends ConsumerWidget {
                         onPressed: () {
                           ref.read(playerProvider.notifier).clearQueue();
                         },
-                        icon: const Icon(Icons.clear_all, color: Colors.white70),
+                        icon: const Icon(
+                          Icons.clear_all,
+                          color: Colors.white70,
+                        ),
                         label: const Text(
                           'Clear',
                           style: TextStyle(color: Colors.white70),
@@ -104,7 +107,10 @@ class QueueView extends ConsumerWidget {
             if (currentIndex < playlist.length - 1) ...[
               const Divider(color: Colors.white24, height: 1),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -160,20 +166,19 @@ class QueueView extends ConsumerWidget {
                 : ReorderableListView.builder(
                     padding: const EdgeInsets.only(bottom: 32),
                     itemCount: playlist.length - currentIndex - 1,
-                    onReorder: (oldIndex, newIndex) {
+                    onReorderItem: (oldIndex, newIndex) {
                       // Adjust indices to account for the "Now Playing" section
                       final actualOldIndex = oldIndex + currentIndex + 1;
-                      var actualNewIndex = newIndex + currentIndex + 1;
-                      if (newIndex > oldIndex) {
-                        actualNewIndex--;
-                      }
+                      final actualNewIndex = newIndex + currentIndex + 1;
                       ref
                           .read(playerProvider.notifier)
                           .reorderQueue(actualOldIndex, actualNewIndex);
                     },
                     itemBuilder: (context, index) {
                       final actualIndex = index + currentIndex + 1;
-                      if (actualIndex >= playlist.length) return const SizedBox.shrink();
+                      if (actualIndex >= playlist.length) {
+                        return const SizedBox.shrink();
+                      }
                       final item = playlist[actualIndex];
                       return _QueueItem(
                         key: ValueKey('${item.id}_$actualIndex'),
@@ -181,10 +186,14 @@ class QueueView extends ConsumerWidget {
                         index: actualIndex,
                         isPlaying: false,
                         onTap: () {
-                          ref.read(playerProvider.notifier).playAtIndex(actualIndex.toInt());
+                          ref
+                              .read(playerProvider.notifier)
+                              .playAtIndex(actualIndex.toInt());
                         },
                         onRemove: () {
-                          ref.read(playerProvider.notifier).removeFromQueue(actualIndex.toInt());
+                          ref
+                              .read(playerProvider.notifier)
+                              .removeFromQueue(actualIndex.toInt());
                         },
                       );
                     },
@@ -224,7 +233,9 @@ class _QueueItem extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: isPlaying
               ? BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.15),
                 )
               : null,
           child: Row(
@@ -232,7 +243,8 @@ class _QueueItem extends ConsumerWidget {
               // Drag handle (only for non-playing items)
               if (!isPlaying)
                 ReorderableDragStartListener(
-                  index: index - (ref.read(playerProvider).playlistIndex ?? 0) - 1,
+                  index:
+                      index - (ref.read(playerProvider).playlistIndex ?? 0) - 1,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Icon(
@@ -269,13 +281,16 @@ class _QueueItem extends ConsumerWidget {
                         color: isPlaying
                             ? Theme.of(context).colorScheme.primary
                             : Colors.white,
-                        fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isPlaying
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         fontSize: 14,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (item.artists?.isNotEmpty == true || item.albumArtist != null)
+                    if (item.artists?.isNotEmpty == true ||
+                        item.albumArtist != null)
                       Text(
                         item.albumArtist ?? item.artists?.first ?? '',
                         style: TextStyle(

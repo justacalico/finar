@@ -8,6 +8,7 @@ import 'package:finar/pages/home/widgets/home_desktop.dart';
 import 'package:finar/pages/home/widgets/home_library_browser.dart';
 import 'package:finar/pages/home/widgets/home_mobile.dart';
 import 'package:finar/pages/library.dart';
+import 'package:finar/pages/library_mobile.dart';
 import 'package:finar/pages/settings/widgets/settings_desktop.dart';
 import 'package:finar/pages/settings/widgets/settings_mobile.dart';
 import 'package:finar/providers/providers.dart';

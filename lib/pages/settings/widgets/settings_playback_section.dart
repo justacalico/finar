@@ -33,8 +33,9 @@ class SettingsPlaybackSection extends ConsumerWidget {
                   )
                   .toList(),
               onChanged: (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setDefaultVideoQuality(v);
+                }
               },
             ),
           ],
@@ -129,8 +130,9 @@ class SettingsPlaybackSection extends ConsumerWidget {
                   )
                   .toList(),
               onChanged: (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setSleepTimerMinutes(v);
+                }
               },
             ),
           ],

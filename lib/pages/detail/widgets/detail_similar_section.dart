@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finar/core/theme/text_styles.dart';
@@ -46,7 +47,7 @@ class DetailSimilarSection extends ConsumerWidget {
                   clipBehavior: Clip.none,
                   addRepaintBoundaries: true,
                   addAutomaticKeepAlives: false,
-                  cacheExtent: 500,
+                  scrollCacheExtent: ScrollCacheExtent.pixels(500),
                   padding: EdgeInsets.symmetric(
                     horizontal: isDesktop ? 6 : 0,
                     vertical: isDesktop ? 8 : 0,

@@ -37,8 +37,9 @@ class SettingsNetworkSection extends ConsumerWidget {
                   )
                   .toList(),
               onChanged: (v) {
-                if (v != null)
+                if (v != null) {
                   ref.read(settingsProvider.notifier).setMaxStreamingBitrate(v);
+                }
               },
             ),
             Divider(color: AppColors.glassBorder),

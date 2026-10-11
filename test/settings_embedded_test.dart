@@ -82,6 +82,32 @@ void main() {
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
 
+  testWidgets('switch profile pops settings and pushes who is watching', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsDesktop())),
+            child: const Text('go'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('go'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Switch profile'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text("Who's watching?"), findsOneWidget);
+    expect(find.text('Switch profile'), findsNothing);
+  });
+
   testWidgets('desktop settings content fills the pane and starts at top', (
     tester,
   ) async {

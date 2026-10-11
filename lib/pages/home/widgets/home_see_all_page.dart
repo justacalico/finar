@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../core/theme/colors.dart';
 import '../../../core/api/models/media_item.dart';
 import '../../../widgets/widgets.dart';
@@ -10,6 +11,7 @@ class MobileSeeAllPage extends StatelessWidget {
   final String serverUrl;
 
   const MobileSeeAllPage({
+    super.key,
     required this.title,
     required this.items,
     required this.serverUrl,
@@ -34,7 +36,7 @@ class MobileSeeAllPage extends StatelessWidget {
         ),
         addRepaintBoundaries: true,
         addAutomaticKeepAlives: false,
-        cacheExtent: 1000,
+        scrollCacheExtent: ScrollCacheExtent.pixels(1000),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];

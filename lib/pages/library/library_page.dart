@@ -4,7 +4,9 @@ import '../../core/api/models/library.dart';
 import '../../providers/providers.dart';
 import '../../widgets/adaptive_layout.dart';
 import '../library.dart';
+import '../library_mobile.dart';
 import '../music_library.dart';
+import '../music_library_mobile.dart';
 
 /// The single library page used for every Jellyfin library.
 /// Movies, TV shows, music, photos etc. all route through here.
@@ -34,37 +36,30 @@ class LibraryPage extends ConsumerWidget {
     final isMusic = library.collectionType?.toLowerCase() == 'music';
 
     return AdaptiveLayout(
-      desktopBuilder:
-          () => Material(
-            type: MaterialType.transparency,
-            child:
-                isMusic
-                    ? MusicLibraryDesktop(
-                      libraryId: libraryId,
-                      libraryName: library.name,
-                    )
-                    : LibraryDesktop(
-                      libraryId: libraryId,
-                      libraryName: library.name,
-                    ),
-          ),
-      mobileBuilder:
-          () => Scaffold(
-            body: SafeArea(
-              child:
-                  isMusic
-                      ? MusicLibraryMobile(
-                        libraryId: libraryId,
-                        libraryName: library.name,
-                        onBack: onBack,
-                      )
-                      : LibraryMobile(
-                        libraryId: libraryId,
-                        libraryName: library.name,
-                        onBack: onBack,
-                      ),
-            ),
-          ),
+      desktopBuilder: () => Material(
+        type: MaterialType.transparency,
+        child: isMusic
+            ? MusicLibraryDesktop(
+                libraryId: libraryId,
+                libraryName: library.name,
+              )
+            : LibraryDesktop(libraryId: libraryId, libraryName: library.name),
+      ),
+      mobileBuilder: () => Scaffold(
+        body: SafeArea(
+          child: isMusic
+              ? MusicLibraryMobile(
+                  libraryId: libraryId,
+                  libraryName: library.name,
+                  onBack: onBack,
+                )
+              : LibraryMobile(
+                  libraryId: libraryId,
+                  libraryName: library.name,
+                  onBack: onBack,
+                ),
+        ),
+      ),
     );
   }
 }
