@@ -1,4 +1,17 @@
-All changes must follow these rules.
+# Finar
+
+A modern Jellyfin client written in Flutter. Targets Android, iOS, Linux, Windows, macOS and web.
+
+- Refactor rather than duplicating code.
+- Goal is an A+ codebase: small files, clear ownership, no god files.
+- Every code change needs a real test. Tests must exercise the actual change, not just pass.
+- Golden tests live in test/golden/ and cover every page. Regenerate with `flutter test --update-goldens`.
+- Run `flutter analyze` (must be clean) and `flutter test --coverage` before committing.
+- Shell script changes get a matching case in test/scripts/.
+- User-facing strings go through ARB localisation (en_GB template, zh, ru, ga). Never hardcode UI text.
+- Secrets, keystores and signing keys never go in the repo.
+
+## Repo rules
 
 1. Do not leak any api keys or jks keys at all. (note their is a harcoded api key for ytm that api key is not a actural real api key)
 2. Do not write god files refactor stuff if you have to.

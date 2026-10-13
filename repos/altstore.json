@@ -1,0 +1,24 @@
+{
+  "name": "Finar",
+  "identifier": "com.openlyst.finar",
+  "sourceURL": "https://gitlab.com/openlyst/finar/-/raw/main/repos/altstore.json",
+  "apps": [
+    {
+      "name": "Finar",
+      "bundleIdentifier": "com.openlyst.finar",
+      "developerName": "Openlyst",
+      "subtitle": "A modern Jellyfin client",
+      "localizedDescription": "Films, series and music from your Jellyfin server, beautifully presented on every device.",
+      "iconURL": "https://gitlab.com/openlyst/finar/-/raw/main/assets/icon.png",
+      "tintColor": "8B5CF6",
+      "versions": [
+        {
+          "version": "4.2.0",
+          "date": "2026-09-30",
+          "downloadURL": "https://github.com/justacalico/finar/releases/download/v4.2.0/finar-ios-4.2.0-2026-09-30.ipa",
+          "minOSVersion": "14.0"
+        }
+      ]
+    }
+  ]
+}

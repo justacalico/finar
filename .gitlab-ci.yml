@@ -117,3 +117,17 @@ github-release-sync:
       fi
   script:
     - bash scripts/sync-from-github.sh
+
+pages:
+  stage: release
+  tags: [linux]
+  image: ghcr.io/cirruslabs/flutter:stable
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - flutter pub get
+    - flutter build web --release --base-href /finar/app/ --output public/app
+    - cd landing && flutter pub get && flutter build web --release --base-href /finar/ --output ../public
+  artifacts:
+    paths:
+      - public

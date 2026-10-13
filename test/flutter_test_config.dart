@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_http_client.dart';
 

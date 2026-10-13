@@ -1,50 +1,48 @@
 # Finar
 
-Finar is a Jellyfin client built to just work.
+A modern Jellyfin client for Android, iOS, Linux, Windows, macOS and the web.
 
-![desktop.png](desktop.png)
+[![pipeline](https://gitlab.com/openlyst/finar/badges/main/pipeline.svg)](https://gitlab.com/openlyst/finar/-/pipelines)
+[![release](https://gitlab.com/openlyst/finar/-/badges/release.svg)](https://gitlab.com/openlyst/finar/-/releases)
+[![license](https://img.shields.io/gitlab/license/openlyst/finar)](https://gitlab.com/openlyst/finar/-/blob/main/LICENSE)
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![License](https://img.shields.io/badge/License-AGPL%20v3-green?style=for-the-badge)
+**[Landing page](https://openlyst.gitlab.io/finar/)** | **[Releases](https://gitlab.com/openlyst/finar/-/releases)**
 
-## Features
+## What it does
 
-- Video playback
-- Android, iOS, macOS, Windows, Linux, and Web support
-- Desktop and Mobile UI.
-- Downloads
-- Multiple accounts (eg. The who's watching screen)
-- Controller support
-- Music playback
+Finar connects to your Jellyfin server and puts your media front and centre.
 
+- Sign in with a password or Quick Connect, and keep multiple profiles around
+- Continue watching, next up and the latest additions on the home page
+- Browse libraries with sorting, watch-state filters and genre filtering
+- Direct-play video and music with subtitle and audio track selection, playback speed and server-side progress reporting
+- Download media for offline playback
+- Custom macOS-style window chrome on desktop, a wide row-list sidebar, and a touch-friendly layout on mobile
+- Light, dark and OLED themes with accent colours, in four languages
 
-## Requirements
+## Install
 
-- Flutter SDK `^3.10.3`
-- A running [Jellyfin](https://jellyfin.org/) server
+Get the latest build for your platform from **[Releases](https://gitlab.com/openlyst/finar/-/releases)**.
 
-## Getting Started
+- **Android**: `.apk` or `.aab`
+- **iOS**: unsigned `.ipa`, side-loadable through the [AltStore source](https://gitlab.com/openlyst/finar/-/raw/main/repos/altstore.json)
+- **Linux**: `.deb`, `.rpm`, `.AppImage` or plain `.zip` (x64 and arm64)
+- **Windows**: installer `.exe` or `.zip`
+- **macOS**: unsigned `.zip`
+- **Web**: hosted at the landing page under `/app/`
+
+## Screenshots
+
+![Home](test/golden/goldens/home_desktop.png)
+![Detail](test/golden/goldens/detail_movie_desktop.png)
+![Settings](test/golden/goldens/settings_desktop.png)
+
+## Docker
+
+A self-hosted web build is available via `docker/`:
 
 ```bash
-git clone https://gitlab.com/Openlyst/finar.git
-cd finar
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter run
+docker compose up -d
 ```
 
-## Build Releases
-
-```bash
-flutter build apk --release
-flutter build ios --release
-flutter build macos --release
-flutter build windows --release
-flutter build linux --release
-flutter build web --release
-```
-
-## Privacy
-
-See [PRIVACY.md](PRIVACY.md) for how Finar handles data (no collection; data stays on your device and your Jellyfin server).
+Set `JELLYFIN_URL` to pre-fill your server address.

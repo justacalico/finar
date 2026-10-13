@@ -52,3 +52,5 @@ android/app/keystore/
 *.keystore
 
 /.vscode/
+landing/build/
+landing/.dart_tool/

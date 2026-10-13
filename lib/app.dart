@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'core/storage/settings_store.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -68,13 +67,9 @@ class _FinarAppState extends ConsumerState<FinarApp> {
       ],
       builder: (context, child) {
         if (!isDesktopPlatform) return child ?? const SizedBox.shrink();
-        final location =
-            GoRouterState.of(context).uri.path;
-        final hideBar = location == '/play';
         return Column(
           children: [
-            if (!hideBar)
-              const TitleBar(actions: WindowManagerActions()),
+            const TitleBar(actions: WindowManagerActions()),
             Expanded(child: child ?? const SizedBox.shrink()),
           ],
         );

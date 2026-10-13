@@ -213,7 +213,7 @@ BaseItem makeItem({
       communityRating: rating,
       officialRating: 'PG-13',
       genres: genres,
-      imageTags: {if (imageTag != null) 'Primary': imageTag},
+      imageTags: {'Primary': ?imageTag},
       backdropImageTags:
           backdropTag == null ? const [] : [backdropTag],
       seriesName: seriesName,
