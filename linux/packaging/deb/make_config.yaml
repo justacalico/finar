@@ -1,0 +1,18 @@
+display_name: Finar
+package_name: finar
+maintainer:
+  name: Openlyst
+  email: hello@openlyst.app
+priority: optional
+section: video
+installed_size: 20000
+essential: false
+icon: linux/icons/app_icon.png
+keywords:
+  - jellyfin
+  - media
+  - video
+  - client
+generic_name: Media Client
+startup_notify: true
+startup_wm_class: finar

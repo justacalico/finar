@@ -1,0 +1,11 @@
+display_name: Finar
+package_name: finar
+summary: A modern Jellyfin client
+group: Applications/Multimedia
+icon: linux/icons/app_icon.png
+keywords:
+  - jellyfin
+  - media
+  - video
+  - client
+generic_name: Media Client

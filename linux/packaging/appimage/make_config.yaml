@@ -1,0 +1,11 @@
+display_name: Finar
+icon: linux/icons/app_icon.png
+keywords:
+  - jellyfin
+  - media
+  - video
+  - client
+generic_name: Media Client
+categories:
+  - AudioVideo
+  - Video

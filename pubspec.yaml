@@ -1,0 +1,74 @@
+name: finar
+description: "A modern Jellyfin client"
+publish_to: 'none'
+version: 6.0.0
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Playback
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_video: ^1.0.7
+
+  # State
+  flutter_riverpod: ^2.6.1
+
+  # Network
+  dio: ^5.11.1
+  http: ^1.2.2
+  connectivity_plus: ^7.3.2
+
+  # Storage
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^11.2.0
+
+  # UI
+  cached_network_image: ^4.0.4
+  flutter_svg: ^2.3.0
+  flutter_animate: ^4.5.2
+  cupertino_icons: ^1.0.8
+
+  # Navigation
+  go_router: ^18.0.2
+
+  # System
+  window_manager: ^0.5.2
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.1
+  share_plus: ^13.3.1
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  intl: ^0.20.2
+  collection: ^1.19.0
+  uuid: ^4.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  flutter_launcher_icons: ^0.14.4
+  fake_async: any
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - icon.svg
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
