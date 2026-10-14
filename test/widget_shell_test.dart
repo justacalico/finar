@@ -117,9 +117,9 @@ void main() {
         overrides: (await TestHarness.create()).overrides,
         child: const Scaffold(body: TitleBar(actions: null))));
     expect(find.text('Finar'), findsOneWidget);
-    expect(find.byTooltip('close'), findsOneWidget);
-    expect(find.byTooltip('minimize'), findsOneWidget);
-    expect(find.byTooltip('maximize'), findsOneWidget);
+    expect(find.bySemanticsLabel('close'), findsOneWidget);
+    expect(find.bySemanticsLabel('minimize'), findsOneWidget);
+    expect(find.bySemanticsLabel('maximize'), findsOneWidget);
   });
 
   testWidgets('mini player shows for audio and toggles play',

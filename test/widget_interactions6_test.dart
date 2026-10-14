@@ -350,7 +350,7 @@ void main() {
       await tester.pumpAndSettle();
       final mouse = await tester.createGesture(
           kind: PointerDeviceKind.mouse, pointer: 1);
-      await mouse.moveTo(tester.getCenter(find.byTooltip('close')));
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('close')));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.close), findsOneWidget);
       await mouse.moveTo(Offset.zero);

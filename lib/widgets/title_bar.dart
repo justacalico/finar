@@ -98,10 +98,11 @@ class _TrafficLightState extends State<_TrafficLight> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Tooltip(
-          message: widget.tooltip,
+      child: Semantics(
+        button: true,
+        label: widget.tooltip,
+        child: GestureDetector(
+          onTap: widget.onTap,
           child: Container(
             width: 14,
             height: 14,

@@ -447,11 +447,11 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('minimize'));
+      await tester.tap(find.bySemanticsLabel('minimize'));
       await tester.pump();
-      await tester.tap(find.byTooltip('maximize'));
+      await tester.tap(find.bySemanticsLabel('maximize'));
       await tester.pump();
-      await tester.tap(find.byTooltip('close'));
+      await tester.tap(find.bySemanticsLabel('close'));
       await tester.pump();
       expect(actions.calls, ['minimize', 'maximize', 'close']);
     });
