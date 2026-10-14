@@ -55,11 +55,28 @@ if [ -n "${GITLAB_RELEASE_SSH_KEY:-}" ]; then
   git push -f gitlab-ssh "$RELEASE_TAG"
 fi
 
+# Upload assets to the package registry before creating the release so it is
+# never visible without files. --use-package-registry creates the release first
+# and uploads afterwards, leaving it empty while the uploads run.
+LINKS_FILE=$(mktemp)
+echo '[]' > "$LINKS_FILE"
+for asset in "$PROJECT_DIR/release-assets"/*; do
+  ASSET_NAME="$(basename "$asset")"
+  echo "Uploading $ASSET_NAME..."
+  glab api --method PUT --input "$asset" \
+    "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" > /dev/null
+  jq --arg name "$ASSET_NAME" \
+    --arg url "${CI_API_V4_URL:-https://gitlab.com/api/v4}/projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" \
+    '. += [{name: $name, url: $url, link_type: "other", direct_asset_path: $name}]' \
+    "$LINKS_FILE" > "$LINKS_FILE.new"
+  mv "$LINKS_FILE.new" "$LINKS_FILE"
+done
+
 # Mirror to a GitLab release. The tag is kept the same as GitHub.
 # glab in CI will use CI_JOB_TOKEN when GLAB_ENABLE_CI_AUTOLOGIN is set.
 glab release create "$RELEASE_TAG" \
   --name "Finar $RELEASE_TAG" \
   --notes "Mirrored from the GitHub release." \
   --ref "$CI_COMMIT_SHA" \
-  --use-package-registry \
-  "$PROJECT_DIR/release-assets"/*
+  --assets-links "$(cat "$LINKS_FILE")"
+rm -f "$LINKS_FILE"
