@@ -130,7 +130,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverUrlHint.
   ///
   /// In en_GB, this message translates to:
-  /// **'https://jellyfin.example.com'**
+  /// **'jellyfin.example.com'**
   String get serverUrlHint;
 
   /// No description provided for @connect.

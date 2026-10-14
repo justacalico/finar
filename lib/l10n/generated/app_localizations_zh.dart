@@ -21,7 +21,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverUrl => '服务器地址';
 
   @override
-  String get serverUrlHint => 'https://jellyfin.example.com';
+  String get serverUrlHint => 'jellyfin.example.com';
 
   @override
   String get connect => '连接';

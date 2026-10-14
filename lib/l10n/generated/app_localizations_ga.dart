@@ -21,7 +21,7 @@ class AppLocalizationsGa extends AppLocalizations {
   String get serverUrl => 'Seoladh an fhreastalaí';
 
   @override
-  String get serverUrlHint => 'https://jellyfin.example.com';
+  String get serverUrlHint => 'jellyfin.example.com';
 
   @override
   String get connect => 'Ceangail';

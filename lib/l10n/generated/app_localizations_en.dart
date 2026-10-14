@@ -21,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverUrl => 'Server address';
 
   @override
-  String get serverUrlHint => 'https://jellyfin.example.com';
+  String get serverUrlHint => 'jellyfin.example.com';
 
   @override
   String get connect => 'Connect';
@@ -466,7 +466,7 @@ class AppLocalizationsEnGb extends AppLocalizationsEn {
   String get serverUrl => 'Server address';
 
   @override
-  String get serverUrlHint => 'https://jellyfin.example.com';
+  String get serverUrlHint => 'jellyfin.example.com';
 
   @override
   String get connect => 'Connect';

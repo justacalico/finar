@@ -181,6 +181,26 @@ void main() {
         '/libraries');
   });
 
+  testWidgets('pending server change keeps navigation stack',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: await overrides(signedIn: false),
+      child: const RoutedTestApp(showTitleBar: false),
+    ));
+    await tester.pumpAndSettle();
+    final router = _routerOf(tester);
+    final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)));
+    container.read(pendingServerProvider.notifier).state =
+        'http://demo.local';
+    await tester.pump();
+    expect(identical(_routerOf(tester), router), isTrue);
+    router.go('/login');
+    await tester.pumpAndSettle();
+    expect(router.routerDelegate.currentConfiguration.uri.path,
+        '/login');
+  });
+
   testWidgets('login page builds when a server is pending',
       (tester) async {
     mockSecureStorage();

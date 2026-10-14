@@ -21,7 +21,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverUrl => 'Адрес сервера';
 
   @override
-  String get serverUrlHint => 'https://jellyfin.example.com';
+  String get serverUrlHint => 'jellyfin.example.com';
 
   @override
   String get connect => 'Подключить';

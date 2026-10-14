@@ -321,6 +321,7 @@ class JellyfinClient {
       if (maxHeight != null) 'maxHeight': '$maxHeight',
       'quality': '$quality',
       'tag': ?tag,
+      'api_key': ?accessToken,
     };
     final base = serverUrl.endsWith('/')
         ? serverUrl.substring(0, serverUrl.length - 1)
@@ -355,6 +356,7 @@ class JellyfinClient {
         queryParameters: {
           'tag': user.primaryImageTag!,
           if (maxWidth != null) 'maxWidth': '$maxWidth',
+          'api_key': ?accessToken,
         });
   }
 

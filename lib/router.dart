@@ -21,13 +21,20 @@ import 'widgets/platform.dart';
 import 'widgets/window_actions.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final session = ref.watch(sessionProvider);
-  final bootstrapped = ref.watch(bootstrappedProvider);
-  final pendingServer = ref.watch(pendingServerProvider);
+  final refresh = ValueNotifier(0);
+  ref
+    ..listen(sessionProvider, (_, _) => refresh.value++)
+    ..listen(bootstrappedProvider, (_, _) => refresh.value++)
+    ..listen(pendingServerProvider, (_, _) => refresh.value++)
+    ..onDispose(refresh.dispose);
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/home',
+    refreshListenable: refresh,
     redirect: (context, state) {
+      final session = ref.read(sessionProvider);
+      final bootstrapped = ref.read(bootstrappedProvider);
+      final pendingServer = ref.read(pendingServerProvider);
       final path = state.uri.path;
       if (!bootstrapped) {
         return path == '/splash' ? null : '/splash';
@@ -109,6 +116,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.onDispose(router.dispose);
+  return router;
 });
 
 WindowActions? defaultWindowActions() =>

@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Server connect screen: an inline https:// / http:// dropdown replaces the server icon in the address field, and Who's watching is now a tonal button that greys out when no accounts are saved.
 
 ### Fixed
+- Connecting to a server no longer bounces back to the connect screen: the router was rebuilt whenever the pending server changed, resetting navigation. The GoRouter is now a single instance that re-runs redirects via a refresh listenable.
+- Item and user image URLs now carry `api_key` so artwork loads on servers that require authentication for image endpoints.
 - Title bar traffic-light buttons no longer crash in debug builds: they used `Tooltip` above the Navigator's Overlay and now expose `Semantics` labels instead.
 - Who's watching with no saved accounts no longer dead-ends: stale data from 5.x installs is cleared and the app routes to the server connect screen, where the server URL field lives.
 
