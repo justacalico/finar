@@ -118,7 +118,7 @@ abstract class AppLocalizations {
   /// No description provided for @heroSubtitle.
   ///
   /// In en_GB, this message translates to:
-  /// **'Films, series and music from your own server — beautifully presented on every device.'**
+  /// **'Films, series and music from your own server, beautifully presented on every device.'**
   String get heroSubtitle;
 
   /// No description provided for @openWebApp.
@@ -166,7 +166,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureMediaBody.
   ///
   /// In en_GB, this message translates to:
-  /// **'Libraries, continue watching, next up and the latest additions — surfaced the moment you open the app.'**
+  /// **'Libraries, continue watching, next up and the latest additions, surfaced the moment you open the app.'**
   String get featureMediaBody;
 
   /// No description provided for @featurePlay.

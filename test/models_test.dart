@@ -1,4 +1,6 @@
 import 'package:finar/core/models/models.dart';
+
+import 'helpers/fake_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -141,5 +143,36 @@ void main() {
     expect(result.items.single.id, 'a');
     expect(result.totalRecordCount, 42);
     expect(result.startIndex, 10);
+  });
+
+  test('copyWith overrides userData and keeps the rest', () {
+    final item = makeItem(
+        id: 'm1',
+        name: 'Film',
+        type: 'Movie',
+        positionTicks: 10,
+        favorite: false);
+    final fav =
+        item.copyWith(userData: const UserData(isFavorite: true));
+    expect(fav.userData.isFavorite, isTrue);
+    expect(fav.id, 'm1');
+    expect(fav.name, 'Film');
+    expect(fav.type, 'Movie');
+    expect(fav.imageTags, item.imageTags);
+  });
+
+  test('copyWith with no args keeps everything', () {
+    final item = makeItem(id: 'm1', name: 'Film');
+    expect(identical(item.copyWith().userData, item.userData), isTrue);
+  });
+
+  test('userData copyWith merges fields', () {
+    const data = UserData(playCount: 3, playedPercentage: 50);
+    final next = data.copyWith(played: true);
+    expect(next.played, isTrue);
+    expect(next.playCount, 3);
+    expect(next.playedPercentage, 50);
+    final other = data.copyWith(playbackPositionTicks: 99);
+    expect(other.playbackPositionTicks, 99);
   });
 }

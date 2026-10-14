@@ -21,13 +21,18 @@ class SessionNotifier extends Notifier<Session?> {
     ref.read(bootstrappedProvider.notifier).state = true;
   }
 
-  Future<JellyfinClient> _clientFor(String serverUrl) async {
+  Future<JellyfinClient> clientFor(String serverUrl,
+      {String? accessToken, String? userId}) async {
     final deviceId = await ref.read(deviceIdProvider.future);
-    return JellyfinClient(serverUrl: serverUrl, deviceId: deviceId);
+    return JellyfinClient(
+        serverUrl: serverUrl,
+        deviceId: deviceId,
+        accessToken: accessToken,
+        userId: userId);
   }
 
   Future<PublicSystemInfo> probeServer(String serverUrl) async {
-    final client = await _clientFor(serverUrl);
+    final client = await clientFor(serverUrl);
     return client.getPublicSystemInfo();
   }
 
@@ -48,17 +53,12 @@ class SessionNotifier extends Notifier<Session?> {
     if (session == null) {
       throw StateError('not signed in');
     }
-    final deviceId = await ref.read(deviceIdProvider.future);
-    return JellyfinClient(
-      serverUrl: session.serverUrl,
-      deviceId: deviceId,
-      accessToken: session.accessToken,
-      userId: session.user.id,
-    );
+    return clientFor(session.serverUrl,
+        accessToken: session.accessToken, userId: session.user.id);
   }
 
   Future<JellyfinClient> unauthenticatedClient(String serverUrl) =>
-      _clientFor(serverUrl);
+      clientFor(serverUrl);
 
   Future<void> signOut() async {
     final store = ref.read(sessionStoreProvider);
@@ -70,13 +70,8 @@ class SessionNotifier extends Notifier<Session?> {
   Future<bool> signInWithProfile(SavedProfile profile) async {
     final token = await ref.read(sessionStoreProvider).profileToken(profile);
     if (token == null) return false;
-    final deviceId = await ref.read(deviceIdProvider.future);
-    final client = JellyfinClient(
-      serverUrl: profile.serverUrl,
-      deviceId: deviceId,
-      accessToken: token,
-      userId: profile.userId,
-    );
+    final client = await clientFor(profile.serverUrl,
+        accessToken: token, userId: profile.userId);
     try {
       final user = await client.getCurrentUser();
       final session = Session(

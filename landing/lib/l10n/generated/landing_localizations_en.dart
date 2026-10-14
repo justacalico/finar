@@ -16,7 +16,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get heroSubtitle =>
-      'Films, series and music from your own server — beautifully presented on every device.';
+      'Films, series and music from your own server, beautifully presented on every device.';
 
   @override
   String get openWebApp => 'Open web app';
@@ -41,7 +41,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get featureMediaBody =>
-      'Libraries, continue watching, next up and the latest additions — surfaced the moment you open the app.';
+      'Libraries, continue watching, next up and the latest additions, surfaced the moment you open the app.';
 
   @override
   String get featurePlay => 'Play anything';
@@ -100,7 +100,7 @@ class AppLocalizationsEnGb extends AppLocalizationsEn {
 
   @override
   String get heroSubtitle =>
-      'Films, series and music from your own server — beautifully presented on every device.';
+      'Films, series and music from your own server, beautifully presented on every device.';
 
   @override
   String get openWebApp => 'Open web app';
@@ -125,7 +125,7 @@ class AppLocalizationsEnGb extends AppLocalizationsEn {
 
   @override
   String get featureMediaBody =>
-      'Libraries, continue watching, next up and the latest additions — surfaced the moment you open the app.';
+      'Libraries, continue watching, next up and the latest additions, surfaced the moment you open the app.';
 
   @override
   String get featurePlay => 'Play anything';

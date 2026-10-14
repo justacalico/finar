@@ -90,6 +90,12 @@ class FakePlayerBackend implements PlayerBackend {
   }
 
   void emitCompleted() => _completed.add(true);
+  void emitPosition(Duration d) => _position.add(d);
+  void emitDuration(Duration d) => _duration.add(d);
+  void emitPlaying(bool v) => _playing.add(v);
+  void emitBuffering(bool v) => _buffering.add(v);
+  void emitVolume(double v) => _volume.add(v);
+  void emitRate(double v) => _rate.add(v);
 
   @override
   Widget buildVideo(BuildContext context) => const ColoredBox(

@@ -16,7 +16,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get heroSubtitle =>
-      'Фильмы, сериалы и музыка с вашего сервера — красиво на любом устройстве.';
+      'Фильмы, сериалы и музыка с вашего сервера, красиво на любом устройстве.';
 
   @override
   String get openWebApp => 'Открыть веб-версию';
@@ -41,7 +41,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get featureMediaBody =>
-      'Библиотеки, продолжение просмотра, далее и новинки — сразу при открытии.';
+      'Библиотеки, продолжение просмотра, далее и новинки, сразу при открытии.';
 
   @override
   String get featurePlay => 'Играйте что угодно';

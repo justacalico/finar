@@ -5,10 +5,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finar/core/storage/session_store.dart';
+import 'package:finar/core/api/jellyfin_client.dart';
 import 'package:finar/core/models/models.dart';
 import 'package:finar/l10n/generated/app_localizations.dart';
 import 'package:finar/providers/core_providers.dart';
-import 'package:finar/providers/player_provider.dart';
+import 'package:finar/widgets/player_backend.dart';
 import 'package:finar/providers/session_provider.dart';
 import 'package:finar/router.dart';
 import 'package:finar/theme/theme.dart';
@@ -80,11 +81,17 @@ Session testSession() => const Session(
     );
 
 class FakeSessionNotifier extends SessionNotifier {
-  FakeSessionNotifier(this._session);
+  FakeSessionNotifier(this._session, {this.fakeClient});
   final Session? _session;
+  final JellyfinClient? fakeClient;
 
   @override
   Session? build() => _session;
+
+  @override
+  Future<JellyfinClient> clientFor(String serverUrl,
+          {String? accessToken, String? userId}) async =>
+      fakeClient ?? FakeJellyfinClient(serverUrl: serverUrl, accessToken: accessToken, userId: userId);
 }
 
 Override signedInOverride(Session session) =>

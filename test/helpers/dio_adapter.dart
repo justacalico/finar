@@ -32,6 +32,12 @@ class FakeAdapter implements HttpClientAdapter {
     if (result is int) {
       return ResponseBody.fromString('', result);
     }
+    if (result is (int, Object)) {
+      return ResponseBody.fromString(jsonEncode(result.$2), result.$1,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType]
+          });
+    }
     return ResponseBody.fromString(jsonEncode(result), 200,
         headers: {
           Headers.contentTypeHeader: [Headers.jsonContentType]

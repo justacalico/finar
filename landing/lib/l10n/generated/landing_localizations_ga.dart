@@ -16,7 +16,7 @@ class AppLocalizationsGa extends AppLocalizations {
 
   @override
   String get heroSubtitle =>
-      'Scannáin, sraitheanna agus ceol ó d\'fhreastalaí féin — curtha i láthair go galánta ar gach gléas.';
+      'Scannáin, sraitheanna agus ceol ó d\'fhreastalaí féin, curtha i láthair go galánta ar gach gléas.';
 
   @override
   String get openWebApp => 'Oscail an t-aip ghréasáin';
@@ -41,7 +41,7 @@ class AppLocalizationsGa extends AppLocalizations {
 
   @override
   String get featureMediaBody =>
-      'Leabharlanna, lean ort ag breathnú, ar aghaidh agus na míreanna is déanaí — láithreach.';
+      'Leabharlanna, lean ort ag breathnú, ar aghaidh agus na míreanna is déanaí, láithreach.';
 
   @override
   String get featurePlay => 'Seinn aon rud';

@@ -1,9 +1,16 @@
 import 'package:finar/core/api/jellyfin_client.dart';
 import 'package:finar/core/models/models.dart';
 
+import 'dio_adapter.dart';
+
 class FakeJellyfinClient extends JellyfinClient {
-  FakeJellyfinClient()
-      : super(serverUrl: 'http://test.local', deviceId: 'test-device');
+  FakeJellyfinClient(
+      {super.serverUrl = 'http://test.local',
+      super.accessToken,
+      super.userId})
+      : super(deviceId: 'test-device') {
+    dio.httpClientAdapter = FakeAdapter({'': (_) => {'ok': true}});
+  }
 
   PublicSystemInfo systemInfo = const PublicSystemInfo(
       serverName: 'Test Server', version: '10.9.11', id: 'srv1');
@@ -27,6 +34,10 @@ class FakeJellyfinClient extends JellyfinClient {
 
   @override
   Future<PublicSystemInfo> getPublicSystemInfo() async => systemInfo;
+
+  @override
+  Future<JellyfinUser> getCurrentUser() async =>
+      const JellyfinUser(id: 'u1', name: 'Cal');
 
   @override
   Future<AuthResult> authenticateByName(

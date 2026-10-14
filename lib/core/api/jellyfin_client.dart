@@ -45,10 +45,9 @@ class JellyfinClient {
     return parts.join(', ');
   }
 
-  Options _opts([Map<String, String>? headers]) => Options(headers: {
+  Options _opts() => Options(headers: {
         'X-Emby-Authorization': _authHeader,
         if (accessToken != null) 'X-Emby-Token': accessToken,
-        ...?headers,
       });
 
   Uri _u(String path, [Map<String, dynamic>? query]) {

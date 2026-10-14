@@ -9,6 +9,7 @@ import '../../core/models/models.dart';
 import '../../core/utils/formatters.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/player_provider.dart';
+import '../../widgets/player_backend.dart';
 import '../../providers/session_provider.dart';
 import '../../widgets/media_image.dart';
 
