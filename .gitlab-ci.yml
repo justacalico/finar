@@ -20,7 +20,7 @@ stages:
 
 github-sync:
   stage: sync
-  tags: [linux]
+  tags: [linux-truenas]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -44,7 +44,7 @@ github-sync:
 
 github-dispatch:
   stage: sync
-  tags: [linux]
+  tags: [linux-truenas]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -70,7 +70,7 @@ github-dispatch:
 
 github-mr-build:
   stage: sync
-  tags: [linux]
+  tags: [linux-truenas]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -90,7 +90,7 @@ github-mr-build:
 
 github-release-sync:
   stage: release
-  tags: [linux]
+  tags: [linux-truenas]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
@@ -120,7 +120,7 @@ github-release-sync:
 
 pages:
   stage: release
-  tags: [linux]
+  tags: [linux-truenas]
   image: ghcr.io/cirruslabs/flutter:stable
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

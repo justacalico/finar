@@ -26,14 +26,30 @@ class FakeJellyfinClient extends JellyfinClient {
   List<BaseItem> searchResults = [];
   List<BaseItem> favorites = [];
   List<BaseItem> genreItems = [];
-  AuthResult? authResult;
+  AuthResult? authResult = const AuthResult(
+      user: JellyfinUser(id: 'u1', name: 'Cal'),
+      accessToken: 'tok',
+      serverId: 'srv1');
   bool quickConnectAvailable = true;
   int favoriteCalls = 0;
   int playedCalls = 0;
   final List<String> playbackEvents = [];
 
+  bool failInfo = false;
+  bool failChildren = false;
+  bool failGetItem = false;
+  bool authShouldThrow = false;
+  bool failViews = false;
+  bool failSearch = false;
+  bool qcInitiateThrows = false;
+  JellyfinException? failWith;
+  List<BaseItem> artistAlbums = [];
+
   @override
-  Future<PublicSystemInfo> getPublicSystemInfo() async => systemInfo;
+  Future<PublicSystemInfo> getPublicSystemInfo() async {
+    if (failInfo) throw const JellyfinException('unreachable');
+    return systemInfo;
+  }
 
   @override
   Future<JellyfinUser> getCurrentUser() async =>
@@ -42,6 +58,10 @@ class FakeJellyfinClient extends JellyfinClient {
   @override
   Future<AuthResult> authenticateByName(
       String username, String password) async {
+    if (authShouldThrow) {
+      throw StateError('exploded');
+    }
+    if (failWith != null) throw failWith!;
     final result = authResult;
     if (result == null) {
       throw const JellyfinException('bad login', statusCode: 401);
@@ -53,15 +73,32 @@ class FakeJellyfinClient extends JellyfinClient {
   Future<bool> quickConnectEnabled() async => quickConnectAvailable;
 
   @override
-  Future<QuickConnectResult> quickConnectInitiate() async =>
-      const QuickConnectResult(code: 'AB12CD', secret: 'sec');
+  Future<QuickConnectResult> quickConnectInitiate() async {
+    if (qcInitiateThrows) throw StateError('qc down');
+    return const QuickConnectResult(code: 'AB12CD', secret: 'sec');
+  }
 
   @override
-  Future<ItemsResult> getUserViews() async =>
-      ItemsResult(items: libraries, totalRecordCount: libraries.length);
+  Future<bool> quickConnectCheck(String secret) async => true;
+
+  @override
+  Future<AuthResult> authenticateWithQuickConnect(
+          String secret) async =>
+      const AuthResult(
+          user: JellyfinUser(id: 'u1', name: 'Cal'),
+          accessToken: 'qtok',
+          serverId: 'srv1');
+
+  @override
+  Future<ItemsResult> getUserViews() async {
+    if (failViews) throw const JellyfinException('down');
+    return ItemsResult(
+        items: libraries, totalRecordCount: libraries.length);
+  }
 
   @override
   Future<BaseItem> getItem(String id) async {
+    if (failGetItem) throw const JellyfinException('down');
     final item = items[id];
     if (item == null) {
       throw const JellyfinException('not found', statusCode: 404);
@@ -85,8 +122,16 @@ class FakeJellyfinClient extends JellyfinClient {
     String? artistIds,
     String? excludeItemTypes,
   }) async {
+    if (failChildren) throw const JellyfinException('down');
+    if (failSearch &&
+        searchTerm != null &&
+        searchTerm.isNotEmpty) {
+      throw const JellyfinException('search down');
+    }
     List<BaseItem> source;
-    if (searchTerm != null && searchTerm.isNotEmpty) {
+    if (artistIds != null) {
+      source = artistAlbums;
+    } else if (searchTerm != null && searchTerm.isNotEmpty) {
       source = searchResults;
     } else if (filters?.contains('IsFavorite') ?? false) {
       source = favorites;
@@ -211,6 +256,7 @@ BaseItem makeItem({
   String? collectionType,
   bool isFolder = false,
   List<Person> people = const [],
+  List<MediaStream> mediaStreams = const [],
   int? childCount,
 }) =>
     BaseItem(
@@ -235,6 +281,7 @@ BaseItem makeItem({
       collectionType: collectionType,
       isFolder: isFolder,
       people: people,
+      mediaStreams: mediaStreams,
       childCount: childCount,
       userData: UserData(
           played: played,

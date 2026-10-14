@@ -548,20 +548,7 @@ class _ArtistAlbumsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final client = ref.watch(jellyfinClientProvider);
-    final albums = ref.watch(
-      FutureProvider.autoDispose<List<BaseItem>>((ref) async {
-        final c = ref.watch(jellyfinClientProvider);
-        if (c == null) return const [];
-        return (await c.getItems(
-          artistIds: item.id,
-          includeItemTypes: ['MusicAlbum'],
-          sortBy: ['ProductionYear'],
-          sortOrder: 'Descending',
-          recursive: true,
-        ))
-            .items;
-      }),
-    );
+    final albums = ref.watch(artistAlbumsProvider(item.id));
     return albums.when(
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),

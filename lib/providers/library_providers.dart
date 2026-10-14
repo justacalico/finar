@@ -190,3 +190,18 @@ final albumTracksProvider =
   ))
       .items;
 });
+
+final artistAlbumsProvider =
+    FutureProvider.autoDispose.family<List<BaseItem>, String>(
+        (ref, artistId) async {
+  final client = ref.watch(jellyfinClientProvider);
+  if (client == null) return const [];
+  return (await client.getItems(
+    artistIds: artistId,
+    includeItemTypes: ['MusicAlbum'],
+    sortBy: ['ProductionYear'],
+    sortOrder: 'Descending',
+    recursive: true,
+  ))
+      .items;
+});

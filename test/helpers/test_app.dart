@@ -101,7 +101,32 @@ Widget routedTestApp({
   required RouterConfig<Object> router,
   List<Override> overrides = const [],
   Locale? locale,
+  ProviderContainer? container,
 }) {
+  if (container != null) {
+    return UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp.router(
+        theme: AppTheme.dark(0xFFAA5CC3),
+        themeMode: ThemeMode.dark,
+        locale: locale,
+        supportedLocales: const [
+          Locale('en', 'GB'),
+          Locale('en'),
+          Locale('zh'),
+          Locale('ru'),
+          Locale('ga'),
+        ],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        routerConfig: router,
+      ),
+    );
+  }
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp.router(

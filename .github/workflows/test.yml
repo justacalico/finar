@@ -109,6 +109,7 @@ jobs:
         with:
           name: coverage-lcov
           path: coverage/lcov.info
+          retention-days: 400
           if-no-files-found: warn
 
       - name: Comment coverage on PR

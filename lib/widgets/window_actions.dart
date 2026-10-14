@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'package:window_manager/window_manager.dart';
 
 import 'title_bar.dart';

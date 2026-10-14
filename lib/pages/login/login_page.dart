@@ -58,12 +58,12 @@ class _LoginPageState extends ConsumerState<LoginPage>
           .unauthenticatedClient(serverUrl);
       final result = await client.authenticateByName(
           _username.text.trim(), _password.text);
-      final info = await JellyfinClient(
-              serverUrl: serverUrl,
-              deviceId: client.deviceId,
+      final authed = await ref
+          .read(sessionProvider.notifier)
+          .clientFor(serverUrl,
               accessToken: result.accessToken,
-              userId: result.user.id)
-          .getPublicSystemInfo();
+              userId: result.user.id);
+      final info = await authed.getPublicSystemInfo();
       await ref
           .read(sessionProvider.notifier)
           .signIn(serverUrl, info.serverName, result);
@@ -250,7 +250,7 @@ class _QuickConnectPaneState extends ConsumerState<_QuickConnectPane> {
   @override
   void initState() {
     super.initState();
-    _start();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _start());
   }
 
   @override
@@ -305,12 +305,12 @@ class _QuickConnectPaneState extends ConsumerState<_QuickConnectPane> {
         _poll?.cancel();
         final result =
             await client.authenticateWithQuickConnect(secret);
-        final info = await JellyfinClient(
-                serverUrl: serverUrl,
-                deviceId: client.deviceId,
+        final authed = await ref
+            .read(sessionProvider.notifier)
+            .clientFor(serverUrl,
                 accessToken: result.accessToken,
-                userId: result.user.id)
-            .getPublicSystemInfo();
+                userId: result.user.id);
+        final info = await authed.getPublicSystemInfo();
         await ref
             .read(sessionProvider.notifier)
             .signIn(serverUrl, info.serverName, result);

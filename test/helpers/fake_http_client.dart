@@ -13,19 +13,23 @@ class FakeImageHttpClient extends Fake implements HttpClient {
   bool autoUncompress = true;
 
   @override
-  Future<HttpClientRequest> getUrl(Uri url) async => FakeImageRequest();
+  Future<HttpClientRequest> getUrl(Uri url) async =>
+      FakeImageRequest(url.toString().contains('broken') ? 404 : 200);
 
   @override
   Future<HttpClientRequest> get(String host, int port, String path) async =>
-      FakeImageRequest();
+      FakeImageRequest(path.contains('broken') ? 404 : 200);
 }
 
 class FakeImageRequest extends Fake implements HttpClientRequest {
+  FakeImageRequest([this.code = 200]);
+  final int code;
+
   @override
   HttpHeaders get headers => FakeImageHeaders();
 
   @override
-  Future<HttpClientResponse> close() async => FakeImageResponse();
+  Future<HttpClientResponse> close() async => FakeImageResponse(code);
 }
 
 class FakeImageHeaders extends Fake implements HttpHeaders {
@@ -43,10 +47,13 @@ class FakeImageHeaders extends Fake implements HttpHeaders {
 }
 
 class FakeImageResponse extends Fake implements HttpClientResponse {
+  FakeImageResponse([this.code = 200]);
+  final int code;
+
   static final _bytes = base64Decode(_pngBase64);
 
   @override
-  int get statusCode => 200;
+  int get statusCode => code;
 
   @override
   int get contentLength => _bytes.length;
