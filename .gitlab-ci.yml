@@ -92,6 +92,7 @@ github-release-sync:
   stage: release
   tags: [linux]
   image: alpine:3.19
+  resource_group: github-release-sync
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
     - if: $CI_PIPELINE_SOURCE == "api"

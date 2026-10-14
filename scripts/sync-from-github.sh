@@ -41,7 +41,7 @@ ls -la release-assets/
 # package-registry upload does not collide with existing assets and the release
 # is recreated at the current commit.
 glab release delete "$RELEASE_TAG" -R "$CI_PROJECT_PATH" -y 2>/dev/null || true
-PKG_ID=$(glab api "projects/$CI_PROJECT_ID/packages?package_name=release-assets&package_version=$RELEASE_TAG" 2>/dev/null | jq -r '.[0].id // empty')
+PKG_ID=$(glab api "projects/$CI_PROJECT_ID/packages?package_name=release-assets&package_version=$RELEASE_TAG" 2>/dev/null | jq -r '.[0].id // empty' 2>/dev/null || true)
 if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ]; then
   glab api --method DELETE "projects/$CI_PROJECT_ID/packages/$PKG_ID" 2>/dev/null || true
 fi
@@ -66,8 +66,10 @@ echo '[]' > "$LINKS_FILE"
 for asset in "$PROJECT_DIR/release-assets"/*; do
   ASSET_NAME="$(basename "$asset")"
   echo "Uploading $ASSET_NAME..."
-  glab api --method PUT --input "$asset" \
-    "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" > /dev/null
+  RESP=$(glab api --method PUT --input "$asset" \
+    "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" 2>&1) || {
+    printf '%s' "$RESP" | grep -qi "already exists" || { printf '%s\n' "$RESP"; exit 1; }
+  }
   jq --arg name "$ASSET_NAME" \
     --arg url "${CI_API_V4_URL:-https://gitlab.com/api/v4}/projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" \
     '. += [{name: $name, url: $url, link_type: "other", direct_asset_path: ("/" + $name)}]' \
