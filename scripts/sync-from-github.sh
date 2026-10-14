@@ -67,7 +67,7 @@ for asset in "$PROJECT_DIR/release-assets"/*; do
     "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" > /dev/null
   jq --arg name "$ASSET_NAME" \
     --arg url "${CI_API_V4_URL:-https://gitlab.com/api/v4}/projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" \
-    '. += [{name: $name, url: $url, link_type: "other", direct_asset_path: $name}]' \
+    '. += [{name: $name, url: $url, link_type: "other", direct_asset_path: ("/" + $name)}]' \
     "$LINKS_FILE" > "$LINKS_FILE.new"
   mv "$LINKS_FILE.new" "$LINKS_FILE"
 done
