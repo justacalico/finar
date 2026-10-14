@@ -124,6 +124,11 @@ class SessionStore {
     await _secure.delete(key: _kToken);
   }
 
+  Future<void> clearAll() async {
+    await _prefs.clear();
+    await _secure.deleteAll();
+  }
+
   Future<void> saveProfile(Session session) async {
     final profiles = loadProfiles();
     final id = SavedProfile.idFor(session.serverUrl, session.user.id);

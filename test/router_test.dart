@@ -13,10 +13,13 @@ import 'helpers/test_app.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<List<Override>> overrides({bool signedIn = true}) async {
-    SharedPreferences.setMockInitialValues({});
+  Future<List<Override>> overrides(
+      {bool signedIn = true,
+      Map<String, Object> prefs = const {}}) async {
+    SharedPreferences.setMockInitialValues(prefs);
     mockSecureStorage();
-    final result = await TestHarness.create(signedIn: signedIn);
+    final result =
+        await TestHarness.create(signedIn: signedIn, prefs: prefs);
     return [
       ...result.overrides,
       sessionProvider.overrideWith(
@@ -36,9 +39,25 @@ void main() {
     expect(router.routerDelegate.currentConfiguration.uri.path, '/home');
   });
 
-  testWidgets('signed-out user lands on profiles', (tester) async {
+  testWidgets('signed-out user with no profiles lands on connect',
+      (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: await overrides(signedIn: false),
+      child: const RoutedTestApp(showTitleBar: false),
+    ));
+    await tester.pumpAndSettle();
+    final router = _routerOf(tester);
+    expect(router.routerDelegate.currentConfiguration.uri.path,
+        '/connect');
+  });
+
+  testWidgets('signed-out user with saved profiles stays on profiles',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: await overrides(signedIn: false, prefs: {
+        'session.profiles':
+            '[{"id":"p1","serverUrl":"http://srv","serverName":"Home","userId":"u1","userName":"Cal"}]'
+      }),
       child: const RoutedTestApp(showTitleBar: false),
     ));
     await tester.pumpAndSettle();
@@ -164,9 +183,11 @@ void main() {
 
   testWidgets('login page builds when a server is pending',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
     mockSecureStorage();
-    final result = await TestHarness.create(signedIn: false);
+    final result = await TestHarness.create(signedIn: false, prefs: {
+      'session.profiles':
+          '[{"id":"p1","serverUrl":"http://srv","serverName":"Home","userId":"u1","userName":"Cal"}]'
+    });
     await tester.pumpWidget(ProviderScope(
       overrides: [
         ...result.overrides,

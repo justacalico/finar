@@ -15,7 +15,6 @@ class ProfilesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final profiles = ref.watch(profilesProvider);
     return Scaffold(
       body: Center(
@@ -38,12 +37,7 @@ class ProfilesPage extends ConsumerWidget {
                         ?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 28),
                 if (profiles.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(l10n.connectSubtitle,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant)),
-                  )
+                  const _NoProfilesReset()
                 else
                   Wrap(
                     spacing: 18,
@@ -68,6 +62,33 @@ class ProfilesPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _NoProfilesReset extends ConsumerStatefulWidget {
+  const _NoProfilesReset();
+
+  @override
+  ConsumerState<_NoProfilesReset> createState() =>
+      _NoProfilesResetState();
+}
+
+class _NoProfilesResetState extends ConsumerState<_NoProfilesReset> {
+  @override
+  void initState() {
+    super.initState();
+    _reset();
+  }
+
+  Future<void> _reset() async {
+    await ref.read(sessionProvider.notifier).signOut();
+    await ref.read(sessionStoreProvider).clearAll();
+    if (mounted) context.go('/connect');
+  }
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+      padding: EdgeInsets.symmetric(vertical: 24),
+      child: Center(child: CircularProgressIndicator()));
 }
 
 class _ProfileCard extends ConsumerWidget {

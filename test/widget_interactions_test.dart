@@ -191,6 +191,38 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('CONNECT'), findsOneWidget);
     });
+
+    testWidgets('empty profiles clears data and goes to connect',
+        (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      mockSecureStorage();
+      final result = await TestHarness.create(signedIn: false, prefs: {
+        'session.profiles': 'stale',
+        'session.serverUrl': 'http://old',
+      });
+      final router = GoRouter(routes: [
+        GoRoute(
+            path: '/profiles',
+            builder: (_, _) => const ProfilesPage()),
+        GoRoute(
+            path: '/connect',
+            builder: (_, _) =>
+                const Scaffold(body: Text('CONNECT'))),
+      ], initialLocation: '/profiles');
+      await tester.pumpWidget(routedTestApp(
+          router: router,
+          overrides: [
+            ...result.overrides,
+            sessionProvider.overrideWith(() => FakeSessionNotifier(
+                null, fakeClient: result.harness.client)),
+          ]));
+      await tester.pumpAndSettle();
+      expect(find.text('CONNECT'), findsOneWidget);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), isEmpty);
+    });
   });
 
   group('LibraryPage menus', () {

@@ -63,6 +63,18 @@ void main() {
     expect(await store.profileToken(profile), isNull);
   });
 
+  test('clearAll wipes prefs and tokens', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final store = SessionStore(prefs, const FlutterSecureStorage());
+    await store.saveSession(makeSession());
+    final profile = store.loadProfiles().single;
+    await store.clearAll();
+    expect(prefs.getKeys(), isEmpty);
+    expect(store.loadProfiles(), isEmpty);
+    expect(await store.loadSession(), isNull);
+    expect(await store.profileToken(profile), isNull);
+  });
+
   test('deviceId persists once generated', () async {
     final prefs = await SharedPreferences.getInstance();
     final store = SessionStore(prefs, const FlutterSecureStorage());

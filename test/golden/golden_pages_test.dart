@@ -247,12 +247,11 @@ void main() {
       tester.view.physicalSize = _mobile;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      SharedPreferences.setMockInitialValues({
+      mockSecureStorage();
+      final result = await TestHarness.create(signedIn: false, prefs: {
         'session.profiles':
             '[{"id":"p1","serverUrl":"http://srv","serverName":"Home","userId":"u1","userName":"Calico"}]'
       });
-      mockSecureStorage();
-      final result = await TestHarness.create(signedIn: false);
       await tester.pumpWidget(testApp(
         overrides: result.overrides,
         child: const Scaffold(body: ProfilesPage()),
