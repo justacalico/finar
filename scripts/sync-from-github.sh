@@ -66,10 +66,17 @@ echo '[]' > "$LINKS_FILE"
 for asset in "$PROJECT_DIR/release-assets"/*; do
   ASSET_NAME="$(basename "$asset")"
   echo "Uploading $ASSET_NAME..."
-  RESP=$(glab api --method PUT --input "$asset" \
-    "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" 2>&1) || {
-    printf '%s' "$RESP" | grep -qi "already exists" || { printf '%s\n' "$RESP"; exit 1; }
-  }
+  for attempt in 1 2 3 4 5; do
+    RESP=$(glab api --method PUT --input "$asset" \
+      "projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" 2>&1) && break
+    printf '%s' "$RESP" | grep -qi "already exists" && break
+    if [ "$attempt" = 5 ]; then
+      printf '%s\n' "$RESP"
+      exit 1
+    fi
+    echo "Upload failed, retrying ($attempt/5)..."
+    sleep 20
+  done
   jq --arg name "$ASSET_NAME" \
     --arg url "${CI_API_V4_URL:-https://gitlab.com/api/v4}/projects/$CI_PROJECT_ID/packages/generic/release-assets/$RELEASE_TAG/$ASSET_NAME" \
     '. += [{name: $name, url: $url, link_type: "other", direct_asset_path: ("/" + $name)}]' \
@@ -79,9 +86,14 @@ done
 
 # Mirror to a GitLab release. The tag is kept the same as GitHub.
 # glab in CI will use CI_JOB_TOKEN when GLAB_ENABLE_CI_AUTOLOGIN is set.
-glab release create "$RELEASE_TAG" \
-  --name "Finar $RELEASE_TAG" \
-  --notes "Mirrored from the GitHub release." \
-  --ref "$RELEASE_SHA" \
-  --assets-links "$(cat "$LINKS_FILE")"
+for attempt in 1 2 3; do
+  glab release create "$RELEASE_TAG" \
+    --name "Finar $RELEASE_TAG" \
+    --notes "Mirrored from the GitHub release." \
+    --ref "$RELEASE_SHA" \
+    --assets-links "$(cat "$LINKS_FILE")" && break
+  [ "$attempt" = 3 ] && exit 1
+  echo "Release create failed, retrying ($attempt/3)..."
+  sleep 20
+done
 rm -f "$LINKS_FILE"
