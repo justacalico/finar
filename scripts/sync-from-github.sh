@@ -46,12 +46,15 @@ if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ]; then
   glab api --method DELETE "projects/$CI_PROJECT_ID/packages/$PKG_ID" 2>/dev/null || true
 fi
 
-# Move the release tag to the current commit using an SSH deploy key.
-# The CI job token cannot modify tags, but a deploy key with write access can.
+# Move the release tag to the commit the GitHub release tagged, so the tag
+# matches on both hosts. The CI job token cannot modify tags, but a deploy key
+# with write access can.
+RELEASE_SHA=$(gh api "repos/justacalico/finar/git/ref/tags/$RELEASE_TAG" --jq '.object.sha' 2>/dev/null || true)
+RELEASE_SHA="${RELEASE_SHA:-$CI_COMMIT_SHA}"
 if [ -n "${GITLAB_RELEASE_SSH_KEY:-}" ]; then
   git remote add gitlab-ssh "git@gitlab.com:${CI_PROJECT_PATH}.git" 2>/dev/null || true
   git fetch --depth=1 gitlab-ssh "$RELEASE_TAG" 2>/dev/null || true
-  git tag -f "$RELEASE_TAG" "$CI_COMMIT_SHA"
+  git tag -f "$RELEASE_TAG" "$RELEASE_SHA"
   git push -f gitlab-ssh "$RELEASE_TAG"
 fi
 
@@ -77,6 +80,6 @@ done
 glab release create "$RELEASE_TAG" \
   --name "Finar $RELEASE_TAG" \
   --notes "Mirrored from the GitHub release." \
-  --ref "$CI_COMMIT_SHA" \
+  --ref "$RELEASE_SHA" \
   --assets-links "$(cat "$LINKS_FILE")"
 rm -f "$LINKS_FILE"
