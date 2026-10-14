@@ -41,7 +41,13 @@ class FakeJellyfinClient extends JellyfinClient {
   bool authShouldThrow = false;
   bool failViews = false;
   bool failSearch = false;
+  bool failHome = false;
   bool qcInitiateThrows = false;
+
+  bool _checkHome() {
+    if (failHome) throw const JellyfinException('down');
+    return true;
+  }
   JellyfinException? failWith;
   List<BaseItem> artistAlbums = [];
 
@@ -150,20 +156,26 @@ class FakeJellyfinClient extends JellyfinClient {
   }
 
   @override
-  Future<ItemsResult> getResumeItems({int limit = 20}) async =>
-      ItemsResult(items: resume, totalRecordCount: resume.length);
+  Future<ItemsResult> getResumeItems({int limit = 20}) async {
+    _checkHome();
+    return ItemsResult(
+        items: resume, totalRecordCount: resume.length);
+  }
 
   @override
   Future<ItemsResult> getLatestMedia(
           {String? parentId, int limit = 16}) async =>
       ItemsResult(
-          items: latest[parentId] ?? const [],
+          items: _checkHome() ? latest[parentId] ?? const [] : const [],
           totalRecordCount: (latest[parentId] ?? const []).length);
 
   @override
   Future<ItemsResult> getNextUp(
-          {String? seriesId, int limit = 24}) async =>
-      ItemsResult(items: nextUp, totalRecordCount: nextUp.length);
+      {String? seriesId, int limit = 24}) async {
+    _checkHome();
+    return ItemsResult(
+        items: nextUp, totalRecordCount: nextUp.length);
+  }
 
   @override
   Future<ItemsResult> getSimilar(String itemId, {int limit = 12}) async =>
