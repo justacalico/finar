@@ -4,7 +4,7 @@
   "connectToServer": "Ceangail le freastalaí",
   "connectSubtitle": "Cuir isteach seoladh do fhreastalaí Jellyfin.",
   "serverUrl": "Seoladh an fhreastalaí",
-  "serverUrlHint": "https://jellyfin.example.com",
+  "serverUrlHint": "jellyfin.example.com",
   "connect": "Ceangail",
   "connecting": "Ag ceangal…",
   "couldNotReachServer": "Níorbh fhéidir freastalaí Jellyfin a bhaint amach ag an seoladh sin.",

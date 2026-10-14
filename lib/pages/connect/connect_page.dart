@@ -20,6 +20,7 @@ class ConnectPage extends ConsumerStatefulWidget {
 
 class _ConnectPageState extends ConsumerState<ConnectPage> {
   final _controller = TextEditingController();
+  bool _https = true;
 
   @override
   void dispose() {
@@ -29,7 +30,11 @@ class _ConnectPageState extends ConsumerState<ConnectPage> {
 
   Future<void> _connect() async {
     final l10n = AppLocalizations.of(context);
-    final url = ServerUrl.normalize(_controller.text);
+    var raw = _controller.text.trim();
+    if (!raw.contains('://')) {
+      raw = '${_https ? 'https' : 'http'}://$raw';
+    }
+    final url = ServerUrl.normalize(raw);
     final status = ref.read(connectStateProvider.notifier);
     if (url == null) {
       status.state = (loading: false, error: l10n.invalidServerUrl);
@@ -111,7 +116,26 @@ class _ConnectPageState extends ConsumerState<ConnectPage> {
                         decoration: InputDecoration(
                           labelText: l10n.serverUrl,
                           hintText: l10n.serverUrlHint,
-                          prefixIcon: const Icon(Icons.dns_outlined),
+                          prefixIcon: DropdownButtonHideUnderline(
+                            child: DropdownButton<bool>(
+                              value: _https,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: true,
+                                    child: Text('https://')),
+                                DropdownMenuItem(
+                                    value: false,
+                                    child: Text('http://')),
+                              ],
+                              onChanged: (v) => setState(
+                                  () => _https = v ?? true),
+                            ),
+                          ),
+                          prefixIconConstraints:
+                              const BoxConstraints(
+                                  minWidth: 0, minHeight: 0),
                         ),
                         onSubmitted: (_) => _connect(),
                       ),
@@ -151,8 +175,11 @@ class _ConnectPageState extends ConsumerState<ConnectPage> {
                                     strokeWidth: 2))
                             : Text(l10n.connect),
                       ),
-                      TextButton(
-                        onPressed: () => context.go('/profiles'),
+                      const SizedBox(height: 12),
+                      FilledButton.tonal(
+                        onPressed: ref.watch(profilesProvider).isEmpty
+                            ? null
+                            : () => context.go('/profiles'),
                         child: Text(l10n.whoIsWatching),
                       ),
                     ],

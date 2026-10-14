@@ -4,7 +4,7 @@
   "connectToServer": "Подключение к серверу",
   "connectSubtitle": "Введите адрес вашего сервера Jellyfin.",
   "serverUrl": "Адрес сервера",
-  "serverUrlHint": "https://jellyfin.example.com",
+  "serverUrlHint": "jellyfin.example.com",
   "connect": "Подключить",
   "connecting": "Подключение…",
   "couldNotReachServer": "Не удалось подключиться к серверу Jellyfin по этому адресу.",

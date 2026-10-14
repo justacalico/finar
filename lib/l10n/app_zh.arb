@@ -4,7 +4,7 @@
   "connectToServer": "连接服务器",
   "connectSubtitle": "输入你的 Jellyfin 服务器地址。",
   "serverUrl": "服务器地址",
-  "serverUrlHint": "https://jellyfin.example.com",
+  "serverUrlHint": "jellyfin.example.com",
   "connect": "连接",
   "connecting": "正在连接…",
   "couldNotReachServer": "无法连接到该地址的 Jellyfin 服务器。",

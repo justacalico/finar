@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed the entire old Flutter app: all Dart code under `lib/`, the full test suite, every platform runner (android, ios, linux, macos, web, windows), and the old project's pubspec, lockfile, analysis options, launcher icon, and distribute config.
 
+### Changed
+- Server connect screen: an inline https:// / http:// dropdown replaces the server icon in the address field, and Who's watching is now a tonal button that greys out when no accounts are saved.
+
 ### Fixed
 - Title bar traffic-light buttons no longer crash in debug builds: they used `Tooltip` above the Navigator's Overlay and now expose `Semantics` labels instead.
 - Who's watching with no saved accounts no longer dead-ends: stale data from 5.x installs is cleared and the app routes to the server connect screen, where the server URL field lives.

@@ -287,7 +287,10 @@ void main() {
 
     testWidgets('connect profiles shortcut navigates', (tester) async {
       mockSecureStorage();
-      final result = await TestHarness.create(signedIn: false);
+      final result = await TestHarness.create(signedIn: false, prefs: {
+        'session.profiles':
+            '[{"id":"p1","serverUrl":"http://srv","serverName":"Home","userId":"u1","userName":"Cal"}]'
+      });
       final router = GoRouter(routes: [
         GoRoute(
             path: '/connect',
@@ -306,6 +309,63 @@ void main() {
       await tester.tap(find.textContaining('watching'));
       await tester.pumpAndSettle();
       expect(find.text('PROFILES'), findsOneWidget);
+    });
+
+    Future<ProviderContainer> pumpConnect(WidgetTester tester) async {
+      final result = await TestHarness.create(signedIn: false);
+      final c = ProviderContainer(overrides: [
+        ...result.overrides,
+        sessionProvider.overrideWith(() => FakeSessionNotifier(
+            null, fakeClient: result.harness.client)),
+      ]);
+      addTearDown(c.dispose);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+              path: '/connect',
+              builder: (_, _) => const ConnectPage()),
+        ],
+        initialLocation: '/connect',
+        errorBuilder: (_, s) =>
+            Scaffold(body: Text('NAV ${s.uri}')),
+      );
+      await tester
+          .pumpWidget(routedTestApp(router: router, container: c));
+      await tester.pumpAndSettle();
+      return c;
+    }
+
+    testWidgets('default scheme is https', (tester) async {
+      final c = await pumpConnect(tester);
+      await tester.enterText(
+          find.byType(TextField), 'demo.local');
+      await tester.tap(find.text('Connect'));
+      await tester.pumpAndSettle();
+      expect(c.read(pendingServerProvider), 'https://demo.local');
+      expect(find.text('NAV /login'), findsOneWidget);
+    });
+
+    testWidgets('scheme dropdown drives protocol', (tester) async {
+      final c = await pumpConnect(tester);
+      await tester.tap(find.text('https://'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('http://').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byType(TextField), 'demo.local');
+      await tester.tap(find.text('Connect'));
+      await tester.pumpAndSettle();
+      expect(c.read(pendingServerProvider), 'http://demo.local');
+      expect(find.text('NAV /login'), findsOneWidget);
+    });
+
+    testWidgets('profiles shortcut disabled without profiles',
+        (tester) async {
+      await pumpConnect(tester);
+      final button = tester.widget<FilledButton>(
+          find.widgetWithText(
+              FilledButton, "Who's watching?"));
+      expect(button.onPressed, isNull);
     });
 
     testWidgets('media image fallback on 404', (tester) async {
